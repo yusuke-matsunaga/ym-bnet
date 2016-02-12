@@ -27,18 +27,11 @@ class BlifBnNetworkHandler :
 public:
 
   /// @brief コンストラクタ
-  BlifBnNetworkHandler();
+  BlifBnNetworkHandler(BnNetworkImpl* network);
 
   /// @brief デストラクタ
   virtual
   ~BlifBnNetworkHandler();
-
-
-public:
-
-  /// @brief 読み込む対象のネットワークを設定する．
-  void
-  set(BnNetworkImpl* network);
 
 
 public:
@@ -62,11 +55,13 @@ public:
 
   /// @brief .inputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
+  /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  inputs_elem(ymuint name_id);
+  inputs_elem(ymuint name_id,
+	      const char* name);
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
@@ -78,6 +73,7 @@ public:
 
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号
+  /// @param[in] oname 出力名
   /// @param[in] inode_id_array ファンイン各のID番号の配列
   /// @param[in] cover_id カバーID
   /// @retval true 処理が成功した．
@@ -85,11 +81,13 @@ public:
   virtual
   bool
   names(ymuint onode_id,
+	const char* oname,
 	const vector<ymuint>& inode_id_array,
 	ymuint cover_id);
 
   /// @brief .gate 文の処理
   /// @param[in] onode_id 出力ノードのID番号
+  /// @param[in] oname 出力名
   /// @param[in] cell セル
   /// @param[in] inode_id_array 入力ノードのID番号の配列
   /// @retval true 処理が成功した．
@@ -97,11 +95,13 @@ public:
   virtual
   bool
   gate(ymuint onode_id,
+       const char* oname,
        const vector<ymuint>& inode_id_array,
        const Cell* cell);
 
   /// @brief .latch 文の処理
   /// @param[in] onode_id 出力ノードのID番号
+  /// @param[in] oname 出力名
   /// @param[in] inode_id 入力ノードのID番号
   /// @param[in] loc4 リセット値の位置情報
   /// @param[in] rval リセット時の値('0'/'1') 未定義なら ' '
@@ -110,6 +110,7 @@ public:
   virtual
   bool
   latch(ymuint onode_id,
+	const char* oname,
 	ymuint inode_id,
 	const FileRegion& loc4,
 	char rval);

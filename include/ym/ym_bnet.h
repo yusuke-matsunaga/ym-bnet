@@ -68,6 +68,25 @@ enum GateType {
   kGt_DFF
 };
 
+/// @brief GateType のストリーム出力演算子
+inline
+ostream&
+operator<<(ostream& s,
+	   GateType gate_type)
+{
+  switch ( gate_type ) {
+  case kGt_BUFF: s << "BUFF"; break;
+  case kGt_NOT:  s << "NOT"; break;
+  case kGt_AND:  s << "AND"; break;
+  case kGt_NAND: s << "NAND"; break;
+  case kGt_OR:   s << "OR"; break;
+  case kGt_NOR:  s << "NOR"; break;
+  case kGt_XOR:  s << "XOR"; break;
+  case kGt_XNOR: s << "XNOR"; break;
+  case kGt_DFF:  s << "DFF"; break;
+  }
+  return s;
+}
 
 /// @brief カバーのパタンを表す列挙型
 enum BlifPat {

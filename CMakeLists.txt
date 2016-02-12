@@ -48,6 +48,7 @@ include_directories(
 # ===================================================================
 
 set ( blif_SOURCES
+  src/blif/BlifBnNetworkHandler.cc
   src/blif/BlifCover.cc
   src/blif/BlifDic.cc
   src/blif/BlifHandler.cc
@@ -58,12 +59,12 @@ set ( blif_SOURCES
 
 set ( bnet_SOURCES
   src/bnet/BnNetwork.cc
-  src/bnet/BlifBnNetworkHandler.cc
   src/bnet/BnNetworkImpl.cc
   src/bnet/BnNodeImpl.cc
   )
 
 set ( iscas89_SOURCES
+  src/iscas89/Iscas89BnNetworkHandler.cc
   src/iscas89/Iscas89Handler.cc
   src/iscas89/Iscas89IdHash.cc
   src/iscas89/Iscas89Parser.cc

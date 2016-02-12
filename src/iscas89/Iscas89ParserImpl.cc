@@ -345,7 +345,7 @@ Iscas89ParserImpl::read_input(const FileRegion& loc,
   for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
        p != mHandlerList.end(); ++ p) {
     Iscas89Handler* handler = *p;
-    if ( !handler->read_input(loc, name_id) ) {
+    if ( !handler->read_input(loc, name_id, cell->str()) ) {
       return false;
     }
   }
@@ -411,7 +411,7 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
   for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
        p != mHandlerList.end(); ++ p) {
     Iscas89Handler* handler = *p;
-    if ( !handler->read_gate(loc, type, oname_id, iname_id_list) ) {
+    if ( !handler->read_gate(loc, type, oname_id, cell->str(), iname_id_list) ) {
       stat = false;
       break;
     }

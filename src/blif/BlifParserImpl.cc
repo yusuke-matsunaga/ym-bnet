@@ -348,7 +348,7 @@ BlifParserImpl::read(const string& filename,
       for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	   p != mHandlerList.end(); ++ p) {
 	BlifHandler* handler = *p;
-	if ( !handler->inputs_elem(cell->id()) ) {
+	if ( !handler->inputs_elem(cell->id(), cell->str()) ) {
 	  stat = false;
 	}
       }
@@ -628,7 +628,7 @@ BlifParserImpl::read(const string& filename,
     for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	 p != mHandlerList.end(); ++ p) {
       BlifHandler* handler = *p;
-      if ( !handler->names(oid, mIdArray, cover_id) ) {
+      if ( !handler->names(oid, cell->str(), mIdArray, cover_id) ) {
 	stat = false;
       }
     }
@@ -752,7 +752,8 @@ BlifParserImpl::read(const string& filename,
 	goto ST_GATE_SYNERROR;
       }
       const CellPin* opin = mCell->output(0);
-      ymuint onode_id = mNameArray[opin->pin_id()]->id();
+      BlifIdCell* oid = mNameArray[opin->pin_id()];
+      ymuint onode_id = oid->id();
       ymuint ni = mCell->input_num();
       mIdArray.clear();
       for (ymuint i = 0; i < ni; ++ i) {
@@ -763,7 +764,7 @@ BlifParserImpl::read(const string& filename,
       for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	   p != mHandlerList.end(); ++ p) {
 	BlifHandler* handler = *p;
-	if ( !handler->gate(onode_id, mIdArray, mCell) ) {
+	if ( !handler->gate(onode_id, oid->str(), mIdArray, mCell) ) {
 	  stat = false;
 	}
       }
@@ -833,7 +834,7 @@ BlifParserImpl::read(const string& filename,
       for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	   p != mHandlerList.end(); ++ p) {
 	BlifHandler* handler = *p;
-	if ( !handler->latch(cell2->id(), cell1->id(),
+	if ( !handler->latch(cell2->id(), cell2->str(), cell1->id(),
 			     loc4, rval) ) {
 	  stat = false;
 	}

@@ -1,46 +1,41 @@
-﻿#ifndef YM_ISCAS89HANDLER_H
-#define YM_ISCAS89HANDLER_H
+﻿#ifndef ISCAS89BNNETWORKHANDLER_H
+#define ISCAS89BNNETWORKHANDLER_H
 
-/// @file ym/Iscas89Handler.h
-/// @brief Iscas89Handler のヘッダファイル
+/// @file BnNetworkHandler.h
+/// @brief BnNetworkHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/FileRegion.h"
+#include "ym/Iscas89Handler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-class Iscas89ParserImpl;
+class BnNetworkImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class Iscas89Handler Iscas89Handler.h "ym/Iscas89Handler.h"
-/// @ingroup Iscas89Group
-/// @brief iscas89 パーサーのイベントハンドラの基底クラス
-/// @sa Iscas89Parser
+/// @class Iscas89BnNetworkHandler Iscas89BnNetworkHandler.h
+/// @brief BnNetwork 用の Iscas89Handler
 //////////////////////////////////////////////////////////////////////
-class Iscas89Handler
+class Iscas89BnNetworkHandler :
+  public Iscas89Handler
 {
-  friend class Iscas89ParserImpl;
-
-protected:
+public:
 
   /// @brief コンストラクタ
-  Iscas89Handler();
+  Iscas89BnNetworkHandler(BnNetworkImpl* network);
 
   /// @brief デストラクタ
   virtual
-  ~Iscas89Handler();
+  ~Iscas89BnNetworkHandler();
 
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 継承クラスは必要に応じて下記の仮想関数を上書きすること
-  // デフォルトの実装はなにもしない．
+  // Iscas89Handler の仮想関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 初期化
@@ -85,7 +80,7 @@ public:
   read_gate(const FileRegion& loc,
 	    GateType type,
 	    ymuint oname_id,
-	    const char* oname,
+	    const char* name,
 	    const vector<ymuint>& iname_list);
 
   /// @brief 通常終了時の処理
@@ -99,30 +94,16 @@ public:
   error_exit();
 
 
-protected:
-  //////////////////////////////////////////////////////////////////////
-  // 継承クラスが利用することのできる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ID 番号から文字列を得る．
-  const char*
-  id2str(ymuint id) const;
-
-  /// @brief ID 番号から位置情報を得る．
-  FileRegion
-  id2loc(ymuint id) const;
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // パーサー本体
-  Iscas89ParserImpl* mParser;
+  // 対象のネットワーク
+  BnNetworkImpl* mNetwork;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // YM_ISCAS89HANDLER_H
+#endif // ISCAS89BNNETWORKHANDLER_H

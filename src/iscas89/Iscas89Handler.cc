@@ -37,11 +37,13 @@ Iscas89Handler::init()
 // @brief INPUT 文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] name_id 入力ピン名の ID 番号
+// @param[in] name 入力ピン名
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_input(const FileRegion& loc,
-			   ymuint name_id)
+			   ymuint name_id,
+			   const char* name)
 {
   return true;
 }
@@ -62,6 +64,7 @@ Iscas89Handler::read_output(const FileRegion& loc,
 // @param[in] loc ファイル位置
 // @param[in] type ゲートの型
 // @param[in] oname_id 出力名の ID 番号
+// @param[in] oname 出力名
 // @param[in] iname_list 入力名のリスト
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
@@ -69,6 +72,7 @@ bool
 Iscas89Handler::read_gate(const FileRegion& loc,
 			  GateType type,
 			  ymuint oname_id,
+			  const char* oname,
 			  const vector<ymuint>& iname_list)
 {
   return true;

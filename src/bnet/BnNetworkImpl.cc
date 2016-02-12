@@ -11,7 +11,9 @@
 #include "BnNodeImpl.h"
 #include "ym/BlifParser.h"
 #include "ym/BlifCover.h"
+#include "ym/Iscas89Parser.h"
 #include "BlifBnNetworkHandler.h"
+#include "Iscas89BnNetworkHandler.h"
 #include "ym/Cell.h"
 #include "ym/CellPin.h"
 
@@ -317,51 +319,15 @@ BnNetworkImpl::read_blif(const string& filename,
 			 const CellLibrary* cell_library)
 {
   BlifParser parser;
-  BlifBnNetworkHandler* handler = new BlifBnNetworkHandler;
+  BlifBnNetworkHandler* handler = new BlifBnNetworkHandler(this);
   parser.add_handler(handler);
-
-  handler->set(this);
 
   bool stat = parser.read(filename, cell_library);
 
   // handler は parser が解放してくれる．
 
-  // ファンアウト数を数える．
-  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
-       p != mNodeArray.end(); ++ p) {
-    BnNode* node = *p;
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint iid = node->fanin_id(i);
-      BnNodeImpl* inode = mNodeArray[iid];
-      ++ inode->mFanoutNum;
-    }
-  }
-
-  // ファンアウトリストの配列を確保する．
-  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
-       p != mNodeArray.end(); ++ p) {
-    BnNodeImpl* node = *p;
-    ymuint no = node->mFanoutNum;
-    if ( no == 0 ) {
-      continue;
-    }
-    void* q = mAlloc.get_memory(sizeof(ymuint) * no);
-    node->mFanoutList = new (q) ymuint[no];
-    node->mFanoutNum = 0;
-  }
-
-  // ファンアウトリストの設定を行う．
-  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
-       p != mNodeArray.end(); ++ p) {
-    BnNode* node = *p;
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint iid = node->fanin_id(i);
-      BnNodeImpl* inode = mNodeArray[iid];
-      inode->mFanoutList[inode->mFanoutNum] = node->id();
-      ++ inode->mFanoutNum;
-    }
+  if ( stat ) {
+    wrap_up();
   }
 
   return stat;
@@ -426,6 +392,78 @@ BnNetworkImpl::write_blif(ostream& s) const
   }
 #endif
   s << ".end" << endl;
+}
+
+// @brief iscas89(.bench) 形式のファイルを読み込む．
+// @param[in] filename ファイル名
+// @retval true 正常に読み込めた
+// @retval false 読み込み中にエラーが起こった．
+bool
+BnNetworkImpl::read_iscas89(const string& filename)
+{
+  Iscas89Parser parser;
+  Iscas89BnNetworkHandler* handler = new Iscas89BnNetworkHandler(this);
+  parser.add_handler(handler);
+
+  bool stat = parser.read(filename);
+
+  // handler は parser が解放してくれる．
+
+  if ( stat ) {
+    wrap_up();
+  }
+
+  return stat;
+}
+
+// @brief 内容を iscas89 形式で出力する．
+// @param[in] s 出力先のストリーム
+void
+BnNetworkImpl::write_iscas89(ostream& s) const
+{
+}
+
+// @brief 各ノードのファンアウト情報を設定する．
+void
+BnNetworkImpl::wrap_up()
+{
+  // ファンアウト数を数える．
+  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
+       p != mNodeArray.end(); ++ p) {
+    BnNode* node = *p;
+    ymuint ni = node->fanin_num();
+    for (ymuint i = 0; i < ni; ++ i) {
+      ymuint iid = node->fanin_id(i);
+      BnNodeImpl* inode = mNodeArray[iid];
+      ++ inode->mFanoutNum;
+    }
+  }
+
+  // ファンアウトリストの配列を確保する．
+  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
+       p != mNodeArray.end(); ++ p) {
+    BnNodeImpl* node = *p;
+    ymuint no = node->mFanoutNum;
+    if ( no == 0 ) {
+      continue;
+    }
+    void* q = mAlloc.get_memory(sizeof(ymuint) * no);
+    node->mFanoutList = new (q) ymuint[no];
+    node->mFanoutNum = 0;
+  }
+
+  // ファンアウトリストの設定を行う．
+  for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
+       p != mNodeArray.end(); ++ p) {
+    BnNode* node = *p;
+    ymuint ni = node->fanin_num();
+    for (ymuint i = 0; i < ni; ++ i) {
+      ymuint iid = node->fanin_id(i);
+      BnNodeImpl* inode = mNodeArray[iid];
+      inode->mFanoutList[inode->mFanoutNum] = node->id();
+      ++ inode->mFanoutNum;
+    }
+  }
 }
 
 END_NAMESPACE_YM_BNET

@@ -26,8 +26,6 @@ class BnNetworkHandler;
 //////////////////////////////////////////////////////////////////////
 class BnNetworkImpl
 {
-  friend class BlifBnNetworkHandler;
-
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -116,9 +114,27 @@ public:
   write_blif(ostream& s) const;
 
 
-private:
+public:
   //////////////////////////////////////////////////////////////////////
-  // BnNetworkHandler のみが用いる関数
+  // iscas89 形式のファイルとの間で入出力を行なう関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief iscas89(.bench) 形式のファイルを読み込む．
+  /// @param[in] filename ファイル名
+  /// @retval true 正常に読み込めた
+  /// @retval false 読み込み中にエラーが起こった．
+  bool
+  read_iscas89(const string& filename);
+
+  /// @brief 内容を iscas89 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  void
+  write_iscas89(ostream& s) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用の関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容をクリアする．
@@ -207,6 +223,20 @@ private:
 	    const vector<ymuint>& inode_id_array,
 	    TvFunc tv);
 
+  /// @brief カバーを登録する．
+  void
+  new_cover(ymuint cover_id,
+	    ymuint input_num,
+	    ymuint cube_num,
+	    const string& ipat_str,
+	    BlifPat opat);
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いる下請け関数
+  //////////////////////////////////////////////////////////////////////
+
   /// @brief ファンインのノード番号の配列を作る．
   ymuint*
   new_fanin_array(const vector<ymuint>& fanin_array);
@@ -218,13 +248,9 @@ private:
   set_node(ymuint node_id,
 	   BnNodeImpl* ndoe);
 
-  /// @brief カバーを登録する．
+  /// @brief 各ノードのファンアウト情報を設定する．
   void
-  new_cover(ymuint cover_id,
-	    ymuint input_num,
-	    ymuint cube_num,
-	    const string& ipat_str,
-	    BlifPat opat);
+  wrap_up();
 
   /// @brief 文字列領域を確保する．
   const char*
