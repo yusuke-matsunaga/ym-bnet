@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 class BlifCover
 {
-  friend class BlifCoverMgr;
+  friend class BnNetworkImpl;
 
 private:
 

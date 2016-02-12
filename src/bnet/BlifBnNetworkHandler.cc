@@ -79,15 +79,15 @@ BlifBnNetworkHandler::outputs_elem(ymuint name_id)
 // @brief .names 文の処理
 // @param[in] onode_id ノード名のID番号
 // @param[in] inode_id_array ファンイン各のID番号の配列
-// @param[in] cover カバー
+// @param[in] cover_id カバーID
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 BlifBnNetworkHandler::names(ymuint onode_id,
 			    const vector<ymuint>& inode_id_array,
-			    const BlifCover* cover)
+			    ymuint cover_id)
 {
-  mNetwork->new_logic(onode_id, id2str(onode_id), inode_id_array, cover);
+  mNetwork->new_logic(onode_id, id2str(onode_id), inode_id_array, cover_id);
 
   return true;
 }
@@ -124,6 +124,22 @@ BlifBnNetworkHandler::latch(ymuint onode_id,
   mNetwork->new_latch(onode_id, id2str(onode_id), inode_id, rval);
 
   return true;
+}
+
+// @brief カバー情報の登録
+// @param[in] cover_id カバーのID番号
+// @param[in] input_num 入力数
+// @param[in] cube_num キューブ数
+// @param[in] ipat_str 入力パタン文字列
+// @param[in] opat 出力パタン
+void
+BlifBnNetworkHandler::cover(ymuint cover_id,
+			    ymuint input_num,
+			    ymuint cube_num,
+			    const string& ipat_str,
+			    BlifPat opat)
+{
+  mNetwork->new_cover(cover_id, input_num, cube_num, ipat_str, opat);
 }
 
 // @brief 終了処理

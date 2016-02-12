@@ -154,11 +154,12 @@ void
 BnNetworkImpl::new_logic(ymuint node_id,
 			 const char* node_name,
 			 const vector<ymuint>& inode_id_array,
-			 const BlifCover* cover)
+			 ymuint cover_id)
 {
   const char* new_node_name = alloc_string(node_name);
   ymuint ni = inode_id_array.size();
   ymuint* fanins = new_fanin_array(inode_id_array);
+  const BlifCover* cover = mCoverArray[cover_id];
 
   void* p = mAlloc.get_memory(sizeof(BnCoverNode));
   BnNodeImpl* node = new (p) BnCoverNode(node_id, new_node_name, ni, fanins, cover);
@@ -242,6 +243,55 @@ BnNetworkImpl::set_node(ymuint node_id,
   }
 
   mNodeArray[node_id] = node;
+}
+
+// @brief カバーを登録する．
+void
+BnNetworkImpl::new_cover(ymuint cover_id,
+			 ymuint input_num,
+			 ymuint cube_num,
+			 const string& ipat_str,
+			 BlifPat opat)
+{
+  // キューブ1つ分のブロック数
+  ymuint nb1 = ((input_num * 2) + 63) / 64;
+  // 全ブロック数
+  ymuint nb = nb1 * cube_num;
+
+  void* p = mAlloc.get_memory(sizeof(BlifCover) + sizeof(ymuint64) * (nb - 1));
+  BlifCover* cover = new (p) BlifCover;
+  cover->mInputNum = input_num;
+  cover->mOutputPat = opat;
+  cover->mCubeNum = cube_num;
+  cover->mId = mCoverArray.size();
+  ASSERT_COND( cover->mId == cover_id );
+  mCoverArray.push_back(cover);
+  ymuint j = 0;
+  ymuint k = 0;
+  for (ymuint c = 0; c < cube_num; ++ c) {
+    ymuint64 tmp = 0UL;
+    ymuint shift = 0;
+    for (ymuint i = 0; i < input_num; ++ i, ++ k) {
+      ymuint64 pat;
+      switch ( ipat_str[k] ) {
+      case '0': pat = 0UL; break;
+      case '1': pat = 1UL; break;
+      case '-': pat = 2UL; break;
+      default: ASSERT_NOT_REACHED;
+      }
+      tmp |= (pat << shift);
+      shift += 2;
+      if ( shift == 64 ) {
+	cover->mPatArray[j] = tmp;
+	shift = 0;
+	++ j;
+      }
+    }
+    if ( shift > 0 ) {
+      cover->mPatArray[j] = tmp;
+      ++ j;
+    }
+  }
 }
 
 // @brief 文字列領域を確保する．

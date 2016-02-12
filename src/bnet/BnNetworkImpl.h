@@ -13,6 +13,7 @@
 #include "ym/ym_cell.h"
 #include "ym/SimpleAlloc.h"
 #include "BnNodeImpl.h"
+#include "ym/BlifCover.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -177,12 +178,12 @@ private:
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] cover カバー
+  /// @param[in] cover_id カバー
   void
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
-	    const BlifCover* cover);
+	    ymuint cover_id);
 
   /// @brief 論理式ノードを生成する．
   /// @param[in] node_id ノードID
@@ -217,6 +218,14 @@ private:
   set_node(ymuint node_id,
 	   BnNodeImpl* ndoe);
 
+  /// @brief カバーを登録する．
+  void
+  new_cover(ymuint cover_id,
+	    ymuint input_num,
+	    ymuint cube_num,
+	    const string& ipat_str,
+	    BlifPat opat);
+
   /// @brief 文字列領域を確保する．
   const char*
   alloc_string(const char* src_str);
@@ -248,6 +257,9 @@ private:
 
   // 論理ノードの配列
   vector<BnNode*> mLogicArray;
+
+  // カバーの配列
+  vector<BlifCover*> mCoverArray;
 
 };
 

@@ -79,14 +79,14 @@ public:
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号
   /// @param[in] inode_id_array ファンイン各のID番号の配列
-  /// @param[in] cover カバー
+  /// @param[in] cover_id カバーID
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
   names(ymuint onode_id,
 	const vector<ymuint>& inode_id_array,
-	const BlifCover* cover);
+	ymuint cover_id);
 
   /// @brief .gate 文の処理
   /// @param[in] onode_id 出力ノードのID番号
@@ -113,6 +113,20 @@ public:
 	ymuint inode_id,
 	const FileRegion& loc4,
 	char rval);
+
+  /// @brief カバー情報の登録
+  /// @param[in] cover_id カバーのID番号
+  /// @param[in] input_num 入力数
+  /// @param[in] cube_num キューブ数
+  /// @param[in] ipat_str 入力パタン文字列
+  /// @param[in] opat 出力パタン
+  virtual
+  void
+  cover(ymuint cover_id,
+	ymuint input_num,
+	ymuint cube_num,
+	const string& ipat_str,
+	BlifPat opat);
 
   /// @brief .end 文の処理
   /// @param[in] loc 位置情報

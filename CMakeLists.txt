@@ -49,7 +49,6 @@ include_directories(
 
 set ( blif_SOURCES
   src/blif/BlifCover.cc
-  src/blif/BlifCoverMgr.cc
   src/blif/BlifDic.cc
   src/blif/BlifHandler.cc
   src/blif/BlifIdHash.cc

@@ -125,8 +125,8 @@ private:
   // ID 番号の配列
   vector<ymuint> mIdArray;
 
-  // カバーを管理するオブジェクト
-  BlifCoverMgr mCoverMgr;
+  // カバーを管理する辞書
+  HashMap<string, ymuint> mCoverDict;
 
   // キューブ数
   ymuint mNc;

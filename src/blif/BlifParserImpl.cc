@@ -78,6 +78,19 @@ str_to_01(const StrBuff& str)
   return -1;
 }
 
+// カバーのシグネチャ文字列を作る．
+string
+make_signature(ymuint ni,
+	       const StrBuff& ipat_str,
+	       BlifPat opat)
+{
+  ostringstream buf;
+  buf << ni << ":"
+      << opat << ":"
+      << ipat_str;
+  return buf.str();
+}
+
 END_NONAMESPACE
 
 
@@ -595,14 +608,27 @@ BlifParserImpl::read(const string& filename,
     for (ymuint i = 0; i < ni ; ++ i) {
       mIdArray.push_back(mNameArray[i]->id());
     }
-    // mCoverPat からカバーを作る．
-    string pat_str = mCoverPat.c_str();
-    const BlifCover* cover = mCoverMgr.pat2cover(ni, mNc, pat_str, mOpat);
+    // mCoverPat からカバーのシグネチャ文字列を作る．
+    string ipat_str = mCoverPat.c_str();
+    string cover_sig = make_signature(ni, mCoverPat, mOpat);
+    ymuint cover_id;
+    if ( !mCoverDict.find(cover_sig, cover_id) ) {
+      // 新たなカバーを登録する．
+      cover_id = mCoverDict.num();
+      mCoverDict.add(cover_sig, cover_id);
+      // ハンドラを呼び出す．
+      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
+	   p != mHandlerList.end(); ++ p) {
+	BlifHandler* handler = *p;
+	handler->cover(cover_id, ni, mNc, ipat_str, mOpat);
+      }
+    }
+
     // ハンドラを呼び出す．
     for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	 p != mHandlerList.end(); ++ p) {
       BlifHandler* handler = *p;
-      if ( !handler->names(oid, mIdArray, cover) ) {
+      if ( !handler->names(oid, mIdArray, cover_id) ) {
 	stat = false;
       }
     }
