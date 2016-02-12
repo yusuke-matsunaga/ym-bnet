@@ -11,7 +11,7 @@
 
 #include "ym/ym_bnet.h"
 #include "Iscas89IdHash.h"
-#include "Token.h"
+#include "Iscas89Token.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -70,7 +70,7 @@ private:
   ///
   /// エラーが起きたらエラーメッセージをセットする．
   bool
-  parse_gate_type(Iscas89GateType& gate_type);
+  parse_gate_type(GateType& gate_type);
 
   /// @brief '(' ')' で囲まれた名前を読み込む．
   /// @param[in] name_id 名前の識別子番号を格納する変数．
@@ -119,7 +119,7 @@ private:
   bool
   read_gate(const FileRegion& loc,
 	    ymuint oname_id,
-	    Iscas89GateType type,
+	    GateType type,
 	    const vector<ymuint>& iname_id_list);
 
   /// @brief 次のトークンが期待されている型か調べる．
@@ -131,7 +131,7 @@ private:
   ///
   /// トークンの方が一致しなかった場合にはエラーメッセージをセットする．
   bool
-  expect(Token exp_token,
+  expect(Iscas89Token exp_token,
 	 ymuint& lval,
 	 FileRegion& loc);
 
@@ -140,13 +140,13 @@ private:
   /// @param[out] lloc トークンの位置を格納する変数
   /// @return トークンの型を返す．
   ///
-  /// lval に値が入るのはトークンが kToken_NAME の時だけ
-  Token
+  /// lval に値が入るのはトークンが kIscas89_NAME の時だけ
+  Iscas89Token
   read_token(ymuint& lval,
 	     FileRegion& lloc);
 
-  /// @brief ID 番号から IdCell を得る．
-  IdCell*
+  /// @brief ID 番号から Iscas89IdCell を得る．
+  Iscas89IdCell*
   id2cell(ymuint id) const;
 
   /// @brief 文字列用の領域を確保する．
@@ -179,9 +179,9 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief ID 番号から IdCell を得る．
+// @brief ID 番号から Iscas89IdCell を得る．
 inline
-IdCell*
+Iscas89IdCell*
 Iscas89ParserImpl::id2cell(ymuint id) const
 {
   return mIdHash.cell(id);

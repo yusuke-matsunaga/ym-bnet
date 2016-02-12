@@ -67,7 +67,7 @@ Iscas89Handler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_gate(const FileRegion& loc,
-			  Iscas89GateType type,
+			  GateType type,
 			  ymuint oname_id,
 			  const vector<ymuint>& iname_list)
 {

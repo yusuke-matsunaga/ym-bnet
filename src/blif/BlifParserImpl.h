@@ -119,8 +119,8 @@ private:
   // 位置情報の配列
   vector<FileRegion> mLocArray;
 
-  // IdCellの配列
-  vector<IdCell*> mNameArray;
+  // BlifIdCellの配列
+  vector<BlifIdCell*> mNameArray;
 
   // ID 番号の配列
   vector<ymuint> mIdArray;

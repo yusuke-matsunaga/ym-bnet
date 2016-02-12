@@ -13,12 +13,12 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-// クラス IdCell
+// クラス Iscas89IdCell
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-IdCell::IdCell(ymuint32 id,
-	       const char* str) :
+Iscas89IdCell::Iscas89IdCell(ymuint32 id,
+			     const char* str) :
   mId(id),
   mFlags(0U),
   mLink(nullptr)
@@ -29,7 +29,7 @@ IdCell::IdCell(ymuint32 id,
 }
 
 // @brief デストラクタ
-IdCell::~IdCell()
+Iscas89IdCell::~Iscas89IdCell()
 {
 }
 
@@ -83,15 +83,15 @@ END_NONAMESPACE
 // @brief 識別子に対応するセルを探す．
 // @param[in] str 文字列
 // @param[in] create 存在しないときに新規生成するなら true
-// @return 対応する IdCell を返す．
-IdCell*
+// @return 対応する Iscas89IdCell を返す．
+Iscas89IdCell*
 Iscas89IdHash::find(const char* str,
 		    bool create)
 {
   ASSERT_COND(str );
   size_t pos0 = hash_func(str);
   size_t pos = pos0 % mTableSize;
-  for (IdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
+  for (Iscas89IdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
     }
@@ -103,12 +103,12 @@ Iscas89IdHash::find(const char* str,
 
   if ( mCellArray.size() >= mNextLimit ) {
     // テーブルを拡張する．
-    IdCell** old_table = mTable;
+    Iscas89IdCell** old_table = mTable;
     size_t old_size = mTableSize;
     alloc_table(old_size * 2);
     for (size_t i = 0; i < old_size; ++ i) {
-      for (IdCell* cell = old_table[i]; cell; ) {
-	IdCell* next = cell->mLink;
+      for (Iscas89IdCell* cell = old_table[i]; cell; ) {
+	Iscas89IdCell* next = cell->mLink;
 	size_t pos1 = hash_func(cell->mStr) % mTableSize;
 	cell->mLink = mTable[pos1];
 	mTable[pos1] = cell;
@@ -119,9 +119,9 @@ Iscas89IdHash::find(const char* str,
 
   // 新しいセルを確保する．
   size_t l = strlen(str);
-  size_t reqsize = sizeof(IdCell) + l;
+  size_t reqsize = sizeof(Iscas89IdCell) + l;
   void* p = mAlloc.get_memory(reqsize);
-  IdCell* cell = new (p) IdCell(mCellArray.size(), str);
+  Iscas89IdCell* cell = new (p) Iscas89IdCell(mCellArray.size(), str);
   mCellArray.push_back(cell);
 
   // テーブルに追加する．
@@ -135,7 +135,7 @@ Iscas89IdHash::find(const char* str,
 void
 Iscas89IdHash::alloc_table(size_t new_size)
 {
-  mTable = new IdCell*[new_size];
+  mTable = new Iscas89IdCell*[new_size];
   mTableSize = new_size;
   mNextLimit = static_cast<size_t>(mTableSize * 1.8);
   for (size_t i = 0; i < new_size; ++ i) {

@@ -12,7 +12,7 @@
 #include "ym/ym_bnet.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
-#include "Token.h"
+#include "Iscas89Token.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -41,7 +41,7 @@ public:
 
   /// @brief トークンを一つ読み出す．
   /// @param[out] loc トークンの位置を格納する変数
-  Token
+  Iscas89Token
   read_token(FileRegion& loc);
 
   /// @brief 最後の read_token() で読み出した字句の文字列を返す．
@@ -56,7 +56,7 @@ private:
 
   /// @brief read_token() の下請け関数
   /// @return トークンを返す．
-  Token
+  Iscas89Token
   scan();
 
 

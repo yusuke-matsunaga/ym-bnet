@@ -1,5 +1,5 @@
-#ifndef TOKEN_H
-#define TOKEN_H
+#ifndef ISCAS89TOKEN_H
+#define ISCAS89TOKEN_H
 
 /// @file Token.h
 /// @brief Token のヘッダファイル
@@ -17,27 +17,27 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @brief トークン
 //////////////////////////////////////////////////////////////////////
-enum Token {
-  kToken_LPAR,
-  kToken_RPAR,
-  kToken_COMMA,
-  kToken_EQ,
-  kToken_INPUT,
-  kToken_OUTPUT,
-  kToken_BUFF,
-  kToken_NOT,
-  kToken_AND,
-  kToken_NAND,
-  kToken_OR,
-  kToken_NOR,
-  kToken_XOR,
-  kToken_XNOR,
-  kToken_DFF,
-  kToken_NAME,
-  kToken_EOF,
-  kToken_ERROR
+enum Iscas89Token {
+  kIscas89_LPAR,
+  kIscas89_RPAR,
+  kIscas89_COMMA,
+  kIscas89_EQ,
+  kIscas89_INPUT,
+  kIscas89_OUTPUT,
+  kIscas89_BUFF,
+  kIscas89_NOT,
+  kIscas89_AND,
+  kIscas89_NAND,
+  kIscas89_OR,
+  kIscas89_NOR,
+  kIscas89_XOR,
+  kIscas89_XNOR,
+  kIscas89_DFF,
+  kIscas89_NAME,
+  kIscas89_EOF,
+  kIscas89_ERROR
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // TOKEN_H
+#endif // ISCAS89TOKEN_H

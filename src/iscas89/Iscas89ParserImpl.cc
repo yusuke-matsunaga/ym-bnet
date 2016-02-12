@@ -88,9 +88,9 @@ Iscas89ParserImpl::read(const string& filename)
     ymuint name_id;
     FileRegion first_loc;
     FileRegion last_loc;
-    Token tok = read_token(name_id, first_loc);
+    Iscas89Token tok = read_token(name_id, first_loc);
     switch ( tok ) {
-    case kToken_INPUT:
+    case kIscas89_INPUT:
       if ( !parse_name(name_id, last_loc) ) {
 	goto error;
       }
@@ -99,7 +99,7 @@ Iscas89ParserImpl::read(const string& filename)
       }
       break;
 
-    case kToken_OUTPUT:
+    case kIscas89_OUTPUT:
       if ( !parse_name(name_id, last_loc) ) {
 	goto error;
       }
@@ -108,16 +108,16 @@ Iscas89ParserImpl::read(const string& filename)
       }
       break;
 
-    case kToken_NAME:
+    case kIscas89_NAME:
       {
 	ymuint cur_lval;
 	FileRegion cur_loc;
 
-	if ( !expect(kToken_EQ, cur_lval, cur_loc) ) {
+	if ( !expect(kIscas89_EQ, cur_lval, cur_loc) ) {
 	  goto error;
 	}
 
-	Iscas89GateType gate_type;
+	GateType gate_type;
 	if ( !parse_gate_type(gate_type) ) {
 	  goto error;
 	}
@@ -133,7 +133,7 @@ Iscas89ParserImpl::read(const string& filename)
       }
       break;
 
-    case kToken_EOF:
+    case kIscas89_EOF:
       go_on = false;
       break;
 
@@ -145,7 +145,7 @@ Iscas89ParserImpl::read(const string& filename)
   error:
     has_error = true;
     // ')' まで読み進める．
-    while ( read_token(name_id, first_loc) != kToken_RPAR ) ;
+    while ( read_token(name_id, first_loc) != kIscas89_RPAR ) ;
   }
 
   delete mScanner;
@@ -188,47 +188,47 @@ Iscas89ParserImpl::add_handler(Iscas89Handler* handler)
 //
 // エラーが起きたらエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::parse_gate_type(Iscas89GateType& gate_type)
+Iscas89ParserImpl::parse_gate_type(GateType& gate_type)
 {
   ymuint cur_lval;
   FileRegion cur_loc;
 
-  Token tok = read_token(cur_lval, cur_loc);
+  Iscas89Token tok = read_token(cur_lval, cur_loc);
   switch ( tok ) {
-  case kToken_BUFF:
-    gate_type = kIscas89_BUFF;
+  case kIscas89_BUFF:
+    gate_type = kGt_BUFF;
     break;
 
-  case kToken_NOT:
-    gate_type = kIscas89_NOT;
+  case kIscas89_NOT:
+    gate_type = kGt_NOT;
     break;
 
-  case kToken_DFF:
-    gate_type = kIscas89_DFF;
+  case kIscas89_DFF:
+    gate_type = kGt_DFF;
     break;
 
-  case kToken_AND:
-    gate_type = kIscas89_AND;
+  case kIscas89_AND:
+    gate_type = kGt_AND;
     break;
 
-  case kToken_NAND:
-    gate_type = kIscas89_NAND;
+  case kIscas89_NAND:
+    gate_type = kGt_NAND;
     break;
 
-  case kToken_OR:
-    gate_type = kIscas89_OR;
+  case kIscas89_OR:
+    gate_type = kGt_OR;
     break;
 
-  case kToken_NOR:
-    gate_type = kIscas89_NOR;
+  case kIscas89_NOR:
+    gate_type = kGt_NOR;
     break;
 
-  case kToken_XOR:
-    gate_type = kIscas89_XOR;
+  case kIscas89_XOR:
+    gate_type = kGt_XOR;
     break;
 
-  case kToken_XNOR:
-    gate_type = kIscas89_XNOR;
+  case kIscas89_XNOR:
+    gate_type = kGt_XNOR;
     break;
 
   default:
@@ -260,14 +260,14 @@ Iscas89ParserImpl::parse_name(ymuint& name_id,
   ymuint cur_lval;
   FileRegion cur_loc;
 
-  if ( !expect(kToken_LPAR, cur_lval, cur_loc) ) {
+  if ( !expect(kIscas89_LPAR, cur_lval, cur_loc) ) {
     return false;
   }
-  if ( !expect(kToken_NAME, name_id, cur_loc) ) {
+  if ( !expect(kIscas89_NAME, name_id, cur_loc) ) {
     return false;
   }
 
-  if ( !expect(kToken_RPAR, cur_lval, last_loc) ) {
+  if ( !expect(kIscas89_RPAR, cur_lval, last_loc) ) {
     return false;
   }
 
@@ -290,23 +290,23 @@ Iscas89ParserImpl::parse_name_list(vector<ymuint>& name_id_list,
 
   name_id_list.clear();
 
-  if ( !expect(kToken_LPAR, cur_lval, cur_loc) ) {
+  if ( !expect(kIscas89_LPAR, cur_lval, cur_loc) ) {
     // '(' を期待していたシンタックスエラー
     return false;
   }
 
   for ( ; ; ) {
-    if ( !expect(kToken_NAME, cur_lval, cur_loc) ) {
+    if ( !expect(kIscas89_NAME, cur_lval, cur_loc) ) {
       // NAME を期待したシンタックスエラー
       return false;
     }
     name_id_list.push_back(cur_lval);
 
-    Token tok = read_token(cur_lval, last_loc);
-    if ( tok == kToken_RPAR ) {
+    Iscas89Token tok = read_token(cur_lval, last_loc);
+    if ( tok == kIscas89_RPAR ) {
       break;
     }
-    if ( tok != kToken_COMMA ) {
+    if ( tok != kIscas89_COMMA ) {
       // ')' か ',' を期待していたシンタックスエラー
       ostringstream buf;
       buf << "Syntax error: ')' or ',' are expected.";
@@ -329,7 +329,7 @@ bool
 Iscas89ParserImpl::read_input(const FileRegion& loc,
 			      ymuint name_id)
 {
-  IdCell* cell = id2cell(name_id);
+  Iscas89IdCell* cell = id2cell(name_id);
   if ( cell->is_defined() ) {
     ostringstream buf;
     buf << cell->str() << ": Defined more than once. Previous definition is "
@@ -360,7 +360,7 @@ bool
 Iscas89ParserImpl::read_output(const FileRegion& loc,
 			       ymuint name_id)
 {
-  IdCell* cell = id2cell(name_id);
+  Iscas89IdCell* cell = id2cell(name_id);
   if ( cell->is_input() ) {
     ostringstream buf;
     buf << cell->str() << ": Defined as both input and output. "
@@ -391,10 +391,10 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     ymuint oname_id,
-			     Iscas89GateType type,
+			     GateType type,
 			     const vector<ymuint>& iname_id_list)
 {
-  IdCell* cell = id2cell(oname_id);
+  Iscas89IdCell* cell = id2cell(oname_id);
   if ( cell->is_defined() ) {
     // 二重定義
     ostringstream buf;
@@ -422,27 +422,27 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 BEGIN_NONAMESPACE
 
 const char*
-token_str(Token token)
+token_str(Iscas89Token token)
 {
   switch (token) {
-  case kToken_LPAR:   return "(";
-  case kToken_RPAR:   return ")";
-  case kToken_EQ:     return "=";
-  case kToken_COMMA:  return ",";
-  case kToken_INPUT:  return "INPUT";
-  case kToken_OUTPUT: return "OUTPUT";
-  case kToken_BUFF:   return "BUFF";
-  case kToken_NOT:    return "NOT";
-  case kToken_AND:    return "AND";
-  case kToken_NAND:   return "NAND";
-  case kToken_OR:     return "OR";
-  case kToken_NOR:    return "NOR";
-  case kToken_XOR:    return "XOR";
-  case kToken_XNOR:   return "XNOR";
-  case kToken_DFF:    return "DFF";
-  case kToken_NAME:   return "__name__";
-  case kToken_EOF:    return "__eof__";
-  case kToken_ERROR:  return "__error__";
+  case kIscas89_LPAR:   return "(";
+  case kIscas89_RPAR:   return ")";
+  case kIscas89_EQ:     return "=";
+  case kIscas89_COMMA:  return ",";
+  case kIscas89_INPUT:  return "INPUT";
+  case kIscas89_OUTPUT: return "OUTPUT";
+  case kIscas89_BUFF:   return "BUFF";
+  case kIscas89_NOT:    return "NOT";
+  case kIscas89_AND:    return "AND";
+  case kIscas89_NAND:   return "NAND";
+  case kIscas89_OR:     return "OR";
+  case kIscas89_NOR:    return "NOR";
+  case kIscas89_XOR:    return "XOR";
+  case kIscas89_XNOR:   return "XNOR";
+  case kIscas89_DFF:    return "DFF";
+  case kIscas89_NAME:   return "__name__";
+  case kIscas89_EOF:    return "__eof__";
+  case kIscas89_ERROR:  return "__error__";
   }
   ASSERT_NOT_REACHED;
 }
@@ -458,7 +458,7 @@ END_NONAMESPACE
 //
 // トークンの方が一致しなかった場合にはエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::expect(Token exp_token,
+Iscas89ParserImpl::expect(Iscas89Token exp_token,
 			  ymuint& lval,
 			  FileRegion& loc)
 {
@@ -480,12 +480,12 @@ Iscas89ParserImpl::expect(Token exp_token,
 // @param[out] lval トークンの値を格納する変数
 // @param[out] lloc トークンの位置を格納する変数
 // @return トークンの型を返す．
-Token
+Iscas89Token
 Iscas89ParserImpl::read_token(ymuint& lval,
 			      FileRegion& lloc)
 {
-  Token token = mScanner->read_token(lloc);
-  if ( token == kToken_NAME ) {
+  Iscas89Token token = mScanner->read_token(lloc);
+  if ( token == kIscas89_NAME ) {
     lval = reg_str(mScanner->cur_string(), lloc);
   }
   return token;
@@ -499,7 +499,7 @@ ymuint
 Iscas89ParserImpl::reg_str(const char* src_str,
 			   const FileRegion& loc)
 {
-  IdCell* cell = mIdHash.find(src_str, true);
+  Iscas89IdCell* cell = mIdHash.find(src_str, true);
   cell->set_loc(loc);
   return cell->id();
 }

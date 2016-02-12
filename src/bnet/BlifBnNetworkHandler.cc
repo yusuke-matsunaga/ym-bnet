@@ -9,7 +9,7 @@
 
 #include "BlifBnNetworkHandler.h"
 #include "BnNetworkImpl.h"
-#include "ym/BlifNode.h"
+#include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

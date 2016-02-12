@@ -10,7 +10,7 @@
 #include "ym/BlifParser.h"
 #include "BlifParserImpl.h"
 #include "ym/BlifHandler.h"
-#include "IdCell.h"
+#include "BlifIdCell.h"
 #include "ym/CellLibrary.h"
 #include "ym/Cell.h"
 #include "ym/CellPin.h"
@@ -311,7 +311,7 @@ BlifParserImpl::read(const string& filename,
     tToken tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
-      IdCell* cell = mIdHash.find(name, true);
+      BlifIdCell* cell = mIdHash.find(name, true);
       if ( cell->is_defined() ) {
 	ostringstream buf;
 	buf << name << ": Defined more than once. Previous definition is "
@@ -363,7 +363,7 @@ BlifParserImpl::read(const string& filename,
     tToken tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
-      IdCell* cell = mIdHash.find(name, true);
+      BlifIdCell* cell = mIdHash.find(name, true);
       if ( cell->is_output() ) {
 	ostringstream buf;
 	buf << name << ": Defined more than once. Previous definition is "
@@ -415,7 +415,7 @@ BlifParserImpl::read(const string& filename,
     tToken tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
-      IdCell* cell = mIdHash.find(name, true);
+      BlifIdCell* cell = mIdHash.find(name, true);
       cell->set_loc(loc);
       mNameArray.push_back(cell);
       goto ST_NAMES;
@@ -578,7 +578,7 @@ BlifParserImpl::read(const string& filename,
   {
     ymuint n = mNameArray.size();
     ymuint ni = n - 1;
-    IdCell* cell = mNameArray[ni];
+    BlifIdCell* cell = mNameArray[ni];
     if ( cell->is_defined() ) {
       // 二重定義
       ostringstream buf;
@@ -692,7 +692,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_GATE_SYNERROR;
       }
       const char* name2 = mScanner->cur_string();
-      IdCell* cell = mIdHash.find(name2, true);
+      BlifIdCell* cell = mIdHash.find(name2, true);
       cell->set_loc(loc2);
 
       if ( pin->is_output() ) {
@@ -760,7 +760,7 @@ BlifParserImpl::read(const string& filename,
     tToken tk= get_token(loc2);
     if ( tk == kTokenSTRING ) {
       const char* name1 = mScanner->cur_string();
-      IdCell* cell1 = mIdHash.find(name1, true);
+      BlifIdCell* cell1 = mIdHash.find(name1, true);
       cell1->set_loc(loc2);
 
       FileRegion loc3;
@@ -770,7 +770,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_LATCH_SYNERROR;
       }
       const char* name2 = mScanner->cur_string();
-      IdCell* cell2 = mIdHash.find(name2, true);
+      BlifIdCell* cell2 = mIdHash.find(name2, true);
       cell2->set_loc(loc3);
 
       if ( cell2->is_defined() ) {
@@ -888,7 +888,7 @@ BlifParserImpl::read(const string& filename,
   {
     ymuint n = mIdHash.num();
     for (ymuint i = 0; i < n; ++ i) {
-      IdCell* cell = mIdHash.cell(i);
+      BlifIdCell* cell = mIdHash.cell(i);
       if ( !cell->is_defined() ) {
 	ostringstream buf;
 	buf << cell->str() << ": Undefined.";

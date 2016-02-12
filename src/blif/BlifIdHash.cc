@@ -8,17 +8,17 @@
 
 
 #include "BlifIdHash.h"
-#include "IdCell.h"
+#include "BlifIdCell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-// クラス IdCell
+// クラス BlifIdCell
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-IdCell::IdCell(ymuint32 id,
+BlifIdCell::BlifIdCell(ymuint32 id,
 	       const char* str) :
   mId(id),
   mFlags(0U),
@@ -30,7 +30,7 @@ IdCell::IdCell(ymuint32 id,
 }
 
 // @brief デストラクタ
-IdCell::~IdCell()
+BlifIdCell::~BlifIdCell()
 {
 }
 
@@ -84,15 +84,15 @@ END_NONAMESPACE
 // @brief 識別子に対応するセルを探す．
 // @param[in] str 文字列
 // @param[in] create 存在しないときに新規生成するなら true
-// @return 対応する IdCell を返す．
-IdCell*
+// @return 対応する BlifIdCell を返す．
+BlifIdCell*
 BlifIdHash::find(const char* str,
 		 bool create)
 {
   ASSERT_COND(str );
   ymuint32 pos0 = hash_func(str);
   ymuint32 pos = pos0 % mTableSize;
-  for (IdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
+  for (BlifIdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
     }
@@ -104,12 +104,12 @@ BlifIdHash::find(const char* str,
 
   if ( mCellArray.size() >= mNextLimit ) {
     // テーブルを拡張する．
-    IdCell** old_table = mTable;
+    BlifIdCell** old_table = mTable;
     ymuint32 old_size = mTableSize;
     alloc_table(old_size * 2);
     for (ymuint32 i = 0; i < old_size; ++ i) {
-      for (IdCell* cell = old_table[i]; cell; ) {
-	IdCell* next = cell->mLink;
+      for (BlifIdCell* cell = old_table[i]; cell; ) {
+	BlifIdCell* next = cell->mLink;
 	ymuint32 pos1 = hash_func(cell->mStr) % mTableSize;
 	cell->mLink = mTable[pos1];
 	mTable[pos1] = cell;
@@ -120,9 +120,9 @@ BlifIdHash::find(const char* str,
 
   // 新しいセルを確保する．
   ymuint32 l = strlen(str);
-  ymuint32 reqsize = sizeof(IdCell) + l;
+  ymuint32 reqsize = sizeof(BlifIdCell) + l;
   void* p = mAlloc.get_memory(reqsize);
-  IdCell* cell = new (p) IdCell(mCellArray.size(), str);
+  BlifIdCell* cell = new (p) BlifIdCell(mCellArray.size(), str);
   mCellArray.push_back(cell);
 
   // テーブルに追加する．
@@ -136,7 +136,7 @@ BlifIdHash::find(const char* str,
 void
 BlifIdHash::alloc_table(ymuint32 new_size)
 {
-  mTable = new IdCell*[new_size];
+  mTable = new BlifIdCell*[new_size];
   mTableSize = new_size;
   mNextLimit = static_cast<ymuint32>(mTableSize * 1.8);
   for (ymuint32 i = 0; i < new_size; ++ i) {

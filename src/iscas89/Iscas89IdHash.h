@@ -17,21 +17,21 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class IdCell Iscas89IdHash.h "Iscas89IdHash.h"
+/// @class Iscas89IdCell Iscas89IdHash.h "Iscas89IdHash.h"
 /// @brief 識別子に関する情報を表すデータ構造
 //////////////////////////////////////////////////////////////////////
-class IdCell
+class Iscas89IdCell
 {
   friend class Iscas89IdHash;
 
 private:
 
   /// @brief コンストラクタ
-  IdCell(ymuint id,
-	 const char* str);
+  Iscas89IdCell(ymuint id,
+		const char* str);
 
   /// @brief デストラクタ
-  ~IdCell();
+  ~Iscas89IdCell();
 
 
 public:
@@ -106,7 +106,7 @@ private:
   ymuint mFlags;
 
   // 次の要素を指すポインタ
-  IdCell* mLink;
+  Iscas89IdCell* mLink;
 
   // 文字列領域(ダミー)
   char mStr[1];
@@ -156,8 +156,8 @@ public:
   /// @brief 識別子に対応するセルを探す．
   /// @param[in] str 文字列
   /// @param[in] create 存在しないときに新規生成するなら true
-  /// @return 対応する IdCell を返す．
-  IdCell*
+  /// @return 対応する Iscas89IdCell を返す．
+  Iscas89IdCell*
   find(const char* str,
        bool create);
 
@@ -165,8 +165,8 @@ public:
   size_t
   num() const;
 
-  /// @brief ID 番号に対応する IdCell を得る．
-  IdCell*
+  /// @brief ID 番号に対応する Iscas89IdCell を得る．
+  Iscas89IdCell*
   cell(ymuint id) const;
 
   /// @brief ID 番号から文字列を得る．
@@ -197,17 +197,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // IdCell用のアロケータ
+  // Iscas89IdCell用のアロケータ
   SimpleAlloc mAlloc;
 
   // テーブルサイズ
   size_t mTableSize;
 
   // ハッシュ表
-  IdCell** mTable;
+  Iscas89IdCell** mTable;
 
-  // IDをキーにして IdCell を格納する配列
-  vector<IdCell*> mCellArray;
+  // IDをキーにして Iscas89IdCell を格納する配列
+  vector<Iscas89IdCell*> mCellArray;
 
   // ハッシュ表を拡張する目安
   size_t mNextLimit;
@@ -222,7 +222,7 @@ private:
 // @brief ID番号を得る．
 inline
 ymuint
-IdCell::id() const
+Iscas89IdCell::id() const
 {
   return mId;
 }
@@ -230,7 +230,7 @@ IdCell::id() const
 // @brief 位置情報を返す．
 inline
 const FileRegion&
-IdCell::loc() const
+Iscas89IdCell::loc() const
 {
   return mLoc;
 }
@@ -238,7 +238,7 @@ IdCell::loc() const
 // @brief 定義している位置情報を返す．
 inline
 const FileRegion&
-IdCell::def_loc() const
+Iscas89IdCell::def_loc() const
 {
   return mLoc2;
 }
@@ -246,7 +246,7 @@ IdCell::def_loc() const
 // @brief 文字列を返す．
 inline
 const char*
-IdCell::str() const
+Iscas89IdCell::str() const
 {
   return mStr;
 }
@@ -256,7 +256,7 @@ IdCell::str() const
 // @retval false 未定義
 inline
 bool
-IdCell::is_defined() const
+Iscas89IdCell::is_defined() const
 {
   return static_cast<bool>((mFlags >> kDefSft) & 1U);
 }
@@ -265,7 +265,7 @@ IdCell::is_defined() const
 // @return 外部入力なら true を返す．
 inline
 bool
-IdCell::is_input() const
+Iscas89IdCell::is_input() const
 {
   return static_cast<bool>((mFlags >> kInSft) & 1U);
 }
@@ -274,7 +274,7 @@ IdCell::is_input() const
 // @return 外部出力なら true を返す．
 inline
 bool
-IdCell::is_output() const
+Iscas89IdCell::is_output() const
 {
   return static_cast<bool>((mFlags >> kOutSft) & 1U);
 }
@@ -282,7 +282,7 @@ IdCell::is_output() const
 // @brief 位置情報を設定する．
 inline
 void
-IdCell::set_loc(const FileRegion& loc)
+Iscas89IdCell::set_loc(const FileRegion& loc)
 {
   mLoc = loc;
 }
@@ -290,7 +290,7 @@ IdCell::set_loc(const FileRegion& loc)
 // @brief 定義済みの印をつける．
 inline
 void
-IdCell::set_defined()
+Iscas89IdCell::set_defined()
 {
   mFlags |= (1U << kDefSft);
   mLoc2 = mLoc;
@@ -299,7 +299,7 @@ IdCell::set_defined()
 // @brief 外部入力の印をつける．
 inline
 void
-IdCell::set_input()
+Iscas89IdCell::set_input()
 {
   mFlags |= (1U << kInSft);
 }
@@ -307,7 +307,7 @@ IdCell::set_input()
 // @brief 外部出力の印をつける．
 inline
 void
-IdCell::set_output()
+Iscas89IdCell::set_output()
 {
   mFlags |= (1U << kOutSft);
 }
@@ -320,9 +320,9 @@ Iscas89IdHash::num() const
   return mCellArray.size();
 }
 
-// @brief ID 番号に対応する IdCell を得る．
+// @brief ID 番号に対応する Iscas89IdCell を得る．
 inline
-IdCell*
+Iscas89IdCell*
 Iscas89IdHash::cell(ymuint id) const
 {
   return mCellArray[id];

@@ -65,11 +65,11 @@ set ( bnet_SOURCES
   )
 
 set ( iscas89_SOURCES
-  src/Iscas89Handler.cc
-  src/Iscas89IdHash.cc
-  src/Iscas89Parser.cc
-  src/Iscas89ParserImpl.cc
-  src/Iscas89Scanner.cc
+  src/iscas89/Iscas89Handler.cc
+  src/iscas89/Iscas89IdHash.cc
+  src/iscas89/Iscas89Parser.cc
+  src/iscas89/Iscas89ParserImpl.cc
+  src/iscas89/Iscas89Scanner.cc
   )
 
 

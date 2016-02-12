@@ -16,7 +16,7 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
-class IdCell;
+class BlifIdCell;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifIdHash BlifIdHash.h "BlifIdHash.h"
@@ -52,8 +52,8 @@ public:
   /// @brief 識別子に対応するセルを探す．
   /// @param[in] str 文字列
   /// @param[in] create 存在しないときに新規生成するなら true
-  /// @return 対応する IdCell を返す．
-  IdCell*
+  /// @return 対応する BlifIdCell を返す．
+  BlifIdCell*
   find(const char* str,
        bool create);
 
@@ -61,8 +61,8 @@ public:
   ymuint32
   num() const;
 
-  /// @brief ID 番号に対応する IdCell を得る．
-  IdCell*
+  /// @brief ID 番号に対応する BlifIdCell を得る．
+  BlifIdCell*
   cell(ymuint32 id) const;
 
   /// @brief ID 番号から文字列を得る．
@@ -93,17 +93,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // IdCell用のアロケータ
+  // BlifIdCell用のアロケータ
   SimpleAlloc mAlloc;
 
   // テーブルサイズ
   ymuint32 mTableSize;
 
   // ハッシュ表
-  IdCell** mTable;
+  BlifIdCell** mTable;
 
-  // IDをキーにして IdCell を格納する配列
-  vector<IdCell*> mCellArray;
+  // IDをキーにして BlifIdCell を格納する配列
+  vector<BlifIdCell*> mCellArray;
 
   // ハッシュ表を拡張する目安
   ymuint32 mNextLimit;
@@ -123,9 +123,9 @@ BlifIdHash::num() const
   return mCellArray.size();
 }
 
-// @brief ID 番号に対応する IdCell を得る．
+// @brief ID 番号に対応する BlifIdCell を得る．
 inline
-IdCell*
+BlifIdCell*
 BlifIdHash::cell(ymuint32 id) const
 {
   return mCellArray[id];

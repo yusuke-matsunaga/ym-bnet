@@ -37,33 +37,33 @@ Iscas89Scanner::~Iscas89Scanner()
 
 // @brief トークンを一つ読み出す．
 // @param[out] loc トークンの位置を格納する変数
-Token
+Iscas89Token
 Iscas89Scanner::read_token(FileRegion& loc)
 {
-  Token token = scan();
+  Iscas89Token token = scan();
   loc = cur_loc();
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
 	 << loc << ": ";
     switch ( token ) {
-    case kToken_LPAR:   cerr << "("; break;
-    case kToken_RPAR:   cerr << ")"; break;
-    case kToken_EQ:     cerr << "="; break;
-    case kToken_COMMA:  cerr << ","; break;
-    case kToken_INPUT:  cerr << "INPUT"; break;
-    case kToken_OUTPUT: cerr << "OUTPUT"; break;
-    case kToken_BUFF:   cerr << "BUFF"; break;
-    case kToken_NOT:    cerr << "NOT"; break;
-    case kToken_AND:    cerr << "AND"; break;
-    case kToken_NAND:   cerr << "NAND"; break;
-    case kToken_OR:     cerr << "OR"; break;
-    case kToken_NOR:    cerr << "NOR"; break;
-    case kToken_XOR:    cerr << "XOR"; break;
-    case kToken_XNOR:   cerr << "XNOR"; break;
-    case kToken_DFF:    cerr << "DFF"; break;
-    case kToken_NAME:   cerr << "NAME(" << cur_string() << ")"; break;
-    case kToken_EOF:    cerr << "EOF"; break;
+    case kIscas89_LPAR:   cerr << "("; break;
+    case kIscas89_RPAR:   cerr << ")"; break;
+    case kIscas89_EQ:     cerr << "="; break;
+    case kIscas89_COMMA:  cerr << ","; break;
+    case kIscas89_INPUT:  cerr << "INPUT"; break;
+    case kIscas89_OUTPUT: cerr << "OUTPUT"; break;
+    case kIscas89_BUFF:   cerr << "BUFF"; break;
+    case kIscas89_NOT:    cerr << "NOT"; break;
+    case kIscas89_AND:    cerr << "AND"; break;
+    case kIscas89_NAND:   cerr << "NAND"; break;
+    case kIscas89_OR:     cerr << "OR"; break;
+    case kIscas89_NOR:    cerr << "NOR"; break;
+    case kIscas89_XOR:    cerr << "XOR"; break;
+    case kIscas89_XNOR:   cerr << "XNOR"; break;
+    case kIscas89_DFF:    cerr << "DFF"; break;
+    case kIscas89_NAME:   cerr << "NAME(" << cur_string() << ")"; break;
+    case kIscas89_EOF:    cerr << "EOF"; break;
     default:            cerr << static_cast<char>(token); break;
     }
     cerr << endl;
@@ -74,7 +74,7 @@ Iscas89Scanner::read_token(FileRegion& loc)
 
 // @brief read_token() の下請け関数
 // @return トークンを返す．
-Token
+Iscas89Token
 Iscas89Scanner::scan()
 {
   int c;
@@ -89,7 +89,7 @@ Iscas89Scanner::scan()
   set_first_loc();
   switch ( c ) {
   case EOF:
-    return kToken_EOF;
+    return kIscas89_EOF;
 
   case ' ':
   case '\t':
@@ -101,16 +101,16 @@ Iscas89Scanner::scan()
     goto ST_SHARP;
 
   case '=':
-    return kToken_EQ;
+    return kIscas89_EQ;
 
   case '(':
-    return kToken_LPAR;
+    return kIscas89_LPAR;
 
   case ')':
-    return kToken_RPAR;
+    return kIscas89_RPAR;
 
   case ',':
-    return kToken_COMMA;
+    return kIscas89_COMMA;
 
   default:
     mCurString.put_char(c);
@@ -123,7 +123,7 @@ Iscas89Scanner::scan()
     goto ST_INIT;
   }
   if ( c == EOF ) {
-    return kToken_EOF;
+    return kIscas89_EOF;
   }
   // 改行までは読み飛ばす．
   goto ST_SHARP;
@@ -144,42 +144,42 @@ Iscas89Scanner::scan()
 
     // 予約後の検索
     if ( mCurString == "INPUT" ) {
-      return kToken_INPUT;
+      return kIscas89_INPUT;
     }
     if ( mCurString == "OUTPUT" ) {
-      return kToken_OUTPUT;
+      return kIscas89_OUTPUT;
     }
     if ( mCurString == "BUFF" ) {
-      return kToken_BUFF;
+      return kIscas89_BUFF;
     }
     if ( mCurString == "NOT" ) {
-      return kToken_NOT;
+      return kIscas89_NOT;
     }
     if ( mCurString == "INV" ) {
-      return kToken_NOT;
+      return kIscas89_NOT;
     }
     if ( mCurString == "AND" ) {
-      return kToken_AND;
+      return kIscas89_AND;
     }
     if ( mCurString == "NAND" ) {
-      return kToken_NAND;
+      return kIscas89_NAND;
     }
     if ( mCurString == "OR" ) {
-      return kToken_OR;
+      return kIscas89_OR;
     }
     if ( mCurString == "NOR" ) {
-      return kToken_NOR;
+      return kIscas89_NOR;
     }
     if ( mCurString == "XOR" ) {
-      return kToken_XOR;
+      return kIscas89_XOR;
     }
     if ( mCurString == "XNOR" ) {
-      return kToken_XNOR;
+      return kIscas89_XNOR;
     }
     if ( mCurString == "DFF" ) {
-      return kToken_DFF;
+      return kIscas89_DFF;
     }
-    return kToken_NAME;
+    return kIscas89_NAME;
 
   default:
     accept();

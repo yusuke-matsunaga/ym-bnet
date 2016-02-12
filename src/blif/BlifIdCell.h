@@ -1,8 +1,8 @@
-﻿#ifndef IDCELL_H
-#define IDCELL_H
+﻿#ifndef BLIFIDCELL_H
+#define BLIFIDCELL_H
 
-/// @file IdCell.h
-/// @brief IdCell のヘッダファイル
+/// @file BlifIdCell.h
+/// @brief BlifIdCell のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
@@ -18,10 +18,10 @@ BEGIN_NAMESPACE_YM_BNET
 class BlifIdHash;
 
 //////////////////////////////////////////////////////////////////////
-/// @class IdCell IdCell.h "IdCell.h"
+/// @class BlifIdCell BlifIdCell.h "BlifIdCell.h"
 /// @brief 識別子に関する情報を表すデータ構造
 //////////////////////////////////////////////////////////////////////
-class IdCell
+class BlifIdCell
 {
   friend class BlifIdHash;
 
@@ -32,11 +32,11 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  IdCell(ymuint32 id,
-	 const char* str);
+  BlifIdCell(ymuint32 id,
+	     const char* str);
 
   /// @brief デストラクタ
-  ~IdCell();
+  ~BlifIdCell();
 
 
 public:
@@ -122,7 +122,7 @@ private:
   ymuint32 mFlags;
 
   // ハッシュ表中の次の要素を指すポインタ
-  IdCell* mLink;
+  BlifIdCell* mLink;
 
   // 文字列領域(ダミー)
   // 実際には必要な分だけ領域が確保される．
@@ -156,7 +156,7 @@ private:
 // @brief ID番号を得る．
 inline
 ymuint32
-IdCell::id() const
+BlifIdCell::id() const
 {
   return mId;
 }
@@ -164,7 +164,7 @@ IdCell::id() const
 // @brief 位置情報を返す．
 inline
 const FileRegion&
-IdCell::loc() const
+BlifIdCell::loc() const
 {
   return mLoc;
 }
@@ -172,7 +172,7 @@ IdCell::loc() const
 // @brief 位置情報その2を返す．
 inline
 const FileRegion&
-IdCell::def_loc() const
+BlifIdCell::def_loc() const
 {
   return mLoc2;
 }
@@ -180,7 +180,7 @@ IdCell::def_loc() const
 // @brief 文字列を返す．
 inline
 const char*
-IdCell::str() const
+BlifIdCell::str() const
 {
   return mStr;
 }
@@ -190,7 +190,7 @@ IdCell::str() const
 // @retval false 未定義
 inline
 bool
-IdCell::is_defined() const
+BlifIdCell::is_defined() const
 {
   return static_cast<bool>((mFlags >> kDefSft) & 1U);
 }
@@ -199,7 +199,7 @@ IdCell::is_defined() const
 // @return 外部入力なら true を返す．
 inline
 bool
-IdCell::is_input() const
+BlifIdCell::is_input() const
 {
   return static_cast<bool>((mFlags >> kInSft) & 1U);
 }
@@ -208,7 +208,7 @@ IdCell::is_input() const
 // @return 外部出力なら true を返す．
 inline
 bool
-IdCell::is_output() const
+BlifIdCell::is_output() const
 {
   return static_cast<bool>((mFlags >> kOutSft) & 1U);
 }
@@ -216,7 +216,7 @@ IdCell::is_output() const
 // @brief 位置情報を設定する．
 inline
 void
-IdCell::set_loc(const FileRegion& loc)
+BlifIdCell::set_loc(const FileRegion& loc)
 {
   mLoc = loc;
 }
@@ -224,7 +224,7 @@ IdCell::set_loc(const FileRegion& loc)
 // @brief 定義済みの印をつける．
 inline
 void
-IdCell::set_defined()
+BlifIdCell::set_defined()
 {
   mFlags |= (1U << kDefSft);
   mLoc2 = mLoc;
@@ -233,7 +233,7 @@ IdCell::set_defined()
 // @brief 外部入力の印をつける．
 inline
 void
-IdCell::set_input()
+BlifIdCell::set_input()
 {
   mFlags |= (1U << kInSft);
 }
@@ -241,11 +241,11 @@ IdCell::set_input()
 // @brief 外部出力の印をつける．
 inline
 void
-IdCell::set_output()
+BlifIdCell::set_output()
 {
   mFlags |= (1U << kOutSft);
 }
 
 END_NAMESPACE_YM_BNET
 
-#endif // IDCELL_H
+#endif // BLIFIDCELL_H
