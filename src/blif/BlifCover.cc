@@ -37,12 +37,9 @@ BlifCover::input_pat(ymuint ipos,
   // キューブ1つ分のブロック数
   ymuint nb1 = ((input_num() * 2) + 63) / 64;
 
-  // キューブの先頭のブロック
-  const ymuint64* block = &mPatArray[nb1 * cpos];
-
   ymuint blk = (ipos * 2) / 64;
   ymuint sft = (ipos * 2) % 64;
-  ymuint64 tmp = (block[blk] >> sft) & 3U;
+  ymuint64 tmp = (mPatArray[nb1 * cpos + blk] >> sft) & 3U;
   switch ( tmp ) {
   case 0: return kBlifPat_0;
   case 1: return kBlifPat_1;
@@ -64,6 +61,7 @@ BlifCover::print(ostream& s) const
       case kBlifPat_0: s << '0'; break;
       case kBlifPat_1: s << '1'; break;
       case kBlifPat_d: s << '-'; break;
+      default: ASSERT_NOT_REACHED;
       }
     }
     if ( input_num() > 0 ) {
@@ -73,7 +71,7 @@ BlifCover::print(ostream& s) const
     switch ( opat ) {
     case kBlifPat_0: s << '0'; break;
     case kBlifPat_1: s << '1'; break;
-    case kBlifPat_d: ASSERT_NOT_REACHED;
+    default: ASSERT_NOT_REACHED;
     }
     s << endl;
   }

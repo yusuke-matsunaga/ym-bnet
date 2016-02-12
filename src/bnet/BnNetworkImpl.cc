@@ -283,6 +283,7 @@ BnNetworkImpl::new_cover(ymuint cover_id,
       shift += 2;
       if ( shift == 64 ) {
 	cover->mPatArray[j] = tmp;
+	tmp = 0UL;
 	shift = 0;
 	++ j;
       }
