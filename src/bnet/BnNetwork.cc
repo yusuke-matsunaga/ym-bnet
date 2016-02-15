@@ -81,19 +81,19 @@ BnNetwork::output(ymuint pos) const
   return mImpl->output(pos);
 }
 
-// @brief ラッチ数を得る．
+// @brief D-FF数を得る．
 ymuint
-BnNetwork::ff_num() const
+BnNetwork::dff_num() const
 {
-  return mImpl->ff_num();
+  return mImpl->dff_num();
 }
 
-// @brief ラッチを得る．
-// @param[in] pos 位置番号 ( 0 <= pos < ff_num() )
+// @brief D-FFを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
 const BnNode*
-BnNetwork::ff(ymuint pos) const
+BnNetwork::dff(ymuint pos) const
 {
-  return mImpl->ff(pos);
+  return mImpl->dff(pos);
 }
 
 // @brief 論理ノード数を得る．

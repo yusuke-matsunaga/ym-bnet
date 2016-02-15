@@ -117,18 +117,42 @@ Iscas89ParserImpl::read(const string& filename)
 	  goto error;
 	}
 
-	GateType gate_type;
-	if ( !parse_gate_type(gate_type) ) {
+	Iscas89Token gate_type = parse_gate_type();
+	if ( gate_type == kIscas89_ERROR ) {
 	  goto error;
 	}
-
 	vector<ymuint> iname_id_list;
 	if ( !parse_name_list(iname_id_list, last_loc) ) {
 	  goto error;
 	}
-	if ( !read_gate(FileRegion(first_loc, last_loc),
-			name_id, gate_type, iname_id_list) ) {
-	  goto error;
+
+	if ( gate_type == kIscas89_DFF ) {
+	  if ( iname_id_list.size() != 1 ) {
+	    // 引数の数が合わない．
+	    goto error;
+	  }
+	  if ( !read_dff(FileRegion(first_loc, last_loc),
+			 name_id, iname_id_list[0]) ) {
+	    goto error;
+	  }
+	}
+	else {
+	  BnFuncType::Type type;
+	  switch ( gate_type ) {
+	  case kIscas89_BUFF: type = BnFuncType::kFt_BUFF; break;
+	  case kIscas89_NOT:  type = BnFuncType::kFt_NOT;  break;
+	  case kIscas89_AND:  type = BnFuncType::kFt_AND;  break;
+	  case kIscas89_NAND: type = BnFuncType::kFt_NAND; break;
+	  case kIscas89_OR:   type = BnFuncType::kFt_OR;   break;
+	  case kIscas89_NOR:  type = BnFuncType::kFt_NOR;  break;
+	  case kIscas89_XOR:  type = BnFuncType::kFt_XOR;  break;
+	  case kIscas89_XNOR: type = BnFuncType::kFt_XNOR; break;
+	  default: ASSERT_NOT_REACHED;
+	  }
+	  if ( !read_gate(FileRegion(first_loc, last_loc),
+			  name_id, type, iname_id_list) ) {
+	    goto error;
+	  }
 	}
       }
       break;
@@ -182,13 +206,11 @@ Iscas89ParserImpl::add_handler(Iscas89Handler* handler)
 }
 
 // @brief ゲート型を読み込む．
-// @param[out] gate_type ゲート型を格納する変数．
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
+// @return トークンを返す．
 //
-// エラーが起きたらエラーメッセージをセットする．
-bool
-Iscas89ParserImpl::parse_gate_type(GateType& gate_type)
+// エラーが起きたら kIscas89_ERROR を返す．
+Iscas89Token
+Iscas89ParserImpl::parse_gate_type()
 {
   ymuint cur_lval;
   FileRegion cur_loc;
@@ -196,40 +218,15 @@ Iscas89ParserImpl::parse_gate_type(GateType& gate_type)
   Iscas89Token tok = read_token(cur_lval, cur_loc);
   switch ( tok ) {
   case kIscas89_BUFF:
-    gate_type = kGt_BUFF;
-    break;
-
   case kIscas89_NOT:
-    gate_type = kGt_NOT;
-    break;
-
   case kIscas89_DFF:
-    gate_type = kGt_DFF;
-    break;
-
   case kIscas89_AND:
-    gate_type = kGt_AND;
-    break;
-
   case kIscas89_NAND:
-    gate_type = kGt_NAND;
-    break;
-
   case kIscas89_OR:
-    gate_type = kGt_OR;
-    break;
-
   case kIscas89_NOR:
-    gate_type = kGt_NOR;
-    break;
-
   case kIscas89_XOR:
-    gate_type = kGt_XOR;
-    break;
-
   case kIscas89_XNOR:
-    gate_type = kGt_XNOR;
-    break;
+    return tok;
 
   default:
     // シンタックスエラー
@@ -240,10 +237,9 @@ Iscas89ParserImpl::parse_gate_type(GateType& gate_type)
 		    kMsgError,
 		    "ER_SYNTAX02",
 		    buf.str());
-    return false;
   }
 
-  return true;
+  return kIscas89_ERROR;
 }
 
 // @brief '(' ')' で囲まれた名前を読み込む．
@@ -385,13 +381,13 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 // @brief ゲート文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] oname_id 出力名の ID 番号
-// @param[in] type ゲートタイプ
+// @param[in] func_type ゲートタイプ
 // @return エラーが起きたら false を返す．
 // @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     ymuint oname_id,
-			     GateType type,
+			     BnFuncType::Type type,
 			     const vector<ymuint>& iname_id_list)
 {
   Iscas89IdCell* cell = id2cell(oname_id);
@@ -412,6 +408,42 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
        p != mHandlerList.end(); ++ p) {
     Iscas89Handler* handler = *p;
     if ( !handler->read_gate(loc, type, oname_id, cell->str(), iname_id_list) ) {
+      stat = false;
+      break;
+    }
+  }
+  return stat;
+}
+
+// @brief D-FF用のゲート文を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @param[in] type ゲートタイプ
+// @return エラーが起きたら false を返す．
+// @note 入力名のリストは push_str() で積まれている．
+bool
+Iscas89ParserImpl::read_dff(const FileRegion& loc,
+			    ymuint oname_id,
+			    ymuint iname_id)
+{
+  Iscas89IdCell* cell = id2cell(oname_id);
+  if ( cell->is_defined() ) {
+    // 二重定義
+    ostringstream buf;
+    buf << cell->str() << ": Defined more than once. "
+	<< "Previsous Definition is " << cell->def_loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+		    kMsgError,
+		    "ER_MLTDEF01",
+		    buf.str());
+    return false;
+  }
+  cell->set_defined();
+  bool stat = true;
+  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
+       p != mHandlerList.end(); ++ p) {
+    Iscas89Handler* handler = *p;
+    if ( !handler->read_dff(loc, oname_id, cell->str(), iname_id) ) {
       stat = false;
       break;
     }

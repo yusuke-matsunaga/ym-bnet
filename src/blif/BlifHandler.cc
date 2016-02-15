@@ -48,4 +48,18 @@ BlifHandler::id2def_loc(ymuint32 id)
   return mParser->id2def_loc(id);
 }
 
+// @brief カバーの数を得る．
+ymuint
+BlifHandler::cover_num()
+{
+  return mParser->cover_num();
+}
+
+// @brief カバーIDからカバーを得る．
+const BlifCover*
+BlifHandler::id2cover(ymuint id)
+{
+  return mParser->id2cover(id);
+}
+
 END_NAMESPACE_YM_BNET

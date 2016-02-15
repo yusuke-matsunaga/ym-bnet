@@ -130,20 +130,6 @@ public:
 	const FileRegion& loc4,
 	char rval) = 0;
 
-  /// @brief カバー情報の登録
-  /// @param[in] cover_id カバーのID番号
-  /// @param[in] input_num 入力数
-  /// @param[in] cube_num キューブ数
-  /// @param[in] ipat_str 入力パタン文字列
-  /// @param[in] opat 出力パタン
-  virtual
-  void
-  cover(ymuint cover_id,
-	ymuint input_num,
-	ymuint cube_num,
-	const string& ipat_str,
-	BlifPat opat) = 0;
-
   /// @brief .end 文の処理
   /// @param[in] loc 位置情報
   /// @retval true 処理が成功した．
@@ -179,6 +165,14 @@ protected:
   /// @brief ID番号からそれに関連した位置情報その2を得る．
   const FileRegion&
   id2def_loc(ymuint id);
+
+  /// @brief カバーの数を得る．
+  ymuint
+  cover_num();
+
+  /// @brief カバーIDからカバーを得る．
+  const BlifCover*
+  id2cover(ymuint id);
 
 
 private:

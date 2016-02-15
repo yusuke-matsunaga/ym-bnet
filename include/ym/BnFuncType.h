@@ -88,7 +88,7 @@ public:
 /// @brief BnFuncType のストリーム出力演算子
 ostream&
 operator<<(ostream& s,
-	   BnFuncType func_type)
+	   const BnFuncType* func_type);
 
 END_NAMESPACE_YM_BNET
 

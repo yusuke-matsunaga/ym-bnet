@@ -30,7 +30,7 @@ BlifCover::~BlifCover()
 // @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
 // @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
 // @return パタンを返す．
-BlifPat
+BlifCover::Pat
 BlifCover::input_pat(ymuint ipos,
 		     ymuint cpos) const
 {
@@ -41,12 +41,12 @@ BlifCover::input_pat(ymuint ipos,
   ymuint sft = (ipos * 2) % 64;
   ymuint64 tmp = (mPatArray[nb1 * cpos + blk] >> sft) & 3U;
   switch ( tmp ) {
-  case 0: return kBlifPat_0;
-  case 1: return kBlifPat_1;
-  case 2: return kBlifPat_d;
+  case 0: return kPat_0;
+  case 1: return kPat_1;
+  case 2: return kPat_d;
   }
   ASSERT_NOT_REACHED;
-  return kBlifPat_d;
+  return kPat_d;
 }
 
 // @brief 内容を出力する．
@@ -56,24 +56,15 @@ BlifCover::print(ostream& s) const
 {
   for (ymuint c = 0; c < cube_num(); ++ c) {
     for (ymuint i = 0; i < input_num(); ++ i) {
-      BlifPat ipat = input_pat(i, c);
-      switch ( ipat ) {
-      case kBlifPat_0: s << '0'; break;
-      case kBlifPat_1: s << '1'; break;
-      case kBlifPat_d: s << '-'; break;
-      default: ASSERT_NOT_REACHED;
-      }
+      Pat ipat = input_pat(i, c);
+      s << ipat;
     }
     if ( input_num() > 0 ) {
       s << ' ';
     }
-    BlifPat opat = output_pat();
-    switch ( opat ) {
-    case kBlifPat_0: s << '0'; break;
-    case kBlifPat_1: s << '1'; break;
-    default: ASSERT_NOT_REACHED;
-    }
-    s << endl;
+    Pat opat = output_pat();
+    s << opat
+      << endl;
   }
 }
 

@@ -76,18 +76,30 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89BnNetworkHandler::read_gate(const FileRegion& loc,
-				   GateType gate_type,
+				   BnFuncType::Type type,
 				   ymuint oname_id,
 				   const char* oname,
 				   const vector<ymuint>& iname_list)
 {
-  if ( gate_type == kGt_DFF ) {
-    ASSERT_COND( iname_list.size() == 1 );
-    mNetwork->new_latch(oname_id, oname, iname_list[0], 0);
-  }
-  else {
-    mNetwork->new_logic(oname_id, oname, iname_list, gate_type);
-  }
+  mNetwork->new_logic(oname_id, oname, iname_list, type);
+
+  return true;
+}
+
+// @brief D-FF用のゲート文を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @param[in] oname 出力名
+// @param[in] iname_id 入力名の ID 番号
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
+				  ymuint oname_id,
+				  const char* oname,
+				  ymuint iname_id)
+{
+  mNetwork->new_dff(oname_id, oname, iname_id, 0);
 
   return true;
 }

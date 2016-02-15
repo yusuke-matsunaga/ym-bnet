@@ -75,6 +75,14 @@ public:
   const FileRegion&
   id2def_loc(ymuint id);
 
+  /// @brief カバーの数を得る．
+  ymuint
+  cover_num();
+
+  /// @brief カバーIDから BlifCover を得る．
+  const BlifCover*
+  id2cover(ymuint id);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -125,8 +133,8 @@ private:
   // ID 番号の配列
   vector<ymuint> mIdArray;
 
-  // カバーを管理する辞書
-  HashMap<string, ymuint> mCoverDict;
+  // BlifCover を管理するオブジェクト
+  BlifCoverMgr mCoverMgr;
 
   // キューブ数
   ymuint mNc;
@@ -134,8 +142,8 @@ private:
   // パタンのバッファ
   StrBuff mCoverPat;
 
-  // 出力の極性
-  BlifPat mOpat;
+  // 出力の極性を表す文字
+  char mOpatChar;
 
   // 現在のセル
   const Cell* mCell;
@@ -178,6 +186,22 @@ const FileRegion&
 BlifParserImpl::id2def_loc(ymuint id)
 {
   return mIdHash.def_loc(id);
+}
+
+// @brief カバーの数を得る．
+inline
+ymuint
+BlifParserImpl::cover_num()
+{
+  return mCoverMgr.cover_num();
+}
+
+// @brief カバーIDから BlifCover を得る．
+inline
+const BlifCover*
+BlifParserImpl::id2cover(ymuint id)
+{
+  return mCoverMgr.cover(id);
 }
 
 // @brief トークンを戻す．

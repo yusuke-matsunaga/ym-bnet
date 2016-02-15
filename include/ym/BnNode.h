@@ -95,6 +95,7 @@ public:
   fanin_id(ymuint pos) const = 0;
 
   /// @brief 関数のタイプを返す．
+  virtual
   const BnFuncType*
   func_type() const = 0;
 

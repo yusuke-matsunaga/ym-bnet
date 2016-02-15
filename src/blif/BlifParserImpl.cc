@@ -7,10 +7,11 @@
 /// All rights reserved.
 
 
-#include "ym/BlifParser.h"
 #include "BlifParserImpl.h"
-#include "ym/BlifHandler.h"
 #include "BlifIdCell.h"
+#include "ym/BlifCover.h"
+#include "ym/BlifHandler.h"
+#include "ym/BlifParser.h"
 #include "ym/CellLibrary.h"
 #include "ym/Cell.h"
 #include "ym/CellPin.h"
@@ -82,11 +83,11 @@ str_to_01(const StrBuff& str)
 string
 make_signature(ymuint ni,
 	       const StrBuff& ipat_str,
-	       BlifPat opat)
+	       char opat_char)
 {
   ostringstream buf;
   buf << ni << ":"
-      << opat << ":"
+      << opat_char << ":"
       << ipat_str;
   return buf.str();
 }
@@ -248,7 +249,7 @@ BlifParserImpl::read(const string& filename,
       mNameArray.clear();
       mNc = 0;
       mCoverPat.clear();
-      mOpat = kBlifPat_d;
+      mOpatChar = '-';
       goto ST_NAMES;
 
     case kTokenGATE:
@@ -463,10 +464,9 @@ BlifParserImpl::read(const string& filename,
     if ( tk == kTokenSTRING ) {
       mName1 = mScanner->cur_string();
       char ochar = mName1[0];
-      BlifPat opat;
       switch ( ochar ) {
-      case '0':	opat = kBlifPat_0; break;
-      case '1': opat = kBlifPat_1; break;
+      case '0':	break;
+      case '1': break;
       default:
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			kMsgError,
@@ -474,10 +474,10 @@ BlifParserImpl::read(const string& filename,
 			"Illegal character in output cube.");
 	goto ST_ERROR_EXIT;
       }
-      if ( mOpat == kBlifPat_d ) {
-	mOpat = opat;
+      if ( mOpatChar == '-' ) {
+	mOpatChar = ochar;
       }
-      else if ( mOpat != opat ) {
+      else if ( mOpatChar != ochar ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			kMsgError,
 			"SYN10",
@@ -543,10 +543,9 @@ BlifParserImpl::read(const string& filename,
       tk = get_token(loc2);
       if ( tk == kTokenSTRING ) {
 	char ochar = mScanner->cur_string()[0];
-	BlifPat opat;
 	switch ( ochar ) {
-	case '0':	opat = kBlifPat_0; break;
-	case '1': opat = kBlifPat_1; break;
+	case '0': break;
+	case '1': break;
 	default:
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			  kMsgError,
@@ -554,10 +553,10 @@ BlifParserImpl::read(const string& filename,
 			  "Illegal character in output cube.");
 	  goto ST_ERROR_EXIT;
 	}
-	if ( mOpat == kBlifPat_d ) {
-	  mOpat = opat;
+	if ( mOpatChar == '-' ) {
+	  mOpatChar = ochar;
 	}
-	else if ( mOpat != opat ) {
+	else if ( mOpatChar != ochar ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
 			  kMsgError, "SYN10",
 			  "Outpat pattern mismatch.");
@@ -608,9 +607,10 @@ BlifParserImpl::read(const string& filename,
     for (ymuint i = 0; i < ni ; ++ i) {
       mIdArray.push_back(mNameArray[i]->id());
     }
+#if 0
     // mCoverPat からカバーのシグネチャ文字列を作る．
     string ipat_str = mCoverPat.c_str();
-    string cover_sig = make_signature(ni, mCoverPat, mOpat);
+    string cover_sig = make_signature(ni, mCoverPat, mOpatChar);
     ymuint cover_id;
     if ( !mCoverDict.find(cover_sig, cover_id) ) {
       // 新たなカバーを登録する．
@@ -620,10 +620,14 @@ BlifParserImpl::read(const string& filename,
       for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	   p != mHandlerList.end(); ++ p) {
 	BlifHandler* handler = *p;
-	handler->cover(cover_id, ni, mNc, ipat_str, mOpat);
+	handler->cover(cover_id, ni, mNc, ipat_str, mOpatChar);
       }
     }
-
+#else
+    string ipat_str = mCoverPat.c_str();
+    const BlifCover* cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
+    ymuint cover_id = cover->id();
+#endif
     // ハンドラを呼び出す．
     for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	 p != mHandlerList.end(); ++ p) {

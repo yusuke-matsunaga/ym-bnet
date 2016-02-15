@@ -15,6 +15,8 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BlifCover;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCoverMgr BlifCoverMgr.h "BlifCoverMgr.h"
 /// @brief BlifCover を管理するクラス
@@ -48,7 +50,7 @@ public:
   pat2cover(ymuint input_num,
 	    ymuint cube_num,
 	    const string& ipat_str,
-	    BlifPat opat);
+	    char opat_char);
 
   /// @brief ID番号から BlifCover を返す．
   /// @param[in] id ID番号
@@ -70,7 +72,7 @@ private:
   new_cover(ymuint input_num,
 	    ymuint cube_num,
 	    const string& ipat_str,
-	    BlifPat opat);
+	    char opat_char);
 
   /// @brief カバーを登録する．
   void

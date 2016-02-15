@@ -31,6 +31,7 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_BNET
 
 // クラスの前方宣言
+class BlifCover;
 class BlifHandler;
 class BlifParser;
 class BnFuncType;
@@ -43,6 +44,7 @@ END_NAMESPACE_YM_BNET
 
 BEGIN_NAMESPACE_YM
 
+using nsBnet::BlifCover;
 using nsBnet::BlifHandler;
 using nsBnet::BlifParser;
 using nsBnet::BnFuncType;

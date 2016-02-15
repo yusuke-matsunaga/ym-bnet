@@ -20,7 +20,17 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 class BlifCover
 {
-  friend class BnNetworkImpl;
+  friend class BlifCoverMgr;
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // パタンを表す列挙型
+  //////////////////////////////////////////////////////////////////////
+  enum Pat {
+    kPat_0,
+    kPat_1,
+    kPat_d
+  };
 
 private:
 
@@ -52,7 +62,7 @@ public:
   /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
   /// @return パタンを返す．
-  BlifPat
+  Pat
   input_pat(ymuint ipos,
 	    ymuint cpos) const;
 
@@ -60,7 +70,7 @@ public:
   ///
   /// - すべてのキューブに対して同一のパタンとなる．
   /// - ドントケアはない．
-  BlifPat
+  Pat
   output_pat() const;
 
   /// @brief 内容を出力する．
@@ -101,6 +111,11 @@ private:
 
 };
 
+/// @brief BlifCover::Pat のストリーム出力
+ostream&
+operator<<(ostream& s,
+	   BlifCover::Pat pat);
+
 
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
@@ -135,16 +150,30 @@ BlifCover::cube_num() const
 // - すべてのキューブに対して同一のパタンとなる．
 // - ドントケアはない．
 inline
-BlifPat
+BlifCover::Pat
 BlifCover::output_pat() const
 {
   switch ( mOutputPat ) {
-  case 0: return kBlifPat_0;
-  case 1: return kBlifPat_1;
-  case 2: return kBlifPat_d;
+  case 0: return kPat_0;
+  case 1: return kPat_1;
   }
   ASSERT_NOT_REACHED;
-  return kBlifPat_d;
+  return kPat_d;
+}
+
+// @brief BlifCover::Pat のストリーム出力
+inline
+ostream&
+operator<<(ostream& s,
+	   BlifCover::Pat pat)
+{
+  switch ( pat ) {
+  case BlifCover::kPat_0: s << '0'; break;
+  case BlifCover::kPat_1: s << '1'; break;
+  case BlifCover::kPat_d: s << '-'; break;
+  default: ASSERT_NOT_REACHED;
+  }
+  return s;
 }
 
 END_NAMESPACE_YM_BNET

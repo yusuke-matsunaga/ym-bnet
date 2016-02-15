@@ -8,6 +8,7 @@
 
 
 #include "BnNodeImpl.h"
+#include "ym/BnFuncType.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

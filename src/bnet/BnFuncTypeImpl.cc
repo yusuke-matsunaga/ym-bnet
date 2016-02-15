@@ -8,6 +8,7 @@
 
 
 #include "BnFuncTypeImpl.h"
+#include "ym/Cell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -63,13 +64,13 @@ BnFuncTypePrim::BnFuncTypePrim(BnFuncType::Type type,
 }
 
 // @brief デストラクタ
-BnFuncTypeImpl::~BnFuncTypePrim()
+BnFuncTypePrim::~BnFuncTypePrim()
 {
 }
 
 // @brief 型を返す．
 BnFuncType::Type
-BnFuncTypeImpl::type() const
+BnFuncTypePrim::type() const
 {
   return mType;
 }
@@ -78,9 +79,9 @@ BnFuncTypeImpl::type() const
 //
 // 一部の型では固定となっている．
 ymuint
-BnFuncTypeImpl::input_num() const
+BnFuncTypePrim::input_num() const
 {
-  reutrn mInputNum;
+  return mInputNum;
 }
 
 
@@ -144,7 +145,7 @@ BnFuncTypeExpr::~BnFuncTypeExpr()
 }
 
 // @brief 型を返す．
-Type
+BnFuncType::Type
 BnFuncTypeExpr::type() const
 {
   return kFt_EXPR;
@@ -173,7 +174,7 @@ BnFuncTypeExpr::expr() const
 
 // @brief コンストラクタ
 // @param[in] tv 真理値表ベクタ
-BnFuncType::BnFuncTypeTv(const TvFunc& tv) :
+BnFuncTypeTv::BnFuncTypeTv(const TvFunc& tv) :
   mFunc(tv)
 {
 }

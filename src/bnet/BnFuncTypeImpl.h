@@ -10,6 +10,8 @@
 
 
 #include "ym/BnFuncType.h"
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -235,7 +237,8 @@ private:
 /// @class BnFuncTypeTv BnFuncTypeTv.h "BnFuncTypeTv.h"
 /// @brief 真理値ベクタタイプ
 //////////////////////////////////////////////////////////////////////
-class BnFuncTypeTv
+class BnFuncTypeTv :
+  public BnFuncTypeImpl
 {
 public:
 

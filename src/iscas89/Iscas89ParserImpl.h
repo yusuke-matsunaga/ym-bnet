@@ -10,6 +10,7 @@
 
 
 #include "ym/ym_bnet.h"
+#include "ym/BnFuncType.h"
 #include "Iscas89IdHash.h"
 #include "Iscas89Token.h"
 
@@ -64,13 +65,11 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ゲート型を読み込む．
-  /// @param[out] gate_type ゲート型を格納する変数．
-  /// @retval true 読み込みが成功した．
-  /// @retval false 読み込みが失敗した．
+  /// @return トークンを返す．
   ///
-  /// エラーが起きたらエラーメッセージをセットする．
-  bool
-  parse_gate_type(GateType& gate_type);
+  /// エラーが起きたら kIscas89_ERROR を返す．
+  Iscas89Token
+  parse_gate_type();
 
   /// @brief '(' ')' で囲まれた名前を読み込む．
   /// @param[in] name_id 名前の識別子番号を格納する変数．
@@ -119,8 +118,19 @@ private:
   bool
   read_gate(const FileRegion& loc,
 	    ymuint oname_id,
-	    GateType type,
+	    BnFuncType::Type type,
 	    const vector<ymuint>& iname_id_list);
+
+  /// @brief D-FF用のゲート文を読み込む．
+  /// @param[in] loc ファイル位置
+  /// @param[in] oname_id 出力名の ID 番号
+  /// @param[in] type ゲートタイプ
+  /// @return エラーが起きたら false を返す．
+  /// @note 入力名のリストは push_str() で積まれている．
+  bool
+  read_dff(const FileRegion& loc,
+	   ymuint oname_id,
+	   ymuint iname_id);
 
   /// @brief 次のトークンが期待されている型か調べる．
   /// @param[in] exp_token トークンの期待値

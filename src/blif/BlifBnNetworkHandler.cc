@@ -84,7 +84,8 @@ BlifBnNetworkHandler::names(ymuint onode_id,
 			    const vector<ymuint>& inode_id_array,
 			    ymuint cover_id)
 {
-  mNetwork->new_logic(onode_id, oname, inode_id_array, cover_id);
+  const BlifCover* cover = id2cover(cover_id);
+  mNetwork->new_logic(onode_id, oname, inode_id_array, nullptr);
 
   return true;
 }
@@ -122,25 +123,9 @@ BlifBnNetworkHandler::latch(ymuint onode_id,
 			    const FileRegion& loc4,
 			    char rval)
 {
-  mNetwork->new_latch(onode_id, oname, inode_id, rval);
+  mNetwork->new_dff(onode_id, oname, inode_id, rval);
 
   return true;
-}
-
-// @brief カバー情報の登録
-// @param[in] cover_id カバーのID番号
-// @param[in] input_num 入力数
-// @param[in] cube_num キューブ数
-// @param[in] ipat_str 入力パタン文字列
-// @param[in] opat 出力パタン
-void
-BlifBnNetworkHandler::cover(ymuint cover_id,
-			    ymuint input_num,
-			    ymuint cube_num,
-			    const string& ipat_str,
-			    BlifPat opat)
-{
-  mNetwork->new_cover(cover_id, input_num, cube_num, ipat_str, opat);
 }
 
 // @brief 終了処理

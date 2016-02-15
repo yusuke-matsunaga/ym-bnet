@@ -31,12 +31,11 @@ ymuint
 hash_func(ymuint input_num,
 	  ymuint cube_num,
 	  const string& ipat_str,
-	  BlifPat opat)
+	  char opat_char)
 {
   ostringstream buf;
   buf << input_num << ':'
-      << cube_num << ':'
-      << opat << ':'
+      << opat_char << ':'
       << ipat_str;
   return hash_func(buf.str());
 }
@@ -47,7 +46,6 @@ hash_func(BlifCover* cover)
 {
   ostringstream buf;
   buf << cover->input_num() << ':'
-      << cover->cube_num() << ':'
       << cover->output_pat() << ':';
   for (ymuint c = 0; c < cover->cube_num(); ++ c) {
     for (ymuint i = 0; i < cover->input_num(); ++ i) {
@@ -57,13 +55,27 @@ hash_func(BlifCover* cover)
   return hash_func(buf.str());
 }
 
+// char -> Pat
+BlifCover::Pat
+char2pat(char ch)
+{
+  switch ( ch ) {
+  case '0': return BlifCover::kPat_0;
+  case '1': return BlifCover::kPat_1;
+  case '-': return BlifCover::kPat_d;
+  }
+  cout << "ERROR: ch = " << ch << endl;
+  ASSERT_NOT_REACHED;
+  return BlifCover::kPat_d;
+}
+
 // 等価チェック
 bool
 check_equal(BlifCover* cover,
 	    ymuint input_num,
 	    ymuint cube_num,
 	    const string& ipat_str,
-	    BlifPat opat)
+	    char opat_char)
 {
   if ( cover->input_num() != input_num ) {
     return false;
@@ -71,20 +83,14 @@ check_equal(BlifCover* cover,
   if ( cover->cube_num() != cube_num ) {
     return false;
   }
-  if ( cover->output_pat() != opat ) {
+  if ( cover->output_pat() != char2pat(opat_char) ) {
     return false;
   }
   ymuint j = 0;
   for (ymuint c = 0; c < cube_num; ++ c) {
     for (ymuint i = 0; i < input_num; ++ i, ++ j) {
-      BlifPat ipat = cover->input_pat(i, c);
-      BlifPat ipat2;
-      switch ( ipat_str[j] ) {
-      case '0': ipat2 = kBlifPat_0; break;
-      case '1': ipat2 = kBlifPat_1; break;
-      case '2': ipat2 = kBlifPat_d; break;
-      default: ASSERT_NOT_REACHED;
-      }
+      BlifCover::Pat ipat = cover->input_pat(i, c);
+      BlifCover::Pat ipat2 = char2pat(ipat_str[j]);
       if ( ipat != ipat2 ) {
 	return false;
       }
@@ -125,13 +131,13 @@ const BlifCover*
 BlifCoverMgr::pat2cover(ymuint input_num,
 			ymuint cube_num,
 			const string& ipat_str,
-			BlifPat opat)
+			char opat_char)
 {
   // すでに登録されているか調べる．
-  ymuint h = hash_func(input_num, cube_num, ipat_str, opat) % mHashSize;
+  ymuint h = hash_func(input_num, cube_num, ipat_str, opat_char) % mHashSize;
   for (BlifCover* cover = mHashTable[h];
        cover != nullptr; cover = cover->mLink) {
-    if ( check_equal(cover, input_num, cube_num, ipat_str, opat) ) {
+    if ( check_equal(cover, input_num, cube_num, ipat_str, opat_char) ) {
       return cover;
     }
   }
@@ -140,8 +146,9 @@ BlifCoverMgr::pat2cover(ymuint input_num,
     // ハッシュ表のサイズを2倍する．
     alloc_table(mHashSize * 2);
   }
-  BlifCover* cover = new_cover(input_num, cube_num, ipat_str, opat);
+  BlifCover* cover = new_cover(input_num, cube_num, ipat_str, opat_char);
   reg_cover(cover);
+  ++ mCoverNum;
   return cover;
 }
 
@@ -154,7 +161,7 @@ BlifCover*
 BlifCoverMgr::new_cover(ymuint input_num,
 			ymuint cube_num,
 			const string& ipat_str,
-			BlifPat opat)
+			char opat_char)
 {
   // キューブ1つ分のブロック数
   ymuint nb1 = ((input_num * 2) + 63) / 64;
@@ -164,7 +171,15 @@ BlifCoverMgr::new_cover(ymuint input_num,
   void* p = mAlloc.get_memory(sizeof(BlifCover) + sizeof(ymuint64) * (nb - 1));
   BlifCover* cover = new (p) BlifCover;
   cover->mInputNum = input_num;
-  cover->mOutputPat = opat;
+  if ( opat_char == '0' ) {
+    cover->mOutputPat = BlifCover::kPat_0;
+  }
+  else if ( opat_char == '1' ) {
+    cover->mOutputPat = BlifCover::kPat_1;
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
   cover->mCubeNum = cube_num;
   cover->mId = mCoverArray.size();
   mCoverArray.push_back(cover);
@@ -185,6 +200,7 @@ BlifCoverMgr::new_cover(ymuint input_num,
       shift += 2;
       if ( shift == 64 ) {
 	cover->mPatArray[j] = tmp;
+	tmp = 0UL;
 	shift = 0;
 	++ j;
       }

@@ -50,6 +50,7 @@ include_directories(
 set ( blif_SOURCES
   src/blif/BlifBnNetworkHandler.cc
   src/blif/BlifCover.cc
+  src/blif/BlifCoverMgr.cc
   src/blif/BlifDic.cc
   src/blif/BlifHandler.cc
   src/blif/BlifIdHash.cc
@@ -59,6 +60,7 @@ set ( blif_SOURCES
 
 set ( bnet_SOURCES
   src/bnet/BnFuncTypeImpl.cc
+  src/bnet/BnFuncTypeMgr.cc
   src/bnet/BnNetwork.cc
   src/bnet/BnNetworkImpl.cc
   src/bnet/BnNodeImpl.cc

@@ -9,11 +9,14 @@
 
 #include "BnNetworkImpl.h"
 #include "BnNodeImpl.h"
-#include "ym/BlifParser.h"
-#include "ym/BlifCover.h"
-#include "ym/Iscas89Parser.h"
+
 #include "BlifBnNetworkHandler.h"
 #include "Iscas89BnNetworkHandler.h"
+
+#include "ym/BlifParser.h"
+#include "ym/BlifCover.h"
+#include "ym/BnFuncType.h"
+#include "ym/Iscas89Parser.h"
 #include "ym/Cell.h"
 #include "ym/CellPin.h"
 
@@ -80,98 +83,58 @@ BnNetworkImpl::new_output(ymuint node_id)
   mPOArray.push_back(node_id);
 }
 
-// @brief ラッチノードを生成する．
+// @brief D-FFノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id ファンインのID番号
 // @param[in] rval リセット値 ( '0', '1', ' ' のいずれか )
 void
-BnNetworkImpl::new_latch(ymuint node_id,
-			 const char* node_name,
-			 ymuint inode_id,
-			 char rval)
+BnNetworkImpl::new_dff(ymuint node_id,
+		       const char* node_name,
+		       ymuint inode_id,
+		       char rval)
 {
   const char* new_node_name = alloc_string(node_name);
 
-  void* p = mAlloc.get_memory(sizeof(BnLatchNode));
-  BnNodeImpl* node = new (p) BnLatchNode(node_id, new_node_name, inode_id, rval);
+  void* p = mAlloc.get_memory(sizeof(BnDffNode));
+  BnNodeImpl* node = new (p) BnDffNode(node_id, new_node_name, inode_id, rval);
 
   set_node(node_id, node);
 
   mFFArray.push_back(node);
 }
 
-// @brief プリミティブノードを生成する．
+// @brief 論理ノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] gate_type ゲートの型
+// @param[in] prim_type プリミティブタイプ
 void
 BnNetworkImpl::new_logic(ymuint node_id,
 			 const char* node_name,
 			 const vector<ymuint>& inode_id_array,
-			 GateType gate_type)
+			 BnFuncType::Type prim_type)
 {
-  const char* new_node_name = alloc_string(node_name);
-  ymuint ni = inode_id_array.size();
-  ymuint* fanins = new_fanin_array(inode_id_array);
-
-  void* p = mAlloc.get_memory(sizeof(BnPrimNode));
-  BnNodeImpl* node = new (p) BnPrimNode(node_id, new_node_name, ni, fanins, gate_type);
-
-  set_node(node_id, node);
-
-  mLogicArray.push_back(node);
+  const BnFuncType* func_type = mFuncTypeMgr.primitive_type(prim_type, inode_id_array.size());
+  _new_logic(node_id, node_name, inode_id_array, func_type);
 }
 
-// @brief ゲートノードを生成する．
+// @brief 論理ノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] cell セルへのポインタ
+// @param[in] cell セル
 void
 BnNetworkImpl::new_logic(ymuint node_id,
 			 const char* node_name,
 			 const vector<ymuint>& inode_id_array,
 			 const Cell* cell)
 {
-  const char* new_node_name = alloc_string(node_name);
-  ymuint ni = inode_id_array.size();
-  ymuint* fanins = new_fanin_array(inode_id_array);
-
-  void* p = mAlloc.get_memory(sizeof(BnCellNode));
-  BnNodeImpl* node = new (p) BnCellNode(node_id, new_node_name, ni, fanins, cell);
-
-  set_node(node_id, node);
-
-  mLogicArray.push_back(node);
+  const BnFuncType* func_type = mFuncTypeMgr.cell_type(cell);
+  _new_logic(node_id, node_name, inode_id_array, func_type);
 }
 
-// @brief カバーノードを生成する．
-// @param[in] node_id ノードID
-// @param[in] node_name ノード名
-// @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] cover カバー
-void
-BnNetworkImpl::new_logic(ymuint node_id,
-			 const char* node_name,
-			 const vector<ymuint>& inode_id_array,
-			 ymuint cover_id)
-{
-  const char* new_node_name = alloc_string(node_name);
-  ymuint ni = inode_id_array.size();
-  ymuint* fanins = new_fanin_array(inode_id_array);
-  const BlifCover* cover = mCoverArray[cover_id];
-
-  void* p = mAlloc.get_memory(sizeof(BnCoverNode));
-  BnNodeImpl* node = new (p) BnCoverNode(node_id, new_node_name, ni, fanins, cover);
-
-  set_node(node_id, node);
-
-  mLogicArray.push_back(node);
-}
-
-// @brief 論理式ノードを生成する．
+// @brief 論理ノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
@@ -182,35 +145,43 @@ BnNetworkImpl::new_logic(ymuint node_id,
 			 const vector<ymuint>& inode_id_array,
 			 Expr expr)
 {
-  const char* new_node_name = alloc_string(node_name);
-  ymuint ni = inode_id_array.size();
-  ymuint* fanins = new_fanin_array(inode_id_array);
-
-  void* p = mAlloc.get_memory(sizeof(BnExprNode));
-  BnNodeImpl* node = new (p) BnExprNode(node_id, new_node_name, ni, fanins, expr);
-
-  set_node(node_id, node);
-
-  mLogicArray.push_back(node);
+  const BnFuncType* func_type = mFuncTypeMgr.expr_type(expr, inode_id_array.size());
+  _new_logic(node_id, node_name, inode_id_array, func_type);
 }
 
-// @brief 真理値表ノードを生成する．
+// @brief 論理ノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] tv 真理値表
+// @param[in] tvfunc 真理値表ベクタ
 void
 BnNetworkImpl::new_logic(ymuint node_id,
 			 const char* node_name,
 			 const vector<ymuint>& inode_id_array,
-			 TvFunc tv)
+			 const TvFunc& tvfunc)
+{
+  const BnFuncType* func_type = mFuncTypeMgr.tv_type(tvfunc);
+  _new_logic(node_id, node_name, inode_id_array, func_type);
+}
+
+// @brief 論理ノードを生成する．
+// @param[in] node_id ノードID
+// @param[in] node_name ノード名
+// @param[in] inode_id_array ファンインのID番号の配列
+// @param[in] func_type 論理関数の型
+void
+BnNetworkImpl::_new_logic(ymuint node_id,
+			  const char* node_name,
+			  const vector<ymuint>& inode_id_array,
+			  const BnFuncType* func_type)
 {
   const char* new_node_name = alloc_string(node_name);
   ymuint ni = inode_id_array.size();
+  ASSERT_COND( ni == func_type->input_num() );
   ymuint* fanins = new_fanin_array(inode_id_array);
 
-  void* p = mAlloc.get_memory(sizeof(BnTvNode));
-  BnNodeImpl* node = new (p) BnTvNode(node_id, new_node_name, ni, fanins, tv);
+  void* p = mAlloc.get_memory(sizeof(BnLogicNode));
+  BnNodeImpl* node = new (p) BnLogicNode(node_id, new_node_name, fanins, func_type);
 
   set_node(node_id, node);
 
@@ -245,56 +216,6 @@ BnNetworkImpl::set_node(ymuint node_id,
   }
 
   mNodeArray[node_id] = node;
-}
-
-// @brief カバーを登録する．
-void
-BnNetworkImpl::new_cover(ymuint cover_id,
-			 ymuint input_num,
-			 ymuint cube_num,
-			 const string& ipat_str,
-			 BlifPat opat)
-{
-  // キューブ1つ分のブロック数
-  ymuint nb1 = ((input_num * 2) + 63) / 64;
-  // 全ブロック数
-  ymuint nb = nb1 * cube_num;
-
-  void* p = mAlloc.get_memory(sizeof(BlifCover) + sizeof(ymuint64) * (nb - 1));
-  BlifCover* cover = new (p) BlifCover;
-  cover->mInputNum = input_num;
-  cover->mOutputPat = opat;
-  cover->mCubeNum = cube_num;
-  cover->mId = mCoverArray.size();
-  ASSERT_COND( cover->mId == cover_id );
-  mCoverArray.push_back(cover);
-  ymuint j = 0;
-  ymuint k = 0;
-  for (ymuint c = 0; c < cube_num; ++ c) {
-    ymuint64 tmp = 0UL;
-    ymuint shift = 0;
-    for (ymuint i = 0; i < input_num; ++ i, ++ k) {
-      ymuint64 pat;
-      switch ( ipat_str[k] ) {
-      case '0': pat = 0UL; break;
-      case '1': pat = 1UL; break;
-      case '-': pat = 2UL; break;
-      default: ASSERT_NOT_REACHED;
-      }
-      tmp |= (pat << shift);
-      shift += 2;
-      if ( shift == 64 ) {
-	cover->mPatArray[j] = tmp;
-	tmp = 0UL;
-	shift = 0;
-	++ j;
-      }
-    }
-    if ( shift > 0 ) {
-      cover->mPatArray[j] = tmp;
-      ++ j;
-    }
-  }
 }
 
 // @brief 文字列領域を確保する．
@@ -369,8 +290,8 @@ BnNetworkImpl::write_blif(ostream& s) const
       s << " " << inode->name();
     }
     s << " " << node->name() << endl;
-    const BlifCover* cover = node->cover();
-    cover->print(s);
+    //const BlifCover* cover = node->cover();
+    //cover->print(s);
   }
 #if 0
   for (vector<BnNode*>::const_iterator p = mGateArray.begin();

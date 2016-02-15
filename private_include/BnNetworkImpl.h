@@ -10,10 +10,11 @@
 
 
 #include "ym/ym_bnet.h"
+#include "ym/BnFuncType.h"
 #include "ym/ym_cell.h"
 #include "ym/SimpleAlloc.h"
 #include "BnNodeImpl.h"
-#include "ym/BlifCover.h"
+#include "BnFuncTypeMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -75,14 +76,14 @@ public:
   const BnNode*
   output(ymuint pos) const;
 
-  /// @brief ラッチ数を得る．
+  /// @brief D-FF数を得る．
   ymuint
-  ff_num() const;
+  dff_num() const;
 
-  /// @brief ラッチを得る．
+  /// @brief D-FFを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < ff_num() )
   const BnNode*
-  ff(ymuint pos) const;
+  dff(ymuint pos) const;
 
   /// @brief 論理ノード数を得る．
   ymuint
@@ -157,51 +158,40 @@ public:
   void
   new_output(ymuint node_id);
 
-  /// @brief ラッチノードを生成する．
+  /// @brief D-FFノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id ファンインのID番号
   /// @param[in] rval リセット値 ( '0', '1', ' ' のいずれか )
   void
-  new_latch(ymuint node_id,
-	    const char* node_name,
-	    ymuint inode_id,
-	    char rval);
+  new_dff(ymuint node_id,
+	  const char* node_name,
+	  ymuint inode_id,
+	  char rval);
 
-  /// @brief プリミティブノードを生成する．
+  /// @brief 論理ノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] gate_type ゲートの型
+  /// @param[in] prim_type プリミティブタイプ
   void
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
-	    GateType gate_type);
+	    BnFuncType::Type prim_type);
 
-  /// @brief セルノードを生成する．
+  /// @brief 論理ノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] cell セルへのポインタ
+  /// @param[in] cell セル
   void
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
 	    const Cell* cell);
 
-  /// @brief カバーノードを生成する．
-  /// @param[in] node_id ノードID
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] cover_id カバー
-  void
-  new_logic(ymuint node_id,
-	    const char* node_name,
-	    const vector<ymuint>& inode_id_array,
-	    ymuint cover_id);
-
-  /// @brief 論理式ノードを生成する．
+  /// @brief 論理ノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
@@ -212,30 +202,33 @@ public:
 	    const vector<ymuint>& inode_id_array,
 	    Expr expr);
 
-  /// @brief 真理値表ノードを生成する．
+  /// @brief 論理ノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] tv 真理値表
+  /// @param[in] tvfunc 真理値表ベクタ
   void
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
-	    TvFunc tv);
-
-  /// @brief カバーを登録する．
-  void
-  new_cover(ymuint cover_id,
-	    ymuint input_num,
-	    ymuint cube_num,
-	    const string& ipat_str,
-	    BlifPat opat);
+	    const TvFunc& tvfunc);
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いる下請け関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 論理ノードを生成する．
+  /// @param[in] node_id ノードID
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id_array ファンインのID番号の配列
+  /// @param[in] func_type 関数の型
+  void
+  _new_logic(ymuint node_id,
+	     const char* node_name,
+	     const vector<ymuint>& inode_id_array,
+	     const BnFuncType* func_type);
 
   /// @brief ファンインのノード番号の配列を作る．
   ymuint*
@@ -284,8 +277,8 @@ private:
   // 論理ノードの配列
   vector<BnNode*> mLogicArray;
 
-  // カバーの配列
-  vector<BlifCover*> mCoverArray;
+  // FuncType を管理するオブジェクト
+  BnFuncTypeMgr mFuncTypeMgr;
 
 };
 
@@ -356,21 +349,21 @@ BnNetworkImpl::output(ymuint pos) const
   return node(mPOArray[pos]);
 }
 
-// @brief ラッチ数を得る．
+// @brief D-FF数を得る．
 inline
 ymuint
-BnNetworkImpl::ff_num() const
+BnNetworkImpl::dff_num() const
 {
   return mFFArray.size();
 }
 
-// @brief ラッチを得る．
-// @param[in] pos 位置番号 ( 0 <= pos < ff_num() )
+// @brief D-FFを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
 inline
 const BnNode*
-BnNetworkImpl::ff(ymuint pos) const
+BnNetworkImpl::dff(ymuint pos) const
 {
-  ASSERT_COND( pos < ff_num() );
+  ASSERT_COND( pos < dff_num() );
   return mFFArray[pos];
 }
 
