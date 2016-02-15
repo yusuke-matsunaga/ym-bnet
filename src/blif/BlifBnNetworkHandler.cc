@@ -9,6 +9,7 @@
 
 #include "BlifBnNetworkHandler.h"
 #include "BnNetworkImpl.h"
+#include "ym/BlifCover.h"
 #include "ym/BnNode.h"
 
 
@@ -71,6 +72,39 @@ BlifBnNetworkHandler::outputs_elem(ymuint name_id)
   return true;
 }
 
+BEGIN_NONAMESPACE
+
+Expr
+cover2expr(const BlifCover* cover)
+{
+  ymuint ni = cover->input_num();
+  ymuint nc = cover->cube_num();
+  Expr ans = Expr::make_zero();
+  for (ymuint c = 0; c < nc; ++ c) {
+    Expr prod = Expr::make_one();
+    for (ymuint i = 0; i < ni; ++ i) {
+      BlifCover::Pat pat = cover->input_pat(i, c);
+      switch ( pat ) {
+      case BlifCover::kPat_0:
+	prod &= Expr::make_negaliteral(VarId(i));
+	break;
+      case BlifCover::kPat_1:
+	prod &= Expr::make_posiliteral(VarId(i));
+	break;
+      default:
+	break;
+      }
+    }
+    ans |= prod;
+  }
+  if ( cover->output_pat() == BlifCover::kPat_0 ) {
+    ans = ~ans;
+  }
+  return ans;
+}
+
+END_NONAMESPACE
+
 // @brief .names 文の処理
 // @param[in] onode_id ノード名のID番号
 // @param[in] oname 出力名
@@ -84,8 +118,17 @@ BlifBnNetworkHandler::names(ymuint onode_id,
 			    const vector<ymuint>& inode_id_array,
 			    ymuint cover_id)
 {
-  const BlifCover* cover = id2cover(cover_id);
-  mNetwork->new_logic(onode_id, oname, inode_id_array, nullptr);
+  while ( mFuncTypeArray.size() <= cover_id ) {
+    mFuncTypeArray.push_back(nullptr);
+  }
+  const BnFuncType* func_type = mFuncTypeArray[cover_id];
+  if ( func_type == nullptr ) {
+    const BlifCover* cover = id2cover(cover_id);
+    Expr expr = cover2expr(cover);
+    func_type = mNetwork->new_expr_type(expr, inode_id_array.size());
+    mFuncTypeArray[cover_id] = func_type;
+  }
+  mNetwork->new_logic(onode_id, oname, inode_id_array, func_type);
 
   return true;
 }
@@ -103,7 +146,8 @@ BlifBnNetworkHandler::gate(ymuint onode_id,
 			   const vector<ymuint>& inode_id_array,
 			   const Cell* cell)
 {
-  mNetwork->new_logic(onode_id, oname, inode_id_array, cell);
+  const BnFuncType* func_type = mNetwork->new_cell_type(cell);
+  mNetwork->new_logic(onode_id, oname, inode_id_array, func_type);
 
   return true;
 }

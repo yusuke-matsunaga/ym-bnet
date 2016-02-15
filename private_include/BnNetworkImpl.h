@@ -173,62 +173,36 @@ public:
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] prim_type プリミティブタイプ
+  /// @param[in] func_type 関数の型
   void
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
-	    BnFuncType::Type prim_type);
+	    const BnFuncType* func_type);
 
-  /// @brief 論理ノードを生成する．
-  /// @param[in] node_id ノードID
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] cell セル
-  void
-  new_logic(ymuint node_id,
-	    const char* node_name,
-	    const vector<ymuint>& inode_id_array,
-	    const Cell* cell);
+  /// @brief プリミティブ型を生成する．
+  const BnFuncType*
+  new_primitive_type(BnFuncType::Type prim_type,
+		     ymuint input_num);
 
-  /// @brief 論理ノードを生成する．
-  /// @param[in] node_id ノードID
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] expr 論理式
-  void
-  new_logic(ymuint node_id,
-	    const char* node_name,
-	    const vector<ymuint>& inode_id_array,
-	    Expr expr);
+  /// @brief セル型を生成する．
+  const BnFuncType*
+  new_cell_type(const Cell* cell);
 
-  /// @brief 論理ノードを生成する．
-  /// @param[in] node_id ノードID
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] tvfunc 真理値表ベクタ
-  void
-  new_logic(ymuint node_id,
-	    const char* node_name,
-	    const vector<ymuint>& inode_id_array,
-	    const TvFunc& tvfunc);
+  /// @brief 論理式型を生成する．
+  const BnFuncType*
+  new_expr_type(const Expr& expr,
+		ymuint input_num);
+
+  /// @brief 真理値表型を生成する．
+  const BnFuncType*
+  new_tv_type(const TvFunc& tv);
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いる下請け関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief 論理ノードを生成する．
-  /// @param[in] node_id ノードID
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id_array ファンインのID番号の配列
-  /// @param[in] func_type 関数の型
-  void
-  _new_logic(ymuint node_id,
-	     const char* node_name,
-	     const vector<ymuint>& inode_id_array,
-	     const BnFuncType* func_type);
 
   /// @brief ファンインのノード番号の配列を作る．
   ymuint*

@@ -108,72 +108,12 @@ BnNetworkImpl::new_dff(ymuint node_id,
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] prim_type プリミティブタイプ
-void
-BnNetworkImpl::new_logic(ymuint node_id,
-			 const char* node_name,
-			 const vector<ymuint>& inode_id_array,
-			 BnFuncType::Type prim_type)
-{
-  const BnFuncType* func_type = mFuncTypeMgr.primitive_type(prim_type, inode_id_array.size());
-  _new_logic(node_id, node_name, inode_id_array, func_type);
-}
-
-// @brief 論理ノードを生成する．
-// @param[in] node_id ノードID
-// @param[in] node_name ノード名
-// @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] cell セル
-void
-BnNetworkImpl::new_logic(ymuint node_id,
-			 const char* node_name,
-			 const vector<ymuint>& inode_id_array,
-			 const Cell* cell)
-{
-  const BnFuncType* func_type = mFuncTypeMgr.cell_type(cell);
-  _new_logic(node_id, node_name, inode_id_array, func_type);
-}
-
-// @brief 論理ノードを生成する．
-// @param[in] node_id ノードID
-// @param[in] node_name ノード名
-// @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] expr 論理式
-void
-BnNetworkImpl::new_logic(ymuint node_id,
-			 const char* node_name,
-			 const vector<ymuint>& inode_id_array,
-			 Expr expr)
-{
-  const BnFuncType* func_type = mFuncTypeMgr.expr_type(expr, inode_id_array.size());
-  _new_logic(node_id, node_name, inode_id_array, func_type);
-}
-
-// @brief 論理ノードを生成する．
-// @param[in] node_id ノードID
-// @param[in] node_name ノード名
-// @param[in] inode_id_array ファンインのID番号の配列
-// @param[in] tvfunc 真理値表ベクタ
-void
-BnNetworkImpl::new_logic(ymuint node_id,
-			 const char* node_name,
-			 const vector<ymuint>& inode_id_array,
-			 const TvFunc& tvfunc)
-{
-  const BnFuncType* func_type = mFuncTypeMgr.tv_type(tvfunc);
-  _new_logic(node_id, node_name, inode_id_array, func_type);
-}
-
-// @brief 論理ノードを生成する．
-// @param[in] node_id ノードID
-// @param[in] node_name ノード名
-// @param[in] inode_id_array ファンインのID番号の配列
 // @param[in] func_type 論理関数の型
 void
-BnNetworkImpl::_new_logic(ymuint node_id,
-			  const char* node_name,
-			  const vector<ymuint>& inode_id_array,
-			  const BnFuncType* func_type)
+BnNetworkImpl::new_logic(ymuint node_id,
+			 const char* node_name,
+			 const vector<ymuint>& inode_id_array,
+			 const BnFuncType* func_type)
 {
   const char* new_node_name = alloc_string(node_name);
   ymuint ni = inode_id_array.size();
@@ -186,6 +126,36 @@ BnNetworkImpl::_new_logic(ymuint node_id,
   set_node(node_id, node);
 
   mLogicArray.push_back(node);
+}
+
+// @brief プリミティブ型を生成する．
+const BnFuncType*
+BnNetworkImpl::new_primitive_type(BnFuncType::Type prim_type,
+				  ymuint input_num)
+{
+  return mFuncTypeMgr.primitive_type(prim_type, input_num);
+}
+
+// @brief セル型を生成する．
+const BnFuncType*
+BnNetworkImpl::new_cell_type(const Cell* cell)
+{
+  return mFuncTypeMgr.cell_type(cell);
+}
+
+// @brief 論理式型を生成する．
+const BnFuncType*
+BnNetworkImpl::new_expr_type(const Expr& expr,
+			     ymuint input_num)
+{
+  return mFuncTypeMgr.expr_type(expr, input_num);
+}
+
+// @brief 真理値表型を生成する．
+const BnFuncType*
+BnNetworkImpl::new_tv_type(const TvFunc& tv)
+{
+  return mFuncTypeMgr.tv_type(tv);
 }
 
 // @brief ファンインのノード番号の配列を作る．
@@ -290,28 +260,28 @@ BnNetworkImpl::write_blif(ostream& s) const
       s << " " << inode->name();
     }
     s << " " << node->name() << endl;
-    //const BlifCover* cover = node->cover();
-    //cover->print(s);
-  }
-#if 0
-  for (vector<BnNode*>::const_iterator p = mGateArray.begin();
-       p != mGateArray.end(); ++ p) {
-    const BnNode* node = *p;
-    ymuint ni = node->fanin_num();
-    const Cell* cell = node->cell();
-    ASSERT_COND( ni == cell->input_num() );
-    ASSERT_COND( cell->output_num() == 1 );
-    ASSERT_COND( cell->inout_num() == 0 );
-    s << ".gate " << cell->name();
-    for (ymuint i = 0; i < ni; ++ i) {
-      const CellPin* ipin = cell->input(i);
-      const BnNode* inode = this->node(node->fanin_id(i));
-      s << " " << ipin->name() << "=" << inode->name();
+    {
+      const BnFuncType* func_type = node->func_type();
+      if ( func_type->type() == BnFuncType::kFt_EXPR ) {
+	s << func_type->expr() << endl;
+      }
+      else if ( func_type->type() == BnFuncType::kFt_CELL ) {
+	ymuint ni = node->fanin_num();
+	const Cell* cell = func_type->cell();
+	ASSERT_COND( ni == cell->input_num() );
+	ASSERT_COND( cell->output_num() == 1 );
+	ASSERT_COND( cell->inout_num() == 0 );
+	s << ".gate " << cell->name();
+	for (ymuint i = 0; i < ni; ++ i) {
+	  const CellPin* ipin = cell->input(i);
+	  const BnNode* inode = this->node(node->fanin_id(i));
+	  s << " " << ipin->name() << "=" << inode->name();
+	}
+	const CellPin* opin = cell->output(0);
+	s << " " << opin->name() << "=" << node->name() << endl;
+      }
     }
-    const CellPin* opin = cell->output(0);
-    s << " " << opin->name() << "=" << node->name() << endl;
   }
-#endif
   s << ".end" << endl;
 }
 

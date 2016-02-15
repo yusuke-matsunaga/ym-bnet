@@ -81,7 +81,8 @@ Iscas89BnNetworkHandler::read_gate(const FileRegion& loc,
 				   const char* oname,
 				   const vector<ymuint>& iname_list)
 {
-  mNetwork->new_logic(oname_id, oname, iname_list, type);
+  const BnFuncType* func_type = mNetwork->new_primitive_type(type, iname_list.size());
+  mNetwork->new_logic(oname_id, oname, iname_list, func_type);
 
   return true;
 }

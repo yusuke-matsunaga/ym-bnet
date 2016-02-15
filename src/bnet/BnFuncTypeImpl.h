@@ -28,7 +28,8 @@ class BnFuncTypeImpl :
 public:
 
   /// @brief コンストラクタ
-  BnFuncTypeImpl();
+  /// @param[in] id ID番号
+  BnFuncTypeImpl(ymuint id);
 
   /// @brief デストラクタ
   virtual
@@ -39,6 +40,11 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief ID 番号を返す．
+  virtual
+  ymuint
+  id() const;
 
   /// @brief セルを返す．
   virtual
@@ -55,6 +61,15 @@ public:
   TvFunc
   truth_vector() const;
 
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ID番号
+  ymuint mId;
+
 };
 
 
@@ -68,8 +83,11 @@ class BnFuncTypePrim :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] type
-  BnFuncTypePrim(BnFuncType::Type type,
+  /// @param[in] id ID番号
+  /// @param[in] type プリミティタイプ
+  /// @param[in] ni 入力数
+  BnFuncTypePrim(ymuint id,
+		 BnFuncType::Type type,
 		 ymuint ni = 0);
 
   /// @brief デストラクタ
@@ -124,8 +142,10 @@ class BnFuncTypeCell :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ID番号
   /// @param[in] cell セル
-  BnFuncTypeCell(const Cell* cell);
+  BnFuncTypeCell(ymuint id,
+		 const Cell* cell);
 
   /// @brief デストラクタ
   ~BnFuncTypeCell();
@@ -181,9 +201,11 @@ class BnFuncTypeExpr :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ID番号
   /// @param[in] expr 論理式
   /// @param[in] ni 入力数
-  BnFuncTypeExpr(Expr expr,
+  BnFuncTypeExpr(ymuint id,
+		 Expr expr,
 		 ymuint ni);
 
   /// @brief デストラクタ
@@ -243,8 +265,10 @@ class BnFuncTypeTv :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ID番号
   /// @param[in] tv 真理値表ベクタ
-  BnFuncTypeTv(const TvFunc& tv);
+  BnFuncTypeTv(ymuint id,
+	       const TvFunc& tv);
 
   /// @brief デストラクタ
   ~BnFuncTypeTv();

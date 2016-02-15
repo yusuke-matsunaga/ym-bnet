@@ -38,7 +38,16 @@ const BnFuncType*
 BnFuncTypeMgr::primitive_type(BnFuncType::Type type,
 			      ymuint input_num)
 {
-  return new BnFuncTypePrim(type, input_num);
+  ymuint id;
+  for (id = 0; id < mFuncTypeList.size(); ++ id) {
+    const BnFuncType* func_type = mFuncTypeList[id];
+    if ( func_type->type() == type && func_type->input_num() == input_num ) {
+      return func_type;
+    }
+  }
+  BnFuncType* func_type = new BnFuncTypePrim(id, type, input_num);
+  mFuncTypeList.push_back(func_type);
+  return func_type;
 }
 
 // @brief セルタイプを得る．
@@ -46,7 +55,16 @@ BnFuncTypeMgr::primitive_type(BnFuncType::Type type,
 const BnFuncType*
 BnFuncTypeMgr::cell_type(const Cell* cell)
 {
-  return new BnFuncTypeCell(cell);
+  ymuint id;
+  for (id = 0; id < mFuncTypeList.size(); ++ id) {
+    const BnFuncType* func_type = mFuncTypeList[id];
+    if ( func_type->type() == BnFuncType::kFt_CELL && func_type->cell() == cell ) {
+      return func_type;
+    }
+  }
+  BnFuncType* func_type = new BnFuncTypeCell(id, cell);
+  mFuncTypeList.push_back(func_type);
+  return func_type;
 }
 
 // @brief 論理式タイプを得る．
@@ -56,14 +74,34 @@ const BnFuncType*
 BnFuncTypeMgr::expr_type(Expr expr,
 			 ymuint input_num)
 {
-  return new BnFuncTypeExpr(expr, input_num);
+  ymuint id;
+  for (id = 0; id < mFuncTypeList.size(); ++ id) {
+    const BnFuncType* func_type = mFuncTypeList[id];
+    if ( func_type->type() == BnFuncType::kFt_EXPR &&
+	 func_type->input_num() == input_num &&
+	 check_equiv(func_type->expr(), expr) ) {
+      return func_type;
+    }
+  }
+  BnFuncType* func_type = new BnFuncTypeExpr(id, expr, input_num);
+  mFuncTypeList.push_back(func_type);
+  return func_type;
 }
 
 // @brief 真理値表タイプを得る．
 const BnFuncType*
 BnFuncTypeMgr::tv_type(const TvFunc& tv)
 {
-  return new BnFuncTypeTv(tv);
+  ymuint id;
+  for (id = 0; id < mFuncTypeList.size(); ++ id) {
+    const BnFuncType* func_type = mFuncTypeList[id];
+    if ( func_type->type() == BnFuncType::kFt_TV && func_type->truth_vector() == tv ) {
+      return func_type;
+    }
+  }
+  BnFuncType* func_type = new BnFuncTypeTv(id, tv);
+  mFuncTypeList.push_back(func_type);
+  return func_type;
 }
 
 END_NAMESPACE_YM_BNET

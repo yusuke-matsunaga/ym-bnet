@@ -18,13 +18,22 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BnFuncTypeImpl::BnFuncTypeImpl()
+// @param[in] id ID番号
+BnFuncTypeImpl::BnFuncTypeImpl(ymuint id) :
+  mId(id)
 {
 }
 
 // @brief デストラクタ
 BnFuncTypeImpl::~BnFuncTypeImpl()
 {
+}
+
+// @brief ID 番号を返す．
+ymuint
+BnFuncTypeImpl::id() const
+{
+  return mId;
 }
 
 // @brief セルを返す．
@@ -55,9 +64,13 @@ BnFuncTypeImpl::truth_vector() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] type
-BnFuncTypePrim::BnFuncTypePrim(BnFuncType::Type type,
+// @param[in] id ID番号
+// @param[in] type 型
+// @param[in] ni 入力数
+BnFuncTypePrim::BnFuncTypePrim(ymuint id,
+			       BnFuncType::Type type,
 			       ymuint ni) :
+  BnFuncTypeImpl(id),
   mType(type),
   mInputNum(ni)
 {
@@ -90,8 +103,11 @@ BnFuncTypePrim::input_num() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ID番号
 // @param[in] cell セル
-BnFuncTypeCell::BnFuncTypeCell(const Cell* cell) :
+BnFuncTypeCell::BnFuncTypeCell(ymuint id,
+			       const Cell* cell) :
+  BnFuncTypeImpl(id),
   mCell(cell)
 {
 }
@@ -130,10 +146,13 @@ BnFuncTypeCell::cell() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ID番号
 // @param[in] expr 論理式
 // @param[in] ni 入力数
-BnFuncTypeExpr::BnFuncTypeExpr(Expr expr,
+BnFuncTypeExpr::BnFuncTypeExpr(ymuint id,
+			       Expr expr,
 			       ymuint ni) :
+  BnFuncTypeImpl(id),
   mExpr(expr),
   mInputNum(ni)
 {
@@ -173,8 +192,11 @@ BnFuncTypeExpr::expr() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ID番号
 // @param[in] tv 真理値表ベクタ
-BnFuncTypeTv::BnFuncTypeTv(const TvFunc& tv) :
+BnFuncTypeTv::BnFuncTypeTv(ymuint id,
+			   const TvFunc& tv) :
+  BnFuncTypeImpl(id),
   mFunc(tv)
 {
 }

@@ -142,6 +142,9 @@ private:
   // 対象のネットワーク
   BnNetworkImpl* mNetwork;
 
+  // カバーIDをキーにしてFuncType持つ配列
+  vector<const BnFuncType*> mFuncTypeArray;
+
 };
 
 END_NAMESPACE_YM_BNET
