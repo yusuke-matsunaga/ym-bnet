@@ -21,8 +21,23 @@ class BnNode;
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetwork BnNetwork.h "ym/BnNetwork.h"
 /// @ingroup BlifGroup
-/// @brief blif ファイルの表しているネットワーク
+/// @brief ブーリアンネットワークを表すクラス
 /// @sa BnNode
+///
+/// ただし，このネットワークはラッチノードを含むので正確には
+/// syncronous boolean network かもしれない．
+/// 以下の種類のノードを持つ．
+/// - 外部入力ノード
+/// - 論理ノード
+///   論理関数表現とファンインのノードを持つ．
+/// - D-FFノード
+///   リセット状態(値)と1つのファンインのノードを持つ．
+/// すべてのノードは任意で名前を持つ．
+/// 外部出力は上記いずれかのノードの出力を指す．
+/// 独立のノードとしては存在しない．
+///
+/// このクラスはファイル入出力用のモデルであり，このクラス上で
+/// 回路変換などの処理を行うことは考えていない．
 //////////////////////////////////////////////////////////////////////
 class BnNetwork
 {
@@ -71,14 +86,14 @@ public:
   const BnNode*
   output(ymuint pos) const;
 
-  /// @brief ラッチ数を得る．
+  /// @brief D-FF数を得る．
   ymuint
-  ff_num() const;
+  dff_num() const;
 
-  /// @brief ラッチを得る．
+  /// @brief D-FFを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < ff_num() )
   const BnNode*
-  ff(ymuint pos) const;
+  dff(ymuint pos) const;
 
   /// @brief 論理ノード数を得る．
   ymuint
