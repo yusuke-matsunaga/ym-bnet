@@ -246,7 +246,7 @@ BnNetworkImpl::write_blif(ostream& s) const
     const BnNode* inode = this->node(node->inode_id());
     s << ".latch " << inode->name() << " " << node->name();
     if ( node->reset_val() != ' ' ) {
-      s << node->reset_val();
+      s << ' ' << node->reset_val();
     }
     s << endl;
   }
@@ -262,23 +262,37 @@ BnNetworkImpl::write_blif(ostream& s) const
     s << " " << node->name() << endl;
     {
       const BnFuncType* func_type = node->func_type();
-      if ( func_type->type() == BnFuncType::kFt_EXPR ) {
-	s << func_type->expr() << endl;
-      }
-      else if ( func_type->type() == BnFuncType::kFt_CELL ) {
-	ymuint ni = node->fanin_num();
-	const Cell* cell = func_type->cell();
-	ASSERT_COND( ni == cell->input_num() );
-	ASSERT_COND( cell->output_num() == 1 );
-	ASSERT_COND( cell->inout_num() == 0 );
-	s << ".gate " << cell->name();
-	for (ymuint i = 0; i < ni; ++ i) {
-	  const CellPin* ipin = cell->input(i);
-	  const BnNode* inode = this->node(node->fanin_id(i));
-	  s << " " << ipin->name() << "=" << inode->name();
+      switch ( func_type->type() ) {
+      case BnFuncType::kFt_C0:	 s << "C0" << endl; break;
+      case BnFuncType::kFt_C1:   s << "C1" << endl; break;
+      case BnFuncType::kFt_BUFF: s << "BUFF" << endl; break;
+      case BnFuncType::kFt_NOT:  s << "NOT"  << endl; break;
+      case BnFuncType::kFt_AND:  s << "AND"  << endl; break;
+      case BnFuncType::kFt_NAND: s << "NAND" << endl; break;
+      case BnFuncType::kFt_OR:   s << "OR"   << endl; break;
+      case BnFuncType::kFt_NOR:  s << "NOR"  << endl; break;
+      case BnFuncType::kFt_XOR:  s << "XOR"  << endl; break;
+      case BnFuncType::kFt_XNOR: s << "XNOR" << endl; break;
+      case BnFuncType::kFt_CELL:
+	{
+	  ymuint ni = node->fanin_num();
+	  const Cell* cell = func_type->cell();
+	  ASSERT_COND( ni == cell->input_num() );
+	  ASSERT_COND( cell->output_num() == 1 );
+	  ASSERT_COND( cell->inout_num() == 0 );
+	  s << ".gate " << cell->name();
+	  for (ymuint i = 0; i < ni; ++ i) {
+	    const CellPin* ipin = cell->input(i);
+	    const BnNode* inode = this->node(node->fanin_id(i));
+	    s << " " << ipin->name() << "=" << inode->name();
+	  }
+	  const CellPin* opin = cell->output(0);
+	  s << " " << opin->name() << "=" << node->name() << endl;
 	}
-	const CellPin* opin = cell->output(0);
-	s << " " << opin->name() << "=" << node->name() << endl;
+	break;
+      case BnFuncType::kFt_EXPR: s << func_type->expr() << endl; break;
+      case BnFuncType::kFt_TV:   s << func_type->truth_vector() << endl; break;
+      default: ASSERT_NOT_REACHED; break;
       }
     }
   }
