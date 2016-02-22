@@ -111,6 +111,77 @@ BnNetwork::logic(ymuint pos) const
   return mImpl->logic(pos);
 }
 
+BEGIN_NONAMESPACE
+
+// キューに積む．
+void
+put_queue(vector<const BnNode*>& queue,
+	  ymuint& wpos,
+	  vector<bool>& mark,
+	  const BnNode* node)
+{
+  if ( !mark[node->id()] ) {
+    mark[node->id()] = true;
+    queue[wpos] = node;
+    ++ wpos;
+  }
+}
+
+END_NONAMESPACE
+
+// @brief ノードを入力側からのトポロジカル順に並べる．
+// @param[out] node_list ノードを格納するリスト
+void
+BnNetwork::topological_sort(vector<const BnNode*>& node_list) const
+{
+  // キュー
+  vector<const BnNode*> queue(node_num());
+  ymuint wpos = 0;
+  // キューに入っているかを示すフラグの配列
+  // node->id() をキーにする．
+  vector<bool> mark(node_num(), false);
+
+  // 外部入力をキューに積む．
+  for (ymuint i = 0; i < input_num(); ++ i) {
+    const BnNode* node = input(i);
+    put_queue(queue, wpos, mark, node);
+  }
+  // DFFをキューに積む．
+  for (ymuint i = 0; i < dff_num(); ++ i) {
+    const BnNode* node = dff(i);
+    put_queue(queue, wpos, mark, node);
+  }
+
+  node_list.clear();
+  node_list.reserve(node_num());
+  // キューが空になるまで処理を繰り返す．
+  for (ymuint rpos = 0; rpos < wpos; ++ rpos) {
+    const BnNode* node = queue[rpos];
+    if ( node->is_logic() ) {
+      node_list.push_back(node);
+    }
+    ymuint nfo = node->fanout_num();
+    for (ymuint i = 0; i < nfo; ++ i) {
+      const BnNode* onode = mImpl->node(node->fanout_id(i));
+      if ( onode->is_dff() ) {
+	continue;
+      }
+      ymuint ni = onode->fanin_num();
+      bool ready = true;
+      for (ymuint j = 0; j < ni; ++ j) {
+	ymuint iid = onode->fanin_id(j);
+	if ( !mark[iid] ) {
+	  ready = false;
+	  break;
+	}
+      }
+      if ( ready ) {
+	put_queue(queue, wpos, mark, onode);
+      }
+    }
+  }
+}
+
 // @brief blif 形式のファイルを読み込む．
 // @param[in] filename ファイル名
 // @param[in] cell_library セルライブラリ

@@ -104,6 +104,11 @@ public:
   const BnNode*
   logic(ymuint pos) const;
 
+  /// @brief 論理ノードを入力側からのトポロジカル順に並べる．
+  /// @param[out] node_list ノードを格納するリスト
+  void
+  topological_sort(vector<const BnNode*>& node_list) const;
+
 
 public:
   //////////////////////////////////////////////////////////////////////
