@@ -32,7 +32,7 @@ bool
 Iscas89BnNetworkHandler::init()
 {
   mNetwork->clear();
-
+  mNetwork->set_model("iscas89");
   return true;
 }
 
@@ -100,7 +100,7 @@ Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
 				  const char* oname,
 				  ymuint iname_id)
 {
-  mNetwork->new_dff(oname_id, oname, iname_id, 0);
+  mNetwork->new_dff(oname_id, oname, iname_id, ' ');
 
   return true;
 }
