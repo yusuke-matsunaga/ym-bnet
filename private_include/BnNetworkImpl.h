@@ -100,6 +100,7 @@ public:
   // blif 形式のファイルとの間で入出力を行なう関数
   //////////////////////////////////////////////////////////////////////
 
+#if 0
   /// @brief blif 形式のファイルを読み込む．
   /// @param[in] filename ファイル名
   /// @param[in] cell_library セルライブラリ
@@ -108,6 +109,7 @@ public:
   bool
   read_blif(const string& filename,
 	    const CellLibrary* cell_library = nullptr);
+#endif
 
   /// @brief 内容を blif 形式で出力する．
   /// @param[in] s 出力先のストリーム
@@ -120,12 +122,14 @@ public:
   // iscas89 形式のファイルとの間で入出力を行なう関数
   //////////////////////////////////////////////////////////////////////
 
+#if 0
   /// @brief iscas89(.bench) 形式のファイルを読み込む．
   /// @param[in] filename ファイル名
   /// @retval true 正常に読み込めた
   /// @retval false 読み込み中にエラーが起こった．
   bool
   read_iscas89(const string& filename);
+#endif
 
   /// @brief 内容を iscas89 形式で出力する．
   /// @param[in] s 出力先のストリーム
@@ -155,8 +159,10 @@ public:
 
   /// @brief 外部出力ノードの番号を登録する．
   /// @param[in] node_id ノードID
+  /// @param[in] node_name ノード名
   void
-  new_output(ymuint node_id);
+  new_output(ymuint node_id,
+	     const char* node_name);
 
   /// @brief D-FFノードを生成する．
   /// @param[in] node_id ノードID
@@ -198,6 +204,10 @@ public:
   const BnFuncType*
   new_tv_type(const TvFunc& tv);
 
+  /// @brief 各ノードのファンアウト情報を設定する．
+  void
+  wrap_up();
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -214,10 +224,6 @@ private:
   void
   set_node(ymuint node_id,
 	   BnNodeImpl* ndoe);
-
-  /// @brief 各ノードのファンアウト情報を設定する．
-  void
-  wrap_up();
 
   /// @brief 文字列領域を確保する．
   const char*
@@ -239,11 +245,11 @@ private:
   // ID をキーにしてノードを収めた配列
   vector<BnNodeImpl*> mNodeArray;
 
-  // 外部入力の配列
+  // 外部入力ノードの配列
   vector<BnNode*> mPIArray;
 
-  // 外部出力ノードのIDの配列
-  vector<ymuint> mPOArray;
+  // 外部出力ノードの配列
+  vector<BnNode*> mPOArray;
 
   // ラッチノードの配列
   vector<BnNode*> mFFArray;
@@ -320,7 +326,7 @@ const BnNode*
 BnNetworkImpl::output(ymuint pos) const
 {
   ASSERT_COND( pos < output_num() );
-  return node(mPOArray[pos]);
+  return mPOArray[pos];
 }
 
 // @brief D-FF数を得る．

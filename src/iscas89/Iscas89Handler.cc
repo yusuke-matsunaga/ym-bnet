@@ -51,11 +51,13 @@ Iscas89Handler::read_input(const FileRegion& loc,
 // @brief OUTPUT 文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] name_id 出力ピン名の ID 番号
+// @param[in] name 出力ピン名
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_output(const FileRegion& loc,
-			    ymuint name_id)
+			    ymuint name_id,
+			    const char* name)
 {
   return true;
 }

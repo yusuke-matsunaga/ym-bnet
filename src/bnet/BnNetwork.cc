@@ -9,6 +9,11 @@
 
 #include "ym/BnNetwork.h"
 #include "BnNetworkImpl.h"
+#include "ym/BlifParser.h"
+#include "ym/Iscas89Parser.h"
+
+#include "BlifBnNetworkHandler.h"
+#include "Iscas89BnNetworkHandler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -191,7 +196,19 @@ bool
 BnNetwork::read_blif(const string& filename,
 		     const CellLibrary* cell_library)
 {
-  return mImpl->read_blif(filename, cell_library);
+  BlifParser parser;
+  BlifBnNetworkHandler* handler = new BlifBnNetworkHandler(mImpl);
+  parser.add_handler(handler);
+
+  bool stat = parser.read(filename, cell_library);
+
+  // handler は parser が解放してくれる．
+
+  if ( stat ) {
+    mImpl->wrap_up();
+  }
+
+  return stat;
 }
 
 // @brief 内容を blif 形式で出力する．
@@ -209,7 +226,19 @@ BnNetwork::write_blif(ostream& s) const
 bool
 BnNetwork::read_iscas89(const string& filename)
 {
-  return mImpl->read_iscas89(filename);
+  Iscas89Parser parser;
+  Iscas89BnNetworkHandler* handler = new Iscas89BnNetworkHandler(mImpl);
+  parser.add_handler(handler);
+
+  bool stat = parser.read(filename);
+
+  // handler は parser が解放してくれる．
+
+  if ( stat ) {
+    mImpl->wrap_up();
+  }
+
+  return stat;
 }
 
 // @brief 内容を iscas89 形式で出力する．

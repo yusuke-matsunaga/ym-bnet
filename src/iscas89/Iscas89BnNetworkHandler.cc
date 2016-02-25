@@ -59,9 +59,10 @@ Iscas89BnNetworkHandler::read_input(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
-				     ymuint name_id)
+				     ymuint name_id,
+				     const char* name)
 {
-  mNetwork->new_output(name_id);
+  mNetwork->new_output(name_id, name);
 
   return true;
 }

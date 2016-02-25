@@ -371,7 +371,7 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
   for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
        p != mHandlerList.end(); ++ p) {
     Iscas89Handler* handler = *p;
-    if ( !handler->read_output(loc, name_id) ) {
+    if ( !handler->read_output(loc, name_id, cell->str()) ) {
       return false;
     }
   }

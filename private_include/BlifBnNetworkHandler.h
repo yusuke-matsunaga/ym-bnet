@@ -65,11 +65,13 @@ public:
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
+  /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  outputs_elem(ymuint name_id);
+  outputs_elem(ymuint name_id,
+	       const char* name);
 
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号

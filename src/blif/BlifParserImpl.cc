@@ -401,7 +401,7 @@ BlifParserImpl::read(const string& filename,
       for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	   p != mHandlerList.end(); ++ p) {
 	BlifHandler* handler = *p;
-	if ( !handler->outputs_elem(cell->id()) ) {
+	if ( !handler->outputs_elem(cell->id(), name) ) {
 	  stat = false;
 	}
       }

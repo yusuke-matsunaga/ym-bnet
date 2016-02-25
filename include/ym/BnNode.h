@@ -56,15 +56,20 @@ public:
   bool
   is_input() const = 0;
 
-  /// @brief 論理ノードの時 true を返す．
+  /// @brief 外部出力の時 true を返す．
   virtual
   bool
-  is_logic() const = 0;
+  is_output() const = 0;
 
   /// @brief D-FF ノードの時 true を返す．
   virtual
   bool
   is_dff() const = 0;
+
+  /// @brief 論理ノードの時 true を返す．
+  virtual
+  bool
+  is_logic() const = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
@@ -76,6 +81,17 @@ public:
   virtual
   ymuint
   fanout_id(ymuint pos) const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部出力ノード/D-FFノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 入力ノードのID番号を返す．
+  virtual
+  ymuint
+  inode_id() const = 0;
 
 
 public:
@@ -104,11 +120,6 @@ public:
   //////////////////////////////////////////////////////////////////////
   // D-FFノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief 入力ノードのID番号を返す．
-  virtual
-  ymuint
-  inode_id() const = 0;
 
   /// @brief リセット値を返す．
   virtual

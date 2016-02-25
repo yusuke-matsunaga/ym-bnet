@@ -10,13 +10,7 @@
 #include "BnNetworkImpl.h"
 #include "BnNodeImpl.h"
 
-#include "BlifBnNetworkHandler.h"
-#include "Iscas89BnNetworkHandler.h"
-
-#include "ym/BlifParser.h"
-#include "ym/BlifCover.h"
 #include "ym/BnFuncType.h"
-#include "ym/Iscas89Parser.h"
 #include "ym/Cell.h"
 #include "ym/CellPin.h"
 
@@ -77,10 +71,21 @@ BnNetworkImpl::new_input(ymuint node_id,
 
 // @brief 外部出力ノードの番号を登録する．
 // @param[in] node_id ノードID
+// @param[in] node_name ノード名
+// @param[in] inode_id ファンインのID番号
 void
-BnNetworkImpl::new_output(ymuint node_id)
+BnNetworkImpl::new_output(ymuint node_id,
+			  const char* node_name)
 {
-  mPOArray.push_back(node_id);
+  ymuint onode_id = mNodeArray.size();
+  const char* new_node_name = alloc_string(node_name);
+
+  void* p = mAlloc.get_memory(sizeof(BnOutputNode));
+  BnNodeImpl* node = new (p) BnOutputNode(onode_id, new_node_name, node_id);
+
+  set_node(onode_id, node);
+
+  mPOArray.push_back(node);
 }
 
 // @brief D-FFノードを生成する．
@@ -200,6 +205,7 @@ BnNetworkImpl::alloc_string(const char* src_str)
   return dst_top;
 }
 
+#if 0
 // @brief blif 形式のファイルを読み込む．
 // @param[in] filename ファイル名
 // @param[in] cell_library セルライブラリ
@@ -223,6 +229,7 @@ BnNetworkImpl::read_blif(const string& filename,
 
   return stat;
 }
+#endif
 
 // @brief 内容を blif 形式で出力する．
 // @param[in] s 出力先のストリーム
@@ -235,9 +242,9 @@ BnNetworkImpl::write_blif(ostream& s) const
     const BnNode* node = *p;
     s << ".inputs " << node->name() << endl;
   }
-  for (vector<ymuint>::const_iterator p = mPOArray.begin();
+  for (vector<BnNode*>::const_iterator p = mPOArray.begin();
        p != mPOArray.end(); ++ p) {
-    const BnNode* node = this->node(*p);
+    const BnNode* node = *p;
     s << ".outputs " << node->name() << endl;
   }
   for (vector<BnNode*>::const_iterator p = mFFArray.begin();
@@ -299,6 +306,7 @@ BnNetworkImpl::write_blif(ostream& s) const
   s << ".end" << endl;
 }
 
+#if 0
 // @brief iscas89(.bench) 形式のファイルを読み込む．
 // @param[in] filename ファイル名
 // @retval true 正常に読み込めた
@@ -320,6 +328,7 @@ BnNetworkImpl::read_iscas89(const string& filename)
 
   return stat;
 }
+#endif
 
 // @brief 内容を iscas89 形式で出力する．
 // @param[in] s 出力先のストリーム

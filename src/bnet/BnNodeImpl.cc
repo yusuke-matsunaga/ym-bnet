@@ -56,9 +56,9 @@ BnNodeImpl::is_input() const
   return false;
 }
 
-// @brief 論理ノードの時 true を返す．
+// @brief 外部出力の時 true を返す．
 bool
-BnNodeImpl::is_logic() const
+BnNodeImpl::is_output() const
 {
   return false;
 }
@@ -66,6 +66,13 @@ BnNodeImpl::is_logic() const
 // @brief D-FF ノードの時 true を返す．
 bool
 BnNodeImpl::is_dff() const
+{
+  return false;
+}
+
+// @brief 論理ノードの時 true を返す．
+bool
+BnNodeImpl::is_logic() const
 {
   return false;
 }
@@ -84,6 +91,14 @@ BnNodeImpl::fanout_id(ymuint pos) const
 {
   ASSERT_COND( pos < fanout_num() );
   return mFanoutList[pos];
+}
+
+// @brief 入力ノードのID番号を返す．
+ymuint
+BnNodeImpl::inode_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
 }
 
 // @brief ファンイン数を得る．
@@ -108,14 +123,6 @@ BnNodeImpl::func_type() const
 {
   ASSERT_NOT_REACHED;
   return nullptr;
-}
-
-// @brief 入力ノードのID番号を返す．
-ymuint
-BnNodeImpl::inode_id() const
-{
-  ASSERT_NOT_REACHED;
-  return 0;
 }
 
 // @brief リセット値を返す．
@@ -150,6 +157,101 @@ bool
 BnInputNode::is_input() const
 {
   return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnODNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID 番号
+// @param[in] name ノード名
+// @param[in] inode_id 入力ノードのID番号
+BnODNode::BnODNode(ymuint id,
+		   const char* name,
+		   ymuint inode_id) :
+  BnNodeImpl(id, name),
+  mInodeId(inode_id)
+{
+}
+
+// @brief デストラクタ
+BnODNode::~BnODNode()
+{
+}
+
+// @brief 入力ノードのID番号を返す．
+ymuint
+BnODNode::inode_id() const
+{
+  return mInodeId;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnOutputNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID 番号
+// @param[in] name ノード名
+// @param[in] inode_id 入力ノードのID番号
+BnOutputNode::BnOutputNode(ymuint id,
+			   const char* name,
+			   ymuint inode_id) :
+  BnODNode(id, name, inode_id)
+{
+}
+
+// @brief デストラクタ
+BnOutputNode::~BnOutputNode()
+{
+}
+
+// @brief 外部出力の時 true を返す．
+bool
+BnOutputNode::is_output() const
+{
+  return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnDffNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID 番号
+// @param[in] name ノード名
+// @param[in] inode_id 入力ノードのID番号
+// @param[in] rval リセット値
+BnDffNode::BnDffNode(ymuint id,
+		     const char* name,
+		     ymuint inode_id,
+		     char rval) :
+  BnODNode(id, name, inode_id),
+  mResetVal(rval)
+{
+}
+
+// @brief デストラクタ
+BnDffNode::~BnDffNode()
+{
+}
+
+// @brief D-FF ノードの時 true を返す．
+bool
+BnDffNode::is_dff() const
+{
+  return true;
+}
+
+// @brief リセット値を返す．
+char
+BnDffNode::reset_val() const
+{
+  return mResetVal;
 }
 
 
@@ -205,52 +307,6 @@ const BnFuncType*
 BnLogicNode::func_type() const
 {
   return mFuncType;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnDffNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] inode_id 入力ノードのID番号
-// @param[in] rval リセット値
-BnDffNode::BnDffNode(ymuint id,
-		     const char* name,
-		     ymuint inode_id,
-		     char rval) :
-  BnNodeImpl(id, name),
-  mInodeId(inode_id),
-  mResetVal(rval)
-{
-}
-
-// @brief デストラクタ
-BnDffNode::~BnDffNode()
-{
-}
-
-// @brief D-FF ノードの時 true を返す．
-bool
-BnDffNode::is_dff() const
-{
-  return true;
-}
-
-// @brief 入力ノードのID番号を返す．
-ymuint
-BnDffNode::inode_id() const
-{
-  return mInodeId;
-}
-
-// @brief リセット値を返す．
-char
-BnDffNode::reset_val() const
-{
-  return mResetVal;
 }
 
 END_NAMESPACE_YM_BNET

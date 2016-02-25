@@ -64,10 +64,12 @@ BlifBnNetworkHandler::inputs_elem(ymuint name_id,
 // @brief .output 文の読み込み
 // @param[in] loc 位置情報
 // @param[in] name 出力ノード名
+// @param[in] name 出力ピン名
 bool
-BlifBnNetworkHandler::outputs_elem(ymuint name_id)
+BlifBnNetworkHandler::outputs_elem(ymuint name_id,
+				   const char* name)
 {
-  mNetwork->new_output(name_id);
+  mNetwork->new_output(name_id, name);
 
   return true;
 }
