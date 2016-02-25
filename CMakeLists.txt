@@ -75,32 +75,51 @@ set ( iscas89_SOURCES
   src/iscas89/Iscas89Scanner.cc
   )
 
+set ( ym_bnet_SOURCES
+  ${blif_SOURCES}
+  ${bnet_SOURCES}
+  ${iscas89_SOURCES}
+  )
+
 
 # ===================================================================
 #  ターゲットの設定
 # ===================================================================
-ym_add_library ( ym_bnet
-  SHARED
-  ${blif_SOURCES}
-  ${bnet_SOURCES}
-  ${iscas89_SOURCES}
-  DESTINATION ${YM_INSTALL_LIBDIR}
+#ym_add_library ( ym_bnet
+#  SHARED
+#  ${blif_SOURCES}
+#  ${bnet_SOURCES}
+#  ${iscas89_SOURCES}
+#  DESTINATION ${YM_INSTALL_LIBDIR}
+#  )
+
+#target_link_libraries ( ym_bnet
+#  ym_logic
+#  ym_cell
+#  ym_common
+#  )
+
+#target_link_libraries ( ym_bnet_d
+#  ym_logic_d
+#  ym_cell_d
+#  ym_common_d
+#  )
+
+#target_link_libraries ( ym_bnet_p
+#  ym_logic_p
+#  ym_cell_p
+#  ym_common_p
+#  )
+
+add_library ( ym_bnet
+  OBJECT
+  ${ym_bnet_SOURCES}
   )
 
-target_link_libraries ( ym_bnet
-  ym_logic
-  ym_cell
-  ym_common
+target_compile_options ( ym_bnet
+  PRIVATE "-O3" "-fPIC"
   )
 
-target_link_libraries ( ym_bnet_d
-  ym_logic_d
-  ym_cell_d
-  ym_common_d
-  )
-
-target_link_libraries ( ym_bnet_p
-  ym_logic_p
-  ym_cell_p
-  ym_common_p
+target_compile_definitions ( ym_bnet
+  PRIVATE "-DNDEBUG"
   )
