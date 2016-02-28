@@ -607,27 +607,10 @@ BlifParserImpl::read(const string& filename,
     for (ymuint i = 0; i < ni ; ++ i) {
       mIdArray.push_back(mNameArray[i]->id());
     }
-#if 0
-    // mCoverPat からカバーのシグネチャ文字列を作る．
-    string ipat_str = mCoverPat.c_str();
-    string cover_sig = make_signature(ni, mCoverPat, mOpatChar);
-    ymuint cover_id;
-    if ( !mCoverDict.find(cover_sig, cover_id) ) {
-      // 新たなカバーを登録する．
-      cover_id = mCoverDict.num();
-      mCoverDict.add(cover_sig, cover_id);
-      // ハンドラを呼び出す．
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
-	handler->cover(cover_id, ni, mNc, ipat_str, mOpatChar);
-      }
-    }
-#else
     string ipat_str = mCoverPat.c_str();
     const BlifCover* cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
     ymuint cover_id = cover->id();
-#endif
+
     // ハンドラを呼び出す．
     for (list<BlifHandler*>::iterator p = mHandlerList.begin();
 	 p != mHandlerList.end(); ++ p) {

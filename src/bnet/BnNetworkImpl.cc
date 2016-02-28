@@ -72,7 +72,6 @@ BnNetworkImpl::new_input(ymuint node_id,
 // @brief 外部出力ノードの番号を登録する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
-// @param[in] inode_id ファンインのID番号
 void
 BnNetworkImpl::new_output(ymuint node_id,
 			  const char* node_name)
