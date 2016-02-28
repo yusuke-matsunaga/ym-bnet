@@ -141,6 +141,8 @@ BlifParserImpl::read(const string& filename,
   mIdHash.clear();
   mUngetToken = kTokenEOF;
 
+  mOidArray.clear();
+
   // 一つの .inputs/.outputs 文中のトークンの数
   ymuint n_token = 0;
 
@@ -398,13 +400,7 @@ BlifParserImpl::read(const string& filename,
       }
       cell->set_loc(loc);
       cell->set_output();
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
-	if ( !handler->outputs_elem(cell->id(), name) ) {
-	  stat = false;
-	}
-      }
+      mOidArray.push_back(cell->id());
       if ( !stat ) {
 	goto ST_ERROR_EXIT;
       }
@@ -911,6 +907,21 @@ BlifParserImpl::read(const string& filename,
 			"UNDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
+    }
+
+    for (ymuint i = 0; i < mOidArray.size(); ++ i) {
+      ymuint oid = mOidArray[i];
+      BlifIdCell* cell = mIdHash.cell(oid);
+      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
+	   p != mHandlerList.end(); ++ p) {
+	BlifHandler* handler = *p;
+	if ( !handler->outputs_elem(cell->id(), cell->str()) ) {
+	  stat = false;
+	}
+      }
+    }
+    if ( !stat ) {
+      goto ST_ERROR_EXIT;
     }
   }
   for (list<BlifHandler*>::iterator p = mHandlerList.begin();

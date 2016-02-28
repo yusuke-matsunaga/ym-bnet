@@ -133,6 +133,9 @@ private:
   // ID 番号の配列
   vector<ymuint> mIdArray;
 
+  // 出力の ID 番号のリスト
+  vector<ymuint> mOidArray;
+
   // BlifCover を管理するオブジェクト
   BlifCoverMgr mCoverMgr;
 

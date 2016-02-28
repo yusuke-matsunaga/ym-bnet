@@ -294,11 +294,18 @@ BnNetworkImpl::wrap_up()
   for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
        p != mNodeArray.end(); ++ p) {
     BnNode* node = *p;
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint iid = node->fanin_id(i);
+    if ( node->is_output() ) {
+      ymuint iid = node->inode_id();
       BnNodeImpl* inode = mNodeArray[iid];
       ++ inode->mFanoutNum;
+    }
+    else {
+      ymuint ni = node->fanin_num();
+      for (ymuint i = 0; i < ni; ++ i) {
+	ymuint iid = node->fanin_id(i);
+	BnNodeImpl* inode = mNodeArray[iid];
+	++ inode->mFanoutNum;
+      }
     }
   }
 
@@ -319,12 +326,20 @@ BnNetworkImpl::wrap_up()
   for (vector<BnNodeImpl*>::iterator p = mNodeArray.begin();
        p != mNodeArray.end(); ++ p) {
     BnNode* node = *p;
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint iid = node->fanin_id(i);
+    if ( node->is_output() ) {
+      ymuint iid = node->inode_id();
       BnNodeImpl* inode = mNodeArray[iid];
       inode->mFanoutList[inode->mFanoutNum] = node->id();
       ++ inode->mFanoutNum;
+    }
+    else {
+      ymuint ni = node->fanin_num();
+      for (ymuint i = 0; i < ni; ++ i) {
+	ymuint iid = node->fanin_id(i);
+	BnNodeImpl* inode = mNodeArray[iid];
+	inode->mFanoutList[inode->mFanoutNum] = node->id();
+	++ inode->mFanoutNum;
+      }
     }
   }
 }
