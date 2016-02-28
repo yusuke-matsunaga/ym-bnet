@@ -205,32 +205,6 @@ BnNetworkImpl::alloc_string(const char* src_str)
   return dst_top;
 }
 
-#if 0
-// @brief blif 形式のファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] cell_library セルライブラリ
-// @retval true 正常に読み込めた
-// @retval false 読み込み中にエラーが起こった．
-bool
-BnNetworkImpl::read_blif(const string& filename,
-			 const CellLibrary* cell_library)
-{
-  BlifParser parser;
-  BlifBnNetworkHandler* handler = new BlifBnNetworkHandler(this);
-  parser.add_handler(handler);
-
-  bool stat = parser.read(filename, cell_library);
-
-  // handler は parser が解放してくれる．
-
-  if ( stat ) {
-    wrap_up();
-  }
-
-  return stat;
-}
-#endif
-
 // @brief 内容を blif 形式で出力する．
 // @param[in] s 出力先のストリーム
 void
@@ -305,30 +279,6 @@ BnNetworkImpl::write_blif(ostream& s) const
   }
   s << ".end" << endl;
 }
-
-#if 0
-// @brief iscas89(.bench) 形式のファイルを読み込む．
-// @param[in] filename ファイル名
-// @retval true 正常に読み込めた
-// @retval false 読み込み中にエラーが起こった．
-bool
-BnNetworkImpl::read_iscas89(const string& filename)
-{
-  Iscas89Parser parser;
-  Iscas89BnNetworkHandler* handler = new Iscas89BnNetworkHandler(this);
-  parser.add_handler(handler);
-
-  bool stat = parser.read(filename);
-
-  // handler は parser が解放してくれる．
-
-  if ( stat ) {
-    wrap_up();
-  }
-
-  return stat;
-}
-#endif
 
 // @brief 内容を iscas89 形式で出力する．
 // @param[in] s 出力先のストリーム
