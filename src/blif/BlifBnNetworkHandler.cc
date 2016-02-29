@@ -56,7 +56,6 @@ bool
 BlifBnNetworkHandler::inputs_elem(ymuint name_id,
 				  const char* name)
 {
-  cout << "inputs_elem(" << name_id << ", " << name << ")" << endl;
   mNetwork->new_input(name_id, name);
 
   return true;
@@ -70,7 +69,6 @@ bool
 BlifBnNetworkHandler::outputs_elem(ymuint name_id,
 				   const char* name)
 {
-  cout << "outputs_elem(" << name_id << ", " << name << ")" << endl;
   mNetwork->new_output(name_id, name);
 
   return true;
@@ -122,11 +120,6 @@ BlifBnNetworkHandler::names(ymuint onode_id,
 			    const vector<ymuint>& inode_id_array,
 			    ymuint cover_id)
 {
-  cout << "names(" << onode_id << ", " << oname << ", ";
-  for (ymuint i = 0; i < inode_id_array.size(); ++ i) {
-    cout << " " << inode_id_array[i];
-  }
-  cout << ")" << endl;
   while ( mFuncTypeArray.size() <= cover_id ) {
     mFuncTypeArray.push_back(nullptr);
   }
