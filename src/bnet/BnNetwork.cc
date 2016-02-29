@@ -168,7 +168,7 @@ BnNetwork::topological_sort(vector<const BnNode*>& node_list) const
     ymuint nfo = node->fanout_num();
     for (ymuint i = 0; i < nfo; ++ i) {
       const BnNode* onode = mImpl->node(node->fanout_id(i));
-      if ( onode->is_dff() ) {
+      if ( onode->is_dff() || onode->is_output() ) {
 	continue;
       }
       ymuint ni = onode->fanin_num();
