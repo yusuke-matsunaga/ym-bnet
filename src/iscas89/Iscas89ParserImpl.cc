@@ -172,6 +172,20 @@ Iscas89ParserImpl::read(const string& filename)
     while ( read_token(name_id, first_loc) != kIscas89_RPAR ) ;
   }
 
+  // 出力文の処理を行う．
+  for (ymuint i = 0; i < mOidArray.size(); ++ i) {
+    ymuint oid = mOidArray[i];
+    FileRegion loc = mOlocArray[i];
+    Iscas89IdCell* cell = id2cell(oid);
+    for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
+	 p != mHandlerList.end(); ++ p) {
+      Iscas89Handler* handler = *p;
+      if ( !handler->read_output(loc, oid, cell->str()) ) {
+	has_error = true;
+      }
+    }
+  }
+
   delete mScanner;
   mScanner = nullptr;
 
@@ -368,13 +382,8 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 		    buf.str());
   }
   cell->set_output();
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
-    if ( !handler->read_output(loc, name_id, cell->str()) ) {
-      return false;
-    }
-  }
+  mOidArray.push_back(name_id);
+  mOlocArray.push_back(loc);
   return true;
 }
 

@@ -182,6 +182,12 @@ private:
   // 文字列のハッシュ
   Iscas89IdHash mIdHash;
 
+  // 出力の ID 番号のリスト
+  vector<ymuint> mOidArray;
+
+  // 出力のファイル位置のリスト
+  vector<FileRegion> mOlocArray;
+
 };
 
 
