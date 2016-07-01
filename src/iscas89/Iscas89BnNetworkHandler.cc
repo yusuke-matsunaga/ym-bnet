@@ -47,7 +47,8 @@ Iscas89BnNetworkHandler::read_input(const FileRegion& loc,
 				    ymuint name_id,
 				    const char* name)
 {
-  mNetwork->new_input(name_id, name);
+  ymuint node_id = mNetwork->new_input(name_id, name);
+  mNetwork->new_port(name, vector<ymuint>(1, node_id));
 
   return true;
 }
@@ -62,7 +63,8 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 				     ymuint name_id,
 				     const char* name)
 {
-  mNetwork->new_output(name_id, name);
+  ymuint node_id = mNetwork->new_output(name_id, name);
+  mNetwork->new_port(name, vector<ymuint>(1, node_id));
 
   return true;
 }

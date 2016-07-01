@@ -64,6 +64,7 @@ set ( bnet_SOURCES
   src/bnet/BnNetwork.cc
   src/bnet/BnNetworkImpl.cc
   src/bnet/BnNodeImpl.cc
+  src/bnet/BnPortImpl.cc
   )
 
 set ( iscas89_SOURCES

@@ -49,6 +49,15 @@ public:
   const char*
   name() const;
 
+  /// @brief ポート数を返す．
+  ymuint
+  port_num() const;
+
+  /// @brief ポートを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+  const BnPort*
+  port(ymuint pos) const;
+
   /// @brief ノード数を返す．
   ymuint
   node_num() const;
@@ -130,17 +139,26 @@ public:
   void
   set_model(const char* name);
 
+  /// @brief ポートを生成する．
+  /// @param[in] port_name ポート名
+  /// @param[in] bits 内容のノードIDのベクタ
+  void
+  new_port(const char* port_name,
+	   const vector<ymuint>& bits);
+
   /// @brief 外部入力ノードを生成する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
-  void
+  /// @return 生成されたノードID (= node_id)を返す．
+  ymuint
   new_input(ymuint node_id,
 	    const char* node_name);
 
   /// @brief 外部出力ノードの番号を登録する．
   /// @param[in] node_id ノードID
   /// @param[in] node_name ノード名
-  void
+  /// @return 生成されたノードID (!= node_id)を返す．
+  ymuint
   new_output(ymuint node_id,
 	     const char* node_name);
 
@@ -149,7 +167,8 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id ファンインのID番号
   /// @param[in] rval リセット値 ( '0', '1', ' ' のいずれか )
-  void
+  /// @return 生成されたノードID (= node_id)を返す．
+  ymuint
   new_dff(ymuint node_id,
 	  const char* node_name,
 	  ymuint inode_id,
@@ -160,7 +179,8 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_array ファンインのID番号の配列
   /// @param[in] func_type 関数の型
-  void
+  /// @return 生成されたノードID (= node_id)を返す．
+  ymuint
   new_logic(ymuint node_id,
 	    const char* node_name,
 	    const vector<ymuint>& inode_id_array,
@@ -222,6 +242,9 @@ private:
   // 領域は mAlloc で確保する．
   const char* mName;
 
+  // ポートの配列
+  vector<BnPort*> mPortArray;
+
   // ID をキーにしてノードを収めた配列
   vector<BnNodeImpl*> mNodeArray;
 
@@ -253,6 +276,24 @@ const char*
 BnNetworkImpl::name() const
 {
   return mName;
+}
+
+// @brief ポート数を返す．
+inline
+ymuint
+BnNetworkImpl::port_num() const
+{
+  return mPortArray.size();
+}
+
+// @brief ポートを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+inline
+const BnPort*
+BnNetworkImpl::port(ymuint pos) const
+{
+  ASSERT_COND( pos < port_num() );
+  return mPortArray[pos];
 }
 
 // @brief ノード数を返す．

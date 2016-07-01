@@ -36,6 +36,7 @@ class BlifHandler;
 class BlifParser;
 class BnFuncType;
 class BnNetwork;
+class BnPort;
 class BnNode;
 class Iscas89Handler;
 class Iscas89Parser;
@@ -50,6 +51,7 @@ using nsBnet::BlifParser;
 using nsBnet::BnFuncType;
 using nsBnet::BnNetwork;
 using nsBnet::BnNode;
+using nsBnet::BnPort;
 using nsBnet::Iscas89Parser;
 using nsBnet::Iscas89Handler;
 

@@ -41,6 +41,21 @@ BnNetwork::name() const
   return mImpl->name();
 }
 
+// @brief ポート数を返す．
+ymuint
+BnNetwork::port_num() const
+{
+  return mImpl->port_num();
+}
+
+// @brief ポートを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+const BnPort*
+BnNetwork::port(ymuint pos) const
+{
+  return mImpl->port(pos);
+}
+
 // @brief ノード数を得る．
 ymuint
 BnNetwork::node_num() const

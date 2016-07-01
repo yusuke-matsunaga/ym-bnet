@@ -9,6 +9,7 @@
 
 #include "BnNetworkImpl.h"
 #include "BnNodeImpl.h"
+#include "BnPortImpl.h"
 
 #include "ym/BnFuncType.h"
 #include "ym/Cell.h"
@@ -52,10 +53,33 @@ BnNetworkImpl::set_model(const char* name)
   mName = alloc_string(name);
 }
 
+// @brief ポートを生成する．
+// @param[in] port_name ポート名
+// @param[in] bits 内容のノードIDのベクタ
+void
+BnNetworkImpl::new_port(const char* port_name,
+			const vector<ymuint>& bits)
+{
+  const char* new_port_name = alloc_string(port_name);
+
+  ymuint bw = bits.size();
+  void* q = mAlloc.get_memory(sizeof(ymuint) * bw);
+  ymuint* new_bits = new (q) ymuint[bw];
+  for (ymuint i = 0; i < bw; ++ i) {
+    new_bits[i] = bits[i];
+  }
+
+  void* p = mAlloc.get_memory(sizeof(BnPortImpl));
+  BnPortImpl* port = new (p) BnPortImpl(new_port_name, bw, new_bits);
+
+  mPortArray.push_back(port);
+}
+
 // @brief 外部入力ノードを生成する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
-void
+// @return 生成されたノードID (= node_id)を返す．
+ymuint
 BnNetworkImpl::new_input(ymuint node_id,
 			 const char* node_name)
 {
@@ -67,12 +91,15 @@ BnNetworkImpl::new_input(ymuint node_id,
   set_node(node_id, node);
 
   mPIArray.push_back(node);
+
+  return node_id;
 }
 
 // @brief 外部出力ノードの番号を登録する．
 // @param[in] node_id ノードID
 // @param[in] node_name ノード名
-void
+// @return 生成されたノードID (!= node_id)を返す．
+ymuint
 BnNetworkImpl::new_output(ymuint node_id,
 			  const char* node_name)
 {
@@ -85,6 +112,8 @@ BnNetworkImpl::new_output(ymuint node_id,
   set_node(onode_id, node);
 
   mPOArray.push_back(node);
+
+  return onode_id;
 }
 
 // @brief D-FFノードを生成する．
@@ -92,7 +121,8 @@ BnNetworkImpl::new_output(ymuint node_id,
 // @param[in] node_name ノード名
 // @param[in] inode_id ファンインのID番号
 // @param[in] rval リセット値 ( '0', '1', ' ' のいずれか )
-void
+// @return 生成されたノードID (= node_id)を返す．
+ymuint
 BnNetworkImpl::new_dff(ymuint node_id,
 		       const char* node_name,
 		       ymuint inode_id,
@@ -106,6 +136,8 @@ BnNetworkImpl::new_dff(ymuint node_id,
   set_node(node_id, node);
 
   mFFArray.push_back(node);
+
+  return node_id;
 }
 
 // @brief 論理ノードを生成する．
@@ -113,7 +145,8 @@ BnNetworkImpl::new_dff(ymuint node_id,
 // @param[in] node_name ノード名
 // @param[in] inode_id_array ファンインのID番号の配列
 // @param[in] func_type 論理関数の型
-void
+// @return 生成されたノードID (= node_id)を返す．
+ymuint
 BnNetworkImpl::new_logic(ymuint node_id,
 			 const char* node_name,
 			 const vector<ymuint>& inode_id_array,
@@ -130,6 +163,8 @@ BnNetworkImpl::new_logic(ymuint node_id,
   set_node(node_id, node);
 
   mLogicArray.push_back(node);
+
+  return node_id;
 }
 
 // @brief プリミティブ型を生成する．
