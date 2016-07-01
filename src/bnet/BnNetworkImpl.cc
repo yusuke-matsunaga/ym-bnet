@@ -24,7 +24,8 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 BnNetworkImpl::BnNetworkImpl() :
-  mAlloc(4096)
+  mAlloc(4096),
+  mFuncTypeMgr(mAlloc)
 {
 }
 

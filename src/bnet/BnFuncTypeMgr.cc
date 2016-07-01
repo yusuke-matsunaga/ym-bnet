@@ -18,13 +18,21 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BnFuncTypeMgr::BnFuncTypeMgr()
+// @param[in] alloc メモリアロケータ
+BnFuncTypeMgr::BnFuncTypeMgr(Alloc& alloc) :
+  mAlloc(alloc)
 {
 }
 
 // @brief デストラクタ
 BnFuncTypeMgr::~BnFuncTypeMgr()
 {
+  // ここで生成された FuncType のインスタンスそのものは mAlloc で確保されたものなので
+  // 開放する必要はないが中身の終了処理は必要かもしれないのでデストラクタを明示的に呼ぶ．
+  for (ymuint i = 0; i < mFuncTypeList.size(); ++ i) {
+    BnFuncType* func_type = mFuncTypeList[i];
+    func_type->~BnFuncType();
+  }
 }
 
 // @brief プリミティブタイプを得る．
@@ -45,7 +53,8 @@ BnFuncTypeMgr::primitive_type(BnFuncType::Type type,
       return func_type;
     }
   }
-  BnFuncType* func_type = new BnFuncTypePrim(id, type, input_num);
+  void* p = mAlloc.get_memory(sizeof(BnFuncTypePrim));
+  BnFuncType* func_type = new (p) BnFuncTypePrim(id, type, input_num);
   mFuncTypeList.push_back(func_type);
   return func_type;
 }
@@ -62,7 +71,8 @@ BnFuncTypeMgr::cell_type(const Cell* cell)
       return func_type;
     }
   }
-  BnFuncType* func_type = new BnFuncTypeCell(id, cell);
+  void* p = mAlloc.get_memory(sizeof(BnFuncTypeCell));
+  BnFuncType* func_type = new (p) BnFuncTypeCell(id, cell);
   mFuncTypeList.push_back(func_type);
   return func_type;
 }
@@ -169,7 +179,8 @@ BnFuncTypeMgr::expr_type(Expr expr,
       return func_type;
     }
   }
-  BnFuncType* func_type = new BnFuncTypeExpr(id, expr, input_num);
+  void* p = mAlloc.get_memory(sizeof(BnFuncTypeExpr));
+  BnFuncType* func_type = new (p) BnFuncTypeExpr(id, expr, input_num);
   mFuncTypeList.push_back(func_type);
   return func_type;
 }
@@ -185,7 +196,8 @@ BnFuncTypeMgr::tv_type(const TvFunc& tv)
       return func_type;
     }
   }
-  BnFuncType* func_type = new BnFuncTypeTv(id, tv);
+  void* p = mAlloc.get_memory(sizeof(BnFuncTypeTv));
+  BnFuncType* func_type = new (p) BnFuncTypeTv(id, tv);
   mFuncTypeList.push_back(func_type);
   return func_type;
 }

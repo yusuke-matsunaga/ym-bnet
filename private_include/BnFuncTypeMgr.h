@@ -11,6 +11,7 @@
 
 #include "ym/ym_bnet.h"
 #include "ym/BnFuncType.h"
+#include "ym/Alloc.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -18,13 +19,16 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @class BnFuncTypeMgr BnFuncTypeMgr.h "BnFuncTypeMgr.h"
 /// @brief BnFuncType を管理するクラス
+///
+/// @todo FuncType の検索を線形探索から効率化する．
 //////////////////////////////////////////////////////////////////////
 class BnFuncTypeMgr
 {
 public:
 
   /// @brief コンストラクタ
-  BnFuncTypeMgr();
+  /// @param[in] alloc メモリアロケータ
+  BnFuncTypeMgr(Alloc& alloc);
 
   /// @brief デストラクタ
   ~BnFuncTypeMgr();
@@ -73,6 +77,9 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // メモリアロケータ
+  Alloc& mAlloc;
 
   // FuncType のリスト
   vector<BnFuncType*> mFuncTypeList;
