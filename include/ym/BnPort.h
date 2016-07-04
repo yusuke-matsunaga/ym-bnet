@@ -50,7 +50,7 @@ public:
 
   /// @brief pos ビット目の内容を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-  /// @return 対応するノードのIDを返す．
+  /// @return 対応するノード番号を返す．
   virtual
   ymuint
   bit(ymuint pos) const = 0;

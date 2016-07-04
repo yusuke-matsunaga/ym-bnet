@@ -10,7 +10,7 @@
 
 
 #include "ym/ym_bnet.h"
-#include "ym/BnFuncType.h"
+#include "ym/BnNode.h"
 #include "Iscas89IdHash.h"
 #include "Iscas89Token.h"
 
@@ -118,7 +118,7 @@ private:
   bool
   read_gate(const FileRegion& loc,
 	    ymuint oname_id,
-	    BnFuncType::Type type,
+	    BnLogicType type,
 	    const vector<ymuint>& iname_id_list);
 
   /// @brief D-FF用のゲート文を読み込む．

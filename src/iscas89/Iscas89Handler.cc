@@ -64,7 +64,7 @@ Iscas89Handler::read_output(const FileRegion& loc,
 
 // @brief ゲート文を読み込む．
 // @param[in] loc ファイル位置
-// @param[in] type ゲートの型
+// @param[in] logic_type ゲートの型
 // @param[in] oname_id 出力名の ID 番号
 // @param[in] oname 出力名
 // @param[in] iname_list 入力名のリスト
@@ -72,7 +72,7 @@ Iscas89Handler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_gate(const FileRegion& loc,
-			  BnFuncType::Type type,
+			  BnLogicType logic_type,
 			  ymuint oname_id,
 			  const char* oname,
 			  const vector<ymuint>& iname_list)
@@ -92,6 +92,15 @@ Iscas89Handler::read_dff(const FileRegion& loc,
 			 ymuint oname_id,
 			 const char* oname,
 			 ymuint iname_id)
+{
+  return true;
+}
+
+// @brief 終了操作
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+Iscas89Handler::end()
 {
   return true;
 }

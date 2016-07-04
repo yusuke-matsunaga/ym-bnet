@@ -34,7 +34,6 @@ BEGIN_NAMESPACE_YM_BNET
 class BlifCover;
 class BlifHandler;
 class BlifParser;
-class BnFuncType;
 class BnNetwork;
 class BnPort;
 class BnNode;
@@ -45,10 +44,29 @@ END_NAMESPACE_YM_BNET
 
 BEGIN_NAMESPACE_YM
 
+//////////////////////////////////////////////////////////////////////
+/// @brief 論理ノードの論理型を表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum BnLogicType {
+  kBnLt_NONE,
+  kBnLt_C0,
+  kBnLt_C1,
+  kBnLt_BUFF,
+  kBnLt_NOT,
+  kBnLt_AND,
+  kBnLt_NAND,
+  kBnLt_OR,
+  kBnLt_NOR,
+  kBnLt_XOR,
+  kBnLt_XNOR,
+  kBnLt_CELL,
+  kBnLt_EXPR,
+  kBnLt_TV
+};
+
 using nsBnet::BlifCover;
 using nsBnet::BlifHandler;
 using nsBnet::BlifParser;
-using nsBnet::BnFuncType;
 using nsBnet::BnNetwork;
 using nsBnet::BnNode;
 using nsBnet::BnPort;

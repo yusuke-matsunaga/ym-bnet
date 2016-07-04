@@ -3,20 +3,20 @@
 /// @brief BlifBnNetworkHandler の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "BlifBnNetworkHandler.h"
-#include "BnNetworkImpl.h"
+#include "ym/BnNetwork.h"
 #include "ym/BlifCover.h"
-#include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-BlifBnNetworkHandler::BlifBnNetworkHandler(BnNetworkImpl* network) :
+// @param[in] builder ビルダーオブジェクト
+BlifBnNetworkHandler::BlifBnNetworkHandler(BnNetwork* network) :
   mNetwork(network)
 {
 }
@@ -43,7 +43,7 @@ BlifBnNetworkHandler::model(const FileRegion& loc1,
 			    const FileRegion& loc2,
 			    const char* name)
 {
-  mNetwork->set_model(name);
+  mNetwork->set_model_name(name);
 
   return true;
 }
@@ -56,10 +56,12 @@ bool
 BlifBnNetworkHandler::inputs_elem(ymuint name_id,
 				  const char* name)
 {
-  ymuint node_id = mNetwork->new_input(name_id, name);
-  mNetwork->new_port(name, vector<ymuint>(1, node_id));
+  bool stat = mNetwork->new_input(name_id, name);
+  if ( stat ) {
+    mNetwork->new_port(name, vector<ymuint>(1, name_id));
+  }
 
-  return true;
+  return stat;
 }
 
 // @brief .output 文の読み込み
@@ -70,44 +72,10 @@ bool
 BlifBnNetworkHandler::outputs_elem(ymuint name_id,
 				   const char* name)
 {
-  ymuint node_id = mNetwork->new_output(name_id, name);
-  mNetwork->new_port(name, vector<ymuint>(1, node_id));
+  mNetwork->new_port(name, vector<ymuint>(1, name_id));
 
   return true;
 }
-
-BEGIN_NONAMESPACE
-
-Expr
-cover2expr(const BlifCover* cover)
-{
-  ymuint ni = cover->input_num();
-  ymuint nc = cover->cube_num();
-  Expr ans = Expr::make_zero();
-  for (ymuint c = 0; c < nc; ++ c) {
-    Expr prod = Expr::make_one();
-    for (ymuint i = 0; i < ni; ++ i) {
-      BlifCover::Pat pat = cover->input_pat(i, c);
-      switch ( pat ) {
-      case BlifCover::kPat_0:
-	prod &= Expr::make_negaliteral(VarId(i));
-	break;
-      case BlifCover::kPat_1:
-	prod &= Expr::make_posiliteral(VarId(i));
-	break;
-      default:
-	break;
-      }
-    }
-    ans |= prod;
-  }
-  if ( cover->output_pat() == BlifCover::kPat_0 ) {
-    ans = ~ans;
-  }
-  return ans;
-}
-
-END_NONAMESPACE
 
 // @brief .names 文の処理
 // @param[in] onode_id ノード名のID番号
@@ -122,19 +90,18 @@ BlifBnNetworkHandler::names(ymuint onode_id,
 			    const vector<ymuint>& inode_id_array,
 			    ymuint cover_id)
 {
-  while ( mFuncTypeArray.size() <= cover_id ) {
-    mFuncTypeArray.push_back(nullptr);
-  }
-  const BnFuncType* func_type = mFuncTypeArray[cover_id];
-  if ( func_type == nullptr ) {
-    const BlifCover* cover = id2cover(cover_id);
-    Expr expr = cover2expr(cover);
-    func_type = mNetwork->new_expr_type(expr, inode_id_array.size());
-    mFuncTypeArray[cover_id] = func_type;
-  }
-  mNetwork->new_logic(onode_id, oname, inode_id_array, func_type);
+  const BlifCover* cover = id2cover(cover_id);
+  BnLogicType logic_type = cover->logic_type();
 
-  return true;
+  bool stat = false;
+  if ( logic_type == kBnLt_EXPR ) {
+    stat = mNetwork->new_expr(onode_id, oname, inode_id_array, cover->expr());
+  }
+  else {
+    stat = mNetwork->new_primitive(onode_id, oname, inode_id_array, logic_type);
+  }
+
+  return stat;
 }
 
 // @brief .gate 文の処理
@@ -150,10 +117,9 @@ BlifBnNetworkHandler::gate(ymuint onode_id,
 			   const vector<ymuint>& inode_id_array,
 			   const Cell* cell)
 {
-  const BnFuncType* func_type = mNetwork->new_cell_type(cell);
-  mNetwork->new_logic(onode_id, oname, inode_id_array, func_type);
+  bool stat = mNetwork->new_cell(onode_id, oname, inode_id_array, cell);
 
-  return true;
+  return stat;
 }
 
 // @brief .latch 文の処理
@@ -181,7 +147,8 @@ BlifBnNetworkHandler::latch(ymuint onode_id,
 bool
 BlifBnNetworkHandler::end(const FileRegion& loc)
 {
-  return true;
+  bool stat = mNetwork->wrap_up();
+  return stat;
 }
 
 // @brief 通常終了時の処理

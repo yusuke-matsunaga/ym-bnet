@@ -24,11 +24,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] name 名前
-  /// @param[in] bit_width ビット幅
   /// @param[in] bits 内容のベクタ
-  BnPortImpl(const char* name,
-	     ymuint bit_width,
-	     ymuint* bits);
+  BnPortImpl(const string& name,
+	     const vector<ymuint>& bits);
 
   /// @brief デストラクタ
   virtual
@@ -71,13 +69,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 名前
-  const char* mName;
+  string mName;
 
-  // ビット幅
-  ymuint mBitWidth;
-
-  // 個々のビットに対応するノードIDのリスト
-  ymuint* mBits;
+  // 個々のビットに対応するノード番号のリスト
+  vector<ymuint> mBits;
 
 };
 

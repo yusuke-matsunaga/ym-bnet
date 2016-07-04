@@ -5,7 +5,7 @@
 /// @brief BlifBnNetworkHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -14,8 +14,6 @@
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-class BnNetworkImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifBnNetworkHandler BlifBnNetworkHandler.h
@@ -27,7 +25,8 @@ class BlifBnNetworkHandler :
 public:
 
   /// @brief コンストラクタ
-  BlifBnNetworkHandler(BnNetworkImpl* network);
+  /// @param[in] network ネットワーク
+  BlifBnNetworkHandler(BnNetwork* network);
 
   /// @brief デストラクタ
   virtual
@@ -141,11 +140,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 対象のネットワーク
-  BnNetworkImpl* mNetwork;
-
-  // カバーIDをキーにしてFuncType持つ配列
-  vector<const BnFuncType*> mFuncTypeArray;
+  // 設定対象のネットワーク
+  BnNetwork* mNetwork;
 
 };
 

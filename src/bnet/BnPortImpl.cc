@@ -18,13 +18,10 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] name 名前
-// @param[in] bit_width ビット幅
 // @param[in] bits 内容のベクタ
-BnPortImpl::BnPortImpl(const char* name,
-		       ymuint bit_width,
-		       ymuint* bits) :
+BnPortImpl::BnPortImpl(const string& name,
+		       const vector<ymuint>& bits) :
   mName(name),
-  mBitWidth(bit_width),
   mBits(bits)
 {
 }
@@ -45,7 +42,7 @@ BnPortImpl::name() const
 ymuint
 BnPortImpl::bit_width() const
 {
-  return mBitWidth;
+  return mBits.size();
 }
 
 // @brief pos ビット目の内容を得る．

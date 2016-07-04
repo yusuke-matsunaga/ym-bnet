@@ -14,8 +14,6 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
-class BnNetworkImpl;
-
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89BnNetworkHandler Iscas89BnNetworkHandler.h
 /// @brief BnNetwork 用の Iscas89Handler
@@ -26,7 +24,8 @@ class Iscas89BnNetworkHandler :
 public:
 
   /// @brief コンストラクタ
-  Iscas89BnNetworkHandler(BnNetworkImpl* network);
+  /// @param[in] network ネットワーク
+  Iscas89BnNetworkHandler(BnNetwork* network);
 
   /// @brief デストラクタ
   virtual
@@ -71,7 +70,7 @@ public:
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
-  /// @param[in] type ゲートの型
+  /// @param[in] logic_type ゲートの型
   /// @param[in] oname_id 出力名の ID 番号
   /// @param[in] oname 出力名
   /// @param[in] iname_list 入力名のリスト
@@ -80,7 +79,7 @@ public:
   virtual
   bool
   read_gate(const FileRegion& loc,
-	    BnFuncType::Type type,
+	    BnLogicType logic_type,
 	    ymuint oname_id,
 	    const char* name,
 	    const vector<ymuint>& iname_list);
@@ -99,6 +98,13 @@ public:
 	   const char* oname,
 	   ymuint iname_id);
 
+  /// @brief 終了操作
+  /// @retval true 処理が成功した．
+  /// @retval false エラーが起こった．
+  virtual
+  bool
+  end();
+
   /// @brief 通常終了時の処理
   virtual
   void
@@ -116,7 +122,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  BnNetworkImpl* mNetwork;
+  BnNetwork* mNetwork;
 
 };
 

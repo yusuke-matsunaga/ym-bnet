@@ -10,6 +10,8 @@
 
 
 #include "ym_bnet.h"
+#include "ym/BnNode.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -73,6 +75,17 @@ public:
   Pat
   output_pat() const;
 
+  /// @brief 論理型を返す．
+  ///
+  /// 普通は BnNode::kLt_EXPR だが
+  /// 場合によってはプリミティブ型となる．
+  BnLogicType
+  logic_type() const;
+
+  /// @brief 対応する論理式を返す．
+  Expr
+  expr() const;
+
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   void
@@ -101,6 +114,12 @@ private:
 
   // ID番号
   ymuint32 mId;
+
+  // 論理型
+  BnLogicType mLogicType;
+
+  // 論理式
+  Expr mExpr;
 
   // 次の要素を指すリンクポインタ
   BlifCover* mLink;
@@ -159,6 +178,25 @@ BlifCover::output_pat() const
   }
   ASSERT_NOT_REACHED;
   return kPat_d;
+}
+
+// @brief 論理型を返す．
+//
+// 普通は BnNode::kLt_EXPR だが
+// 場合によってはプリミティブ型となる．
+inline
+BnLogicType
+BlifCover::logic_type() const
+{
+  return mLogicType;
+}
+
+// @brief 対応する論理式を返す．
+inline
+Expr
+BlifCover::expr() const
+{
+  return mExpr;
 }
 
 // @brief BlifCover::Pat のストリーム出力

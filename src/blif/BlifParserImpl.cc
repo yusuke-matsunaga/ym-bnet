@@ -269,16 +269,6 @@ BlifParserImpl::read(const string& filename,
       goto ST_LATCH;
 
     case kTokenEND:
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
-	if ( !handler->end(mLoc1) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto ST_ERROR_EXIT;
-      }
       goto ST_AFTER_END;
 
     case kTokenEXDC:
@@ -923,7 +913,19 @@ BlifParserImpl::read(const string& filename,
     if ( !stat ) {
       goto ST_ERROR_EXIT;
     }
+
+    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
+	 p != mHandlerList.end(); ++ p) {
+      BlifHandler* handler = *p;
+      if ( !handler->end(mLoc1) ) {
+	stat = false;
+      }
+    }
+    if ( !stat ) {
+      goto ST_ERROR_EXIT;
+    }
   }
+
   for (list<BlifHandler*>::iterator p = mHandlerList.begin();
        p != mHandlerList.end(); ++ p) {
     BlifHandler* handler = *p;

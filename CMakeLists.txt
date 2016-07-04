@@ -59,10 +59,7 @@ set ( blif_SOURCES
   )
 
 set ( bnet_SOURCES
-  src/bnet/BnFuncTypeImpl.cc
-  src/bnet/BnFuncTypeMgr.cc
   src/bnet/BnNetwork.cc
-  src/bnet/BnNetworkImpl.cc
   src/bnet/BnNodeImpl.cc
   src/bnet/BnPortImpl.cc
   )

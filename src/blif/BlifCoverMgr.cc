@@ -119,7 +119,16 @@ BlifCoverMgr::BlifCoverMgr()
 // @brief デストラクタ
 BlifCoverMgr::~BlifCoverMgr()
 {
-  // カバーは SimpleAlloc のデストラクタで解放する．
+  // カバーは領域自体は SimpleAlloc のデストラクタで解放する．
+  // ただし BlifCover のデストラクタは呼んでおく必要がある．
+  for (ymuint i = 0; i < mHashSize; ++ i) {
+    for (BlifCover* cover = mHashTable[i]; cover != nullptr; ) {
+      BlifCover* cur_cover = cover;
+      cover = cur_cover->mLink;
+      // デストラクタの明示的な起動
+      cur_cover->~BlifCover();
+    }
+  }
 }
 
 // @brief パタン文字列からカバーを返す．
@@ -182,19 +191,33 @@ BlifCoverMgr::new_cover(ymuint input_num,
   }
   cover->mCubeNum = cube_num;
   cover->mId = mCoverArray.size();
-  mCoverArray.push_back(cover);
+
   ymuint j = 0;
   ymuint k = 0;
+  Expr expr = Expr::make_zero();
   for (ymuint c = 0; c < cube_num; ++ c) {
     ymuint64 tmp = 0UL;
     ymuint shift = 0;
+    Expr prod = Expr::make_one();
     for (ymuint i = 0; i < input_num; ++ i, ++ k) {
       ymuint64 pat;
       switch ( ipat_str[k] ) {
-      case '0': pat = 0UL; break;
-      case '1': pat = 1UL; break;
-      case '-': pat = 2UL; break;
-      default: ASSERT_NOT_REACHED;
+      case '0':
+	pat = 0UL;
+	prod &= Expr::make_negaliteral(VarId(i));
+	break;
+
+      case '1':
+	pat = 1UL;
+	prod &= Expr::make_posiliteral(VarId(i));
+	break;
+
+      case '-':
+	pat = 2UL;
+	break;
+
+      default:
+	ASSERT_NOT_REACHED;
       }
       tmp |= (pat << shift);
       shift += 2;
@@ -209,7 +232,16 @@ BlifCoverMgr::new_cover(ymuint input_num,
       cover->mPatArray[j] = tmp;
       ++ j;
     }
+    expr |= prod;
   }
+  if ( cover->mOutputPat == BlifCover::kPat_0 ) {
+    expr = ~expr;
+  }
+
+  cover->mLogicType = BnNode::expr2logic_type(expr);
+  cover->mExpr = expr;
+
+  mCoverArray.push_back(cover);
 
   return cover;
 }

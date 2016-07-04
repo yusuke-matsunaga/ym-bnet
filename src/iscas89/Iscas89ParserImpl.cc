@@ -137,16 +137,16 @@ Iscas89ParserImpl::read(const string& filename)
 	  }
 	}
 	else {
-	  BnFuncType::Type type;
+	  BnLogicType type;
 	  switch ( gate_type ) {
-	  case kIscas89_BUFF: type = BnFuncType::kFt_BUFF; break;
-	  case kIscas89_NOT:  type = BnFuncType::kFt_NOT;  break;
-	  case kIscas89_AND:  type = BnFuncType::kFt_AND;  break;
-	  case kIscas89_NAND: type = BnFuncType::kFt_NAND; break;
-	  case kIscas89_OR:   type = BnFuncType::kFt_OR;   break;
-	  case kIscas89_NOR:  type = BnFuncType::kFt_NOR;  break;
-	  case kIscas89_XOR:  type = BnFuncType::kFt_XOR;  break;
-	  case kIscas89_XNOR: type = BnFuncType::kFt_XNOR; break;
+	  case kIscas89_BUFF: type = kBnLt_BUFF; break;
+	  case kIscas89_NOT:  type = kBnLt_NOT;  break;
+	  case kIscas89_AND:  type = kBnLt_AND;  break;
+	  case kIscas89_NAND: type = kBnLt_NAND; break;
+	  case kIscas89_OR:   type = kBnLt_OR;   break;
+	  case kIscas89_NOR:  type = kBnLt_NOR;  break;
+	  case kIscas89_XOR:  type = kBnLt_XOR;  break;
+	  case kIscas89_XNOR: type = kBnLt_XNOR; break;
 	  default: ASSERT_NOT_REACHED;
 	  }
 	  if ( !read_gate(FileRegion(first_loc, last_loc),
@@ -183,6 +183,15 @@ Iscas89ParserImpl::read(const string& filename)
       if ( !handler->read_output(loc, oid, cell->str()) ) {
 	has_error = true;
       }
+    }
+  }
+
+  // 終了処理を行う．
+  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
+       p != mHandlerList.end(); ++ p) {
+    Iscas89Handler* handler = *p;
+    if ( !handler->end() ) {
+      has_error = true;
     }
   }
 
@@ -390,13 +399,13 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 // @brief ゲート文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] oname_id 出力名の ID 番号
-// @param[in] func_type ゲートタイプ
+// @param[in] logic_type ゲートタイプ
 // @return エラーが起きたら false を返す．
 // @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     ymuint oname_id,
-			     BnFuncType::Type type,
+			     BnLogicType logic_type,
 			     const vector<ymuint>& iname_id_list)
 {
   Iscas89IdCell* cell = id2cell(oname_id);
@@ -416,7 +425,7 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
   for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
        p != mHandlerList.end(); ++ p) {
     Iscas89Handler* handler = *p;
-    if ( !handler->read_gate(loc, type, oname_id, cell->str(), iname_id_list) ) {
+    if ( !handler->read_gate(loc, logic_type, oname_id, cell->str(), iname_id_list) ) {
       stat = false;
       break;
     }

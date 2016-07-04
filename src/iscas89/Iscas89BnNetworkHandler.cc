@@ -8,14 +8,14 @@
 
 
 #include "Iscas89BnNetworkHandler.h"
-#include "BnNetworkImpl.h"
+#include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-Iscas89BnNetworkHandler::Iscas89BnNetworkHandler(BnNetworkImpl* network) :
+Iscas89BnNetworkHandler::Iscas89BnNetworkHandler(BnNetwork* network) :
   mNetwork(network)
 {
 }
@@ -32,7 +32,7 @@ bool
 Iscas89BnNetworkHandler::init()
 {
   mNetwork->clear();
-  mNetwork->set_model("iscas89");
+  mNetwork->set_model_name("iscas89");
   return true;
 }
 
@@ -47,10 +47,12 @@ Iscas89BnNetworkHandler::read_input(const FileRegion& loc,
 				    ymuint name_id,
 				    const char* name)
 {
-  ymuint node_id = mNetwork->new_input(name_id, name);
-  mNetwork->new_port(name, vector<ymuint>(1, node_id));
+  bool stat = mNetwork->new_input(name_id, name);
+  if ( stat ) {
+    mNetwork->new_port(name, vector<ymuint>(1, name_id));
+  }
 
-  return true;
+  return stat;
 }
 
 // @brief OUTPUT 文を読み込む．
@@ -63,15 +65,14 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 				     ymuint name_id,
 				     const char* name)
 {
-  ymuint node_id = mNetwork->new_output(name_id, name);
-  mNetwork->new_port(name, vector<ymuint>(1, node_id));
+  mNetwork->new_port(name, vector<ymuint>(1, name_id));
 
   return true;
 }
 
 // @brief ゲート文を読み込む．
 // @param[in] loc ファイル位置
-// @param[in] type ゲートの型
+// @param[in] logic_type ゲートの型
 // @param[in] oname_id 出力名の ID 番号
 // @param[in] oname 出力名
 // @param[in] iname_list 入力名のリスト
@@ -79,13 +80,12 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89BnNetworkHandler::read_gate(const FileRegion& loc,
-				   BnFuncType::Type type,
+				   BnLogicType logic_type,
 				   ymuint oname_id,
 				   const char* oname,
 				   const vector<ymuint>& iname_list)
 {
-  const BnFuncType* func_type = mNetwork->new_primitive_type(type, iname_list.size());
-  mNetwork->new_logic(oname_id, oname, iname_list, func_type);
+  mNetwork->new_primitive(oname_id, oname, iname_list, logic_type);
 
   return true;
 }
@@ -106,6 +106,17 @@ Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
   mNetwork->new_dff(oname_id, oname, iname_id, ' ');
 
   return true;
+}
+
+// @brief 終了操作
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+Iscas89BnNetworkHandler::end()
+{
+  bool stat = mNetwork->wrap_up();
+
+  return stat;
 }
 
 // @brief 通常終了時の処理
