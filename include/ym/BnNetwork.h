@@ -12,6 +12,7 @@
 #include "ym/ym_bnet.h"
 #include "ym/ym_cell.h"
 #include "ym/ym_logic.h"
+#include "ym/BnPort.h"
 #include "ym/HashMap.h"
 
 
@@ -76,9 +77,11 @@ public:
 
   /// @brief ポートを追加する．
   /// @param[in] port_name ポート名
+  /// @param[in] dir 方向
   /// @param[in] bits 内容のノード番号のリスト
   void
   new_port(const string& port_name,
+	   BnPort::Direction dir,
 	   const vector<ymuint>& bits);
 
   /// @brief 外部入力ノードを追加する．

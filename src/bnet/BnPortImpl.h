@@ -24,8 +24,10 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] name 名前
+  /// @param[in] dir 方向
   /// @param[in] bits 内容のベクタ
   BnPortImpl(const string& name,
+	     Direction dir,
 	     const vector<ymuint>& bits);
 
   /// @brief デストラクタ
@@ -42,6 +44,10 @@ public:
   virtual
   string
   name() const;
+
+  /// @brief 方向
+  Direction
+  direction() const;
 
   /// @brief ビット数を得る．
   virtual
@@ -70,6 +76,9 @@ private:
 
   // 名前
   string mName;
+
+  // 方向
+  Direction mDirection;
 
   // 個々のビットに対応するノード番号のリスト
   vector<ymuint> mBits;

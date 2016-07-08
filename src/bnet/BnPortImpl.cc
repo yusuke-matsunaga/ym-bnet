@@ -18,10 +18,13 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] name 名前
+// @param[in] dir 方向
 // @param[in] bits 内容のベクタ
 BnPortImpl::BnPortImpl(const string& name,
+		       Direction dir,
 		       const vector<ymuint>& bits) :
   mName(name),
+  mDirection(dir),
   mBits(bits)
 {
 }
@@ -36,6 +39,13 @@ string
 BnPortImpl::name() const
 {
   return mName;
+}
+
+// @brief 方向
+BnPort::Direction
+BnPortImpl::direction() const
+{
+  return mDirection;
 }
 
 // @brief ビット数を得る．

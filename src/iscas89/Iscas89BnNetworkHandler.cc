@@ -49,7 +49,7 @@ Iscas89BnNetworkHandler::read_input(const FileRegion& loc,
 {
   bool stat = mNetwork->new_input(name_id, name);
   if ( stat ) {
-    mNetwork->new_port(name, vector<ymuint>(1, name_id));
+    mNetwork->new_port(name, BnPort::kIn, vector<ymuint>(1, name_id));
   }
 
   return stat;
@@ -65,7 +65,7 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 				     ymuint name_id,
 				     const char* name)
 {
-  mNetwork->new_port(name, vector<ymuint>(1, name_id));
+  mNetwork->new_port(name, BnPort::kOut, vector<ymuint>(1, name_id));
 
   return true;
 }

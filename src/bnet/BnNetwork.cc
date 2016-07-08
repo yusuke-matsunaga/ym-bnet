@@ -76,12 +76,14 @@ BnNetwork::set_model_name(const string& name)
 
 // @brief ポートを追加する．
 // @param[in] port_name ポート名
+// @param[in] dir 方向
 // @param[in] bits 内容のノード番号のリスト
 void
 BnNetwork::new_port(const string& port_name,
+		    BnPort::Direction dir,
 		    const vector<ymuint>& bits)
 {
-  mPortList.push_back(new BnPortImpl(port_name, bits));
+  mPortList.push_back(new BnPortImpl(port_name, dir, bits));
 
   mSane = false;
 }
@@ -473,7 +475,14 @@ BnNetwork::write(ostream& s) const
   ymuint np = port_num();
   for (ymuint i = 0; i < np; ++ i) {
     const BnPort* port = this->port(i);
-    s << "port#" << i << "(" << port->name() << ") : ";
+    s << "port#" << i << ": ";
+    if ( port->direction() == BnPort::kIn ) {
+      s << " INPUT ";
+    }
+    else {
+      s << " OUTPUT ";
+    }
+    s << "(" << port->name() << ") : ";
     ymuint bw = port->bit_width();
     for (ymuint j = 0; j < bw; ++ j) {
       s << " " << port->bit(j);

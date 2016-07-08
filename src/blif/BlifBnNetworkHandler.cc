@@ -58,7 +58,7 @@ BlifBnNetworkHandler::inputs_elem(ymuint name_id,
 {
   bool stat = mNetwork->new_input(name_id, name);
   if ( stat ) {
-    mNetwork->new_port(name, vector<ymuint>(1, name_id));
+    mNetwork->new_port(name, BnPort::kIn, vector<ymuint>(1, name_id));
   }
 
   return stat;
@@ -72,7 +72,7 @@ bool
 BlifBnNetworkHandler::outputs_elem(ymuint name_id,
 				   const char* name)
 {
-  mNetwork->new_port(name, vector<ymuint>(1, name_id));
+  mNetwork->new_port(name, BnPort::kOut, vector<ymuint>(1, name_id));
 
   return true;
 }
