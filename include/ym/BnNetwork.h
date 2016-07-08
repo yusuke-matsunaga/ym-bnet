@@ -230,28 +230,28 @@ public:
   ymuint
   input_num() const;
 
-  /// @brief 入力ノードのノード番号を得る．
+  /// @brief 入力ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
-  ymuint
-  input_id(ymuint pos) const;
+  const BnNode*
+  input(ymuint pos) const;
 
   /// @brief DFF数を得る．
   ymuint
   dff_num() const;
 
-  /// @brief DFFノードのノード番号を得る．
+  /// @brief DFFノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-  ymuint
-  dff_id(ymuint pos) const;
+  const BnNode*
+  dff(ymuint pos) const;
 
   /// @brief 論理ノード数を得る．
   ymuint
   logic_num() const;
 
-  /// @brief 論理ノードのノード番号を得る．
+  /// @brief 論理ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-  ymuint
-  logic_id(ymuint pos) const;
+  const BnNode*
+  logic(ymuint pos) const;
 
   /// @brief ノードを得る．
   /// @param[in] node_id ノード番号
@@ -286,13 +286,13 @@ private:
   vector<BnPort*> mPortList;
 
   // 入力ノードのノード番号の情報のリスト
-  vector<ymuint> mInputList;
+  vector<BnNode*> mInputList;
 
   // DFFノードのノード番号のリスト
-  vector<ymuint> mDffList;
+  vector<BnNode*> mDffList;
 
   // 論理ノードのノード番号のリスト
-  vector<ymuint> mLogicList;
+  vector<BnNode*> mLogicList;
 
   // ノード番号をキーにしてノード情報を記録するハッシュ表
   HashMap<ymuint, BnNode*> mNodeMap;

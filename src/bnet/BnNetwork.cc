@@ -103,7 +103,7 @@ BnNetwork::new_input(ymuint node_id,
 
   BnNode* node = new BnInputNode(node_id, node_name);
   mNodeMap.add(node_id, node);
-  mInputList.push_back(node_id);
+  mInputList.push_back(node);
 
   mSane = false;
 
@@ -131,7 +131,7 @@ BnNetwork::new_dff(ymuint node_id,
 
   BnNode* node = new BnDffNode(node_id, node_name, inode_id, reset_val);
   mNodeMap.add(node_id, node);
-  mDffList.push_back(node_id);
+  mDffList.push_back(node);
 
   mSane = false;
 
@@ -159,7 +159,7 @@ BnNetwork::new_primitive(ymuint node_id,
 
   BnNode* node = new BnPrimNode(node_id, node_name, inode_id_list, prim_type);
   mNodeMap.add(node_id, node);
-  mLogicList.push_back(node_id);
+  mLogicList.push_back(node);
 
   mSane = false;
 
@@ -187,7 +187,7 @@ BnNetwork::new_cell(ymuint node_id,
 
   BnNode* node = new BnCellNode(node_id, node_name, inode_id_list, cell);
   mNodeMap.add(node_id, node);
-  mLogicList.push_back(node_id);
+  mLogicList.push_back(node);
 
   mSane = false;
 
@@ -224,7 +224,7 @@ BnNetwork::new_expr(ymuint node_id,
     node = new BnPrimNode(node_id, node_name, inode_id_list, logic_type);
   }
   mNodeMap.add(node_id, node);
-  mLogicList.push_back(node_id);
+  mLogicList.push_back(node);
 
   mSane = false;
 
@@ -252,7 +252,7 @@ BnNetwork::new_tv(ymuint node_id,
 
   BnNode* node = new BnTvNode(node_id, node_name, inode_id_list, tv);
   mNodeMap.add(node_id, node);
-  mLogicList.push_back(node_id);
+  mLogicList.push_back(node);
 
   mSane = false;
 
@@ -300,30 +300,6 @@ BnNetwork::wrap_up()
 	error = true;
       }
     }
-  }
-
-  // input_id に対応したノードが定義されているか調べる．
-  // これは new_input() の仕様上絶対満たされているはずだが念の為．
-  for (ymuint i = 0; i < input_num(); ++ i) {
-    ymuint node_id = input_id(i);
-    // なのでアサートする．
-    ASSERT_COND( mNodeMap.check(node_id) );
-  }
-
-  // dff_id に対応したノードが定義されているか調べる．
-  // これは new_dff() の仕様上絶対満たされているはずだが念の為．
-  for (ymuint i = 0; i < dff_num(); ++ i) {
-    ymuint node_id = dff_id(i);
-    // なのでアサートする．
-    ASSERT_COND( mNodeMap.check(node_id) );
-  }
-
-  // logic_id に対応したノードが定義されているか調べる．
-  // これは new_XXXX() の仕様上絶対満たされているはずだが念の為．
-  for (ymuint i = 0; i < logic_num(); ++ i) {
-    ymuint node_id = logic_id(i);
-    // なのでアサートする．
-    ASSERT_COND( mNodeMap.check(node_id) );
   }
 
   // 各ノードのファンインとして参照されているノード番号が定義されているか調べる．
@@ -426,8 +402,8 @@ BnNetwork::input_num() const
 
 // @brief 入力ノードのノード番号を得る．
 // @param[in] pos 位置番号 ( 0 <= pos < input_num() )
-ymuint
-BnNetwork::input_id(ymuint pos) const
+const BnNode*
+BnNetwork::input(ymuint pos) const
 {
   ASSERT_COND( pos < input_num() );
   return mInputList[pos];
@@ -442,8 +418,8 @@ BnNetwork::dff_num() const
 
 // @brief DFFノードのノード番号を得る．
 // @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-ymuint
-BnNetwork::dff_id(ymuint pos) const
+const BnNode*
+BnNetwork::dff(ymuint pos) const
 {
   ASSERT_COND( pos < dff_num() );
   return mDffList[pos];
@@ -458,8 +434,8 @@ BnNetwork::logic_num() const
 
 // @brief 論理ノードのノード番号を得る．
 // @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-ymuint
-BnNetwork::logic_id(ymuint pos) const
+const BnNode*
+BnNetwork::logic(ymuint pos) const
 {
   ASSERT_COND( pos < logic_num() );
   return mLogicList[pos];
@@ -508,8 +484,7 @@ BnNetwork::write(ostream& s) const
 
   ymuint ni = input_num();
   for (ymuint i = 0; i < ni; ++ i) {
-    ymuint node_id = input_id(i);
-    const BnNode* node = find_node(node_id);
+    const BnNode* node = input(i);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == BnNode::kInput );
     s << "input#" << i << ": " << node->id()
@@ -519,8 +494,7 @@ BnNetwork::write(ostream& s) const
 
   ymuint nf = dff_num();
   for (ymuint i = 0; i < nf; ++ i) {
-    ymuint node_id = dff_id(i);
-    const BnNode* node = find_node(node_id);
+    const BnNode* node = dff(i);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == BnNode::kDFF );
     s << "dff#" << i << ": " << node->id()
@@ -532,8 +506,7 @@ BnNetwork::write(ostream& s) const
 
   ymuint nl = logic_num();
   for (ymuint i = 0; i < nl; ++ i) {
-    ymuint node_id = logic_id(i);
-    const BnNode* node = find_node(node_id);
+    const BnNode* node = logic(i);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == BnNode::kLogic );
     s << "logic#" << i << ": " << node->id()
