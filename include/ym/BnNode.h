@@ -108,20 +108,20 @@ public:
   is_logic() const = 0;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node_id ノード番号
+  /// @param[in] node ノード
   virtual
   void
-  add_fanout(ymuint node_id) = 0;
+  add_fanout(const BnNode* node) = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
   fanout_num() const = 0;
 
-  /// @brief ファンアウトのノード番号を返す．
+  /// @brief ファンアウトのノードを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
+  const BnNode*
   fanout(ymuint pos) const = 0;
 
 
@@ -137,7 +137,7 @@ public:
   ymuint
   fanin_num() const = 0;
 
-  /// @brief ファンインのノード番号を返す．
+  /// @brief ファンインのノードを返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   ///
   /// is_logic() == false の時の動作は不定

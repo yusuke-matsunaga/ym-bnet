@@ -19,6 +19,8 @@
 #include "ym/Iscas89Parser.h"
 #include "Iscas89BnNetworkHandler.h"
 
+#include "Queue.h"
+
 
 BEGIN_NAMESPACE_YM_BNET
 
@@ -274,6 +276,7 @@ BnNetwork::new_tv(ymuint node_id,
 // - 各ノードのファンインのノード番号が存在するか
 //   存在しなければ error
 //
+// 検査後に論理ノードのリストをトポロジカル順にソートする．
 // BnNodeInfo のファンアウト情報はここで設定される．
 bool
 BnNetwork::wrap_up()
@@ -315,7 +318,7 @@ BnNetwork::wrap_up()
       ymuint inode_id = node->fanin(i);
       BnNode* inode = nullptr;
       if ( mNodeMap.find(inode_id, inode) ) {
-	inode->add_fanout(node_id);
+	inode->add_fanout(node);
       }
       else {
 	// inode_id が未定義
@@ -325,11 +328,64 @@ BnNetwork::wrap_up()
     }
   }
 
-  if ( !error ) {
-    mSane = true;
+  if ( error ) {
+    return false;
   }
 
-  return !error;
+  // 論理ノードをトポロジカル順にソートする．
+
+  // キュー
+  Queue queue(input_num() + dff_num() + logic_num());
+
+  // 外部入力をキューに積む．
+  for (ymuint i = 0; i < input_num(); ++ i) {
+    BnNode* node = mInputList[i];
+    queue.put(node);
+  }
+  // DFFをキューに積む．
+  for (ymuint i = 0; i < dff_num(); ++ i) {
+    BnNode* node = mDffList[i];
+    queue.put(node);
+  }
+
+  vector<BnNode*> node_list;
+  node_list.reserve(logic_num());
+
+  // キューが空になるまで処理を繰り返す．
+  for ( ; ; ) {
+    BnNode* node = queue.get();
+    if ( node == nullptr ) {
+      break;
+    }
+    if ( node->is_logic() ) {
+      node_list.push_back(node);
+    }
+    ymuint nfo = node->fanout_num();
+    for (ymuint i = 0; i < nfo; ++ i) {
+      // const を外すためのバカなコード
+      BnNode* onode = find_node(node->fanout(i)->id());
+      ymuint ni = onode->fanin_num();
+      bool ready = true;
+      for (ymuint j = 0; j < ni; ++ j) {
+	BnNode* inode = find_node(onode->fanin(j));
+	if ( !queue.check(inode)) {
+	  ready = false;
+	  break;
+	}
+      }
+      if ( ready ) {
+	queue.put(onode);
+      }
+    }
+  }
+
+  ASSERT_COND( node_list.size() == logic_num() );
+
+  mLogicList = node_list;
+
+  mSane = true;
+
+  return true;
 }
 
 // @brief blif 形式のファイルを読み込む．
@@ -449,6 +505,20 @@ BnNetwork::logic(ymuint pos) const
 // 該当するノードがない場合には nullptr を返す．
 const BnNode*
 BnNetwork::find_node(ymuint node_id) const
+{
+  BnNode* node = nullptr;
+  if ( mNodeMap.find(node_id, node) ) {
+    return node;
+  }
+  return nullptr;
+}
+
+// @brief ノードを得る．
+// param[in] node_id ノード番号
+//
+// 該当するノードがない場合には nullptr を返す．
+BnNode*
+BnNetwork::find_node(ymuint node_id)
 {
   BnNode* node = nullptr;
   if ( mNodeMap.find(node_id, node) ) {

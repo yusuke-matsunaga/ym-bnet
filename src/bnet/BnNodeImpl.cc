@@ -177,11 +177,11 @@ BnNodeImpl::is_logic() const
 }
 
 // @brief ファンアウトを追加する．
-// @param[in] node_id ノード番号
+// @param[in] node ノード
 void
-BnNodeImpl::add_fanout(ymuint node_id)
+BnNodeImpl::add_fanout(const BnNode* node)
 {
-  mFanoutList.push_back(node_id);
+  mFanoutList.push_back(node);
 }
 
 // @brief ファンアウト数を得る．
@@ -193,7 +193,7 @@ BnNodeImpl::fanout_num() const
 
 // @brief ファンアウトのノード番号を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
-ymuint
+const BnNode*
 BnNodeImpl::fanout(ymuint pos) const
 {
   ASSERT_COND( pos < fanout_num() );

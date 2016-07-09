@@ -77,20 +77,20 @@ public:
   is_logic() const;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node_id ノード番号
+  /// @param[in] node ノード番号
   virtual
   void
-  add_fanout(ymuint node_id);
+  add_fanout(const BnNode* node);
 
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
   fanout_num() const;
 
-  /// @brief ファンアウトのノード番号を返す．
+  /// @brief ファンアウトのノードを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
+  const BnNode*
   fanout(ymuint pos) const;
 
 
@@ -172,7 +172,7 @@ private:
   string mName;
 
   // ファンアウトのノード番号のリスト
-  vector<ymuint> mFanoutList;
+  vector<const BnNode*> mFanoutList;
 
 };
 
