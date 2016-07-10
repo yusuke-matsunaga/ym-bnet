@@ -117,26 +117,37 @@ public:
   BnLogicType
   logic_type() const;
 
-  /// @brief セルを返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_CELL の時の動作は不定
-  const Cell*
-  cell() const;
-
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_EXPR の時の動作は不定
+  virtual
   Expr
   expr() const;
+
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const;
 
   /// @brief 真理値表を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_TV の時の動作は不定
+  virtual
   TvFunc
   tv() const;
+
+  /// @brief セルを返す．
+  ///
+  /// is_logic() == false の時の動作は不定
+  /// 場合によっては nullptr の場合もある．
+  virtual
+  const Cell*
+  cell() const;
 
 
 public:
@@ -309,9 +320,11 @@ public:
   /// @param[in] id ID番号
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのID番号の配列
+  /// @param[in] cell セル (nullptr の場合もあり)
   BnLogicNode(ymuint id,
 	      const string& name,
-	      const vector<ymuint>& fanins);
+	      const vector<ymuint>& fanins,
+	      const Cell* cell);
 
   /// @brief デストラクタ
   virtual
@@ -350,15 +363,25 @@ public:
   ymuint
   fanin(ymuint pos) const;
 
+  /// @brief セルを返す．
+  ///
+  /// is_logic() == false の時の動作は不定
+  /// 場合によっては nullptr を返す．
+  virtual
+  const Cell*
+  cell() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
-  // ここのメモリ領域はすべて BnNetworkImpl::mAlloc が管理する．
   //////////////////////////////////////////////////////////////////////
 
   // ファンインのノード番号の配列
   vector<ymuint> mFanins;
+
+  // セル
+  const Cell* mCell;
 
 };
 
@@ -380,10 +403,12 @@ public:
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのID番号の配列
   /// @param[in] logic_type 論理タイプ
+  /// @param[in] cell セル (nullptr の場合もあり)
   BnPrimNode(ymuint id,
 	     const string& name,
 	     const vector<ymuint>& fanins,
-	     BnLogicType logic_type);
+	     BnLogicType logic_type,
+	     const Cell* cell = nullptr);
 
   /// @brief デストラクタ
   virtual
@@ -416,66 +441,6 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnCellNode BnNodeImpl.h "BnNodeImpl.h"
-/// @brief セル型の論理ノードのクラス
-//////////////////////////////////////////////////////////////////////
-class BnCellNode :
-  public BnLogicNode
-{
-public:
-
-  /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのID番号の配列
-  /// @param[in] cell セル
-  BnCellNode(ymuint id,
-	     const string& name,
-	     const vector<ymuint>& fanins,
-	     const Cell* cell);
-
-  /// @brief デストラクタ
-  ~BnCellNode();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 論理タイプを返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  virtual
-  BnLogicType
-  logic_type() const;
-
-  /// @brief セルを返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_CELL の時の動作は不定
-  const Cell*
-  cell() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // セル
-  const Cell* mCell;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class BnExprNode BnNodeImpl.h "BnNodeImpl.h"
 /// @brief 論理式型の論理ノードのクラス
 //////////////////////////////////////////////////////////////////////
@@ -489,10 +454,14 @@ public:
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのID番号の配列
   /// @param[in] expr 論理式
+  /// @param[in] func_id 関数番号
+  /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(ymuint id,
 	     const string& name,
 	     const vector<ymuint>& fanins,
-	     const Expr& expr);
+	     const Expr& expr,
+	     ymuint func_id,
+	     const Cell* cell = nullptr);
 
   /// @brief デストラクタ
   ~BnExprNode();
@@ -514,8 +483,17 @@ public:
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_EXPR の時の動作は不定
+  virtual
   Expr
   expr() const;
+
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const;
 
 
 private:
@@ -531,6 +509,9 @@ private:
 
   // 論理式
   Expr mExpr;
+
+  // 関数番号
+  ymuint mFuncId;
 
 };
 
@@ -549,10 +530,14 @@ public:
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのID番号の配列
   /// @param[in] tv 真理値表
+  /// @param[in] func_id 関数番号
+  /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(ymuint id,
 	   const string& name,
 	   const vector<ymuint>& fanins,
-	   const TvFunc& tv);
+	   const TvFunc& tv,
+	   ymuint func_id,
+	   const Cell* cell = nullptr);
 
   /// @brief デストラクタ
   ~BnTvNode();
@@ -577,6 +562,14 @@ public:
   TvFunc
   tv() const;
 
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -591,6 +584,9 @@ private:
 
   // 真理値表
   TvFunc mTv;
+
+  // 関数番号
+  ymuint mFuncId;
 
 };
 

@@ -266,6 +266,20 @@ public:
   const BnNode*
   find_node(ymuint node_id) const;
 
+  /// @brief 関数の数を得る．
+  ymuint
+  func_num() const;
+
+  /// @brief 関数番号から関数を得る．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  const TvFunc&
+  func(ymuint func_id) const;
+
+  /// @brief 関数番号から論理式を得る．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  const Expr&
+  expr(ymuint func_id) const;
+
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   ///
@@ -285,6 +299,28 @@ private:
   /// 該当するノードがない場合には nullptr を返す．
   BnNode*
   find_node(ymuint node_id);
+
+  /// @brief 論理式を解析する．
+  /// @param[in] expr 対象の論理式
+  /// @param[out] func_id 関数番号
+  /// @return 論理タイプ
+  BnLogicType
+  analyze_expr(const Expr& expr,
+	       ymuint& func_id);
+
+  /// @brief 関数を解析する．
+  /// @param[in] func 対象の関数
+  /// @param[out] func_id 関数番号
+  /// @return 論理タイプ
+  ///
+  /// func がプリミティブ型の場合，
+  /// プリミティブ型の値を返す．
+  /// それ以外の場合，既に同じ関数が登録されていないか調べ，
+  /// 関数番号を func_id に設定する．
+  /// この場合は kBnLt_TV を返す．
+  BnLogicType
+  analyze_func(const TvFunc& func,
+	       ymuint& func_id);
 
 
 private:
@@ -309,6 +345,17 @@ private:
 
   // ノード番号をキーにしてノード情報を記録するハッシュ表
   HashMap<ymuint, BnNode*> mNodeMap;
+
+  // 真理値表をキーにして論理式番号を記録するハッシュ表
+  HashMap<TvFunc, ymuint> mFuncMap;
+
+  // 関数のリスト
+  // mFuncMap に対応する．
+  vector<TvFunc> mFuncList;
+
+  // 論理式のリスト
+  // mFuncMap に対応する．
+  vector<Expr> mExprList;
 
   // 正しい状態の時に true となるフラグ
   bool mSane;

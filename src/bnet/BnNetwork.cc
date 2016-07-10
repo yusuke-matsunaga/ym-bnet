@@ -24,6 +24,103 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+BEGIN_NONAMESPACE
+
+// @brief 真理値表から論理型を得る．
+//
+// 通常は kBnLt_TV だが場合によっては
+// プリミティブ型となる．
+BnLogicType
+tv2logic_type(const TvFunc& tv)
+{
+  if ( tv == TvFunc::const_zero(0) ) {
+    return kBnLt_C0;
+  }
+  else if ( tv == TvFunc::const_one(0) ) {
+    return kBnLt_C1;
+  }
+  else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
+    return kBnLt_BUFF;
+  }
+  else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
+    return kBnLt_NOT;
+  }
+  else {
+    ymuint input_num = tv.input_num();
+    ymuint np = 1UL << input_num;
+    int val_0;
+    int val_1;
+    bool has_0 = false;
+    bool has_1 = false;
+    bool xor_match = true;
+    bool xnor_match = true;
+    for (ymuint p = 0; p < np; ++ p) {
+      int val = tv.value(p);
+      if ( p == 0UL ) {
+	val_0 = val;
+      }
+      else if ( p == (np - 1) ) {
+	val_1 = val;
+      }
+      else {
+	if ( val == 0 ) {
+	  has_0 = true;
+	}
+	else {
+	  has_1 = true;
+	}
+      }
+      bool parity = false;
+      for (ymuint i = 0; i < input_num; ++ i) {
+	if ( (1UL << i) & p ) {
+	  parity = !parity;
+	}
+      }
+      if ( parity ) {
+	if ( val ) {
+	  xnor_match = false;
+	}
+      }
+      else {
+	if ( val ) {
+	  xor_match = false;
+	}
+      }
+    }
+    if ( val_0 == 0 && val_1 == 1 ) {
+      if ( !has_0 ) {
+	// 00...00 だけ 0 で残りが 1
+	return kBnLt_OR;
+      }
+      else if ( !has_1 ) {
+	// 11...11 だけ 1 で残りが 0
+	return kBnLt_AND;
+      }
+    }
+    else if ( val_0 == 1 && val_1 == 0 ) {
+      if ( !has_0 ) {
+	// 11...11 だけ 0 で残りが 1
+	return kBnLt_NAND;
+      }
+      else if ( !has_1 ) {
+	// 00...00 だけ 1 で残りが 0
+	return kBnLt_NOR;
+      }
+    }
+    else if ( xor_match ) {
+      return kBnLt_XOR;
+    }
+    else if ( xnor_match ) {
+      return kBnLt_XNOR;
+    }
+  }
+
+  return kBnLt_TV;
+}
+
+END_NONAMESPACE
+
+
 //////////////////////////////////////////////////////////////////////
 // クラス BnNetwork
 //////////////////////////////////////////////////////////////////////
@@ -189,7 +286,23 @@ BnNetwork::new_cell(ymuint node_id,
     return false;
   }
 
-  BnNode* node = new BnCellNode(node_id, node_name, inode_id_list, cell);
+  if ( !cell->has_logic() || cell->output_num() != 1 ) {
+    // 1出力の論理セルでなければエラー
+    return false;
+  }
+
+  // expr がプリミティブ型かどうかチェックする．
+  Expr expr = cell->logic_expr(0);
+  ymuint func_id;
+  BnLogicType logic_type = analyze_expr(expr, func_id);
+
+  BnNode* node = nullptr;
+  if ( logic_type == kBnLt_EXPR ) {
+    node = new BnExprNode(node_id, node_name, inode_id_list, expr, func_id, cell);
+  }
+  else {
+    node = new BnPrimNode(node_id, node_name, inode_id_list, logic_type, cell);
+  }
   mNodeMap.add(node_id, node);
   mLogicList.push_back(node);
 
@@ -218,11 +331,12 @@ BnNetwork::new_expr(ymuint node_id,
   }
 
   // expr がプリミティブ型かどうかチェックする．
-  BnLogicType logic_type = BnNode::expr2logic_type(expr);
+  ymuint func_id;
+  BnLogicType logic_type = analyze_expr(expr, func_id);
 
   BnNode* node = nullptr;
   if ( logic_type == kBnLt_EXPR ) {
-    node = new BnExprNode(node_id, node_name, inode_id_list, expr);
+    node = new BnExprNode(node_id, node_name, inode_id_list, expr, func_id);
   }
   else {
     node = new BnPrimNode(node_id, node_name, inode_id_list, logic_type);
@@ -254,7 +368,17 @@ BnNetwork::new_tv(ymuint node_id,
     return false;
   }
 
-  BnNode* node = new BnTvNode(node_id, node_name, inode_id_list, tv);
+  // tv がプリミティブ型かどうかチェックする．
+  ymuint func_id;
+  BnLogicType logic_type = analyze_func(tv, func_id);
+
+  BnNode* node = nullptr;
+  if ( logic_type == kBnLt_TV ) {
+    node = new BnTvNode(node_id, node_name, inode_id_list, tv, func_id);
+  }
+  else {
+    node = new BnPrimNode(node_id, node_name, inode_id_list, logic_type);
+  }
   mNodeMap.add(node_id, node);
   mLogicList.push_back(node);
 
@@ -527,6 +651,31 @@ BnNetwork::find_node(ymuint node_id)
   return nullptr;
 }
 
+// @brief 関数の数を得る．
+ymuint
+BnNetwork::func_num() const
+{
+  return mFuncList.size();
+}
+
+// @brief 関数番号から関数を得る．
+// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+const TvFunc&
+BnNetwork::func(ymuint func_id) const
+{
+  ASSERT_COND( func_id < func_num() );
+  return mFuncList[func_id];
+}
+
+// @brief 関数番号から論理式を得る．
+// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+const Expr&
+BnNetwork::expr(ymuint func_id) const
+{
+  ASSERT_COND( func_id < func_num() );
+  return mExprList[func_id];
+}
+
 // @brief 内容を出力する．
 // @param[in] s 出力先のストリーム
 //
@@ -631,19 +780,82 @@ BnNetwork::write(ostream& s) const
     case kBnLt_XNOR:
       s << "XNOR";
       break;
-    case kBnLt_CELL:
-      s << "cell: " << node->cell()->name();
-      break;
     case kBnLt_EXPR:
-      s << "expr: " << node->expr();
+      s << "expr: [" << node->func_id() << "] " << node->expr();
       break;
     case kBnLt_TV:
-      s << "tv: " << node->tv();
+      s << "tv: [" << node->func_id() << "] " << node->tv();
       break;
     }
-    s << endl
-      << endl;
+    s << endl;
+    if ( node->cell() ) {
+      s << "    cell: " << node->cell()->name() << endl;
+    }
+    s << endl;
   }
+
+  s << endl;
+  for (ymuint func_id = 0; func_id < func_num(); ++ func_id) {
+    s << "Func#" << func_id << ": " << func(func_id) << endl
+      << "          " << expr(func_id) << endl;
+  }
+
+}
+
+// @brief 論理式を解析する．
+// @param[in] expr 対象の論理式
+// @param[out] func_id 関数番号
+// @return 論理タイプ
+BnLogicType
+BnNetwork::analyze_expr(const Expr& expr,
+			ymuint& func_id)
+{
+  ymuint input_num = expr.input_size();
+  if ( input_num <= 10 ) {
+    // 10入力以下の場合は一旦 TvFunc に変換する．
+    TvFunc tv = expr.make_tv(input_num);
+    BnLogicType logic_type = analyze_func(tv, func_id);
+    if ( logic_type == kBnLt_TV ) {
+      logic_type = kBnLt_EXPR;
+      if ( func_id == mExprList.size() ) {
+	mExprList.push_back(expr);
+      }
+    }
+    return logic_type;
+  }
+  // 11入力以上の場合は常に新しい関数だと思う．
+  func_id = mFuncList.size();
+  mFuncList.push_back(TvFunc()); // ダミー
+  mExprList.push_back(expr);
+  return kBnLt_EXPR;
+}
+
+// @brief 関数を解析する．
+// @param[in] func 対象の関数
+// @param[out] func_id 関数番号
+// @return 論理タイプ
+//
+// func がプリミティブ型の場合，
+// プリミティブ型の値を返す．
+// それ以外の場合，既に同じ関数が登録されていないか調べ，
+// 関数番号を func_id に設定する．
+// この場合は kBnLt_TV を返す．
+BnLogicType
+BnNetwork::analyze_func(const TvFunc& func,
+			ymuint& func_id)
+{
+  ymuint input_num = func.input_num();
+  BnLogicType logic_type = tv2logic_type(func);
+  if ( logic_type != kBnLt_TV ) {
+    return logic_type;
+  }
+
+  if ( !mFuncMap.find(func, func_id) ) {
+    func_id = mFuncList.size();
+    mFuncList.push_back(func);
+    mFuncMap.add(func, func_id);
+  }
+  return kBnLt_TV;
 }
 
 END_NAMESPACE_YM_BNET

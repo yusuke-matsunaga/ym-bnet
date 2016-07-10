@@ -10,7 +10,6 @@
 
 
 #include "ym_bnet.h"
-#include "ym/BnNode.h"
 #include "ym/Expr.h"
 
 
@@ -75,13 +74,6 @@ public:
   Pat
   output_pat() const;
 
-  /// @brief 論理型を返す．
-  ///
-  /// 普通は BnNode::kLt_EXPR だが
-  /// 場合によってはプリミティブ型となる．
-  BnLogicType
-  logic_type() const;
-
   /// @brief 対応する論理式を返す．
   Expr
   expr() const;
@@ -114,9 +106,6 @@ private:
 
   // ID番号
   ymuint32 mId;
-
-  // 論理型
-  BnLogicType mLogicType;
 
   // 論理式
   Expr mExpr;
@@ -178,17 +167,6 @@ BlifCover::output_pat() const
   }
   ASSERT_NOT_REACHED;
   return kPat_d;
-}
-
-// @brief 論理型を返す．
-//
-// 普通は BnNode::kLt_EXPR だが
-// 場合によってはプリミティブ型となる．
-inline
-BnLogicType
-BlifCover::logic_type() const
-{
-  return mLogicType;
 }
 
 // @brief 対応する論理式を返す．

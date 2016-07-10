@@ -13,108 +13,6 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnNode (他に適当な場所がなかったので)
-//////////////////////////////////////////////////////////////////////
-
-// @brief 論理式から論理型を得る．
-//
-// 通常は kBnLt_EXPR だが場合によっては
-// プリミティブ型となる．
-BnLogicType
-BnNode::expr2logic_type(const Expr& expr)
-{
-  BnLogicType logic_type = kBnLt_EXPR;
-  ymuint input_num = expr.input_size();
-  if ( input_num < 10 ) {
-    // ただし一旦 TvFunc を作るので 10入力以下のときだけ
-    TvFunc tv = expr.make_tv(input_num);
-    if ( tv == TvFunc::const_zero(0) ) {
-      logic_type = kBnLt_C0;
-    }
-    else if ( tv == TvFunc::const_one(0) ) {
-      logic_type = kBnLt_C1;
-    }
-    else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
-      logic_type = kBnLt_BUFF;
-    }
-    else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
-      logic_type = kBnLt_NOT;
-    }
-    else {
-      ymuint np = 1UL << input_num;
-      int val_0;
-      int val_1;
-      bool has_0 = false;
-      bool has_1 = false;
-      bool xor_match = true;
-      bool xnor_match = true;
-      for (ymuint p = 0; p < np; ++ p) {
-	int val = tv.value(p);
-	if ( p == 0UL ) {
-	  val_0 = val;
-	}
-	else if ( p == (np - 1) ) {
-	  val_1 = val;
-	}
-	else {
-	  if ( val == 0 ) {
-	    has_0 = true;
-	  }
-	  else {
-	    has_1 = true;
-	  }
-	}
-	bool parity = false;
-	for (ymuint i = 0; i < input_num; ++ i) {
-	  if ( (1UL << i) & p ) {
-	    parity = !parity;
-	  }
-	}
-	if ( parity ) {
-	  if ( val ) {
-	    xnor_match = false;
-	  }
-	}
-	else {
-	  if ( val ) {
-	    xor_match = false;
-	  }
-	}
-      }
-      if ( val_0 == 0 && val_1 == 1 ) {
-	if ( !has_0 ) {
-	  // 00...00 だけ 0 で残りが 1
-	  logic_type = kBnLt_OR;
-	}
-	else if ( !has_1 ) {
-	  // 11...11 だけ 1 で残りが 0
-	  logic_type = kBnLt_AND;
-	}
-      }
-      else if ( val_0 == 1 && val_1 == 0 ) {
-	if ( !has_0 ) {
-	  // 11...11 だけ 0 で残りが 1
-	  logic_type = kBnLt_NAND;
-	}
-	else if ( !has_1 ) {
-	  // 00...00 だけ 1 で残りが 0
-	  logic_type = kBnLt_NOR;
-	}
-      }
-      else if ( xor_match ) {
-	logic_type = kBnLt_XOR;
-      }
-      else if ( xnor_match ) {
-	logic_type = kBnLt_XNOR;
-      }
-    }
-  }
-
-  return logic_type;
-}
-
-
-//////////////////////////////////////////////////////////////////////
 // クラス BnNodeImpl
 //////////////////////////////////////////////////////////////////////
 
@@ -248,6 +146,17 @@ BnNodeImpl::expr() const
   return Expr();
 }
 
+// @brief 関数番号を返す．
+//
+// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+ymuint
+BnNodeImpl::func_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
 // @brief 真理値表を返す．
 //
 // is_logic() == false の時の動作は不定
@@ -372,11 +281,14 @@ BnDffNode::reset_val() const
 // @param[in] id ID番号
 // @param[in] name ノード名
 // @param[in] fanins ファンインのID番号の配列
+// @param[in] cell セル (nullptr の場合もあり)
 BnLogicNode::BnLogicNode(ymuint id,
 			 const string& name,
-			 const vector<ymuint>& fanins) :
+			 const vector<ymuint>& fanins,
+			 const Cell* cell) :
   BnNodeImpl(id, name),
-  mFanins(fanins)
+  mFanins(fanins),
+  mCell(cell)
 {
 }
 
@@ -415,6 +327,16 @@ BnLogicNode::fanin(ymuint pos) const
   return mFanins[pos];
 }
 
+// @brief セルを返す．
+//
+// is_logic() == false の時の動作は不定
+// 場合によっては nullptr を返す．
+const Cell*
+BnLogicNode::cell() const
+{
+  return mCell;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnPrimNode
@@ -425,11 +347,13 @@ BnLogicNode::fanin(ymuint pos) const
 // @param[in] name ノード名
 // @param[in] fanins ファンインのID番号の配列
 // @param[in] logic_type 論理タイプ
+// @param[in] cell セル (nullptr の場合もあり)
 BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
 		       const vector<ymuint>& fanins,
-		       BnLogicType logic_type) :
-  BnLogicNode(id, name, fanins),
+		       BnLogicType logic_type,
+		       const Cell* cell) :
+  BnLogicNode(id, name, fanins, cell),
   mLogicType(logic_type)
 {
 }
@@ -450,49 +374,6 @@ BnPrimNode::logic_type() const
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnCellNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] fanins ファンインのID番号の配列
-// @param[in] cell セル
-BnCellNode::BnCellNode(ymuint id,
-		       const string& name,
-		       const vector<ymuint>& fanins,
-		       const Cell* cell) :
-  BnLogicNode(id, name, fanins),
-  mCell(cell)
-{
-}
-
-// @brief デストラクタ
-BnCellNode::~BnCellNode()
-{
-}
-
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnCellNode::logic_type() const
-{
-  return kBnLt_CELL;
-}
-
-// @brief セルを返す．
-//
-// is_logic() == false の時の動作は不定
-// logic_type() != kBnLt_CELL の時の動作は不定
-const Cell*
-BnCellNode::cell() const
-{
-  return mCell;
-}
-
-
-//////////////////////////////////////////////////////////////////////
 // クラス BnExprNode
 //////////////////////////////////////////////////////////////////////
 
@@ -501,12 +382,17 @@ BnCellNode::cell() const
 // @param[in] name ノード名
 // @param[in] fanins ファンインのID番号の配列
 // @param[in] expr 論理式
+// @param[in] func_id 関数番号
+// @param[in] cell セル (nullptr の場合もあり)
 BnExprNode::BnExprNode(ymuint id,
 		       const string& name,
 		       const vector<ymuint>& fanins,
-		       const Expr& expr) :
-  BnLogicNode(id, name, fanins),
-  mExpr(expr)
+		       const Expr& expr,
+		       ymuint func_id,
+		       const Cell* cell) :
+  BnLogicNode(id, name, fanins, cell),
+  mExpr(expr),
+  mFuncId(func_id)
 {
 }
 
@@ -534,6 +420,16 @@ BnExprNode::expr() const
   return mExpr;
 }
 
+// @brief 関数番号を返す．
+//
+// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+// 関数番号は同じ BnNetwork 内で唯一となるもの．
+ymuint
+BnExprNode::func_id() const
+{
+  return mFuncId;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnTvNode
@@ -544,12 +440,17 @@ BnExprNode::expr() const
 // @param[in] name ノード名
 // @param[in] fanins ファンインのID番号の配列
 // @param[in] tv 真理値表
+// @param[in] func_id 関数番号
+// @param[in] cell セル (nullptr の場合もあり)
 BnTvNode::BnTvNode(ymuint id,
 		   const string& name,
 		   const vector<ymuint>& fanins,
-		   const TvFunc& tv) :
-  BnLogicNode(id, name, fanins),
-  mTv(tv)
+		   const TvFunc& tv,
+		   ymuint func_id,
+		   const Cell* cell) :
+  BnLogicNode(id, name, fanins, cell),
+  mTv(tv),
+  mFuncId(func_id)
 {
 }
 
@@ -575,6 +476,16 @@ TvFunc
 BnTvNode::tv() const
 {
   return mTv;
+}
+
+// @brief 関数番号を返す．
+//
+// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+// 関数番号は同じ BnNetwork 内で唯一となるもの．
+ymuint
+BnTvNode::func_id() const
+{
+  return mFuncId;
 }
 
 END_NAMESPACE_YM_BNET

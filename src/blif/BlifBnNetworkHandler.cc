@@ -91,15 +91,7 @@ BlifBnNetworkHandler::names(ymuint onode_id,
 			    ymuint cover_id)
 {
   const BlifCover* cover = id2cover(cover_id);
-  BnLogicType logic_type = cover->logic_type();
-
-  bool stat = false;
-  if ( logic_type == kBnLt_EXPR ) {
-    stat = mNetwork->new_expr(onode_id, oname, inode_id_array, cover->expr());
-  }
-  else {
-    stat = mNetwork->new_primitive(onode_id, oname, inode_id_array, logic_type);
-  }
+  bool stat = mNetwork->new_expr(onode_id, oname, inode_id_array, cover->expr());
 
   return stat;
 }

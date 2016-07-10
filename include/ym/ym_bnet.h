@@ -59,7 +59,6 @@ enum BnLogicType {
   kBnLt_NOR,
   kBnLt_XOR,
   kBnLt_XNOR,
-  kBnLt_CELL,
   kBnLt_EXPR,
   kBnLt_TV
 };

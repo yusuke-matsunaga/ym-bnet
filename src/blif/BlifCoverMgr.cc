@@ -238,7 +238,6 @@ BlifCoverMgr::new_cover(ymuint input_num,
     expr = ~expr;
   }
 
-  cover->mLogicType = BnNode::expr2logic_type(expr);
   cover->mExpr = expr;
 
   mCoverArray.push_back(cover);

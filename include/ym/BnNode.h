@@ -152,14 +152,6 @@ public:
   BnLogicType
   logic_type() const = 0;
 
-  /// @brief セルを返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_CELL の時の動作は不定
-  virtual
-  const Cell*
-  cell() const = 0;
-
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
@@ -167,6 +159,14 @@ public:
   virtual
   Expr
   expr() const = 0;
+
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const = 0;
 
   /// @brief 真理値表を返す．
   ///
@@ -176,13 +176,13 @@ public:
   TvFunc
   tv() const = 0;
 
-  /// @brief 論理式から論理型を得る．
+  /// @brief セルを返す．
   ///
-  /// 通常は kBnLt_EXPR だが場合によっては
-  /// プリミティブ型となる．
-  static
-  BnLogicType
-  expr2logic_type(const Expr& expr);
+  /// is_logic() == false の時の動作は不定
+  /// 場合によっては nullptr を返す．
+  virtual
+  const Cell*
+  cell() const = 0;
 
 
 public:
