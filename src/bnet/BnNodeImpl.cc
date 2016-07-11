@@ -75,11 +75,11 @@ BnNodeImpl::is_logic() const
 }
 
 // @brief ファンアウトを追加する．
-// @param[in] node ノード
+// @param[in] node_id ノード番号
 void
-BnNodeImpl::add_fanout(const BnNode* node)
+BnNodeImpl::add_fanout(ymuint node_id)
 {
-  mFanoutList.push_back(node);
+  mFanoutList.push_back(node_id);
 }
 
 // @brief ファンアウト数を得る．
@@ -91,7 +91,7 @@ BnNodeImpl::fanout_num() const
 
 // @brief ファンアウトのノード番号を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
-const BnNode*
+ymuint
 BnNodeImpl::fanout(ymuint pos) const
 {
   ASSERT_COND( pos < fanout_num() );
@@ -215,6 +215,49 @@ bool
 BnInputNode::is_input() const
 {
   return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnOutputNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] name ノード名
+// @param[in] input_id 入力ノードのID番号
+BnOutputNode::BnOutputNode(const string& name,
+			   ymuint input_id) :
+  BnNodeImpl(input_id, name),
+  mInput(input_id)
+{
+}
+
+// @brief デストラクタ
+BnOutputNode::~BnOutputNode()
+{
+}
+
+// @brief タイプを返す．
+BnNode::Type
+BnOutputNode::type() const
+{
+  return kOutput;
+}
+
+// @brief 外部出力ノードの時 true を返す．
+bool
+BnOutputNode::is_output() const
+{
+  return true;
+}
+
+// @brief 入力のノード番号を返す．
+//
+// is_output() == false の時の動作は不定
+ymuint
+BnOutputNode::input() const
+{
+  return mInput;
 }
 
 

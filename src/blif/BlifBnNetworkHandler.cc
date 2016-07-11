@@ -56,23 +56,28 @@ bool
 BlifBnNetworkHandler::inputs_elem(ymuint name_id,
 				  const char* name)
 {
-  bool stat = mNetwork->new_input(name_id, name);
-  if ( stat ) {
-    mNetwork->new_port(name, BnPort::kIn, vector<ymuint>(1, name_id));
+  BnNode* node = mNetwork->new_input(name_id, name);
+  if ( node == nullptr ) {
+    return false;
   }
 
-  return stat;
+  mNetwork->new_port(name, vector<BnNode*>(1, node));
+
+  return true;
 }
 
 // @brief .output 文の読み込み
 // @param[in] loc 位置情報
-// @param[in] name 出力ノード名
+// @param[in] name_id 文字列のID番号
 // @param[in] name 出力ピン名
 bool
 BlifBnNetworkHandler::outputs_elem(ymuint name_id,
 				   const char* name)
 {
-  mNetwork->new_port(name, BnPort::kOut, vector<ymuint>(1, name_id));
+  BnNode* node = mNetwork->new_output(name, name_id);
+  ASSERT_COND( node != nullptr );
+
+  mNetwork->new_port(name, vector<BnNode*>(1, node));
 
   return true;
 }

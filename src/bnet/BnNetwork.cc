@@ -175,14 +175,12 @@ BnNetwork::set_model_name(const string& name)
 
 // @brief ポートを追加する．
 // @param[in] port_name ポート名
-// @param[in] dir 方向
 // @param[in] bits 内容のノード番号のリスト
 void
 BnNetwork::new_port(const string& port_name,
-		    BnPort::Direction dir,
-		    const vector<ymuint>& bits)
+		    const vector<BnNode*>& bits)
 {
-  mPortList.push_back(new BnPortImpl(port_name, dir, bits));
+  mPortList.push_back(new BnPortImpl(port_name, bits));
 
   mSane = false;
 }
@@ -190,16 +188,16 @@ BnNetwork::new_port(const string& port_name,
 // @brief 外部入力ノードを追加する．
 // @param[in] node_id ノードID番号
 // @param[in] node_name ノード名
-// @return 追加が成功したら true を返す．
+// @return 生成した入力ノードを返す．
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_input(ymuint node_id,
 		     const string& node_name)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   BnNode* node = new BnInputNode(node_id, node_name);
@@ -208,7 +206,25 @@ BnNetwork::new_input(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
+}
+
+// @brief 外部出力ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] inode_id 入力のノード番号
+// @return 生成した出力ノードを返す．
+//
+// ノード名の重複に関しては感知しない．
+BnNode*
+BnNetwork::new_output(const string& node_name,
+		      ymuint inode_id)
+{
+  BnNode* node = new BnOutputNode(node_name, inode_id);
+  mOutputList.push_back(node);
+
+  mSane = false;
+
+  return node;
 }
 
 // @brief DFFノードを追加する．
@@ -395,8 +411,6 @@ BnNetwork::new_tv(ymuint node_id,
 // - model_name が設定されているか
 //   設定されていなければデフォルト値を使う．
 //   -> warning
-// - 各ポートで参照しているノード番号が存在するか
-//   存在しなければ error
 // - 各ノードのファンインのノード番号が存在するか
 //   存在しなければ error
 //
@@ -416,21 +430,6 @@ BnNetwork::wrap_up()
 
   bool error = false;
 
-  // ポート内で参照されているノード番号が定義されているか調べる．
-  for (ymuint i = 0; i < port_num(); ++ i) {
-    const BnPort* port = mPortList[i];
-    // port の名前は任意
-    ymuint bw = port->bit_width();
-    for (ymuint j = 0; j < bw; ++ j) {
-      ymuint node_id = port->bit(j);
-      if ( !mNodeMap.check(node_id) ) {
-	// node_id 番のノードが未定義
-	cout << "undefined node#" << node_id << endl;
-	error = true;
-      }
-    }
-  }
-
   // 各ノードのファンインとして参照されているノード番号が定義されているか調べる．
   // 同時にファンアウト情報を設定する．
   for (HashMapIterator<ymuint, BnNode*> p = mNodeMap.begin();
@@ -442,7 +441,19 @@ BnNetwork::wrap_up()
       ymuint inode_id = node->fanin(i);
       BnNode* inode = nullptr;
       if ( mNodeMap.find(inode_id, inode) ) {
-	inode->add_fanout(node);
+	inode->add_fanout(node_id);
+      }
+      else {
+	// inode_id が未定義
+	cout << "undefined node#" << node_id << endl;
+	error = true;
+      }
+    }
+    if ( node->is_output() || node->is_dff() ) {
+      ymuint inode_id = node->input();
+      BnNode* inode = nullptr;
+      if ( mNodeMap.find(inode_id, inode) ) {
+	inode->add_fanout(node_id);
       }
       else {
 	// inode_id が未定義
@@ -486,8 +497,7 @@ BnNetwork::wrap_up()
     }
     ymuint nfo = node->fanout_num();
     for (ymuint i = 0; i < nfo; ++ i) {
-      // const を外すためのバカなコード
-      BnNode* onode = find_node(node->fanout(i)->id());
+      BnNode* onode = find_node(node->fanout(i));
       ymuint ni = onode->fanin_num();
       bool ready = true;
       for (ymuint j = 0; j < ni; ++ j) {
@@ -589,6 +599,22 @@ BnNetwork::input(ymuint pos) const
 {
   ASSERT_COND( pos < input_num() );
   return mInputList[pos];
+}
+
+// @brief 出力数を得る．
+ymuint
+BnNetwork::output_num() const
+{
+  return mOutputList.size();
+}
+
+// @brief 出力ノードを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
+const BnNode*
+BnNetwork::output(ymuint pos) const
+{
+  ASSERT_COND( pos < output_num() );
+  return mOutputList[pos];
 }
 
 // @brief DFF数を得る．
@@ -695,16 +721,10 @@ BnNetwork::write(ostream& s) const
   for (ymuint i = 0; i < np; ++ i) {
     const BnPort* port = this->port(i);
     s << "port#" << i << ": ";
-    if ( port->direction() == BnPort::kIn ) {
-      s << " INPUT ";
-    }
-    else {
-      s << " OUTPUT ";
-    }
     s << "(" << port->name() << ") : ";
     ymuint bw = port->bit_width();
     for (ymuint j = 0; j < bw; ++ j) {
-      s << " " << port->bit(j);
+      s << " " << port->bit(j)->id();
     }
     s << endl;
   }
@@ -717,6 +737,16 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node->type() == BnNode::kInput );
     s << "input#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl;
+  }
+  s << endl;
+
+  ymuint no = output_num();
+  for (ymuint i = 0; i < no; ++ i) {
+    const BnNode* node = output(i);
+    ASSERT_COND( node != nullptr );
+    ASSERT_COND( node->type() == BnNode::kOutput );
+    s << "output#" << i << ": (" << node->name() << ")" << endl
+      << "    input: " << node->input() << endl;
   }
   s << endl;
 

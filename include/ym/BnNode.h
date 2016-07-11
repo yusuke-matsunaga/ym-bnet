@@ -24,6 +24,8 @@ BEGIN_NAMESPACE_YM_BNET
 ///
 /// ノードには以下の3種類がある．
 /// - 外部入力ノード
+/// - 外部出力ノード
+///   1つのファンインを持つ．
 /// - DFFノード
 ///   1つのファンインとリセット値を持つ．
 /// - 論理ノード
@@ -47,6 +49,9 @@ public:
   enum Type {
     /// @brief 外部入力ノード
     kInput,
+
+    /// @brief 外部出力ノード
+    kOutput,
 
     /// @brief DFFノード
     kDFF,
@@ -93,6 +98,13 @@ public:
   bool
   is_input() const = 0;
 
+  /// @brief 外部出力ノードの時 true を返す．
+  ///
+  /// type() == kOutput と等価
+  virtual
+  bool
+  is_output() const = 0;
+
   /// @brief D-FF ノードの時 true を返す．
   ///
   /// type() == kDFF と等価
@@ -108,20 +120,20 @@ public:
   is_logic() const = 0;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node ノード
+  /// @param[in] node_id ノード番号
   virtual
   void
-  add_fanout(const BnNode* node) = 0;
+  add_fanout(ymuint node_id) = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
   fanout_num() const = 0;
 
-  /// @brief ファンアウトのノードを返す．
+  /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  const BnNode*
+  ymuint
   fanout(ymuint pos) const = 0;
 
 
@@ -187,15 +199,21 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // D-FFノードの外部インターフェイス
+  // 外部出力ノードとD-FFノードに共通の外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 入力のノード番号を返す．
   ///
-  /// is_dff() == false の時の動作は不定
+  /// is_output() == false && is_dff() == false の時の動作は不定
   virtual
   ymuint
   input() const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // D-FFノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief リセット値を返す．
   /// @retval '0': 0

@@ -25,16 +25,6 @@ class BnPort
 {
 public:
   //////////////////////////////////////////////////////////////////////
-  /// @brief 方向を表す列挙型
-  //////////////////////////////////////////////////////////////////////
-  enum Direction {
-    kIn,
-    kOut
-  };
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
 
@@ -53,11 +43,6 @@ public:
   string
   name() const = 0;
 
-  /// @brief 方向
-  virtual
-  Direction
-  direction() const = 0;
-
   /// @brief ビット数を得る．
   virtual
   ymuint
@@ -65,9 +50,9 @@ public:
 
   /// @brief pos ビット目の内容を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-  /// @return 対応するノード番号を返す．
+  /// @return 対応するノードを返す．
   virtual
-  ymuint
+  const BnNode*
   bit(ymuint pos) const = 0;
 
 };

@@ -24,11 +24,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] name 名前
-  /// @param[in] dir 方向
   /// @param[in] bits 内容のベクタ
   BnPortImpl(const string& name,
-	     Direction dir,
-	     const vector<ymuint>& bits);
+	     const vector<BnNode*>& bits);
 
   /// @brief デストラクタ
   virtual
@@ -45,10 +43,6 @@ public:
   string
   name() const;
 
-  /// @brief 方向
-  Direction
-  direction() const;
-
   /// @brief ビット数を得る．
   virtual
   ymuint
@@ -56,9 +50,9 @@ public:
 
   /// @brief pos ビット目の内容を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-  /// @return 対応するノードのIDを返す．
+  /// @return 対応するノードを返す．
   virtual
-  ymuint
+  const BnNode*
   bit(ymuint pos) const;
 
 
@@ -71,17 +65,13 @@ private:
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
-  // ここのメモリ領域はすべて BnNetworkImpl::mAlloc が管理する．
   //////////////////////////////////////////////////////////////////////
 
   // 名前
   string mName;
 
-  // 方向
-  Direction mDirection;
-
   // 個々のビットに対応するノード番号のリスト
-  vector<ymuint> mBits;
+  vector<BnNode*> mBits;
 
 };
 

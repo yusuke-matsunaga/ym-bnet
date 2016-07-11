@@ -20,7 +20,6 @@ BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetwork BnNetwork.h "ym/BnNetwork.h"
-/// @brief BnNetwork を作るためのビルダークラス
 /// @brief ブーリアンネットワークを表すクラス
 /// @sa BnNode
 /// @sa BnPort
@@ -29,18 +28,18 @@ BEGIN_NAMESPACE_YM_BNET
 /// syncronous boolean network かもしれない．
 /// 以下の種類のノードを持つ．
 /// - 外部入力ノード
+/// - 外部出力ノード
 /// - 論理ノード
 ///   論理関数表現とファンインのノードを持つ．
 /// - D-FFノード
 ///   リセット状態(値)と1つのファンインのノードを持つ．
 /// すべてのノードは任意で名前を持つ．
-/// 外部出力は上記いずれかのノードの出力を指す．
-/// 独立のノードとしては存在しない．
 ///
 /// 回路全体の入出力インターフェイスとしてポートを持つ．
 /// ポートは複数ビットをひとまとめにしたもので名前を持つ．
 /// - ポートの名前空間はノードとは別に設ける．
-/// - 一つのポートに入力ノードと出力ノード(※詳細は上記参照)が混在しても良い．
+/// - ポートは入力ポートと出力ポートの2種類がある．
+/// - ポートは入力/出力ノードのベクタを内容として持つ．
 /// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，ポートは1つのノードに対応する．
 ///
 /// このクラスはファイル入出力用のモデルであり，このクラス上で
@@ -77,23 +76,31 @@ public:
 
   /// @brief ポートを追加する．
   /// @param[in] port_name ポート名
-  /// @param[in] dir 方向
   /// @param[in] bits 内容のノード番号のリスト
   void
   new_port(const string& port_name,
-	   BnPort::Direction dir,
-	   const vector<ymuint>& bits);
+	   const vector<BnNode*>& bits);
 
   /// @brief 外部入力ノードを追加する．
   /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成した入力ノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_input(ymuint node_id,
 	    const string& node_name);
+
+  /// @brief 外部出力ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id 入力のノード番号
+  /// @return 生成した出力ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_output(const string& node_name,
+	     ymuint inode_id);
 
   /// @brief DFFノードを追加する．
   /// @param[in] node_id ノードID番号
@@ -239,6 +246,15 @@ public:
   const BnNode*
   input(ymuint pos) const;
 
+  /// @brief 出力数を得る．
+  ymuint
+  output_num() const;
+
+  /// @brief 出力ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
+  const BnNode*
+  output(ymuint pos) const;
+
   /// @brief DFF数を得る．
   ymuint
   dff_num() const;
@@ -334,13 +350,16 @@ private:
   // ポート情報のリスト
   vector<BnPort*> mPortList;
 
-  // 入力ノードのノード番号の情報のリスト
+  // 入力ノードのリスト
   vector<BnNode*> mInputList;
 
-  // DFFノードのノード番号のリスト
+  // 出力ノードのリスト
+  vector<BnNode*> mOutputList;
+
+  // DFFノードのリスト
   vector<BnNode*> mDffList;
 
-  // 論理ノードのノード番号のリスト
+  // 論理ノードのリスト
   vector<BnNode*> mLogicList;
 
   // ノード番号をキーにしてノード情報を記録するハッシュ表
