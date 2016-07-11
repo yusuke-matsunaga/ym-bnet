@@ -107,11 +107,11 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id 入力のノード番号
   /// @param[in] reset_val リセット値 ('0', '1', '-' のいずれか)
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成したDFFノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_dff(ymuint node_id,
 	  const string& node_name,
 	  ymuint inode_id,
@@ -122,11 +122,11 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_list ファンインのノード番号のリスト
   /// @param[in] prim_type プリミティブの型
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成した論理ノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_primitive(ymuint node_id,
 		const string& node_name,
 		const vector<ymuint>& inode_id_list,
@@ -137,11 +137,11 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_list ファンインのノード番号のリスト
   /// @param[in] cell セル
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成した論理ノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_cell(ymuint node_id,
 	   const string& node_name,
 	   const vector<ymuint>& inode_id_list,
@@ -152,11 +152,11 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_list ファンインのノード番号のリスト
   /// @param[in] expr 論理式
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成した論理ノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_expr(ymuint node_id,
 	   const string& node_name,
 	   const vector<ymuint>& inode_id_list,
@@ -167,11 +167,11 @@ public:
   /// @param[in] node_name ノード名
   /// @param[in] inode_id_list ファンインのノード番号のリスト
   /// @param[in] tv_func 心理値表
-  /// @return 追加が成功したら true を返す．
+  /// @return 生成した論理ノードを返す．
   ///
   /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
-  bool
+  BnNode*
   new_tv(ymuint node_id,
 	 const string& node_name,
 	 const vector<ymuint>& inode_id_list,
@@ -185,8 +185,6 @@ public:
   /// - model_name が設定されているか
   ///   設定されていなければデフォルト値を使う．
   ///   -> warning
-  /// - 各ポートで参照しているノード番号が存在するか
-  ///   存在しなければ error
   /// - 各ノードのファンインのノード番号が存在するか
   ///   存在しなければ error
   ///

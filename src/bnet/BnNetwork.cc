@@ -232,18 +232,18 @@ BnNetwork::new_output(const string& node_name,
 // @param[in] node_name ノード名
 // @param[in] inode_id 入力のノード番号
 // @param[in] reset_val リセット値 ('0', '1', '-' のいずれか)
-// @return 追加が成功したら true を返す．
+// @return 生成したDFFノードを返す．
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_dff(ymuint node_id,
 		   const string& node_name,
 		   ymuint inode_id,
 		   char reset_val)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   BnNode* node = new BnDffNode(node_id, node_name, inode_id, reset_val);
@@ -252,7 +252,7 @@ BnNetwork::new_dff(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -264,14 +264,14 @@ BnNetwork::new_dff(ymuint node_id,
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_primitive(ymuint node_id,
 			 const string& node_name,
 			 const vector<ymuint>& inode_id_list,
 			 BnLogicType prim_type)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   BnNode* node = new BnPrimNode(node_id, node_name, inode_id_list, prim_type);
@@ -280,7 +280,7 @@ BnNetwork::new_primitive(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
 }
 
 // @brief セル型の論理ノードを追加する．
@@ -288,23 +288,23 @@ BnNetwork::new_primitive(ymuint node_id,
 // @param[in] node_name ノード名
 // @param[in] inode_id_list ファンインのノード番号のリスト
 // @param[in] cell セル
-// @return 追加が成功したら true を返す．
+// @return 生成した論理ノードを返す．
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_cell(ymuint node_id,
 		    const string& node_name,
 		    const vector<ymuint>& inode_id_list,
 		    const Cell* cell)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   if ( !cell->has_logic() || cell->output_num() != 1 ) {
     // 1出力の論理セルでなければエラー
-    return false;
+    return nullptr;
   }
 
   // expr がプリミティブ型かどうかチェックする．
@@ -324,7 +324,7 @@ BnNetwork::new_cell(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
 }
 
 // @brief 論理式型の論理ノードを追加する．
@@ -332,18 +332,18 @@ BnNetwork::new_cell(ymuint node_id,
 // @param[in] node_name ノード名
 // @param[in] inode_id_list ファンインのノード番号のリスト
 // @param[in] expr 論理式
-// @return 追加が成功したら true を返す．
+// @return 生成した論理ノードを返す．
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_expr(ymuint node_id,
 		    const string& node_name,
 		    const vector<ymuint>& inode_id_list,
 		    const Expr& expr)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   // expr がプリミティブ型かどうかチェックする．
@@ -362,7 +362,7 @@ BnNetwork::new_expr(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
 }
 
 // @brief 真理値表型の論理ノードを追加する．
@@ -370,18 +370,18 @@ BnNetwork::new_expr(ymuint node_id,
 // @param[in] node_name ノード名
 // @param[in] inode_id_list ファンインのノード番号のリスト
 // @param[in] tv_func 心理値表
-// @return 追加が成功したら true を返す．
+// @return 生成した論理ノードを返す．
 //
 // すでに同じノード番号が存在したら失敗する．
 // ノード名の重複に関しては感知しない．
-bool
+BnNode*
 BnNetwork::new_tv(ymuint node_id,
 		  const string& node_name,
 		  const vector<ymuint>& inode_id_list,
 		  const TvFunc& tv)
 {
   if ( mNodeMap.check(node_id) ) {
-    return false;
+    return nullptr;
   }
 
   // tv がプリミティブ型かどうかチェックする．
@@ -400,7 +400,7 @@ BnNetwork::new_tv(ymuint node_id,
 
   mSane = false;
 
-  return true;
+  return node;
 }
 
 // @brief 最終処理と整合性のチェックを行う．
