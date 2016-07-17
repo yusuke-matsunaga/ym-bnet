@@ -36,7 +36,7 @@ Iscas89BnBuilder::~Iscas89BnBuilder()
 // @retval true 正常に読み込めた
 // @retval false 読み込み中にエラーが起こった．
 bool
-Iscas89BnBuilder::read_blif(const string& filename)
+Iscas89BnBuilder::read_iscas89(const string& filename)
 {
   Iscas89BnNetworkHandler* handler = new Iscas89BnNetworkHandler(this);
 
@@ -62,7 +62,7 @@ Iscas89BnBuilder::clear()
   mIdMap.clear();
   mFaninInfoMap.clear();
 
-  mNeedClock = false;
+  mClockId = 0;
 
   mSane = false;
 }
@@ -101,11 +101,23 @@ Iscas89BnBuilder::add_dff(ymuint oname_id,
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   mFaninInfoMap.add(output_id, vector<ymuint>(1, iname_id));
 
-  mNeedClock = true;
+  if ( mClockId == 0 ) {
+    // クロック端子を作る．
+    mNodeInfoList.push_back(NodeInfo(mClockName));
+    ymuint node_id = mNodeInfoList.size();
+
+    // クロックのポートを作る．
+    mPortInfoList.push_back(PortInfo(mClockName, node_id));
+
+    // クロック端子の外部出力を作る．
+    mNodeInfoList.push_back(NodeInfo(mClockName, 0));
+    mClockId = mNodeInfoList.size();
+    mNodeInfoList[mClockId - 1].mInodeList[0] = node_id;
+  }
+
+  dff_info.mClock = mClockId;
 
   mSane = false;
-
-  return id;
 }
 
 // @brief 外部入力ノードを追加する．
@@ -139,8 +151,6 @@ Iscas89BnBuilder::add_output(ymuint name_id,
   mPortInfoList.push_back(PortInfo(name, id));
 
   mSane = false;
-
-  return id;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -149,10 +159,10 @@ Iscas89BnBuilder::add_output(ymuint name_id,
 // @param[in] inode_id_array ファンインのノード番号のリスト
 // @param[in] logic_type 論理型
 void
-Iscas89BnBuilder::add_expr(ymuint oname_id,
-			   const string& oname,
-			   const vector<ymuint>& inode_id_array,
-			   BnLogicType logic_type)
+Iscas89BnBuilder::add_primitive(ymuint oname_id,
+				const string& oname,
+				const vector<ymuint>& inode_id_array,
+				BnLogicType logic_type)
 {
   ymuint ni = inode_id_array.size();
   mNodeInfoList.push_back(NodeInfo(oname, ni, logic_type));
@@ -179,133 +189,34 @@ Iscas89BnBuilder::sanity_check()
     return true;
   }
 
-  if ( name() == string() ) {
-    // name が設定されていない．
-    set_model_name("network");
-  }
-  ymuint clock_id = 0;
-  if ( mNeedClock ) {
-    // クロック端子を作る．
-    ymuint node_id = mBuilder->add_input(mClockName);
-    mBuilder->add_port(mClockName, node_id);
-
-    // クロック端子の外部出力を作る．
-    clock_id = mBuilder->add_output(mClockName);
-    mBuilder->set_output_input(clock_id, node_id);
-  }
-
-  ymuint reset_id = 0;
-  if ( mNeedReset ) {
-    // クリア端子を作る．
-    ymuint node_id = mBuilder->add_input(mResetName);
-    mBuilder->add_port(mResetName, node_id);
-
-    // クリア端子の外部出力を作る．
-    reset_id = mBuilder->add_output(mResetName);
-    mBuilder->set_output_input(reset_id, node_id);
-  }
-
   // 論理ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mBuilder->node_num(); ++ node_id) {
-    NodeInfo node_info;
-    bool stat = mNodeInfoMap.find(node_id, node_info);
+  for (ymuint node_id = 1; node_id <= node_num(); ++ node_id) {
+    vector<ymuint> fanin_info;
+    bool stat = mFaninInfoMap.find(node_id, fanin_info);
     if ( !stat ) {
       continue;
     }
 
-    const BnBuilder::NodeInfo bnode_info = const_cast<const BnBuilder*>(mBuilder)->node(node_id);
+    NodeInfo& bnode_info = mNodeInfoList[node_id - 1];
     if ( bnode_info.mType == BnNode::kLogic ) {
-      ymuint ni = node_info.mInameIdArray.size();
+      ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
-	bool stat1 = mIdMap.find(node_info.mInameIdArray[i], inode_id);
+	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
-	mBuilder->set_fanin(node_id, i, inode_id);
+	bnode_info.mInodeList[i] = inode_id;
       }
     }
     else if ( bnode_info.mType == BnNode::kOutput ) {
-      ymuint iname_id = node_info.mInameIdArray[0];
+      ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
-      mBuilder->set_output_input(node_id, inode_id);
-    }
-  }
-
-  // DFFノードの入力を設定する．
-  for (ymuint dff_id = 0; dff_id < mBuilder->dff_num(); ++ dff_id) {
-    const LatchInfo& latch_info = mLatchInfoList[dff_id];
-    ymuint inode_id;
-    bool stat = mIdMap.find(latch_info.mInameId, inode_id);
-    ASSERT_COND( stat );
-
-    // まず外部出力ノードを作る．
-    string oname = id2str(latch_info.mInameId);
-    ymuint onode_id = mBuilder->add_output(oname);
-    mBuilder->set_output_input(onode_id, inode_id);
-
-    // DFF の入力を設定する．
-    mBuilder->set_dff_input(dff_id, onode_id);
-
-    // DFF のクロックを設定する．
-    mBuilder->set_dff_clock(dff_id, clock_id);
-
-    // DFF のリセット(クリア or プリセット)を設定する．
-    if ( latch_info.mResetVal == '0' ) {
-      mBuilder->set_dff_clear(dff_id, reset_id);
-    }
-    else if ( latch_info.mResetVal == '1' ) {
-      mBuilder->set_dff_preset(dff_id, reset_id);
+      bnode_info.mInodeList[0] = inode_id;
     }
   }
 
   bool error = false;
-
-  // DFF の入力，出力，クロックにノードが設定されているか調べる．
-  for (ymuint i = 0; i < dff_num(); ++ i) {
-    const DffInfo& dff_info = dff(i);
-    if ( dff_info.mInput == 0 ) {
-      cerr << "Dff(" << dff_info.mName << ").mInput is not set" << endl;
-      error = true;
-    }
-    if ( dff_info.mOutput == 0 ) {
-      cerr << "Dff(" << dff_info.mName << ").mOutput is not set" << endl;
-      error = true;
-    }
-    if ( dff_info.mClock == 0 ) {
-      cerr << "Dff(" << dff_info.mName << ").mClock is not set" << endl;
-      error = true;
-    }
-  }
-
-  // ラッチの入力，出力，イネーブルにノードが設定されているか調べる．
-  for (ymuint i = 0; i < latch_num(); ++ i) {
-    const LatchInfo& latch_info = latch(i);
-    if ( latch_info.mInput == 0 ) {
-      cerr << "Latch(" << latch_info.mName << ").mInput is not set" << endl;
-      error = true;
-    }
-    if ( latch_info.mOutput == 0 ) {
-      cerr << "Latch(" << latch_info.mName << ").mOutput is not set" << endl;
-      error = true;
-    }
-    if ( latch_info.mEnable== 0 ) {
-      cerr << "Latch(" << latch_info.mName << ").mEnable is not set" << endl;
-      error = true;
-    }
-  }
-
-  // ノードにファンインが設定されているか調べる．
-  for (ymuint i = 1; i <= node_num(); ++ i) {
-    const NodeInfo& node_info = node(i);
-    ymuint ni = node_info.mInodeList.size();
-    for (ymuint j = 0; j < ni; ++ j) {
-      if ( node_info.mInodeList[j] == 0 ) {
-	cerr << "Node(" << node_info.mName << ").mInodeList[" << j << "] is not set" << endl;
-	error = true;
-      }
-    }
-  }
 
   if ( !error ) {
     mSane = true;
@@ -367,7 +278,6 @@ const BnBuilder::LatchInfo&
 Iscas89BnBuilder::latch(ymuint pos) const
 {
   ASSERT_NOT_REACHED;
-  return LatchInfo();
 }
 
 // @brief ノード数を得る．

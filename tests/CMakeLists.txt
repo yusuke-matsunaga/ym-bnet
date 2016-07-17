@@ -22,12 +22,12 @@ set ( blifparser_test_SOURCES
   blif/TestBlifHandler.cc
   )
 
-set ( BnBuilderTest_SOURCES
-  builder/BnBuilderTest.cc
+set ( BlifBnBuilderTest_SOURCES
+  blif/BlifBnBuilderTest.cc
   )
 
-set ( BnBuilder_iscas89_test_SOURCES
-  iscas89/BnBuilder_iscas89_test.cc
+set ( Iscas89BnBuilderTest_SOURCES
+  iscas89/Iscas89BnBuilderTest.cc
   )
 
 set ( iscas89parser_test_SOURCES
@@ -71,34 +71,34 @@ target_link_libraries ( iscas89parser_test
   ${YM_LIB_DEPENDS}
   )
 
-add_executable ( BnBuilderTest
-  ${BnBuilderTest_SOURCES}
+add_executable ( BlifBnBuilderTest
+  ${BlifBnBuilderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_common_d>
   )
 
-target_compile_options ( BnBuilderTest
+target_compile_options ( BlifBnBuilderTest
   PRIVATE "-g"
   )
 
-target_link_libraries ( BnBuilderTest
+target_link_libraries ( BlifBnBuilderTest
   ${YM_LIB_DEPENDS}
   )
 
-add_executable ( BnBuilder_iscas89_test
-  ${BnBuilder_iscas89_test_SOURCES}
+add_executable ( Iscas89BnBuilderTest
+  ${Iscas89BnBuilderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_common_d>
   )
 
-target_compile_options ( BnBuilder_iscas89_test
+target_compile_options ( Iscas89BnBuilderTest
   PRIVATE "-g"
   )
 
-target_link_libraries ( BnBuilder_iscas89_test
+target_link_libraries ( Iscas89BnBuilderTest
   ${YM_LIB_DEPENDS}
   )

@@ -1,8 +1,8 @@
-#ifndef BLIFBNBUILDER_H
-#define BLIFBNBUILDER_H
+#ifndef ISCAS89BNBUILDER_H
+#define ISCAS89BNBUILDER_H
 
-/// @file BlifBnBuilder.h
-/// @brief BlifBnBuilder のヘッダファイル
+/// @file Iscas89BnBuilder.h
+/// @brief Iscas89BnBuilder のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2016 Yusuke Matsunaga
@@ -15,23 +15,21 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifBnBuilder BnBuilder.h "BnBuilder.h"
+/// @class Iscas89BnBuilder BnBuilder.h "BnBuilder.h"
 /// @brief blif ファイル読み込み用の BnBuilder
 //////////////////////////////////////////////////////////////////////
-class BlifBnBuilder :
+class Iscas89BnBuilder :
   public BnBuilder
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] clock_name クロック端子名
-  /// @param[in] reset_name リセット端子名
-  BlifBnBuilder(const string& clock_name = "clock",
-		const string& reset_name = "reset");
+  Iscas89BnBuilder(const string& clock_name = "clock");
 
   /// @brief デストラクタ
   virtual
-  ~BlifBnBuilder();
+  ~Iscas89BnBuilder();
 
 
 public:
@@ -39,14 +37,12 @@ public:
   // ファイル入力
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief blif 形式のファイルを読み込む．
+  /// @brief iscas89(.bench) 形式のファイルを読み込む．
   /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリ
   /// @retval true 正常に読み込めた
   /// @retval false 読み込み中にエラーが起こった．
   bool
-  read_blif(const string& filename,
-	    const CellLibrary* cell_library = nullptr);
+  read_iscas89(const string& filename);
 
 
 public:
@@ -60,11 +56,6 @@ public:
   void
   clear();
 
-  /// @brief ネットワーク名を設定する．
-  /// @param[in] name ネットワーク名
-  void
-  set_model_name(const string& name);
-
   /// @brief DFFを追加する．
   /// @param[in] oname_id DFF名のID番号
   /// @param[in] oname DFF名
@@ -75,8 +66,7 @@ public:
   add_dff(ymuint oname_id,
 	  const string& oname,
 	  ymuint iname_id,
-	  const string& iname,
-	  char rval);
+	  const string& iname);
 
   /// @brief 外部入力ノードを追加する．
   /// @param[in] name_id 名前のID番号
@@ -96,23 +86,12 @@ public:
   /// @param[in] oname_id 出力名のID番号
   /// @param[in] oname 出力名
   /// @param[in] inode_id_array ファンインのノード番号のリスト
-  /// @param[in] expr 論理式
+  /// @param[in] logic_type 論理型
   void
-  add_expr(ymuint oname_id,
-	   const string& oname,
-	   const vector<ymuint>& inode_id_array,
-	   const Expr& expr);
-
-  /// @brief セル型の論理ノードを追加する．
-  /// @param[in] oname_id 出力名のID番号
-  /// @param[in] oname 出力名
-  /// @param[in] inode_id_array ファンインのノード番号のリスト
-  /// @param[in] cell セル
-  void
-  add_cell(ymuint oname_id,
-	   const string& oname,
-	   const vector<ymuint>& inode_id_array,
-	   const Cell* cell);
+  add_primitive(ymuint oname_id,
+		const string& oname,
+		const vector<ymuint>& inode_id_array,
+		BnLogicType logic_type);
 
   /// @brief 整合性のチェックを行う．
   /// @return チェック結果を返す．
@@ -204,9 +183,6 @@ private:
   // クロック端子名
   string mClockName;
 
-  // リセット端子名
-  string mResetName;
-
   // 名前
   string mName;
 
@@ -225,11 +201,8 @@ private:
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
   HashMap<ymuint, vector<ymuint> > mFaninInfoMap;
 
-  // クロック端子が必要の時 true にするフラグ
-  bool mNeedClock;
-
-  // リセット端子が必要の時 true にするフラグ
-  bool mNeedReset;
+  // クロック端子のノード番号
+  ymuint mClockId;
 
   // 内容が正常かどうかを示すフラグ
   bool mSane;
@@ -238,4 +211,4 @@ private:
 
 END_NAMESPACE_YM_BNET
 
-#endif // BLIFBNBUILDER_H
+#endif // ISCAS89BNBUILDER_H

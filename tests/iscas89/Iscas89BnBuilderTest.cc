@@ -1,26 +1,26 @@
 
-/// @file BnBuilder_iscas89_test.cc
-/// @brief BnBuilder::read_iscas89() のテストプログラム
+/// @file Iscas89BnBuilderTest.cc
+/// @brief Iscas89BnBuilder::read_iscas89() のテストプログラム
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/BnBuilder.h"
+#include "Iscas89BnBuilder.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_BNET
 
 int
-BnBuilder_iscas89_test(int argc,
+Iscas89BnBuilderTest(int argc,
 		       char** argv)
 {
   if ( argc < 2 ) {
     return -1;
   }
 
-  BnBuilder builder;
+  Iscas89BnBuilder builder;
 
   string filename = argv[1];
   if ( !builder.read_iscas89(filename) ) {
@@ -33,11 +33,11 @@ BnBuilder_iscas89_test(int argc,
   return 0;
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_BNET
 
 int
 main(int argc,
      char** argv)
 {
-  return nsYm::BnBuilder_iscas89_test(argc, argv);
+  return nsYm::nsBnet::Iscas89BnBuilderTest(argc, argv);
 }
