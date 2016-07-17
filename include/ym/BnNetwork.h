@@ -70,6 +70,11 @@ public:
   void
   clear();
 
+  /// @brief 内容をコピーする．
+  /// @param[in] src コピー元のオブジェクト
+  void
+  copy(const BnNetwork& src);
+
   /// @brief ネットワーク名を設定する．
   /// @param[in] name ネットワーク名
   void

@@ -168,6 +168,73 @@ BnNetwork::clear()
   mLogicList.clear();
 }
 
+// @brief 内容をコピーする．
+// @param[in] src コピー元のオブジェクト
+void
+BnNetwork::copy(const BnNetwork& src)
+{
+  if ( &src == this ) {
+    // 自分自身がソースならなにもしない．
+    return;
+  }
+
+  // ネットワーク名の設定
+  set_model_name(src.model_name());
+
+  // 外部入力の生成
+  ymuint ni = src.input_num();
+  for (ymuint i = 0; i < ni; ++ i) {
+    const BnNode* src_node = src.input(i);
+    new_input(src_node->id(), src_node->name());
+  }
+
+  // 外部出力の生成
+  ymuint no = src.output_num();
+  for (ymuint i = 0; i < no; ++ i) {
+    const BnNode* src_node = src.output(i);
+    new_output(src_node->name(), src_node->input());
+  }
+
+  // DFFの生成
+  ymuint nff = src.dff_num();
+  for (ymuint i = 0; i < nff; ++ i) {
+    const BnNode* src_node = src.dff(i);
+    new_dff(src_node->id(), src_node->name(), src_node->input(), src_node->reset_val());
+  }
+
+  // 論理ノードの生成
+  ymuint nl = src.logic_num();
+  for (ymuint i = 0; i < nl; ++ i) {
+    const BnNode* src_node = src.logic(i);
+    ymuint nfi = src_node->fanin_num();
+    vector<ymuint> inode_list(nfi);
+    for (ymuint i = 0; i < nfi; ++ i) {
+      inode_list[i] = src_node->fanin(i);
+    }
+    const Cell* cell = src_node->cell();
+    if ( cell != nullptr ) {
+      new_cell(src_node->id(), src_node->name(), inode_list, cell);
+    }
+    else {
+      BnLogicType logic_type = src_node->logic_type();
+      if ( logic_type == kBnLt_EXPR ) {
+	new_expr(src_node->id(), src_node->name(), inode_list, src_node->expr());
+      }
+      else if ( logic_type == kBnLt_TV ) {
+	new_tv(src_node->id(), src_node->name(), inode_list, src_node->tv());
+      }
+      else {
+	new_primitive(src_node->id(), src_node->name(), inode_list, logic_type);
+      }
+    }
+  }
+
+  // 最終処理
+  bool stat = wrap_up();
+
+  ASSERT_COND( stat );
+}
+
 // @brief ネットワーク名を設定する．
 // @param[in] name ネットワーク名
 void
