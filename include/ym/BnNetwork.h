@@ -12,7 +12,6 @@
 #include "ym/ym_bnet.h"
 #include "ym/ym_cell.h"
 #include "ym/ym_logic.h"
-#include "ym/BnPort.h"
 #include "ym/HashMap.h"
 
 
@@ -21,24 +20,26 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetwork BnNetwork.h "ym/BnNetwork.h"
 /// @brief ブーリアンネットワークを表すクラス
-/// @sa BnNode
 /// @sa BnPort
+/// @sa BnDff
+/// @sa BnLatch
+/// @sa BnNode
 ///
 /// ただし，このネットワークはDFFノードを含むので正確には
 /// syncronous boolean network かもしれない．
-/// 以下の種類のノードを持つ．
-/// - 外部入力ノード
-/// - 外部出力ノード
-/// - 論理ノード
-///   論理関数表現とファンインのノードを持つ．
-/// - D-FFノード
-///   リセット状態(値)と1つのファンインのノードを持つ．
-/// すべてのノードは任意で名前を持つ．
+///
+/// 組み合わせ回路部分は BnNode のネットワークで表す．
+/// 全体の構造を表すためにそれ以外のデータ構造として以下の要素を持つ．
+/// - D-FFノード(BnDff)
+///   入力と出力およびクロックの BnNode を持つ．
+///   オプションとしてセット，リセット端子のBnNodeを持つ．
+/// - ラッチノード(BnLatch)
+///   入力と出力およびイネーブル端子の BnNode を持つ．
+///   オプションとしてセット，リセット端子のBnNodeを持つ．
 ///
 /// 回路全体の入出力インターフェイスとしてポートを持つ．
 /// ポートは複数ビットをひとまとめにしたもので名前を持つ．
 /// - ポートの名前空間はノードとは別に設ける．
-/// - ポートは入力ポートと出力ポートの2種類がある．
 /// - ポートは入力/出力ノードのベクタを内容として持つ．
 /// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，ポートは1つのノードに対応する．
 ///
@@ -74,147 +75,121 @@ public:
   void
   set_model_name(const string& name);
 
-  /// @brief ポートを追加する．
-  /// @param[in] port_name ポート名
-  /// @param[in] bits 内容のノード番号のリスト
-  void
-  new_port(const string& port_name,
-	   const vector<BnNode*>& bits);
-
   /// @brief 外部入力ノードを追加する．
-  /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
   /// @return 生成した入力ノードを返す．
   ///
-  /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
   BnNode*
-  new_input(ymuint node_id,
-	    const string& node_name);
+  new_input(const string& node_name);
 
   /// @brief 外部出力ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id 入力のノード番号
+  /// @param[in] inode 入力のノード
   /// @return 生成した出力ノードを返す．
   ///
   /// ノード名の重複に関しては感知しない．
   BnNode*
   new_output(const string& node_name,
-	     ymuint inode_id);
-
-  /// @brief DFFノードを追加する．
-  /// @param[in] node_id ノードID番号
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id 入力のノード番号
-  /// @param[in] reset_val リセット値 ('0', '1', '-' のいずれか)
-  /// @return 生成したDFFノードを返す．
-  ///
-  /// すでに同じノード番号が存在したら失敗する．
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_dff(ymuint node_id,
-	  const string& node_name,
-	  ymuint inode_id,
-	  char reset_val);
+	     BnNode* inode);
 
   /// @brief プリミティブ型の論理ノードを追加する．
-  /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] inode_list ファンインのノードのリスト
   /// @param[in] prim_type プリミティブの型
   /// @return 生成した論理ノードを返す．
   ///
-  /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
   BnNode*
-  new_primitive(ymuint node_id,
-		const string& node_name,
-		const vector<ymuint>& inode_id_list,
+  new_primitive(const string& node_name,
+		const vector<BnNode*>& inode_list,
 		BnLogicType prim_type);
 
   /// @brief セル型の論理ノードを追加する．
-  /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] inode_list ファンインのノード番号のリスト
   /// @param[in] cell セル
   /// @return 生成した論理ノードを返す．
   ///
-  /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
   BnNode*
-  new_cell(ymuint node_id,
-	   const string& node_name,
-	   const vector<ymuint>& inode_id_list,
+  new_cell(const string& node_name,
+	   const vector<BnNode*>& inode_list,
 	   const Cell* cell);
 
   /// @brief 論理式型の論理ノードを追加する．
-  /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] inode_list ファンインのノード番号のリスト
   /// @param[in] expr 論理式
   /// @return 生成した論理ノードを返す．
   ///
-  /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
   BnNode*
-  new_expr(ymuint node_id,
-	   const string& node_name,
-	   const vector<ymuint>& inode_id_list,
+  new_expr(const string& node_name,
+	   const vector<BnNode*>& inode_list,
 	   const Expr& expr);
 
   /// @brief 真理値表型の論理ノードを追加する．
-  /// @param[in] node_id ノードID番号
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] inode_list ファンインのノード番号のリスト
   /// @param[in] tv_func 心理値表
   /// @return 生成した論理ノードを返す．
   ///
-  /// すでに同じノード番号が存在したら失敗する．
   /// ノード名の重複に関しては感知しない．
   BnNode*
-  new_tv(ymuint node_id,
-	 const string& node_name,
-	 const vector<ymuint>& inode_id_list,
+  new_tv(const string& node_name,
+	 const vector<BnNode*>& inode_list,
 	 const TvFunc& tv);
 
-  /// @brief 最終処理と整合性のチェックを行う．
-  /// @retval true 問題なし
-  /// @retval false エラーがあった．
+  /// @brief ポートを追加する．
+  /// @param[in] port_name ポート名
+  /// @param[in] bits 内容のノードのリスト
+  void
+  new_port(const string& port_name,
+	   const vector<BnNode*>& bits);
+
+  /// @brief ポートを追加する(1ビット版)．
+  /// @param[in] port_name ポート名
+  /// @param[in] bit 内容のノード
+  void
+  new_port(const string& port_name,
+	   BnNode* bit);
+
+  /// @brief DFFを追加する．
+  /// @param[in] name DFF名
+  /// @param[in] input 入力端子のノード
+  /// @param[in] output 出力端子のノード
+  /// @param[in] clock クロック端子のノード
+  /// @param[in] clear クリア端子のノード
+  /// @param[in] preset プリセット端子のノード
+  /// @return 生成したDFFを返す．
   ///
-  /// 検査項目は以下の通り．
-  /// - model_name が設定されているか
-  ///   設定されていなければデフォルト値を使う．
-  ///   -> warning
-  /// - 各ノードのファンインのノード番号が存在するか
-  ///   存在しなければ error
+  /// 名前の重複に関しては感知しない．
+  BnDff*
+  new_dff(const string& name,
+	  BnNode* input,
+	  BnNode* output,
+	  BnNode* clock,
+	  BnNode* clear = nullptr,
+	  BnNode* preset = nullptr);
+
+  /// @brief ラッチを追加する．
+  /// @param[in] name ラッチ名
+  /// @param[in] input 入力端子のノード
+  /// @param[in] output 出力端子のノード
+  /// @param[in] enable イネーブル端子のノード
+  /// @param[in] clear クリア端子のノード
+  /// @param[in] preset プリセット端子のノード
+  /// @return 生成したラッチを返す．
   ///
-  /// 検査後に論理ノードのリストをトポロジカル順にソートする．
-  /// BnNode のファンアウト情報はここで設定される．
-  bool
-  wrap_up();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // ファイル入力
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief blif 形式のファイルを読み込む．
-  /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリ
-  /// @retval true 正常に読み込めた
-  /// @retval false 読み込み中にエラーが起こった．
-  bool
-  read_blif(const string& filename,
-	    const CellLibrary* cell_library = nullptr);
-
-  /// @brief iscas89(.bench) 形式のファイルを読み込む．
-  /// @param[in] filename ファイル名
-  /// @retval true 正常に読み込めた
-  /// @retval false 読み込み中にエラーが起こった．
-  bool
-  read_iscas89(const string& filename);
-
+  /// 名前の重複に関しては感知しない．
+  BnLatch*
+  new_latch(const string& name,
+	    BnNode* input,
+	    BnNode* output,
+	    BnNode* enable,
+	    BnNode* clear = nullptr,
+	    BnNode* preset = nullptr);
 
 
 public:
@@ -235,6 +210,36 @@ public:
   const BnPort*
   port(ymuint pos) const;
 
+  /// @brief DFF数を得る．
+  ymuint
+  dff_num() const;
+
+  /// @brief DFFを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
+  const BnDff*
+  dff(ymuint pos) const;
+
+  /// @brief ラッチ数を得る．
+  ymuint
+  latch_num() const;
+
+  /// @brief ラッチを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
+  const BnLatch*
+  latch(ymuint pos) const;
+
+  /// @brief ノード数を得る．
+  ymuint
+  node_num() const;
+
+  /// @brief ノードを得る．
+  /// @param[in] id ノード番号 ( 0 <= id < node_num() )
+  ///
+  /// BnNode* node = BnNetwork::node(id);
+  /// node->id() == id が成り立つ．
+  const BnNode*
+  node(ymuint pos) const;
+
   /// @brief 入力数を得る．
   ymuint
   input_num() const;
@@ -253,32 +258,14 @@ public:
   const BnNode*
   output(ymuint pos) const;
 
-  /// @brief DFF数を得る．
-  ymuint
-  dff_num() const;
-
-  /// @brief DFFノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-  const BnNode*
-  dff(ymuint pos) const;
-
   /// @brief 論理ノード数を得る．
   ymuint
   logic_num() const;
 
   /// @brief 論理ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-  ///
-  /// wrap_up() 実行後 (mSane = true) には入力からのトポロジカル順となっている．
   const BnNode*
   logic(ymuint pos) const;
-
-  /// @brief ノードを得る．
-  /// @param[in] node_id ノード番号
-  ///
-  /// 該当するノードがない場合には nullptr を返す．
-  const BnNode*
-  find_node(ymuint node_id) const;
 
   /// @brief 関数の数を得る．
   ymuint
@@ -306,13 +293,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードを得る．
-  /// @param[in] node_id ノード番号
-  ///
-  /// 該当するノードがない場合には nullptr を返す．
-  BnNode*
-  find_node(ymuint node_id);
 
   /// @brief 論理式を解析する．
   /// @param[in] expr 対象の論理式
@@ -348,20 +328,23 @@ private:
   // ポート情報のリスト
   vector<BnPort*> mPortList;
 
+  // DFFのリスト
+  vector<BnDff*> mDffList;
+
+  // ラッチのリスト
+  vector<BnLatch*> mLatchList;
+
   // 入力ノードのリスト
   vector<BnNode*> mInputList;
 
   // 出力ノードのリスト
   vector<BnNode*> mOutputList;
 
-  // DFFノードのリスト
-  vector<BnNode*> mDffList;
-
   // 論理ノードのリスト
   vector<BnNode*> mLogicList;
 
-  // ノード番号をキーにしてノード情報を記録するハッシュ表
-  HashMap<ymuint, BnNode*> mNodeMap;
+  // ノード番号をキーにしてノードを納めた配列
+  vector<BnNode*> mNodeList;
 
   // 真理値表をキーにして論理式番号を記録するハッシュ表
   HashMap<TvFunc, ymuint> mFuncMap;
@@ -373,9 +356,6 @@ private:
   // 論理式のリスト
   // mFuncMap に対応する．
   vector<Expr> mExprList;
-
-  // 正しい状態の時に true となるフラグ
-  bool mSane;
 
 };
 

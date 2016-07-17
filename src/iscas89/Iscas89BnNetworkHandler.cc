@@ -3,20 +3,23 @@
 /// @brief Iscas89BnNetworkHandler の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "Iscas89BnNetworkHandler.h"
-#include "ym/BnNetwork.h"
-#include "ym/BnNode.h"
+#include "ym/BnBuilder.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-Iscas89BnNetworkHandler::Iscas89BnNetworkHandler(BnNetwork* network) :
-  mNetwork(network)
+// @param[in] builder ビルダーオブジェクト
+// @param[in] clock_name クロック端子名
+Iscas89BnNetworkHandler::Iscas89BnNetworkHandler(BnBuilder* builder,
+						 const string& clock_name) :
+  mBuilder(builder),
+  mClockName(clock_name)
 {
 }
 
@@ -31,8 +34,15 @@ Iscas89BnNetworkHandler::~Iscas89BnNetworkHandler()
 bool
 Iscas89BnNetworkHandler::init()
 {
-  mNetwork->clear();
-  mNetwork->set_model_name("iscas89");
+  mBuilder->clear();
+  mBuilder->set_model_name("iscas89");
+
+  mIdMap.clear();
+  mNodeInfoMap.clear();
+  mLatchInfoList.clear();
+
+  mNeedClock = false;
+
   return true;
 }
 
@@ -47,12 +57,11 @@ Iscas89BnNetworkHandler::read_input(const FileRegion& loc,
 				    ymuint name_id,
 				    const char* name)
 {
-  BnNode* node = mNetwork->new_input(name_id, name);
-  if ( node == nullptr ) {
-    return false;
-  }
+  ymuint node_id = mBuilder->add_input(name);
+  mBuilder->add_port(name, node_id);
 
-  mNetwork->new_port(name, vector<BnNode*>(1, node));
+  mIdMap.add(name_id, node_id);
+  mNodeInfoMap.add(node_id, NodeInfo());
 
   return true;
 }
@@ -67,8 +76,10 @@ Iscas89BnNetworkHandler::read_output(const FileRegion& loc,
 				     ymuint name_id,
 				     const char* name)
 {
-  BnNode* node = mNetwork->new_output(name, name_id);
-  mNetwork->new_port(name, vector<BnNode*>(1, node));
+  ymuint node_id = mBuilder->add_output(name);
+  mBuilder->add_port(name, node_id);
+
+  mNodeInfoMap.add(node_id, NodeInfo(vector<ymuint>(1, name_id)));
 
   return true;
 }
@@ -88,7 +99,10 @@ Iscas89BnNetworkHandler::read_gate(const FileRegion& loc,
 				   const char* oname,
 				   const vector<ymuint>& iname_list)
 {
-  mNetwork->new_primitive(oname_id, oname, iname_list, logic_type);
+  ymuint node_id = mBuilder->add_primitive(oname, iname_list.size(), logic_type);
+  mIdMap.add(oname_id, node_id);
+
+  mNodeInfoMap.add(node_id, NodeInfo(iname_list));
 
   return true;
 }
@@ -106,7 +120,18 @@ Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
 				  const char* oname,
 				  ymuint iname_id)
 {
-  mNetwork->new_dff(oname_id, oname, iname_id, ' ');
+  // DFF の出力に対応する入力ノードを作る．
+  ymuint onode_id = mBuilder->add_input(oname);
+  mIdMap.add(oname_id, onode_id);
+  mNodeInfoMap.add(onode_id, NodeInfo());
+
+  ymuint dff_id = mBuilder->add_dff(oname);
+  mBuilder->set_dff_output(dff_id, onode_id);
+
+  ASSERT_COND( dff_id == mLatchInfoList.size() );
+  mLatchInfoList.push_back(LatchInfo(iname_id));
+
+  mNeedClock = true;
 
   return true;
 }
@@ -117,9 +142,49 @@ Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
 bool
 Iscas89BnNetworkHandler::end()
 {
-  bool stat = mNetwork->wrap_up();
+  ymuint clock_id = 0;
+  if ( mNeedClock ) {
+    // クロック端子を作る．
+    clock_id = mBuilder->add_input(mClockName);
+    mBuilder->add_port(mClockName, clock_id);
+    mNodeInfoMap.add(clock_id, NodeInfo());
+  }
 
-  return stat;
+  // 論理ノードのファンインを設定する．
+  for (ymuint node_id = 0; node_id < mBuilder->node_num(); ++ node_id) {
+    NodeInfo node_info;
+    bool stat = mNodeInfoMap.find(node_id, node_info);
+    if ( !stat ) {
+      cout << "error!: Node#" << node_id << " not found" << endl;
+      continue;
+    }
+    ASSERT_COND( stat );
+    ymuint ni = node_info.mInameIdArray.size();
+    for (ymuint i = 0; i < ni; ++ i) {
+      ymuint inode_id;
+      bool stat1 = mIdMap.find(node_info.mInameIdArray[i], inode_id);
+      ASSERT_COND( stat1 );
+      mBuilder->set_fanin(node_id, i, inode_id);
+    }
+  }
+
+  for (ymuint dff_id = 0; dff_id < mBuilder->dff_num(); ++ dff_id) {
+    const LatchInfo& latch_info = mLatchInfoList[dff_id];
+    ymuint inode_id;
+    bool stat = mIdMap.find(latch_info.mInameId, inode_id);
+    ASSERT_COND( stat );
+
+    // まず外部出力ノードを作る．
+    string oname = id2str(latch_info.mInameId);
+    ymuint onode_id = mBuilder->add_output(oname);
+    mBuilder->set_output_input(onode_id, inode_id);
+
+    mBuilder->set_dff_input(dff_id, onode_id);
+
+    mBuilder->set_dff_clock(dff_id, clock_id);
+  }
+
+  return true;
 }
 
 // @brief 通常終了時の処理
@@ -132,7 +197,7 @@ Iscas89BnNetworkHandler::normal_exit()
 void
 Iscas89BnNetworkHandler::error_exit()
 {
-  mNetwork->clear();
+  mBuilder->clear();
 }
 
 END_NAMESPACE_YM_BNET

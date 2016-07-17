@@ -5,7 +5,7 @@
 /// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -25,16 +25,17 @@ BEGIN_NAMESPACE_YM_BNET
 /// ノードには以下の3種類がある．
 /// - 外部入力ノード
 /// - 外部出力ノード
-///   1つのファンインを持つ．
-/// - DFFノード
-///   1つのファンインとリセット値を持つ．
+///   入力のノードを持つ．
 /// - 論理ノード
 ///   ファンインと論理関数を持つ．
-///   論理関数は以下の4種類の方法で表す．
+///   論理関数は以下の3種類の方法で表す．
 ///   - プリミティブ(AND, NOT等)
-///   - セル
 ///   - 論理式
 ///   - 真理値表
+///   その他にセルのポインタを持つ場合もある．
+///
+/// ノードは名前を持つが．同じ名前のノードがあってもかまわない．
+/// ということは名前をキーにしてノードを検索することはできない．
 ///
 /// このクラスは実体を持たない純粋仮想基底クラスである．
 //////////////////////////////////////////////////////////////////////
@@ -49,13 +50,8 @@ public:
   enum Type {
     /// @brief 外部入力ノード
     kInput,
-
     /// @brief 外部出力ノード
     kOutput,
-
-    /// @brief DFFノード
-    kDFF,
-
     /// @brief 論理ノード
     kLogic
   };
@@ -98,19 +94,12 @@ public:
   bool
   is_input() const = 0;
 
-  /// @brief 外部出力ノードの時 true を返す．
+  /// @brief 外部出力の時 true を返す．
   ///
   /// type() == kOutput と等価
   virtual
   bool
   is_output() const = 0;
-
-  /// @brief D-FF ノードの時 true を返す．
-  ///
-  /// type() == kDFF と等価
-  virtual
-  bool
-  is_dff() const = 0;
 
   /// @brief 論理ノードの時 true を返す．
   ///
@@ -120,21 +109,34 @@ public:
   is_logic() const = 0;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node_id ノード番号
+  /// @param[in] node ノード
   virtual
   void
-  add_fanout(ymuint node_id) = 0;
+  add_fanout(BnNode* node) = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
   fanout_num() const = 0;
 
-  /// @brief ファンアウトのノード番号を返す．
+  /// @brief ファンアウトのノードを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
+  const BnNode*
   fanout(ymuint pos) const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部出力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 入力のノードを返す．
+  ///
+  /// is_output() == false の時の動作は不定
+  virtual
+  const BnNode*
+  input() const = 0;
 
 
 public:
@@ -154,7 +156,7 @@ public:
   ///
   /// is_logic() == false の時の動作は不定
   virtual
-  ymuint
+  const BnNode*
   fanin(ymuint pos) const = 0;
 
   /// @brief 論理タイプを返す．
@@ -164,14 +166,6 @@ public:
   BnLogicType
   logic_type() const = 0;
 
-  /// @brief 論理式を返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_EXPR の時の動作は不定
-  virtual
-  Expr
-  expr() const = 0;
-
   /// @brief 関数番号を返す．
   ///
   /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
@@ -179,6 +173,14 @@ public:
   virtual
   ymuint
   func_id() const = 0;
+
+  /// @brief 論理式を返す．
+  ///
+  /// is_logic() == false の時の動作は不定
+  /// logic_type() != kBnLt_EXPR の時の動作は不定
+  virtual
+  Expr
+  expr() const = 0;
 
   /// @brief 真理値表を返す．
   ///
@@ -195,35 +197,6 @@ public:
   virtual
   const Cell*
   cell() const = 0;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部出力ノードとD-FFノードに共通の外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 入力のノード番号を返す．
-  ///
-  /// is_output() == false && is_dff() == false の時の動作は不定
-  virtual
-  ymuint
-  input() const = 0;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // D-FFノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief リセット値を返す．
-  /// @retval '0': 0
-  /// @retval '1': 1
-  /// @retval '-': 未設定
-  ///
-  /// is_dff() == false の時の動作は不定
-  virtual
-  char
-  reset_val() const = 0;
 
 };
 

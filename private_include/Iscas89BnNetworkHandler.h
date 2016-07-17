@@ -10,6 +10,7 @@
 
 
 #include "ym/Iscas89Handler.h"
+#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -24,8 +25,10 @@ class Iscas89BnNetworkHandler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] network ネットワーク
-  Iscas89BnNetworkHandler(BnNetwork* network);
+  /// @param[in] builder ビルダーオブジェクト
+  /// @param[in] clock_name クロック端子名
+  Iscas89BnNetworkHandler(BnBuilder* builder,
+			  const string& clock_name = "clock");
 
   /// @brief デストラクタ
   virtual
@@ -118,11 +121,63 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  struct NodeInfo {
+
+    // 空のコンストラクタ
+    NodeInfo()
+    {
+    }
+
+    // コンストラクタ
+    NodeInfo(const vector<ymuint>& iname_id_array) :
+      mInameIdArray(iname_id_array)
+    {
+    }
+
+    // ファンインのノードIDの配列
+    vector<ymuint> mInameIdArray;
+
+  };
+
+  struct LatchInfo {
+
+    // コンストラクタ
+    LatchInfo(ymuint iname_id) :
+      mInameId(iname_id)
+    {
+    }
+
+    // 入力のノード番号
+    ymuint mInameId;
+
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 対象のネットワーク
-  BnNetwork* mNetwork;
+  // クロック端子名
+  string mClockName;
+
+  // ビルダーオブジェクト
+  BnBuilder* mBuilder;
+
+  // 名前のID番号をキーにしてノード番号を納めたハッシュ表
+  HashMap<ymuint, ymuint> mIdMap;
+
+  // ノード番号をキーにしてノード情報を納めたハッシュ表
+  HashMap<ymuint, NodeInfo> mNodeInfoMap;
+
+  // DFF の情報のリスト
+  vector<LatchInfo> mLatchInfoList;
+
+  // クロック端子が必要の時 true にするフラグ
+  bool mNeedClock;
 
 };
 

@@ -3,7 +3,7 @@
 /// @brief BnNodeImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -60,13 +60,6 @@ BnNodeImpl::is_output() const
   return false;
 }
 
-// @brief D-FF ノードの時 true を返す．
-bool
-BnNodeImpl::is_dff() const
-{
-  return false;
-}
-
 // @brief 論理ノードの時 true を返す．
 bool
 BnNodeImpl::is_logic() const
@@ -75,11 +68,11 @@ BnNodeImpl::is_logic() const
 }
 
 // @brief ファンアウトを追加する．
-// @param[in] node_id ノード番号
+// @param[in] node ノード
 void
-BnNodeImpl::add_fanout(ymuint node_id)
+BnNodeImpl::add_fanout(BnNode* node)
 {
-  mFanoutList.push_back(node_id);
+  mFanoutList.push_back(node);
 }
 
 // @brief ファンアウト数を得る．
@@ -89,9 +82,9 @@ BnNodeImpl::fanout_num() const
   return mFanoutList.size();
 }
 
-// @brief ファンアウトのノード番号を返す．
+// @brief ファンアウトのノードを返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
-ymuint
+const BnNode*
 BnNodeImpl::fanout(ymuint pos) const
 {
   ASSERT_COND( pos < fanout_num() );
@@ -105,13 +98,13 @@ BnNodeImpl::fanin_num() const
   return 0;
 }
 
-// @brief ファンインのノード番号を返す．
+// @brief ファンインのノードを返す．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-ymuint
+const BnNode*
 BnNodeImpl::fanin(ymuint pos) const
 {
   ASSERT_NOT_REACHED;
-  return 0;
+  return nullptr;
 }
 
 // @brief 論理タイプを返す．
@@ -168,20 +161,12 @@ BnNodeImpl::tv() const
   return TvFunc();
 }
 
-// @brief 入力のノード番号を返す．
-ymuint
+// @brief 入力のノードを返す．
+const BnNode*
 BnNodeImpl::input() const
 {
   ASSERT_NOT_REACHED;
-  return 0;
-}
-
-// @brief リセット値を返す．
-char
-BnNodeImpl::reset_val() const
-{
-  ASSERT_NOT_REACHED;
-  return '-';
+  return nullptr;
 }
 
 
@@ -223,12 +208,14 @@ BnInputNode::is_input() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ID 番号
 // @param[in] name ノード名
-// @param[in] input_id 入力ノードのID番号
-BnOutputNode::BnOutputNode(const string& name,
-			   ymuint input_id) :
-  BnNodeImpl(input_id, name),
-  mInput(input_id)
+// @param[in] input 入力ノード
+BnOutputNode::BnOutputNode(ymuint id,
+			   const string& name,
+			   BnNode* input) :
+  BnNodeImpl(id, name),
+  mInput(input)
 {
 }
 
@@ -254,65 +241,10 @@ BnOutputNode::is_output() const
 // @brief 入力のノード番号を返す．
 //
 // is_output() == false の時の動作は不定
-ymuint
+const BnNode*
 BnOutputNode::input() const
 {
   return mInput;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnDffNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力ノードのID番号
-// @param[in] rval リセット値
-BnDffNode::BnDffNode(ymuint id,
-		     const string& name,
-		     ymuint input_id,
-		     char rval) :
-  BnNodeImpl(id, name),
-  mInput(input_id),
-  mResetVal(rval)
-{
-}
-
-// @brief デストラクタ
-BnDffNode::~BnDffNode()
-{
-}
-
-// @brief タイプを返す．
-BnNode::Type
-BnDffNode::type() const
-{
-  return kDFF;
-}
-
-// @brief D-FF ノードの時 true を返す．
-bool
-BnDffNode::is_dff() const
-{
-  return true;
-}
-
-// @brief 入力のノード番号を返す．
-//
-// is_dff() == false の時の動作は不定
-ymuint
-BnDffNode::input() const
-{
-  return mInput;
-}
-
-// @brief リセット値を返す．
-char
-BnDffNode::reset_val() const
-{
-  return mResetVal;
 }
 
 
@@ -323,11 +255,11 @@ BnDffNode::reset_val() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのID番号の配列
+// @param[in] fanins ファンインのノードの配列
 // @param[in] cell セル (nullptr の場合もあり)
 BnLogicNode::BnLogicNode(ymuint id,
 			 const string& name,
-			 const vector<ymuint>& fanins,
+			 const vector<BnNode*>& fanins,
 			 const Cell* cell) :
   BnNodeImpl(id, name),
   mFanins(fanins),
@@ -363,7 +295,7 @@ BnLogicNode::fanin_num() const
 
 // @brief ファンインを求める．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-ymuint
+const BnNode*
 BnLogicNode::fanin(ymuint pos) const
 {
   ASSERT_COND( pos < fanin_num() );
@@ -393,7 +325,7 @@ BnLogicNode::cell() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
-		       const vector<ymuint>& fanins,
+		       const vector<BnNode*>& fanins,
 		       BnLogicType logic_type,
 		       const Cell* cell) :
   BnLogicNode(id, name, fanins, cell),
@@ -429,7 +361,7 @@ BnPrimNode::logic_type() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnExprNode::BnExprNode(ymuint id,
 		       const string& name,
-		       const vector<ymuint>& fanins,
+		       const vector<BnNode*>& fanins,
 		       const Expr& expr,
 		       ymuint func_id,
 		       const Cell* cell) :
@@ -487,7 +419,7 @@ BnExprNode::func_id() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnTvNode::BnTvNode(ymuint id,
 		   const string& name,
-		   const vector<ymuint>& fanins,
+		   const vector<BnNode*>& fanins,
 		   const TvFunc& tv,
 		   ymuint func_id,
 		   const Cell* cell) :

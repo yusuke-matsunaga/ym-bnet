@@ -34,9 +34,14 @@ BEGIN_NAMESPACE_YM_BNET
 class BlifCover;
 class BlifHandler;
 class BlifParser;
+
+class BnBuilder;
 class BnNetwork;
 class BnPort;
+class BnDff;
+class BnLatch;
 class BnNode;
+
 class Iscas89Handler;
 class Iscas89Parser;
 
@@ -66,9 +71,14 @@ enum BnLogicType {
 using nsBnet::BlifCover;
 using nsBnet::BlifHandler;
 using nsBnet::BlifParser;
+
+using nsBnet::BnBuilder;
 using nsBnet::BnNetwork;
-using nsBnet::BnNode;
 using nsBnet::BnPort;
+using nsBnet::BnDff;
+using nsBnet::BnLatch;
+using nsBnet::BnNode;
+
 using nsBnet::Iscas89Parser;
 using nsBnet::Iscas89Handler;
 

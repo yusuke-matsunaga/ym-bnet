@@ -1,11 +1,11 @@
-﻿#ifndef BLIFNODEIMPL_H
-#define BLIFNODEIMPL_H
+﻿#ifndef BNNODEIMPL_H
+#define BNNODEIMPL_H
 
 /// @file BnNodeImpl.h
 /// @brief BnNodeImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -66,21 +66,16 @@ public:
   bool
   is_output() const;
 
-  /// @brief D-FF ノードの時 true を返す．
-  virtual
-  bool
-  is_dff() const;
-
   /// @brief 論理ノードの時 true を返す．
   virtual
   bool
   is_logic() const;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node_id ノード番号
+  /// @param[in] node ノード番号
   virtual
   void
-  add_fanout(ymuint node_id);
+  add_fanout(BnNode* node);
 
   /// @brief ファンアウト数を得る．
   virtual
@@ -90,7 +85,7 @@ public:
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
+  const BnNode*
   fanout(ymuint pos) const;
 
 
@@ -107,7 +102,7 @@ public:
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  ymuint
+  const BnNode*
   fanin(ymuint pos) const;
 
   /// @brief 論理タイプを返す．
@@ -152,29 +147,13 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 外部出力ノードとD-FFノードに共通の外部インターフェイス
+  // 外部出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノード番号を返す．
+  /// @brief 入力のノードを返す．
   virtual
-  ymuint
+  const BnNode*
   input() const;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // D-FFノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief リセット値を返す．
-  /// @retval '0': 0
-  /// @retval '1': 1
-  /// @retval '-': 未設定
-  ///
-  /// is_dff() == false の時の動作は不定
-  virtual
-  char
-  reset_val() const;
 
 
 private:
@@ -188,8 +167,8 @@ private:
   // 名前
   string mName;
 
-  // ファンアウトのノード番号のリスト
-  vector<ymuint> mFanoutList;
+  // ファンアウトのノードのリスト
+  vector<BnNode*> mFanoutList;
 
 };
 
@@ -248,10 +227,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
+  /// @param[in] id ID 番号
   /// @param[in] name ノード名
-  /// @param[in] input_id 入力ノードのID番号
-  BnOutputNode(const string& name,
-	       ymuint input_id);
+  /// @param[in] input 入力ノード
+  BnOutputNode(ymuint id,
+	       const string& name,
+	       BnNode* input);
 
   /// @brief デストラクタ
   virtual
@@ -279,11 +260,11 @@ public:
   // 外部出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノード番号を返す．
+  /// @brief 入力のノードを返す．
   ///
   /// is_output() == false の時の動作は不定
   virtual
-  ymuint
+  const BnNode*
   input() const;
 
 
@@ -292,83 +273,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力のノード番号
-  ymuint mInput;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnDffNode BnNodeImpl.h "BnNodeImpl.h"
-/// @brief D-FF ノードを表すクラス
-//////////////////////////////////////////////////////////////////////
-class BnDffNode :
-  public BnNodeImpl
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // コンストラクタ/デストラクタ
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力ノードのID番号
-  /// @param[in] rval リセット値
-  BnDffNode(ymuint id,
-	    const string& name,
-	    ymuint input_id,
-	    char rval);
-
-  /// @brief デストラクタ
-  virtual
-  ~BnDffNode();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 全タイプ共通の外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief タイプを返す．
-  virtual
-  Type
-  type() const;
-
-  /// @brief D-FF ノードの時 true を返す．
-  virtual
-  bool
-  is_dff() const;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // ラッチタイプの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 入力のノード番号を返す．
-  ///
-  /// is_dff() == false の時の動作は不定
-  virtual
-  ymuint
-  input() const;
-
-  /// @brief リセット値を返す．
-  virtual
-  char
-  reset_val() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // 入力のノード番号
-  ymuint mInput;
-
-  // リセット値
-  char mResetVal;
+  // 入力のノード
+  BnNode* mInput;
 
 };
 
@@ -388,11 +294,11 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのID番号の配列
+  /// @param[in] fanins ファンインのノードの配列
   /// @param[in] cell セル (nullptr の場合もあり)
   BnLogicNode(ymuint id,
 	      const string& name,
-	      const vector<ymuint>& fanins,
+	      const vector<BnNode*>& fanins,
 	      const Cell* cell);
 
   /// @brief デストラクタ
@@ -426,10 +332,10 @@ public:
   ymuint
   fanin_num() const;
 
-  /// @brief ファンインのノード番号を返す．
+  /// @brief ファンインのノードを返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  ymuint
+  const BnNode*
   fanin(ymuint pos) const;
 
   /// @brief セルを返す．
@@ -446,8 +352,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ファンインのノード番号の配列
-  vector<ymuint> mFanins;
+  // ファンインのノードの配列
+  vector<BnNode*> mFanins;
 
   // セル
   const Cell* mCell;
@@ -470,12 +376,12 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのID番号の配列
+  /// @param[in] fanins ファンインのノードの配列
   /// @param[in] logic_type 論理タイプ
   /// @param[in] cell セル (nullptr の場合もあり)
   BnPrimNode(ymuint id,
 	     const string& name,
-	     const vector<ymuint>& fanins,
+	     const vector<BnNode*>& fanins,
 	     BnLogicType logic_type,
 	     const Cell* cell = nullptr);
 
@@ -521,13 +427,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのID番号の配列
+  /// @param[in] fanins ファンインのノードの配列
   /// @param[in] expr 論理式
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(ymuint id,
 	     const string& name,
-	     const vector<ymuint>& fanins,
+	     const vector<BnNode*>& fanins,
 	     const Expr& expr,
 	     ymuint func_id,
 	     const Cell* cell = nullptr);
@@ -597,13 +503,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのID番号の配列
+  /// @param[in] fanins ファンインのノードの配列
   /// @param[in] tv 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(ymuint id,
 	   const string& name,
-	   const vector<ymuint>& fanins,
+	   const vector<BnNode*>& fanins,
 	   const TvFunc& tv,
 	   ymuint func_id,
 	   const Cell* cell = nullptr);
@@ -661,4 +567,4 @@ private:
 
 END_NAMESPACE_YM_BNET
 
-#endif // BLIFNODEIMPL_H
+#endif // BNNODEIMPL_H

@@ -11,6 +11,7 @@
 
 #include "ym/BlifHandler.h"
 #include "ym/ym_cell.h"
+#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -25,8 +26,12 @@ class BlifBnNetworkHandler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] network ネットワーク
-  BlifBnNetworkHandler(BnNetwork* network);
+  /// @param[in] builder ビルダーオブジェクト
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
+  BlifBnNetworkHandler(BnBuilder* builder,
+		       const string& clock_name = "clock",
+		       const string& reset_name = "reset");
 
   /// @brief デストラクタ
   virtual
@@ -73,7 +78,7 @@ public:
 	       const char* name);
 
   /// @brief .names 文の処理
-  /// @param[in] onode_id ノード名のID番号
+  /// @param[in] oname_id ノード名のID番号
   /// @param[in] oname 出力名
   /// @param[in] inode_id_array ファンイン各のID番号の配列
   /// @param[in] cover_id カバーID
@@ -81,13 +86,13 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  names(ymuint onode_id,
+  names(ymuint oname_id,
 	const char* oname,
 	const vector<ymuint>& inode_id_array,
 	ymuint cover_id);
 
   /// @brief .gate 文の処理
-  /// @param[in] onode_id 出力ノードのID番号
+  /// @param[in] oname_id 出力ノードのID番号
   /// @param[in] oname 出力名
   /// @param[in] cell セル
   /// @param[in] inode_id_array 入力ノードのID番号の配列
@@ -95,13 +100,13 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  gate(ymuint onode_id,
+  gate(ymuint oname_id,
        const char* oname,
        const vector<ymuint>& inode_id_array,
        const Cell* cell);
 
   /// @brief .latch 文の処理
-  /// @param[in] onode_id 出力ノードのID番号
+  /// @param[in] oname_id 出力ノードのID番号
   /// @param[in] oname 出力名
   /// @param[in] inode_id 入力ノードのID番号
   /// @param[in] loc4 リセット値の位置情報
@@ -110,7 +115,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  latch(ymuint onode_id,
+  latch(ymuint oname_id,
 	const char* oname,
 	ymuint inode_id,
 	const FileRegion& loc4,
@@ -137,11 +142,74 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  struct NodeInfo {
+
+    // 空のコンストラクタ
+    NodeInfo()
+    {
+    }
+
+    // コンストラクタ
+    NodeInfo(const vector<ymuint>& iname_id_array) :
+      mInameIdArray(iname_id_array)
+    {
+    }
+
+    // ファンインのノード名IDの配列
+    vector<ymuint> mInameIdArray;
+
+  };
+
+  struct LatchInfo {
+
+    // コンストラクタ
+    LatchInfo(ymuint iname_id,
+	      char reset_val) :
+      mInameId(iname_id),
+      mResetVal(reset_val)
+    {
+    }
+
+    // 入力のノード名番号
+    ymuint mInameId;
+
+    // リセット値
+    char mResetVal;
+
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 設定対象のネットワーク
-  BnNetwork* mNetwork;
+  // クロック端子名
+  string mClockName;
+
+  // リセット端子名
+  string mResetName;
+
+  // ビルダーオブジェクト
+  BnBuilder* mBuilder;
+
+  // 名前のID番号をキーにしてノード番号を納めたハッシュ表
+  HashMap<ymuint, ymuint> mIdMap;
+
+  // ノード番号をキーにしてノード情報を納めたハッシュ表
+  HashMap<ymuint, NodeInfo> mNodeInfoMap;
+
+  // DFF の情報のリスト
+  vector<LatchInfo> mLatchInfoList;
+
+  // クロック端子が必要の時 true にするフラグ
+  bool mNeedClock;
+
+  // リセット端子が必要の時 true にするフラグ
+  bool mNeedReset;
 
 };
 

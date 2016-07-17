@@ -41,6 +41,7 @@ include_directories(
 # ===================================================================
 
 #add_subdirectory ( cython-src )
+add_subdirectory ( tests )
 
 
 # ===================================================================
@@ -59,6 +60,9 @@ set ( blif_SOURCES
   )
 
 set ( bnet_SOURCES
+  src/bnet/BnBuilder.cc
+  src/bnet/BnDffImpl.cc
+  src/bnet/BnLatchImpl.cc
   src/bnet/BnNetwork.cc
   src/bnet/BnNodeImpl.cc
   src/bnet/BnPortImpl.cc
