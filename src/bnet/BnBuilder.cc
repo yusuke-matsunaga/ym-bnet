@@ -10,66 +10,12 @@
 #include "ym/BnBuilder.h"
 #include "ym/Cell.h"
 
-#include "ym/BlifParser.h"
-#include "BlifBnNetworkHandler.h"
-
-#include "ym/Iscas89Parser.h"
-#include "Iscas89BnNetworkHandler.h"
-
 
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnBuilder
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-BnBuilder::BnBuilder()
-{
-}
-
-// @brief デストラクタ
-BnBuilder::~BnBuilder()
-{
-}
-
-// @brief blif 形式のファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] cell_library セルライブラリ
-// @retval true 正常に読み込めた
-// @retval false 読み込み中にエラーが起こった．
-bool
-BnBuilder::read_blif(const string& filename,
-		     const CellLibrary* cell_library)
-{
-  BlifBnNetworkHandler* handler = new BlifBnNetworkHandler(this);
-
-  BlifParser parser;
-  parser.add_handler(handler);
-
-  bool stat = parser.read(filename, cell_library);
-
-  return stat;
-}
-
-// @brief iscas89(.bench) 形式のファイルを読み込む．
-// @param[in] filename ファイル名
-// @retval true 正常に読み込めた
-// @retval false 読み込み中にエラーが起こった．
-bool
-BnBuilder::read_iscas89(const string& filename)
-{
-  Iscas89BnNetworkHandler* handler = new Iscas89BnNetworkHandler(this);
-
-  Iscas89Parser parser;
-  parser.add_handler(handler);
-
-  bool stat = parser.read(filename);
-
-  // handler は parser が解放してくれる．
-
-  return stat;
-}
 
 // @brief 内容を書き出す．
 // @param[in] s 出力先のストリーム
@@ -100,10 +46,10 @@ BnBuilder::write(ostream& s) const
 	 << "    input:  " << dff_info.mInput << endl
 	 << "    output: " << dff_info.mOutput << endl
 	 << "    clock:  " << dff_info.mClock << endl;
-    if ( dff_info.mClear != -1 ) {
+    if ( dff_info.mClear != 0 ) {
       s << "    clear:  " << dff_info.mClear << endl;
     }
-    if ( dff_info.mPreset != -1 ) {
+    if ( dff_info.mPreset != 0 ) {
       s << "    preset: " << dff_info.mPreset << endl;
     }
     s << endl;
@@ -117,17 +63,17 @@ BnBuilder::write(ostream& s) const
 	 << "    input:  " << latch_info.mInput << endl
 	 << "    output: " << latch_info.mOutput << endl
 	 << "    enable: " << latch_info.mEnable << endl;
-    if ( latch_info.mClear != -1 ) {
+    if ( latch_info.mClear != 0 ) {
       s << "    clear:  " << latch_info.mClear << endl;
     }
-    if ( latch_info.mPreset != -1 ) {
+    if ( latch_info.mPreset != 0 ) {
       s << "    preset: " << latch_info.mPreset << endl;
     }
     s << endl;
   }
 
   ymuint nn = node_num();
-  for (ymuint i = 0; i < nn; ++ i) {
+  for (ymuint i = 1; i <= nn; ++ i) {
     const BnBuilder::NodeInfo& node_info = node(i);
     s << "  Node#" << i << endl
 	 << "    name:   " << node_info.mName << endl;
@@ -194,6 +140,7 @@ BnBuilder::write(ostream& s) const
   }
 }
 
+#if 0
 // @brief 内容をクリアする．
 //
 // コンストラクタ直後と同じ状態になる．
@@ -205,6 +152,8 @@ BnBuilder::clear()
   mDffInfoList.clear();
   mLatchInfoList.clear();
   mNodeInfoList.clear();
+
+  mSane = false;
 }
 
 // @brief ネットワーク名を設定する．
@@ -213,6 +162,8 @@ void
 BnBuilder::set_model_name(const string& name)
 {
   mName = name;
+
+  mSane = false;
 }
 
 // @brief ポートを追加する．
@@ -222,7 +173,14 @@ void
 BnBuilder::add_port(const string& port_name,
 		    const vector<ymuint>& bits)
 {
+  for (ymuint i = 0; i < bits.size(); ++ i) {
+    ymuint id = bits[i];
+    const NodeInfo& node_info = node(id);
+    ASSERT_COND( node_info.mType == BnNode::kInput || node_info.mType == BnNode::kOutput );
+  }
   mPortInfoList.push_back(PortInfo(port_name, bits));
+
+  mSane = false;
 }
 
 // @brief ポートを追加する(1ビット版)．
@@ -242,6 +200,9 @@ BnBuilder::add_dff(const string& name)
 {
   ymuint id = mDffInfoList.size();
   mDffInfoList.push_back(DffInfo(name));
+
+  mSane = false;
+
   return id;
 }
 
@@ -253,7 +214,11 @@ BnBuilder::set_dff_input(ymuint dff_id,
 			 ymuint input)
 {
   ASSERT_COND( dff_id < dff_num() );
+  const NodeInfo& node_info = node(input);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mDffInfoList[dff_id].mInput = input;
+
+  mSane = false;
 }
 
 // @brief DFFのクロック端子を設定する．
@@ -264,7 +229,11 @@ BnBuilder::set_dff_clock(ymuint dff_id,
 			 ymuint clock)
 {
   ASSERT_COND( dff_id < dff_num() );
+  const NodeInfo& node_info = node(clock);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mDffInfoList[dff_id].mClock = clock;
+
+  mSane = false;
 }
 
 // @brief DFFのクリア端子を設定する．
@@ -275,7 +244,11 @@ BnBuilder::set_dff_clear(ymuint dff_id,
 			 ymuint clear)
 {
   ASSERT_COND( dff_id < dff_num() );
+  const NodeInfo& node_info = node(clear);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mDffInfoList[dff_id].mClear = clear;
+
+  mSane = false;
 }
 
 // @brief DFFのプリセット端子を設定する．
@@ -286,7 +259,11 @@ BnBuilder::set_dff_preset(ymuint dff_id,
 			  ymuint preset)
 {
   ASSERT_COND( dff_id < dff_num() );
+  const NodeInfo& node_info = node(preset);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mDffInfoList[dff_id].mPreset = preset;
+
+  mSane = false;
 }
 
 // @brief DFFの出力端子を設定する．
@@ -297,7 +274,11 @@ BnBuilder::set_dff_output(ymuint dff_id,
 			  ymuint output)
 {
   ASSERT_COND( dff_id < dff_num() );
+  const NodeInfo& node_info = node(output);
+  ASSERT_COND( node_info.mType == BnNode::kInput);
   mDffInfoList[dff_id].mOutput = output;
+
+  mSane = false;
 }
 
 // @brief ラッチを追加する．
@@ -308,6 +289,9 @@ BnBuilder::add_latch(const string& name)
 {
   ymuint id = mLatchInfoList.size();
   mLatchInfoList.push_back(LatchInfo(name));
+
+  mSane = false;
+
   return id;
 }
 
@@ -319,7 +303,11 @@ BnBuilder::set_latch_input(ymuint latch_id,
 			   ymuint input)
 {
   ASSERT_COND( latch_id < latch_num() );
+  const NodeInfo& node_info = node(input);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mLatchInfoList[latch_id].mInput = input;
+
+  mSane = false;
 }
 
 // @brief ラッチのイネーブル端子を設定する．
@@ -330,7 +318,11 @@ BnBuilder::set_latch_enable(ymuint latch_id,
 			    ymuint enable)
 {
   ASSERT_COND( latch_id < latch_num() );
+  const NodeInfo& node_info = node(enable);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mLatchInfoList[latch_id].mEnable = enable;
+
+  mSane = false;
 }
 
 // @brief ラッチのクリア端子を設定する．
@@ -341,7 +333,11 @@ BnBuilder::set_latch_clear(ymuint latch_id,
 			   ymuint clear)
 {
   ASSERT_COND( latch_id < latch_num() );
+  const NodeInfo& node_info = node(clear);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mLatchInfoList[latch_id].mClear = clear;
+
+  mSane = false;
 }
 
 // @brief ラッチのプリセット端子を設定する．
@@ -352,7 +348,11 @@ BnBuilder::set_latch_preset(ymuint latch_id,
 			    ymuint preset)
 {
   ASSERT_COND( latch_id < latch_num() );
+  const NodeInfo& node_info = node(preset);
+  ASSERT_COND( node_info.mType == BnNode::kOutput);
   mLatchInfoList[latch_id].mPreset = preset;
+
+  mSane = false;
 }
 
 // @brief ラッチの出力を設定する．
@@ -363,7 +363,11 @@ BnBuilder::set_latch_output(ymuint latch_id,
 			    ymuint output)
 {
   ASSERT_COND( latch_id < latch_num() );
+  const NodeInfo& node_info = node(output);
+  ASSERT_COND( node_info.mType == BnNode::kInput);
   mLatchInfoList[latch_id].mOutput = output;
+
+  mSane = false;
 }
 
 // @brief 外部入力ノードを追加する．
@@ -374,8 +378,11 @@ BnBuilder::set_latch_output(ymuint latch_id,
 ymuint
 BnBuilder::add_input(const string& node_name)
 {
-  ymuint id = mNodeInfoList.size();
   mNodeInfoList.push_back(NodeInfo(node_name));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -387,8 +394,11 @@ BnBuilder::add_input(const string& node_name)
 ymuint
 BnBuilder::add_output(const string& node_name)
 {
-  ymuint id = mNodeInfoList.size();
   mNodeInfoList.push_back(NodeInfo(node_name, 0));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -399,8 +409,13 @@ void
 BnBuilder::set_output_input(ymuint node_id,
 			    ymuint input)
 {
-  ASSERT_COND( node_id < node_num() );
-  mNodeInfoList[node_id].mInodeList[0] = input;
+  NodeInfo& node_info = node(node_id);
+  ASSERT_COND( node_info.mType == BnNode::kOutput );
+  const NodeInfo& inode_info = node(input);
+  ASSERT_COND( inode_info.mType == BnNode::kInput || inode_info.mType == BnNode::kLogic );
+  node_info.mInodeList[0] = input;
+
+  mSane = false;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -415,8 +430,11 @@ BnBuilder::add_primitive(const string& node_name,
 			 ymuint ni,
 			 BnLogicType prim_type)
 {
-  ymuint id = mNodeInfoList.size();
   mNodeInfoList.push_back(NodeInfo(node_name, ni, prim_type));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -430,9 +448,12 @@ ymuint
 BnBuilder::add_cell(const string& node_name,
 		    const Cell* cell)
 {
-  ymuint id = mNodeInfoList.size();
   ymuint ni = cell->input_num();
   mNodeInfoList.push_back(NodeInfo(node_name, ni, cell));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -448,8 +469,11 @@ BnBuilder::add_expr(const string& node_name,
 		    ymuint ni,
 		    const Expr& expr)
 {
-  ymuint id = mNodeInfoList.size();
   mNodeInfoList.push_back(NodeInfo(node_name, ni, expr));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -463,8 +487,11 @@ ymuint
 BnBuilder::add_tv(const string& node_name,
 		  const TvFunc& tv)
 {
-  ymuint id = mNodeInfoList.size();
   mNodeInfoList.push_back(NodeInfo(node_name, tv));
+  ymuint id = mNodeInfoList.size();
+
+  mSane = false;
+
   return id;
 }
 
@@ -477,10 +504,90 @@ BnBuilder::set_fanin(ymuint node_id,
 		     ymuint pos,
 		     ymuint input)
 {
-  ASSERT_COND( node_id < node_num() );
-  NodeInfo& node_info = mNodeInfoList[node_id];
+  NodeInfo& node_info = node(node_id);
+  ASSERT_COND( node_info.mType == BnNode::kLogic );
   ASSERT_COND( pos < node_info.mInodeList.size() );
+  const NodeInfo& inode_info = node(input);
+  ASSERT_COND( inode_info.mType == BnNode::kInput || inode_info.mType == BnNode::kLogic );
   node_info.mInodeList[pos] = input;
+
+  mSane = false;
+}
+
+// @brief 整合性のチェックを行う．
+// @return チェック結果を返す．
+//
+// チェック項目は以下の通り
+// - model_name() が設定されているか？
+//   設定されていない場合にはデフォルト値を設定する．
+//   エラーとはならない．
+// - 各ノードのファンインが設定されているか？
+bool
+BnBuilder::sanity_check()
+{
+  if ( mSane ) {
+    return true;
+  }
+
+  if ( name() == string() ) {
+    // name が設定されていない．
+    set_model_name("network");
+  }
+
+  bool error = false;
+
+  // DFF の入力，出力，クロックにノードが設定されているか調べる．
+  for (ymuint i = 0; i < dff_num(); ++ i) {
+    const DffInfo& dff_info = dff(i);
+    if ( dff_info.mInput == 0 ) {
+      cerr << "Dff(" << dff_info.mName << ").mInput is not set" << endl;
+      error = true;
+    }
+    if ( dff_info.mOutput == 0 ) {
+      cerr << "Dff(" << dff_info.mName << ").mOutput is not set" << endl;
+      error = true;
+    }
+    if ( dff_info.mClock == 0 ) {
+      cerr << "Dff(" << dff_info.mName << ").mClock is not set" << endl;
+      error = true;
+    }
+  }
+
+  // ラッチの入力，出力，イネーブルにノードが設定されているか調べる．
+  for (ymuint i = 0; i < latch_num(); ++ i) {
+    const LatchInfo& latch_info = latch(i);
+    if ( latch_info.mInput == 0 ) {
+      cerr << "Latch(" << latch_info.mName << ").mInput is not set" << endl;
+      error = true;
+    }
+    if ( latch_info.mOutput == 0 ) {
+      cerr << "Latch(" << latch_info.mName << ").mOutput is not set" << endl;
+      error = true;
+    }
+    if ( latch_info.mEnable== 0 ) {
+      cerr << "Latch(" << latch_info.mName << ").mEnable is not set" << endl;
+      error = true;
+    }
+  }
+
+  // ノードにファンインが設定されているか調べる．
+  for (ymuint i = 1; i <= node_num(); ++ i) {
+    const NodeInfo& node_info = node(i);
+    ymuint ni = node_info.mInodeList.size();
+    for (ymuint j = 0; j < ni; ++ j) {
+      if ( node_info.mInodeList[j] == 0 ) {
+	cerr << "Node(" << node_info.mName << ").mInodeList[" << j << "] is not set" << endl;
+	error = true;
+      }
+    }
+  }
+
+  if ( !error ) {
+    mSane = true;
+  }
+
+  return mSane;
+
 }
 
 // @brief 名前を得る．
@@ -550,8 +657,20 @@ BnBuilder::node_num() const
 const BnBuilder::NodeInfo&
 BnBuilder::node(ymuint id) const
 {
-  ASSERT_COND( id < node_num() );
-  return mNodeInfoList[id];
+  ASSERT_COND( id > 0 && id <= node_num() );
+  return mNodeInfoList[id - 1];
 }
+
+// @brief ノード情報を得る．
+// @param[in] id ノード番号 ( 0 < id <= node_num() )
+//
+// ノード番号 0 は不正な値として予約されている．
+BnBuilder::NodeInfo&
+BnBuilder::node(ymuint id)
+{
+  ASSERT_COND( id > 0 && id <= node_num() );
+  return mNodeInfoList[id - 1];
+}
+#endif
 
 END_NAMESPACE_YM_BNET

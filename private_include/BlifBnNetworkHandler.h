@@ -11,10 +11,11 @@
 
 #include "ym/BlifHandler.h"
 #include "ym/ym_cell.h"
-#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
+
+class BlifBnBuilder;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifBnNetworkHandler BlifBnNetworkHandler.h
@@ -27,11 +28,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] builder ビルダーオブジェクト
-  /// @param[in] clock_name クロック端子名
-  /// @param[in] reset_name リセット端子名
-  BlifBnNetworkHandler(BnBuilder* builder,
-		       const string& clock_name = "clock",
-		       const string& reset_name = "reset");
+  BlifBnNetworkHandler(BlifBnBuilder* builder);
 
   /// @brief デストラクタ
   virtual
@@ -142,74 +139,11 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられるデータ構造
-  //////////////////////////////////////////////////////////////////////
-
-  struct NodeInfo {
-
-    // 空のコンストラクタ
-    NodeInfo()
-    {
-    }
-
-    // コンストラクタ
-    NodeInfo(const vector<ymuint>& iname_id_array) :
-      mInameIdArray(iname_id_array)
-    {
-    }
-
-    // ファンインのノード名IDの配列
-    vector<ymuint> mInameIdArray;
-
-  };
-
-  struct LatchInfo {
-
-    // コンストラクタ
-    LatchInfo(ymuint iname_id,
-	      char reset_val) :
-      mInameId(iname_id),
-      mResetVal(reset_val)
-    {
-    }
-
-    // 入力のノード名番号
-    ymuint mInameId;
-
-    // リセット値
-    char mResetVal;
-
-  };
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // クロック端子名
-  string mClockName;
-
-  // リセット端子名
-  string mResetName;
-
   // ビルダーオブジェクト
-  BnBuilder* mBuilder;
-
-  // 名前のID番号をキーにしてノード番号を納めたハッシュ表
-  HashMap<ymuint, ymuint> mIdMap;
-
-  // ノード番号をキーにしてノード情報を納めたハッシュ表
-  HashMap<ymuint, NodeInfo> mNodeInfoMap;
-
-  // DFF の情報のリスト
-  vector<LatchInfo> mLatchInfoList;
-
-  // クロック端子が必要の時 true にするフラグ
-  bool mNeedClock;
-
-  // リセット端子が必要の時 true にするフラグ
-  bool mNeedReset;
+  BlifBnBuilder* mBuilder;
 
 };
 

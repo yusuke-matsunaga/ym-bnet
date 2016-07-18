@@ -181,6 +181,7 @@ BnNetwork::copy(const BnNetwork& src)
   // ネットワーク名の設定
   set_model_name(src.model_name());
 
+#if 0
   // 外部入力の生成
   ymuint ni = src.input_num();
   for (ymuint i = 0; i < ni; ++ i) {
@@ -233,6 +234,7 @@ BnNetwork::copy(const BnNetwork& src)
   bool stat = wrap_up();
 
   ASSERT_COND( stat );
+#endif
 }
 
 // @brief ネットワーク名を設定する．
