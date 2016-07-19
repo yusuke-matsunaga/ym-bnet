@@ -17,8 +17,6 @@
 #include "BnDffImpl.h"
 #include "BnLatchImpl.h"
 
-#include "Queue.h"
-
 
 BEGIN_NAMESPACE_YM_BNET
 

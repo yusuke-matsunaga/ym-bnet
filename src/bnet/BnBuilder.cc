@@ -105,7 +105,7 @@ BnBuilder::node(ymuint id) const
 //
 // ノード番号 0 は不正な値として予約されている．
 BnBuilder::NodeInfo&
-BnBuilder::node(ymuint id)
+BnBuilder::_node(ymuint id)
 {
   ASSERT_COND( id > 0 && id <= node_num() );
   return mNodeInfoList[id - 1];
@@ -159,191 +159,6 @@ BnBuilder::logic(ymuint pos) const
 {
   ASSERT_COND( pos < logic_num() );
   return node(mLogicList[pos]);
-}
-
-// @brief 整合性のチェックを行う．
-// @return チェック結果を返す．
-//
-// チェック項目は以下の通り
-// - model_name() が設定されているか？
-//   設定されていない場合にはデフォルト値を設定する．
-//   エラーとはならない．
-// - 各ポートの各ビットが設定されているか？
-// - 各DFFの入力，出力およびクロックが設定されているか？
-// - 各ラッチの入力，出力およびイネーブルが設定されているか？
-// - 各ノードのファンインが設定されているか？
-bool
-BnBuilder::sanity_check()
-{
-  bool error = false;
-
-  // ポートのチェック
-  for (ymuint i = 0; i < port_num(); ++ i) {
-    const PortInfo& port_info = port(i);
-    ymuint nb = port_info.mBits.size();
-    for (ymuint j = 0; j < nb; ++ j) {
-      ymuint id = port_info.mBits[j];
-      if ( id == 0 || id > node_num() ) {
-	cerr << "Port#" << i << "(" << port_info.mName << ").bit["
-	     << j << "] is not set" << endl;
-	error = true;
-      }
-    }
-  }
-
-  // DFF のチェック
-  for (ymuint i = 0; i < dff_num(); ++ i) {
-    const DffInfo& dff_info = dff(i);
-    ymuint id1 = dff_info.mInput;
-    if ( id1 == 0 ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").input is not set" << endl;
-      error = true;
-    }
-    else if ( id1 > node_num() ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").input is not valid" << endl;
-      error = true;
-    }
-    ymuint id2 = dff_info.mOutput;
-    if ( id2 == 0 ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").output is not set" << endl;
-      error = true;
-    }
-    else if ( id2 > node_num() ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").output is not valid" << endl;
-      error = true;
-    }
-    ymuint id3 = dff_info.mClock;
-    if ( id3 == 0 ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").clock is not set" << endl;
-      error = true;
-    }
-    else if ( id3 > node_num() ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").clock is not valid" << endl;
-      error = true;
-    }
-    ymuint id4 = dff_info.mClear;
-    if ( id4 > node_num() ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").clear is not valid" << endl;
-      error = true;
-    }
-    ymuint id5 = dff_info.mPreset;
-    if ( id5 > node_num() ) {
-      cerr << "DFF#" << i << "(" << dff_info.mName << ").preset is not valid" << endl;
-      error = true;
-    }
-  }
-
-  // ラッチのチェック
-  for (ymuint i = 0; i < latch_num(); ++ i) {
-    const LatchInfo& latch_info = latch(i);
-    ymuint id1 = latch_info.mInput;
-    if ( id1 == 0 ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").input is not set" << endl;
-      error = true;
-    }
-    else if ( id1 > node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").input is not valid" << endl;
-      error = true;
-    }
-    ymuint id2 = latch_info.mOutput;
-    if ( id2 == 0 ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").output is not set" << endl;
-      error = true;
-    }
-    else if ( id2 > node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").output is not valid" << endl;
-      error = true;
-    }
-    ymuint id3 = latch_info.mEnable;
-    if ( id3 == 0 ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").enable is not set" << endl;
-      error = true;
-    }
-    else if ( id3 > node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").enable is not valid" << endl;
-      error = true;
-    }
-    ymuint id4 = latch_info.mClear;
-    if ( id4 > node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").clear is not valid" << endl;
-      error = true;
-    }
-    ymuint id5 = latch_info.mPreset;
-    if ( id5 > node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch_info.mName << ").preset is not valid" << endl;
-      error = true;
-    }
-  }
-
-  // ノードのチェック
-  for (ymuint i = 1; i <= node_num(); ++ i) {
-    const NodeInfo& node_info = node(i);
-    ymuint ni = node_info.mFaninList.size();
-    for (ymuint j = 0; j < ni; ++ j) {
-      ymuint id = node_info.mFaninList[j];
-      if ( id == 0 ) {
-	cerr << "NODE#" << i << "(" << node_info.mName << ").fanin["
-	     << j << "] is not set" << endl;
-	error = true;
-      }
-      else if ( id > node_num() ) {
-	cerr << "NODE#" << i << "(" << node_info.mName << ").fanin["
-	     << j << "] is not valid" << endl;
-	error = true;
-      }
-    }
-  }
-
-  // 論理ノードをトポロジカル順にソートする．
-
-  // ノード番号を入れるキュー
-  vector<ymuint> queue;
-  queue.reserve(node_num());
-
-  // キューの印を表すマーク配列
-  vector<bool> mark(node_num() + 1, false);
-
-  // 入力ノードをキューに積む．
-  for (ymuint i = 0; i < input_num(); ++ i) {
-    const NodeInfo& node_info = input(i);
-    ymuint id = node_info.mId;
-    queue.push_back(id);
-    mark[id] = true;
-  }
-
-  mLogicList.clear();
-  mLogicList.reserve(node_num() - input_num() - output_num());
-
-  // キューからノードを取り出してファンアウト先のノードをキューに積む．
-  for (ymuint rpos = 0; rpos < queue.size(); ++ rpos) {
-    ymuint id = queue[rpos];
-    const NodeInfo& node_info = node(id);
-    if ( node_info.mType == BnNode::kLogic ) {
-      mLogicList.push_back(id);
-    }
-    ymuint fo = node_info.mFanoutList.size();
-    for (ymuint i = 0; i < fo; ++ i) {
-      ymuint oid = node_info.mFanoutList[i];
-      if ( mark[oid] ) {
-	continue;
-      }
-      const NodeInfo& onode_info = node(oid);
-      ymuint ni = onode_info.mFaninList.size();
-      bool ready = true;
-      for (ymuint j = 0; j < ni; ++ j) {
-	if ( !mark[onode_info.mFaninList[j]] ) {
-	  ready = false;
-	  break;
-	}
-      }
-      if ( ready ) {
-	queue.push_back(oid);
-	mark[oid] = true;
-      }
-    }
-  }
-
-  return !error;
 }
 
 // @brief 内容を書き出す．
@@ -475,7 +290,6 @@ BnBuilder::write(ostream& s) const
       << "    Node#" << node_info.mId << endl
       << "    name:   " << node_info.mName << endl
       << "    input:  " << node_info.mFaninList[0] << endl
-      << endl
       << endl;
   }
 }
@@ -484,18 +298,23 @@ BnBuilder::write(ostream& s) const
 //
 // コンストラクタ直後と同じ状態になる．
 void
-BnBuilder::_clear()
+BnBuilder::clear()
 {
   mName = string();
   mPortInfoList.clear();
   mDffInfoList.clear();
   mLatchInfoList.clear();
+  mNodeInfoList.clear();
+  mInputList.clear();
+  mOutputList.clear();
+  mLogicList.clear();
+  mSane = false;
 }
 
 // @brief ネットワーク名を設定する．
 // @param[in] name ネットワーク名
 void
-BnBuilder::_set_model_name(const string& name)
+BnBuilder::set_model_name(const string& name)
 {
   mName = name;
 }
@@ -504,29 +323,33 @@ BnBuilder::_set_model_name(const string& name)
 // @param[in] name ポート名
 // @param[in] bits ビットの内容(ノード番号)
 void
-BnBuilder::_add_port(const string& name,
+BnBuilder::add_port(const string& name,
 		     const vector<ymuint>& bits)
 {
   mPortInfoList.push_back(PortInfo(name, bits));
+  mSane = false;
 }
 
 // @brief ポート情報を追加する(1ビット版)．
 // @param[in] name ポート名
 // @param[in] bit ビットの内容(ノード番号)
 void
-BnBuilder::_add_port(const string& name,
+BnBuilder::add_port(const string& name,
 		     ymuint bit)
 {
-  _add_port(name, vector<ymuint>(1, bit));
+  add_port(name, vector<ymuint>(1, bit));
+  mSane = false;
 }
 
 // @brief DFF情報を追加する．
 // @param[in] name DFF名
 // @return DFF情報を返す．
 BnBuilder::DffInfo&
-BnBuilder::_add_dff(const string& name)
+BnBuilder::add_dff(const string& name)
 {
   mDffInfoList.push_back(DffInfo(name));
+
+  mSane = false;
 
   return mDffInfoList.back();
 }
@@ -535,9 +358,11 @@ BnBuilder::_add_dff(const string& name)
 // @param[in] name ラッチ名
 // @return ラッチ情報を返す．
 BnBuilder::LatchInfo&
-BnBuilder::_add_latch(const string& name)
+BnBuilder::add_latch(const string& name)
 {
   mLatchInfoList.push_back(LatchInfo(name));
+
+  mSane = false;
 
   return mLatchInfoList.back();
 }
@@ -546,7 +371,7 @@ BnBuilder::_add_latch(const string& name)
 // @param[in] name ノード名
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_input(const string& name)
+BnBuilder::add_input(const string& name)
 {
   ymuint id = _add_node(NodeInfo(name));
   mInputList.push_back(id);
@@ -559,14 +384,14 @@ BnBuilder::_add_input(const string& name)
 // @param[in] input 入力のノード番号
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_output(const string& name,
-		       ymuint input)
+BnBuilder::add_output(const string& name,
+		      ymuint input)
 {
   ymuint id = _add_node(NodeInfo(name, input));
   mOutputList.push_back(id);
 
   if ( input != 0 ) {
-    _connect(input, id, 0);
+    connect(input, id, 0);
   }
 
   return id;
@@ -578,9 +403,9 @@ BnBuilder::_add_output(const string& name,
 // @praam[in] ni ファンイン数
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_primitive(const string& name,
-			  BnLogicType logic_type,
-			  ymuint ni)
+BnBuilder::add_primitive(const string& name,
+			 BnLogicType logic_type,
+			 ymuint ni)
 {
   ymuint id = _add_node(NodeInfo(name, logic_type, ni));
 
@@ -593,9 +418,9 @@ BnBuilder::_add_primitive(const string& name,
 // @param[in] ni ファンイン数
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_expr(const string& name,
-		     const Expr& expr,
-		     ymuint ni)
+BnBuilder::add_expr(const string& name,
+		    const Expr& expr,
+		    ymuint ni)
 {
   ymuint id = _add_node(NodeInfo(name, expr, ni));
 
@@ -607,8 +432,8 @@ BnBuilder::_add_expr(const string& name,
 // @param[in] cell セル
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_cell(const string& name,
-		     const Cell* cell)
+BnBuilder::add_cell(const string& name,
+		    const Cell* cell)
 {
   ymuint id = _add_node(NodeInfo(name, cell, cell->input_num()));
 
@@ -620,8 +445,8 @@ BnBuilder::_add_cell(const string& name,
 // @param[in] tv 真理値表
 // @return ノード番号を返す．
 ymuint
-BnBuilder::_add_tv(const string& name,
-		   const TvFunc& tv)
+BnBuilder::add_tv(const string& name,
+		  const TvFunc& tv)
 {
   ymuint id = _add_node(NodeInfo(name, tv));
 
@@ -638,6 +463,8 @@ BnBuilder::_add_node(const NodeInfo& node_info)
   ymuint id = mNodeInfoList.size();
   mNodeInfoList.back().mId = id;
 
+  mSane = false;
+
   return id;
 }
 
@@ -646,7 +473,7 @@ BnBuilder::_add_node(const NodeInfo& node_info)
 // @param[in] dst_node ファンイン先のノード番号
 // @param[in] ipos ファンインの位置
 void
-BnBuilder::_connect(ymuint src_node,
+BnBuilder::connect(ymuint src_node,
 		   ymuint dst_node,
 		   ymuint ipos)
 {
@@ -654,6 +481,203 @@ BnBuilder::_connect(ymuint src_node,
   NodeInfo& dst_info = mNodeInfoList[dst_node - 1];
   src_info.mFanoutList.push_back(dst_node);
   dst_info.mFaninList[ipos] = src_node;
+
+  mSane = false;
+}
+
+// @brief 整合性のチェックを行う．
+// @return チェック結果を返す．
+//
+// チェック項目は以下の通り
+// - model_name() が設定されているか？
+//   設定されていない場合にはデフォルト値を設定する．
+//   エラーとはならない．
+// - 各ポートの各ビットが設定されているか？
+// - 各DFFの入力，出力およびクロックが設定されているか？
+// - 各ラッチの入力，出力およびイネーブルが設定されているか？
+// - 各ノードのファンインが設定されているか？
+bool
+BnBuilder::wrap_up()
+{
+  if ( mSane ) {
+    return true;
+  }
+
+  bool error = false;
+
+  // ポートのチェック
+  for (ymuint i = 0; i < port_num(); ++ i) {
+    const PortInfo& port_info = port(i);
+    ymuint nb = port_info.mBits.size();
+    for (ymuint j = 0; j < nb; ++ j) {
+      ymuint id = port_info.mBits[j];
+      if ( id == 0 || id > node_num() ) {
+	cerr << "Port#" << i << "(" << port_info.mName << ").bit["
+	     << j << "] is not set" << endl;
+	error = true;
+      }
+    }
+  }
+
+  // DFF のチェック
+  for (ymuint i = 0; i < dff_num(); ++ i) {
+    const DffInfo& dff_info = dff(i);
+    ymuint id1 = dff_info.mInput;
+    if ( id1 == 0 ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").input is not set" << endl;
+      error = true;
+    }
+    else if ( id1 > node_num() ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").input is not valid" << endl;
+      error = true;
+    }
+    ymuint id2 = dff_info.mOutput;
+    if ( id2 == 0 ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").output is not set" << endl;
+      error = true;
+    }
+    else if ( id2 > node_num() ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").output is not valid" << endl;
+      error = true;
+    }
+    ymuint id3 = dff_info.mClock;
+    if ( id3 == 0 ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").clock is not set" << endl;
+      error = true;
+    }
+    else if ( id3 > node_num() ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").clock is not valid" << endl;
+      error = true;
+    }
+    ymuint id4 = dff_info.mClear;
+    if ( id4 > node_num() ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").clear is not valid" << endl;
+      error = true;
+    }
+    ymuint id5 = dff_info.mPreset;
+    if ( id5 > node_num() ) {
+      cerr << "DFF#" << i << "(" << dff_info.mName << ").preset is not valid" << endl;
+      error = true;
+    }
+  }
+
+  // ラッチのチェック
+  for (ymuint i = 0; i < latch_num(); ++ i) {
+    const LatchInfo& latch_info = latch(i);
+    ymuint id1 = latch_info.mInput;
+    if ( id1 == 0 ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").input is not set" << endl;
+      error = true;
+    }
+    else if ( id1 > node_num() ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").input is not valid" << endl;
+      error = true;
+    }
+    ymuint id2 = latch_info.mOutput;
+    if ( id2 == 0 ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").output is not set" << endl;
+      error = true;
+    }
+    else if ( id2 > node_num() ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").output is not valid" << endl;
+      error = true;
+    }
+    ymuint id3 = latch_info.mEnable;
+    if ( id3 == 0 ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").enable is not set" << endl;
+      error = true;
+    }
+    else if ( id3 > node_num() ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").enable is not valid" << endl;
+      error = true;
+    }
+    ymuint id4 = latch_info.mClear;
+    if ( id4 > node_num() ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").clear is not valid" << endl;
+      error = true;
+    }
+    ymuint id5 = latch_info.mPreset;
+    if ( id5 > node_num() ) {
+      cerr << "LATCH#" << i << "(" << latch_info.mName << ").preset is not valid" << endl;
+      error = true;
+    }
+  }
+
+  // ノードのチェック
+  for (ymuint i = 1; i <= node_num(); ++ i) {
+    const NodeInfo& node_info = node(i);
+    ymuint ni = node_info.mFaninList.size();
+    for (ymuint j = 0; j < ni; ++ j) {
+      ymuint id = node_info.mFaninList[j];
+      if ( id == 0 ) {
+	cerr << "NODE#" << i << "(" << node_info.mName << ").fanin["
+	     << j << "] is not set" << endl;
+	error = true;
+      }
+      else if ( id > node_num() ) {
+	cerr << "NODE#" << i << "(" << node_info.mName << ").fanin["
+	     << j << "] is not valid" << endl;
+	error = true;
+      }
+    }
+  }
+
+  if ( error ) {
+    return false;
+  }
+
+  // 論理ノードをトポロジカル順にソートする．
+
+  // ノード番号を入れるキュー
+  vector<ymuint> queue;
+  queue.reserve(node_num());
+
+  // キューの印を表すマーク配列
+  vector<bool> mark(node_num() + 1, false);
+
+  // 入力ノードをキューに積む．
+  for (ymuint i = 0; i < input_num(); ++ i) {
+    const NodeInfo& node_info = input(i);
+    ymuint id = node_info.mId;
+    queue.push_back(id);
+    mark[id] = true;
+  }
+
+  mLogicList.clear();
+  mLogicList.reserve(node_num() - input_num() - output_num());
+
+  // キューからノードを取り出してファンアウト先のノードをキューに積む．
+  for (ymuint rpos = 0; rpos < queue.size(); ++ rpos) {
+    ymuint id = queue[rpos];
+    const NodeInfo& node_info = node(id);
+    if ( node_info.mType == BnNode::kLogic ) {
+      mLogicList.push_back(id);
+    }
+    ymuint fo = node_info.mFanoutList.size();
+    for (ymuint i = 0; i < fo; ++ i) {
+      ymuint oid = node_info.mFanoutList[i];
+      if ( mark[oid] ) {
+	continue;
+      }
+      const NodeInfo& onode_info = node(oid);
+      ymuint ni = onode_info.mFaninList.size();
+      bool ready = true;
+      for (ymuint j = 0; j < ni; ++ j) {
+	if ( !mark[onode_info.mFaninList[j]] ) {
+	  ready = false;
+	  break;
+	}
+      }
+      if ( ready ) {
+	queue.push_back(oid);
+	mark[oid] = true;
+      }
+    }
+  }
+
+  mSane = true;
+
+  return true;
 }
 
 END_NAMESPACE_YM_BNET

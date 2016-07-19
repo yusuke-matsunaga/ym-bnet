@@ -7,7 +7,10 @@
 /// All rights reserved.
 
 
-#include "BlifBnBuilder.h"
+#include "ym/BnBuilder.h"
+#include "ym/BlifParser.h"
+
+#include "BnBlifHandler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -20,12 +23,15 @@ BlifBnBuilderTest(int argc,
     return -1;
   }
 
-  BlifBnBuilder builder;
+  BnBuilder builder;
+  BnBlifHandler* handler = new BnBlifHandler(&builder);
+
+  BlifParser parser;
+  parser.add_handler(handler);
 
   string filename = argv[1];
   const CellLibrary* cell_library = nullptr;
-  bool stat = builder.read_blif(filename, cell_library);
-
+  bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;

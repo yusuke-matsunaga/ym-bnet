@@ -1,34 +1,32 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef BNISCAS89READER_H
+#define BNISCAS89READER_H
 
-/// @file Queue.h
-/// @brief Queue のヘッダファイル
+/// @file BnIscas89Reader.h
+/// @brief BnIscas89Reader のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/ym_bnet.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class Queue Queue.h "Queue.h"
-/// @brief BnNetwork の論理ノードをソートするためのキュー
+/// @class BnIscas89Reader BnIscas89Reader.h "BnIscas89Reader.h"
+/// @brief iscas89(.bench) ファイルを読み込んで BnNetwork に設定するクラス
 //////////////////////////////////////////////////////////////////////
-class Queue
+class BnIscas89Reader
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] size キューの最大サイズ
-  Queue(ymuint size);
+  /// @param[in] clock_name クロック端子名
+  BnIscas89Reader(const string& clock_name = "clock");
 
   /// @brief デストラクタ
-  ~Queue();
+  ~BnIscas89Reader();
 
 
 public:
@@ -36,22 +34,13 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief キューに積む．
-  /// @param[in] node ノード
-  void
-  put(BnNode* node);
-
-  /// @brief キューから取り出す．
-  /// @return 取り出されたノードを返す．
-  ///
-  /// 空の時には nullptr を返す．
-  BnNode*
-  get();
-
-  /// @brief キューに含まれているか調べる．
-  /// @param[in] node ノード
+  /// @brief blif ファイルを読み込む．
+  /// @param[in] network 設定対象のネットワーク
+  /// @param[in] filename ファイル名
+  /// @return 読み込みが成功したら true を返す．
   bool
-  check(BnNode* node) const;
+  read(BnNetwork& network,
+       const string& filename);
 
 
 private:
@@ -65,20 +54,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // キューの本体
-  vector<BnNode*> mNodeArray;
-
-  // キューに積まれているノード番号を入れるハッシュ表
-  HashSet<ymuint> mMark;
-
-  // キューの書き込み位置
-  ymuint mWpos;
-
-  // キューの読み出し位置
-  ymuint mRpos;
+  // クロック端子名
+  string mClockName;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // QUEUE_H
+#endif // BNISCAS89READER_H

@@ -7,23 +7,32 @@
 /// All rights reserved.
 
 
-#include "Iscas89BnBuilder.h"
+#include "ym/BnBuilder.h"
+
+#include "ym/Iscas89Parser.h"
+#include "BnIscas89Handler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 int
 Iscas89BnBuilderTest(int argc,
-		       char** argv)
+		     char** argv)
 {
   if ( argc < 2 ) {
     return -1;
   }
 
-  Iscas89BnBuilder builder;
+  BnBuilder builder;
+
+  BnIscas89Handler* handler = new BnIscas89Handler(&builder);
+
+  Iscas89Parser parser;
+  parser.add_handler(handler);
 
   string filename = argv[1];
-  if ( !builder.read_iscas89(filename) ) {
+  bool stat = parser.read(filename);
+  if ( !stat ) {
     cerr << "read_iscas(" << filename << ") failed" << endl;
     return -1;
   }

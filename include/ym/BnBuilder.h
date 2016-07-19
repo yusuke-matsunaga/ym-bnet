@@ -228,7 +228,11 @@ public:
 
   };
 
+
 public:
+  //////////////////////////////////////////////////////////////////////
+  // コンストラクタ/デストラクタ
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
   BnBuilder();
@@ -314,20 +318,6 @@ public:
   const NodeInfo&
   logic(ymuint pos) const;
 
-  /// @brief 整合性のチェックを行う．
-  /// @return チェック結果を返す．
-  ///
-  /// チェック項目は以下の通り
-  /// - model_name() が設定されているか？
-  ///   設定されていない場合にはデフォルト値を設定する．
-  ///   エラーとはならない．
-  /// - 各ポートの各ビットが設定されているか？
-  /// - 各DFFの入力，出力およびクロックが設定されているか？
-  /// - 各ラッチの入力，出力およびイネーブルが設定されているか？
-  /// - 各ノードのファンインが設定されているか？
-  bool
-  sanity_check();
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -340,61 +330,61 @@ public:
   write(ostream& s) const;
 
 
-protected:
+public:
   //////////////////////////////////////////////////////////////////////
-  // 継承クラスから用いられる関数
+  // 内容を設定する関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容をクリアする．
   ///
   /// コンストラクタ直後と同じ状態になる．
   void
-  _clear();
+  clear();
 
   /// @brief ネットワーク名を設定する．
   /// @param[in] name ネットワーク名
   void
-  _set_model_name(const string& name);
+  set_model_name(const string& name);
 
   /// @brief ポート情報を追加する．
   /// @param[in] name ポート名
   /// @param[in] bits ビットの内容(ノード番号)
   void
-  _add_port(const string& name,
-	    const vector<ymuint>& bits);
+  add_port(const string& name,
+	   const vector<ymuint>& bits);
 
   /// @brief ポート情報を追加する(1ビット版)．
   /// @param[in] name ポート名
   /// @param[in] bit ビットの内容(ノード番号)
   void
-  _add_port(const string& name,
-	    ymuint bit);
+  add_port(const string& name,
+	   ymuint bit);
 
   /// @brief DFF情報を追加する．
   /// @param[in] name DFF名
   /// @return DFF情報を返す．
   DffInfo&
-  _add_dff(const string& name);
+  add_dff(const string& name);
 
   /// @brief ラッチ情報を追加する．
   /// @param[in] name ラッチ名
   /// @return ラッチ情報を返す．
   LatchInfo&
-  _add_latch(const string& name);
+  add_latch(const string& name);
 
   /// @brief 入力用のノード情報を追加する．
   /// @param[in] name ノード名
   /// @return ノード番号を返す．
   ymuint
-  _add_input(const string& name);
+  add_input(const string& name);
 
   /// @brief 出力用のノード情報を追加する．
   /// @param[in] name ノード名
   /// @param[in] input 入力のノード番号
   /// @return ノード番号を返す．
   ymuint
-  _add_output(const string& name,
-	      ymuint input = 0);
+  add_output(const string& name,
+	     ymuint input = 0);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] name ノード名
@@ -402,9 +392,9 @@ protected:
   /// @praam[in] ni ファンイン数
   /// @return ノード番号を返す．
   ymuint
-  _add_primitive(const string& name,
-		 BnLogicType logic_type,
-		 ymuint ni);
+  add_primitive(const string& name,
+		BnLogicType logic_type,
+		ymuint ni);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] name ノード名
@@ -412,41 +402,50 @@ protected:
   /// @param[in] ni ファンイン数
   /// @return ノード番号を返す．
   ymuint
-  _add_expr(const string& name,
-	    const Expr& expr,
-	    ymuint ni);
+  add_expr(const string& name,
+	   const Expr& expr,
+	   ymuint ni);
 
   /// @brief セル型の論理ノードを追加する．
   /// @param[in] name ノード名
   /// @param[in] cell セル
   /// @return ノード番号を返す．
   ymuint
-  _add_cell(const string& name,
-	    const Cell* cell);
+  add_cell(const string& name,
+	   const Cell* cell);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] name ノード名
   /// @param[in] tv 真理値表
   /// @return ノード番号を返す．
   ymuint
-  _add_tv(const string& name,
-	  const TvFunc& tv);
-
-  /// @brief ノード情報を得る．
-  /// @param[in] id ノード番号 ( 0 < id <= node_num() )
-  ///
-  /// ノード番号 0 は不正な値として予約されている．
-  NodeInfo&
-  node(ymuint id);
+  add_tv(const string& name,
+	 const TvFunc& tv);
 
   /// @brief ノード間を接続する．
   /// @param[in] src_node ファンアウト元のノード番号
   /// @param[in] dst_node ファンイン先のノード番号
   /// @param[in] ipos ファンインの位置
   void
-  _connect(ymuint src_node,
-	   ymuint dst_node,
-	   ymuint ipos);
+  connect(ymuint src_node,
+	  ymuint dst_node,
+	  ymuint ipos);
+
+  /// @brief 整合性のチェックを行う．
+  /// @return チェック結果を返す．
+  ///
+  /// チェック項目は以下の通り
+  /// - model_name() が設定されているか？
+  ///   設定されていない場合にはデフォルト値を設定する．
+  ///   エラーとはならない．
+  /// - 各ポートの各ビットが設定されているか？
+  /// - 各DFFの入力，出力およびクロックが設定されているか？
+  /// - 各ラッチの入力，出力およびイネーブルが設定されているか？
+  /// - 各ノードのファンインが設定されているか？
+  ///
+  /// この関数を呼んだあとは論理ノードがトポロジカルソートされる．
+  bool
+  wrap_up();
 
 
 private:
@@ -459,6 +458,13 @@ private:
   /// @return ノード番号を返す．
   ymuint
   _add_node(const NodeInfo& node_info);
+
+  /// @brief ノード情報を得る．
+  /// @param[in] id ノード番号 ( 0 < id <= node_num() )
+  ///
+  /// ノード番号 0 は不正な値として予約されている．
+  NodeInfo&
+  _node(ymuint id);
 
 
 private:
@@ -489,6 +495,9 @@ private:
 
   // 論理ノード番号のリスト
   vector<ymuint> mLogicList;
+
+  // 内容が正常かどうかを示すフラグ
+  bool mSane;
 
 };
 

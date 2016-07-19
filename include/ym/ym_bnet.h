@@ -35,7 +35,9 @@ class BlifCover;
 class BlifHandler;
 class BlifParser;
 
+class BnBlifReader;
 class BnBuilder;
+class BnIscas89Reader;
 class BnNetwork;
 class BnPort;
 class BnDff;
@@ -72,7 +74,9 @@ using nsBnet::BlifCover;
 using nsBnet::BlifHandler;
 using nsBnet::BlifParser;
 
+using nsBnet::BnBlifReader;
 using nsBnet::BnBuilder;
+using nsBnet::BnIscas89Reader;
 using nsBnet::BnNetwork;
 using nsBnet::BnPort;
 using nsBnet::BnDff;

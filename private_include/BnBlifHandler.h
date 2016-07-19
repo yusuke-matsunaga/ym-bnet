@@ -1,8 +1,8 @@
-﻿#ifndef BLIFBNNETWORKHANDLER_H
-#define BLIFBNNETWORKHANDLER_H
+﻿#ifndef BNBLIFHANDLER_H
+#define BNBLIFHANDLER_H
 
-/// @file BlifBnNetworkHandler.h
-/// @brief BlifBnNetworkHandler のヘッダファイル
+/// @file BnBlifHandler.h
+/// @brief BnBlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
@@ -11,28 +11,31 @@
 
 #include "ym/BlifHandler.h"
 #include "ym/ym_cell.h"
+#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-class BlifBnBuilder;
-
 //////////////////////////////////////////////////////////////////////
-/// @class BlifBnNetworkHandler BlifBnNetworkHandler.h
+/// @class BnBlifHandler BnBlifHandler.h
 /// @brief BnNetwork 用の BlifHandler
 //////////////////////////////////////////////////////////////////////
-class BlifBnNetworkHandler :
+class BnBlifHandler :
   public BlifHandler
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] builder ビルダーオブジェクト
-  BlifBnNetworkHandler(BlifBnBuilder* builder);
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
+  BnBlifHandler(BnBuilder* builder,
+		const string& clock_name = "clock",
+		const string& reset_name = "reset");
 
   /// @brief デストラクタ
   virtual
-  ~BlifBnNetworkHandler();
+  ~BnBlifHandler();
 
 
 public:
@@ -143,10 +146,28 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ビルダーオブジェクト
-  BlifBnBuilder* mBuilder;
+  BnBuilder* mBuilder;
+
+  // クロック端子名
+  string mClockName;
+
+  // リセット端子名
+  string mResetName;
+
+  // 名前IDをキーにしてノード番号を格納するハッシュ表
+  HashMap<ymuint, ymuint> mIdMap;
+
+  // ノードIDをキーにしてファンイン情報を格納するハッシュ表
+  HashMap<ymuint, vector<ymuint> > mFaninInfoMap;
+
+  // クロック端子のノード番号
+  ymuint mClockId;
+
+  // リセット端子のノード番号
+  ymuint mResetId;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // BLIFBNNETWORKHANDLER_H
+#endif // BNBLIFHANDLER_H

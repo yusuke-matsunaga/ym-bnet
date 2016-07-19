@@ -49,8 +49,6 @@ add_subdirectory ( tests )
 # ===================================================================
 
 set ( blif_SOURCES
-  src/blif/BlifBnBuilder.cc
-  src/blif/BlifBnNetworkHandler.cc
   src/blif/BlifCover.cc
   src/blif/BlifCoverMgr.cc
   src/blif/BlifDic.cc
@@ -61,18 +59,19 @@ set ( blif_SOURCES
   )
 
 set ( bnet_SOURCES
+  src/bnet/BnBlifHandler.cc
+  src/bnet/BnBlifReader.cc
   src/bnet/BnBuilder.cc
   src/bnet/BnDffImpl.cc
+  src/bnet/BnIscas89Handler.cc
+  src/bnet/BnIscas89Reader.cc
   src/bnet/BnLatchImpl.cc
   src/bnet/BnNetwork.cc
   src/bnet/BnNodeImpl.cc
   src/bnet/BnPortImpl.cc
-  src/bnet/Queue.cc
   )
 
 set ( iscas89_SOURCES
-  src/iscas89/Iscas89BnBuilder.cc
-  src/iscas89/Iscas89BnNetworkHandler.cc
   src/iscas89/Iscas89Handler.cc
   src/iscas89/Iscas89IdHash.cc
   src/iscas89/Iscas89Parser.cc

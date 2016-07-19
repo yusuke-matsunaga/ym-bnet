@@ -1,37 +1,38 @@
-﻿#ifndef ISCAS89BNNETWORKHANDLER_H
-#define ISCAS89BNNETWORKHANDLER_H
+﻿#ifndef BNISCAS89HANDLER_H
+#define BNISCAS89HANDLER_H
 
-/// @file BnNetworkHandler.h
-/// @brief BnNetworkHandler のヘッダファイル
+/// @file BnIscas89Handler.h
+/// @brief BnIscas89Handler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/Iscas89Handler.h"
+#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-class Iscas89BnBuilder;
-
 //////////////////////////////////////////////////////////////////////
-/// @class Iscas89BnNetworkHandler Iscas89BnNetworkHandler.h
+/// @class BnIscas89Handler BnIscas89Handler.h
 /// @brief BnNetwork 用の Iscas89Handler
 //////////////////////////////////////////////////////////////////////
-class Iscas89BnNetworkHandler :
+class BnIscas89Handler :
   public Iscas89Handler
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] builder ビルダーオブジェクト
-  Iscas89BnNetworkHandler(Iscas89BnBuilder* builder);
+  /// @param[in] clock_name クロック端子名
+  BnIscas89Handler(BnBuilder* builder,
+		   const string& clock_name = "clock");
 
   /// @brief デストラクタ
   virtual
-  ~Iscas89BnNetworkHandler();
+  ~BnIscas89Handler();
 
 
 public:
@@ -124,10 +125,22 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ビルダーオブジェクト
-  Iscas89BnBuilder* mBuilder;
+  BnBuilder* mBuilder;
+
+  // クロック端子名
+  string mClockName;
+
+  // 名前IDをキーにしてノード番号を格納するハッシュ表
+  HashMap<ymuint, ymuint> mIdMap;
+
+  // ノードIDをキーにしてファンイン情報を格納するハッシュ表
+  HashMap<ymuint, vector<ymuint> > mFaninInfoMap;
+
+  // クロック端子のノード番号
+  ymuint mClockId;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // ISCAS89BNNETWORKHANDLER_H
+#endif // BNISCAS89HANDLER_H
