@@ -138,7 +138,7 @@ bool
 BlifBnNetworkHandler::end(const FileRegion& loc)
 {
 
-  bool stat = mBuilder->sanity_check();
+  bool stat = mBuilder->wrap_up();
 
   return stat;
 }

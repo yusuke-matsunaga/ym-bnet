@@ -111,64 +111,7 @@ Iscas89BnNetworkHandler::read_dff(const FileRegion& loc,
 bool
 Iscas89BnNetworkHandler::end()
 {
-#if 0
-  ymuint clock_id = 0;
-  if ( mNeedClock ) {
-    // クロック端子を作る．
-    ymuint node_id = mBuilder->add_input(mClockName);
-    mBuilder->add_port(mClockName, node_id);
-    // クロック端子の出力ノードを作る．
-    clock_id = mBuilder->add_output(mClockName);
-    mBuilder->set_output_input(clock_id, node_id);
-  }
-
-  // 論理ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mBuilder->node_num(); ++ node_id) {
-    NodeInfo node_info;
-    bool stat = mNodeInfoMap.find(node_id, node_info);
-    if ( !stat ) {
-      continue;
-    }
-
-    const BnBuilder::NodeInfo bnode_info = const_cast<const BnBuilder*>(mBuilder)->node(node_id);
-    if ( bnode_info.mType == BnNode::kLogic ) {
-      ymuint ni = node_info.mInameIdArray.size();
-      for (ymuint i = 0; i < ni; ++ i) {
-	ymuint inode_id;
-	bool stat1 = mIdMap.find(node_info.mInameIdArray[i], inode_id);
-	ASSERT_COND( stat1 );
-	mBuilder->set_fanin(node_id, i, inode_id);
-      }
-    }
-    else if ( bnode_info.mType == BnNode::kOutput ) {
-      ymuint iname_id = node_info.mInameIdArray[0];
-      ymuint inode_id;
-      bool stat1 = mIdMap.find(iname_id, inode_id);
-      ASSERT_COND( stat1 );
-      mBuilder->set_output_input(node_id, inode_id);
-    }
-  }
-
-  for (ymuint dff_id = 0; dff_id < mBuilder->dff_num(); ++ dff_id) {
-    const LatchInfo& latch_info = mLatchInfoList[dff_id];
-    ymuint inode_id;
-    bool stat = mIdMap.find(latch_info.mInameId, inode_id);
-    ASSERT_COND( stat );
-
-    // まず外部出力ノードを作る．
-    string oname = id2str(latch_info.mInameId);
-    ymuint onode_id = mBuilder->add_output(oname);
-    mBuilder->set_output_input(onode_id, inode_id);
-
-    // DFF の入力をセットする．
-    mBuilder->set_dff_input(dff_id, onode_id);
-
-    // DFF のクロックをセットする．
-    mBuilder->set_dff_clock(dff_id, clock_id);
-  }
-#endif
-
-  bool stat = mBuilder->sanity_check();
+  bool stat = mBuilder->wrap_up();
 
   return stat;
 }

@@ -61,7 +61,7 @@ public:
   struct DffInfo {
 
     // コンストラクタ
-    DffInfo(const string& name) :
+    DffInfo(const string& name = string()) :
       mName(name),
       mInput(0),
       mOutput(0),
@@ -95,7 +95,7 @@ public:
   struct LatchInfo {
 
     // コンストラクタ
-    LatchInfo(const string& name) :
+    LatchInfo(const string& name = string()) :
       mName(name),
       mInput(0),
       mOutput(0),
@@ -146,29 +146,29 @@ public:
 	     ymuint input) :
       mType(BnNode::kOutput),
       mName(name),
-      mInodeList(1, input)
+      mFaninList(1, input)
     {
     }
 
     // プリミティブ型の論理ノード用のコンストラクタ
     NodeInfo(const string& name,
-	     ymuint ni,
-	     BnLogicType logic_type) :
+	     BnLogicType logic_type,
+	     ymuint ni) :
       mType(BnNode::kLogic),
       mName(name),
       mLogicType(logic_type),
-      mInodeList(ni, 0),
+      mFaninList(ni, 0),
       mCell(nullptr)
     {
     }
 
     // 論理式型の論理ノード用のコンストラクタ
     NodeInfo(const string& name,
-	     ymuint ni,
-	     const Expr& expr) :
+	     const Expr& expr,
+	     ymuint ni) :
       mType(BnNode::kLogic),
       mName(name),
-      mInodeList(ni, 0),
+      mFaninList(ni, 0),
       mLogicType(kBnLt_EXPR),
       mExpr(expr),
       mCell(nullptr)
@@ -177,11 +177,11 @@ public:
 
     // セル型の論理ノード用のコンストラクタ
     NodeInfo(const string& name,
-	     ymuint ni,
-	     const Cell* cell) :
+	     const Cell* cell,
+	     ymuint ni) :
       mType(BnNode::kLogic),
       mName(name),
-      mInodeList(ni, 0),
+      mFaninList(ni, 0),
       mLogicType(kBnLt_NONE),
       mCell(cell)
     {
@@ -192,12 +192,15 @@ public:
 	     const TvFunc& tv) :
       mType(BnNode::kLogic),
       mName(name),
-      mInodeList(tv.input_num(), 0),
+      mFaninList(tv.input_num(), 0),
       mLogicType(kBnLt_TV),
       mTv(tv),
       mCell(nullptr)
     {
     }
+
+    // ID番号
+    ymuint mId;
 
     // タイプ
     BnNode::Type mType;
@@ -206,7 +209,10 @@ public:
     string mName;
 
     // ファンインのノード番号の配列
-    vector<ymuint> mInodeList;
+    vector<ymuint> mFaninList;
+
+    // ファンアウトのノード番号の配列
+    vector<ymuint> mFanoutList;
 
     // 論理型
     BnLogicType mLogicType;
@@ -224,9 +230,103 @@ public:
 
 public:
 
+  /// @brief コンストラクタ
+  BnBuilder();
+
   /// @brief デストラクタ
   virtual
-  ~BnBuilder() { }
+  ~BnBuilder();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内容を取得する外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 名前を得る．
+  string
+  model_name() const;
+
+  /// @brief ポート数を得る．
+  ymuint
+  port_num() const;
+
+  /// @brief ポート情報を得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+  const PortInfo&
+  port(ymuint pos) const;
+
+  /// @brief DFF数を得る．
+  ymuint
+  dff_num() const;
+
+  /// @brief DFF情報を得る．
+  /// @param[in] id DFF番号 ( 0 <= id < dff_num() )
+  const DffInfo&
+  dff(ymuint id) const;
+
+  /// @brief ラッチ数を得る．
+  ymuint
+  latch_num() const;
+
+  /// @brief ラッチ情報を得る．
+  /// @param[in] id ラッチ番号 ( 0 <= id < latch_num() )
+  const LatchInfo&
+  latch(ymuint id) const;
+
+  /// @brief ノード数を得る．
+  ymuint
+  node_num() const;
+
+  /// @brief ノード情報を得る．
+  /// @param[in] id ノード番号 ( 0 < id <= node_num() )
+  ///
+  /// ノード番号 0 は不正な値として予約されている．
+  const NodeInfo&
+  node(ymuint id) const;
+
+  /// @brief 入力ノード数を得る．
+  ymuint
+  input_num() const;
+
+  /// @brief 入力ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
+  const NodeInfo&
+  input(ymuint pos) const;
+
+  /// @brief 出力ノード数を得る．
+  ymuint
+  output_num() const;
+
+  /// @brief 出力ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
+  const NodeInfo&
+  output(ymuint pos) const;
+
+  /// @brief 論理ノード数を得る．
+  ymuint
+  logic_num() const;
+
+  /// @brief 論理ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
+  ///
+  /// 入力からのトポロジカル順に整列している．
+  const NodeInfo&
+  logic(ymuint pos) const;
+
+  /// @brief 整合性のチェックを行う．
+  /// @return チェック結果を返す．
+  ///
+  /// チェック項目は以下の通り
+  /// - model_name() が設定されているか？
+  ///   設定されていない場合にはデフォルト値を設定する．
+  ///   エラーとはならない．
+  /// - 各ポートの各ビットが設定されているか？
+  /// - 各DFFの入力，出力およびクロックが設定されているか？
+  /// - 各ラッチの入力，出力およびイネーブルが設定されているか？
+  /// - 各ノードのファンインが設定されているか？
+  bool
+  sanity_check();
 
 
 public:
@@ -240,61 +340,155 @@ public:
   write(ostream& s) const;
 
 
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
-  // 内容を取得する外部インターフェイス
+  // 継承クラスから用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 名前を得る．
-  virtual
-  string
-  name() const = 0;
+  /// @brief 内容をクリアする．
+  ///
+  /// コンストラクタ直後と同じ状態になる．
+  void
+  _clear();
 
-  /// @brief ポート数を得る．
-  virtual
+  /// @brief ネットワーク名を設定する．
+  /// @param[in] name ネットワーク名
+  void
+  _set_model_name(const string& name);
+
+  /// @brief ポート情報を追加する．
+  /// @param[in] name ポート名
+  /// @param[in] bits ビットの内容(ノード番号)
+  void
+  _add_port(const string& name,
+	    const vector<ymuint>& bits);
+
+  /// @brief ポート情報を追加する(1ビット版)．
+  /// @param[in] name ポート名
+  /// @param[in] bit ビットの内容(ノード番号)
+  void
+  _add_port(const string& name,
+	    ymuint bit);
+
+  /// @brief DFF情報を追加する．
+  /// @param[in] name DFF名
+  /// @return DFF情報を返す．
+  DffInfo&
+  _add_dff(const string& name);
+
+  /// @brief ラッチ情報を追加する．
+  /// @param[in] name ラッチ名
+  /// @return ラッチ情報を返す．
+  LatchInfo&
+  _add_latch(const string& name);
+
+  /// @brief 入力用のノード情報を追加する．
+  /// @param[in] name ノード名
+  /// @return ノード番号を返す．
   ymuint
-  port_num() const = 0;
+  _add_input(const string& name);
 
-  /// @brief ポート情報を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-  virtual
-  const PortInfo&
-  port(ymuint pos) const = 0;
-
-  /// @brief DFF数を得る．
-  virtual
+  /// @brief 出力用のノード情報を追加する．
+  /// @param[in] name ノード名
+  /// @param[in] input 入力のノード番号
+  /// @return ノード番号を返す．
   ymuint
-  dff_num() const = 0;
+  _add_output(const string& name,
+	      ymuint input = 0);
 
-  /// @brief DFF情報を得る．
-  /// @param[in] id DFF番号 ( 0 <= id < dff_num() )
-  virtual
-  const DffInfo&
-  dff(ymuint id) const = 0;
-
-  /// @brief ラッチ数を得る．
-  virtual
+  /// @brief プリミティブ型の論理ノードを追加する．
+  /// @param[in] name ノード名
+  /// @param[in] logic_type 論理型
+  /// @praam[in] ni ファンイン数
+  /// @return ノード番号を返す．
   ymuint
-  latch_num() const = 0;
+  _add_primitive(const string& name,
+		 BnLogicType logic_type,
+		 ymuint ni);
 
-  /// @brief ラッチ情報を得る．
-  /// @param[in] id ラッチ番号 ( 0 <= id < latch_num() )
-  virtual
-  const LatchInfo&
-  latch(ymuint id) const = 0;
-
-  /// @brief ノード数を得る．
-  virtual
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @param[in] name ノード名
+  /// @param[in] expr 論理式
+  /// @param[in] ni ファンイン数
+  /// @return ノード番号を返す．
   ymuint
-  node_num() const = 0;
+  _add_expr(const string& name,
+	    const Expr& expr,
+	    ymuint ni);
+
+  /// @brief セル型の論理ノードを追加する．
+  /// @param[in] name ノード名
+  /// @param[in] cell セル
+  /// @return ノード番号を返す．
+  ymuint
+  _add_cell(const string& name,
+	    const Cell* cell);
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @param[in] name ノード名
+  /// @param[in] tv 真理値表
+  /// @return ノード番号を返す．
+  ymuint
+  _add_tv(const string& name,
+	  const TvFunc& tv);
 
   /// @brief ノード情報を得る．
   /// @param[in] id ノード番号 ( 0 < id <= node_num() )
   ///
   /// ノード番号 0 は不正な値として予約されている．
-  virtual
-  const NodeInfo&
-  node(ymuint id) const = 0;
+  NodeInfo&
+  node(ymuint id);
+
+  /// @brief ノード間を接続する．
+  /// @param[in] src_node ファンアウト元のノード番号
+  /// @param[in] dst_node ファンイン先のノード番号
+  /// @param[in] ipos ファンインの位置
+  void
+  _connect(ymuint src_node,
+	   ymuint dst_node,
+	   ymuint ipos);
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノード情報を追加する．
+  /// @param[in] node_info ノード情報
+  /// @return ノード番号を返す．
+  ymuint
+  _add_node(const NodeInfo& node_info);
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // 名前
+  string mName;
+
+  // ポート情報のリスト
+  vector<PortInfo> mPortInfoList;
+
+  // DFF情報のリスト
+  vector<DffInfo> mDffInfoList;
+
+  // ラッチ情報のリスト
+  vector<LatchInfo> mLatchInfoList;
+
+  // ノード情報のリスト
+  vector<NodeInfo> mNodeInfoList;
+
+  // 入力ノード番号のリスト
+  vector<ymuint> mInputList;
+
+  // 出力ノード番号のリスト
+  vector<ymuint> mOutputList;
+
+  // 論理ノード番号のリスト
+  vector<ymuint> mLogicList;
 
 };
 

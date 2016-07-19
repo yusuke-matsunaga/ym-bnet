@@ -60,10 +60,8 @@ BlifBnBuilder::read_blif(const string& filename,
 void
 BlifBnBuilder::clear()
 {
-  mName = string();
-  mPortInfoList.clear();
-  mDffInfoList.clear();
-  mNodeInfoList.clear();
+  _clear();
+
   mIdMap.clear();
   mFaninInfoMap.clear();
 
@@ -78,7 +76,7 @@ BlifBnBuilder::clear()
 void
 BlifBnBuilder::set_model_name(const string& name)
 {
-  mName = name;
+  _set_model_name(name);
 
   mSane = false;
 }
@@ -96,24 +94,17 @@ BlifBnBuilder::add_dff(ymuint oname_id,
 		       const string& iname,
 		       char rval)
 {
-  // DFF 情報を生成
-  ymuint id = mDffInfoList.size();
-  mDffInfoList.push_back(DffInfo(oname));
-
-  DffInfo& dff_info = mDffInfoList[id];
+  // DFF 情報を生成する．
+  DffInfo& dff_info = _add_dff(oname);
 
   // DFF の出力(BnNode的には入力ノード)を生成
-  mNodeInfoList.push_back(NodeInfo(oname));
-  ymuint input_id = mNodeInfoList.size();
-
+  ymuint input_id = _add_input(oname);
   dff_info.mOutput = input_id;
 
   mIdMap.add(oname_id, input_id);
 
   // DFF の入力(BnNode的には出力ノード)を生成
-  mNodeInfoList.push_back(NodeInfo(iname));
-  ymuint output_id = mNodeInfoList.size();
-
+  ymuint output_id = _add_output(iname);
   dff_info.mInput = output_id;
 
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
@@ -121,16 +112,13 @@ BlifBnBuilder::add_dff(ymuint oname_id,
 
   if ( mClockId == 0 ) {
     // クロック端子を作る．
-    mNodeInfoList.push_back(NodeInfo(mClockName));
-    ymuint node_id = mNodeInfoList.size();
+    ymuint node_id = _add_input(mClockName);
 
     // クロックのポートを作る．
-    mPortInfoList.push_back(PortInfo(mClockName, node_id));
+    _add_port(mClockName, node_id);
 
     // クロック端子の外部出力を作る．
-    mNodeInfoList.push_back(NodeInfo(mClockName, 0));
-    mClockId = mNodeInfoList.size();
-    mNodeInfoList[mClockId - 1].mInodeList[0] = node_id;
+    mClockId = _add_output(mClockName, node_id);
   }
 
   // クロック端子をセットする．
@@ -138,16 +126,13 @@ BlifBnBuilder::add_dff(ymuint oname_id,
 
   if ( rval == '0' || rval == '1' ) {
     // リセット端子を作る．
-    mNodeInfoList.push_back(NodeInfo(mResetName));
-    ymuint node_id = mNodeInfoList.size();
+    ymuint node_id = _add_input(mResetName);
 
     // リセット端子のポートを作る．
-    mPortInfoList.push_back(PortInfo(mResetName, node_id));
+    _add_port(mResetName, node_id);
 
     // リセット端子の外部出力を作る．
-    mNodeInfoList.push_back(NodeInfo(mResetName, 0));
-    mResetId = mNodeInfoList.size();
-    mNodeInfoList[mResetId - 1].mInodeList[0] = node_id;
+    mResetId = _add_output(mResetName, node_id);
 
     if ( rval == 0 ) {
       dff_info.mClear = mResetId;
@@ -167,11 +152,11 @@ void
 BlifBnBuilder::add_input(ymuint name_id,
 			 const string& name)
 {
-  mNodeInfoList.push_back(NodeInfo(name));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_input(name);
   mIdMap.add(name_id, id);
 
-  mPortInfoList.push_back(PortInfo(name, id));
+  // 関連するポートを作る．
+  _add_port(name, id);
 
   mSane = false;
 }
@@ -183,12 +168,12 @@ void
 BlifBnBuilder::add_output(ymuint name_id,
 			  const string& name)
 {
-  mNodeInfoList.push_back(NodeInfo(name, 0));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_output(name);
 
   mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
 
-  mPortInfoList.push_back(PortInfo(name, id));
+  // 関連するポートを作る．
+  _add_port(name, id);
 
   mSane = false;
 }
@@ -205,8 +190,8 @@ BlifBnBuilder::add_expr(ymuint oname_id,
 			const Expr& expr)
 {
   ymuint ni = inode_id_array.size();
-  mNodeInfoList.push_back(NodeInfo(oname, ni, expr));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_expr(oname, expr, ni);
+
   mIdMap.add(oname_id, id);
 
   mFaninInfoMap.add(id, inode_id_array);
@@ -225,9 +210,8 @@ BlifBnBuilder::add_cell(ymuint oname_id,
 			const vector<ymuint>& inode_id_array,
 			const Cell* cell)
 {
-  ymuint ni = cell->input_num();
-  mNodeInfoList.push_back(NodeInfo(oname, ni, cell));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_cell(oname, cell);
+
   mIdMap.add(oname_id, id);
 
   mFaninInfoMap.add(id, inode_id_array);
@@ -235,27 +219,22 @@ BlifBnBuilder::add_cell(ymuint oname_id,
   mSane = false;
 }
 
-// @brief 整合性のチェックを行う．
-// @return チェック結果を返す．
-//
-// チェック項目は以下の通り
-// - model_name() が設定されているか？
-//   設定されていない場合にはデフォルト値を設定する．
-//   エラーとはならない．
-// - 各ノードのファンインが設定されているか？
+// @brief 最終処理を行う．
+// @retval true 正しく設定されている．
+// @retval false エラーが起こった．
 bool
-BlifBnBuilder::sanity_check()
+BlifBnBuilder::wrap_up()
 {
   if ( mSane ) {
     return true;
   }
 
-  if ( name() == string() ) {
+  if ( model_name() == string() ) {
     // name が設定されていない．
     set_model_name("network");
   }
 
-  // 論理ノードのファンインを設定する．
+  // ノードのファンインを設定する．
   for (ymuint node_id = 1; node_id <= node_num(); ++ node_id) {
     vector<ymuint> fanin_info;
     bool stat = mFaninInfoMap.find(node_id, fanin_info);
@@ -263,110 +242,29 @@ BlifBnBuilder::sanity_check()
       continue;
     }
 
-    NodeInfo& bnode_info = mNodeInfoList[node_id - 1];
-    if ( bnode_info.mType == BnNode::kLogic ) {
+    NodeInfo& node_info = node(node_id);
+    if ( node_info.mType == BnNode::kLogic ) {
       ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
-	bnode_info.mInodeList[i] = inode_id;
+	_connect(inode_id, node_id, i);
       }
     }
-    else if ( bnode_info.mType == BnNode::kOutput ) {
+    else if ( node_info.mType == BnNode::kOutput ) {
       ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
-      bnode_info.mInodeList[0] = inode_id;
+      _connect(inode_id, node_id, 0);
     }
   }
 
-  mSane = true;
+  mSane = sanity_check();
 
   return mSane;
 
-}
-
-// @brief 名前を得る．
-string
-BlifBnBuilder::name() const
-{
-  return mName;
-}
-
-// @brief ポート数を得る．
-ymuint
-BlifBnBuilder::port_num() const
-{
-  return mPortInfoList.size();
-}
-
-// @brief ポート情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-const BlifBnBuilder::PortInfo&
-BlifBnBuilder::port(ymuint pos) const
-{
-  ASSERT_COND( pos < port_num() );
-  return mPortInfoList[pos];
-}
-
-// @brief DFF数を得る．
-ymuint
-BlifBnBuilder::dff_num() const
-{
-  return mDffInfoList.size();
-}
-
-// @brief DFF情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-const BnBuilder::DffInfo&
-BlifBnBuilder::dff(ymuint pos) const
-{
-  ASSERT_COND( pos < dff_num() );
-  return mDffInfoList[pos];
-}
-
-// @brief ラッチ数を得る．
-ymuint
-BlifBnBuilder::latch_num() const
-{
-  return 0;
-}
-
-// @brief ラッチ情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-const BnBuilder::LatchInfo&
-BlifBnBuilder::latch(ymuint pos) const
-{
-  ASSERT_NOT_REACHED;
-}
-
-// @brief ノード数を得る．
-ymuint
-BlifBnBuilder::node_num() const
-{
-  return mNodeInfoList.size();
-}
-
-// @brief ノード情報を得る．
-// @param[in] id ノード番号
-const BnBuilder::NodeInfo&
-BlifBnBuilder::node(ymuint id) const
-{
-  ASSERT_COND( id > 0 && id <= node_num() );
-  return mNodeInfoList[id - 1];
-}
-
-// @brief ノード情報を得る．
-// @param[in] id ノード番号 ( 0 < id <= node_num() )
-//
-// ノード番号 0 は不正な値として予約されている．
-BnBuilder::NodeInfo&
-BlifBnBuilder::node(ymuint id)
-{
-  ASSERT_COND( id > 0 && id <= node_num() );
-  return mNodeInfoList[id - 1];
 }
 
 END_NAMESPACE_YM_BNET

@@ -50,10 +50,18 @@ class BnNetwork
 {
 public:
 
-  /// @brief コンストラクタ
+  /// @brief 空のコンストラクタ
   ///
   /// 空の状態で初期化される．
   BnNetwork();
+
+  /// @brief コピーコンストラクタ
+  /// @param[in] src コピー元のオブジェクト
+  BnNetwork(const BnNetwork& src);
+
+  /// @brief ビルダーを引数にとるコンストラクタ
+  /// @param[in] builder ビルダーオブジェクト
+  BnNetwork(const BnBuilder& builder);
 
   /// @brief デストラクタ
   ~BnNetwork();
@@ -74,6 +82,114 @@ public:
   /// @param[in] src コピー元のオブジェクト
   void
   copy(const BnNetwork& src);
+
+  /// @brief ビルダーオブジェクトからの生成
+  /// @param[in] builder ビルダーオブジェクト
+  void
+  copy(const BnBuilder& builder);
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内容を取得する関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ネットワーク名を得る．
+  string
+  model_name() const;
+
+  /// @brief ポート数を得る．
+  ymuint
+  port_num() const;
+
+  /// @brief ポートの情報を得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+  const BnPort*
+  port(ymuint pos) const;
+
+  /// @brief DFF数を得る．
+  ymuint
+  dff_num() const;
+
+  /// @brief DFFを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
+  const BnDff*
+  dff(ymuint pos) const;
+
+  /// @brief ラッチ数を得る．
+  ymuint
+  latch_num() const;
+
+  /// @brief ラッチを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
+  const BnLatch*
+  latch(ymuint pos) const;
+
+  /// @brief ノード数を得る．
+  ymuint
+  node_num() const;
+
+  /// @brief ノードを得る．
+  /// @param[in] id ノード番号 ( 0 <= id < node_num() )
+  ///
+  /// BnNode* node = BnNetwork::node(id);
+  /// node->id() == id が成り立つ．
+  const BnNode*
+  node(ymuint pos) const;
+
+  /// @brief 入力数を得る．
+  ymuint
+  input_num() const;
+
+  /// @brief 入力ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
+  const BnNode*
+  input(ymuint pos) const;
+
+  /// @brief 出力数を得る．
+  ymuint
+  output_num() const;
+
+  /// @brief 出力ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
+  const BnNode*
+  output(ymuint pos) const;
+
+  /// @brief 論理ノード数を得る．
+  ymuint
+  logic_num() const;
+
+  /// @brief 論理ノードを得る．
+  /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
+  const BnNode*
+  logic(ymuint pos) const;
+
+  /// @brief 関数の数を得る．
+  ymuint
+  func_num() const;
+
+  /// @brief 関数番号から関数を得る．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  const TvFunc&
+  func(ymuint func_id) const;
+
+  /// @brief 関数番号から論理式を得る．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  const Expr&
+  expr(ymuint func_id) const;
+
+  /// @brief 内容を出力する．
+  /// @param[in] s 出力先のストリーム
+  ///
+  /// 形式は独自フォーマット
+  void
+  write(ostream& s) const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内容を設定する関数
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief ネットワーク名を設定する．
   /// @param[in] name ネットワーク名
@@ -195,103 +311,6 @@ public:
 	    BnNode* enable,
 	    BnNode* clear = nullptr,
 	    BnNode* preset = nullptr);
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 内容を取得する関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ネットワーク名を得る．
-  string
-  model_name() const;
-
-  /// @brief ポート数を得る．
-  ymuint
-  port_num() const;
-
-  /// @brief ポートの情報を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-  const BnPort*
-  port(ymuint pos) const;
-
-  /// @brief DFF数を得る．
-  ymuint
-  dff_num() const;
-
-  /// @brief DFFを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-  const BnDff*
-  dff(ymuint pos) const;
-
-  /// @brief ラッチ数を得る．
-  ymuint
-  latch_num() const;
-
-  /// @brief ラッチを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-  const BnLatch*
-  latch(ymuint pos) const;
-
-  /// @brief ノード数を得る．
-  ymuint
-  node_num() const;
-
-  /// @brief ノードを得る．
-  /// @param[in] id ノード番号 ( 0 <= id < node_num() )
-  ///
-  /// BnNode* node = BnNetwork::node(id);
-  /// node->id() == id が成り立つ．
-  const BnNode*
-  node(ymuint pos) const;
-
-  /// @brief 入力数を得る．
-  ymuint
-  input_num() const;
-
-  /// @brief 入力ノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
-  const BnNode*
-  input(ymuint pos) const;
-
-  /// @brief 出力数を得る．
-  ymuint
-  output_num() const;
-
-  /// @brief 出力ノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
-  const BnNode*
-  output(ymuint pos) const;
-
-  /// @brief 論理ノード数を得る．
-  ymuint
-  logic_num() const;
-
-  /// @brief 論理ノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-  const BnNode*
-  logic(ymuint pos) const;
-
-  /// @brief 関数の数を得る．
-  ymuint
-  func_num() const;
-
-  /// @brief 関数番号から関数を得る．
-  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-  const TvFunc&
-  func(ymuint func_id) const;
-
-  /// @brief 関数番号から論理式を得る．
-  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-  const Expr&
-  expr(ymuint func_id) const;
-
-  /// @brief 内容を出力する．
-  /// @param[in] s 出力先のストリーム
-  ///
-  /// 形式は独自フォーマット
-  void
-  write(ostream& s) const;
 
 
 private:

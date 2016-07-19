@@ -54,11 +54,10 @@ Iscas89BnBuilder::read_iscas89(const string& filename)
 void
 Iscas89BnBuilder::clear()
 {
-  mName = "iscas89_network";
+  _clear();
 
-  mPortInfoList.clear();
-  mDffInfoList.clear();
-  mNodeInfoList.clear();
+  _set_model_name("iscas89_network");
+
   mIdMap.clear();
   mFaninInfoMap.clear();
 
@@ -78,23 +77,18 @@ Iscas89BnBuilder::add_dff(ymuint oname_id,
 			  ymuint iname_id,
 			  const string& iname)
 {
-  // DFF 情報を生成
-  ymuint id = mDffInfoList.size();
-  mDffInfoList.push_back(DffInfo(oname));
+  // DFF 情報を生成する．
+  DffInfo& dff_info = _add_dff(oname);
 
-  DffInfo& dff_info = mDffInfoList[id];
-
-  // DFF の出力(BnNode的には入力ノード)を生成
-  mNodeInfoList.push_back(NodeInfo(oname));
-  ymuint input_id = mNodeInfoList.size();
+  // DFF の出力(BnNode的には入力ノード)を生成する．
+  ymuint input_id = _add_input(oname);
 
   dff_info.mOutput = input_id;
 
   mIdMap.add(oname_id, input_id);
 
-  // DFF の入力(BnNode的には出力ノード)を生成
-  mNodeInfoList.push_back(NodeInfo(iname));
-  ymuint output_id = mNodeInfoList.size();
+  // DFF の入力(BnNode的には出力ノード)を生成する．
+  ymuint output_id = _add_output(iname, 0);
 
   dff_info.mInput = output_id;
 
@@ -103,16 +97,13 @@ Iscas89BnBuilder::add_dff(ymuint oname_id,
 
   if ( mClockId == 0 ) {
     // クロック端子を作る．
-    mNodeInfoList.push_back(NodeInfo(mClockName));
-    ymuint node_id = mNodeInfoList.size();
+    ymuint node_id = _add_input(mClockName);
 
     // クロックのポートを作る．
-    mPortInfoList.push_back(PortInfo(mClockName, node_id));
+    _add_port(mClockName, node_id);
 
     // クロック端子の外部出力を作る．
-    mNodeInfoList.push_back(NodeInfo(mClockName, 0));
-    mClockId = mNodeInfoList.size();
-    mNodeInfoList[mClockId - 1].mInodeList[0] = node_id;
+    mClockId = _add_output(mClockName, node_id);
   }
 
   dff_info.mClock = mClockId;
@@ -127,11 +118,11 @@ void
 Iscas89BnBuilder::add_input(ymuint name_id,
 			    const string& name)
 {
-  mNodeInfoList.push_back(NodeInfo(name));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_input(name);
+
   mIdMap.add(name_id, id);
 
-  mPortInfoList.push_back(PortInfo(name, id));
+  _add_port(name, id);
 
   mSane = false;
 }
@@ -143,12 +134,11 @@ void
 Iscas89BnBuilder::add_output(ymuint name_id,
 			     const string& name)
 {
-  mNodeInfoList.push_back(NodeInfo(name, 0));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_output(name, 0);
 
   mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
 
-  mPortInfoList.push_back(PortInfo(name, id));
+  _add_port(name, id);
 
   mSane = false;
 }
@@ -165,8 +155,8 @@ Iscas89BnBuilder::add_primitive(ymuint oname_id,
 				BnLogicType logic_type)
 {
   ymuint ni = inode_id_array.size();
-  mNodeInfoList.push_back(NodeInfo(oname, ni, logic_type));
-  ymuint id = mNodeInfoList.size();
+  ymuint id = _add_primitive(oname, logic_type, ni);
+
   mIdMap.add(oname_id, id);
 
   mFaninInfoMap.add(id, inode_id_array);
@@ -174,22 +164,17 @@ Iscas89BnBuilder::add_primitive(ymuint oname_id,
   mSane = false;
 }
 
-// @brief 整合性のチェックを行う．
-// @return チェック結果を返す．
-//
-// チェック項目は以下の通り
-// - model_name() が設定されているか？
-//   設定されていない場合にはデフォルト値を設定する．
-//   エラーとはならない．
-// - 各ノードのファンインが設定されているか？
+// @brief 最終処理を行う．
+// @retval true 正しく設定されている．
+// @retval false エラーが起こった．
 bool
-Iscas89BnBuilder::sanity_check()
+Iscas89BnBuilder::wrap_up()
 {
   if ( mSane ) {
     return true;
   }
 
-  // 論理ノードのファンインを設定する．
+  // ノードのファンインを設定する．
   for (ymuint node_id = 1; node_id <= node_num(); ++ node_id) {
     vector<ymuint> fanin_info;
     bool stat = mFaninInfoMap.find(node_id, fanin_info);
@@ -197,114 +182,29 @@ Iscas89BnBuilder::sanity_check()
       continue;
     }
 
-    NodeInfo& bnode_info = mNodeInfoList[node_id - 1];
-    if ( bnode_info.mType == BnNode::kLogic ) {
+    NodeInfo& node_info = node(node_id);
+    if ( node_info.mType == BnNode::kLogic ) {
       ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
-	bnode_info.mInodeList[i] = inode_id;
+	_connect(inode_id, node_id, i);
       }
     }
-    else if ( bnode_info.mType == BnNode::kOutput ) {
+    else if ( node_info.mType == BnNode::kOutput ) {
       ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
-      bnode_info.mInodeList[0] = inode_id;
+      _connect(inode_id, node_id, 0);
     }
   }
 
-  bool error = false;
-
-  if ( !error ) {
-    mSane = true;
-  }
+  mSane = sanity_check();
 
   return mSane;
 
-}
-
-// @brief 名前を得る．
-string
-Iscas89BnBuilder::name() const
-{
-  return mName;
-}
-
-// @brief ポート数を得る．
-ymuint
-Iscas89BnBuilder::port_num() const
-{
-  return mPortInfoList.size();
-}
-
-// @brief ポート情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-const Iscas89BnBuilder::PortInfo&
-Iscas89BnBuilder::port(ymuint pos) const
-{
-  ASSERT_COND( pos < port_num() );
-  return mPortInfoList[pos];
-}
-
-// @brief DFF数を得る．
-ymuint
-Iscas89BnBuilder::dff_num() const
-{
-  return mDffInfoList.size();
-}
-
-// @brief DFF情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-const BnBuilder::DffInfo&
-Iscas89BnBuilder::dff(ymuint pos) const
-{
-  ASSERT_COND( pos < dff_num() );
-  return mDffInfoList[pos];
-}
-
-// @brief ラッチ数を得る．
-ymuint
-Iscas89BnBuilder::latch_num() const
-{
-  return 0;
-}
-
-// @brief ラッチ情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-const BnBuilder::LatchInfo&
-Iscas89BnBuilder::latch(ymuint pos) const
-{
-  ASSERT_NOT_REACHED;
-}
-
-// @brief ノード数を得る．
-ymuint
-Iscas89BnBuilder::node_num() const
-{
-  return mNodeInfoList.size();
-}
-
-// @brief ノード情報を得る．
-// @param[in] id ノード番号
-const BnBuilder::NodeInfo&
-Iscas89BnBuilder::node(ymuint id) const
-{
-  ASSERT_COND( id > 0 && id <= node_num() );
-  return mNodeInfoList[id - 1];
-}
-
-// @brief ノード情報を得る．
-// @param[in] id ノード番号 ( 0 < id <= node_num() )
-//
-// ノード番号 0 は不正な値として予約されている．
-BnBuilder::NodeInfo&
-Iscas89BnBuilder::node(ymuint id)
-{
-  ASSERT_COND( id > 0 && id <= node_num() );
-  return mNodeInfoList[id - 1];
 }
 
 END_NAMESPACE_YM_BNET

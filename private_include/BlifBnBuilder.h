@@ -114,86 +114,11 @@ public:
 	   const vector<ymuint>& inode_id_array,
 	   const Cell* cell);
 
-  /// @brief 整合性のチェックを行う．
-  /// @return チェック結果を返す．
-  ///
-  /// チェック項目は以下の通り
-  /// - model_name() が設定されているか？
-  ///   設定されていない場合にはデフォルト値を設定する．
-  ///   エラーとはならない．
-  /// - 各ノードのファンインが設定されているか？
+  /// @brief 最終処理を行う．
+  /// @retval true 正しく設定されている．
+  /// @retval false エラーが起こった．
   bool
-  sanity_check();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 内容を取得する外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 名前を得る．
-  virtual
-  string
-  name() const;
-
-  /// @brief ポート数を得る．
-  virtual
-  ymuint
-  port_num() const;
-
-  /// @brief ポート情報を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-  virtual
-  const PortInfo&
-  port(ymuint pos) const;
-
-  /// @brief DFF数を得る．
-  virtual
-  ymuint
-  dff_num() const;
-
-  /// @brief DFF情報を得る．
-  /// @param[in] id DFF番号 ( 0 <= id < dff_num() )
-  virtual
-  const DffInfo&
-  dff(ymuint id) const;
-
-  /// @brief ラッチ数を得る．
-  virtual
-  ymuint
-  latch_num() const;
-
-  /// @brief ラッチ情報を得る．
-  /// @param[in] id ラッチ番号 ( 0 <= id < latch_num() )
-  virtual
-  const LatchInfo&
-  latch(ymuint id) const;
-
-  /// @brief ノード数を得る．
-  virtual
-  ymuint
-  node_num() const;
-
-  /// @brief ノード情報を得る．
-  /// @param[in] id ノード番号 ( 0 < id <= node_num() )
-  ///
-  /// ノード番号 0 は不正な値として予約されている．
-  virtual
-  const NodeInfo&
-  node(ymuint id) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノード情報を得る．
-  /// @param[in] id ノード番号 ( 0 < id <= node_num() )
-  ///
-  /// ノード番号 0 は不正な値として予約されている．
-  NodeInfo&
-  node(ymuint id);
+  wrap_up();
 
 
 private:
@@ -206,18 +131,6 @@ private:
 
   // リセット端子名
   string mResetName;
-
-  // 名前
-  string mName;
-
-  // ポート情報のリスト
-  vector<PortInfo> mPortInfoList;
-
-  // DFF情報のリスト
-  vector<DffInfo> mDffInfoList;
-
-  // ノード情報のリスト
-  vector<NodeInfo> mNodeInfoList;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
   HashMap<ymuint, ymuint> mIdMap;
