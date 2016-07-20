@@ -10,6 +10,8 @@
 #include "ym/BnBuilder.h"
 #include "ym/Cell.h"
 
+#include "FuncAnalyzer.h"
+
 
 BEGIN_NAMESPACE_YM_BNET
 
@@ -422,7 +424,14 @@ BnBuilder::add_expr(const string& name,
 		    const Expr& expr,
 		    ymuint ni)
 {
-  ymuint id = _add_node(NodeInfo(name, expr, ni));
+  BnLogicType logic_type = FuncAnalyzer::analyze(expr);
+  ymuint id = 0;
+  if ( logic_type == kBnLt_EXPR ) {
+    id = _add_node(NodeInfo(name, expr, ni));
+  }
+  else {
+    id = _add_node(NodeInfo(name, logic_type, ni));
+  }
 
   return id;
 }
@@ -448,7 +457,14 @@ ymuint
 BnBuilder::add_tv(const string& name,
 		  const TvFunc& tv)
 {
-  ymuint id = _add_node(NodeInfo(name, tv));
+  BnLogicType logic_type = FuncAnalyzer::analyze(tv);
+  ymuint id = 0;
+  if ( logic_type == kBnLt_TV ) {
+    id = _add_node(NodeInfo(name, tv));
+  }
+  else {
+    id = _add_node(NodeInfo(name, logic_type, tv.input_num()));
+  }
 
   return id;
 }

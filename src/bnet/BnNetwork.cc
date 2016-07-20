@@ -17,105 +17,10 @@
 #include "BnDffImpl.h"
 #include "BnLatchImpl.h"
 
+#include "FuncAnalyzer.h"
+
 
 BEGIN_NAMESPACE_YM_BNET
-
-BEGIN_NONAMESPACE
-
-// @brief 真理値表から論理型を得る．
-//
-// 通常は kBnLt_TV だが場合によっては
-// プリミティブ型となる．
-BnLogicType
-tv2logic_type(const TvFunc& tv)
-{
-  if ( tv == TvFunc::const_zero(0) ) {
-    return kBnLt_C0;
-  }
-  else if ( tv == TvFunc::const_one(0) ) {
-    return kBnLt_C1;
-  }
-  else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
-    return kBnLt_BUFF;
-  }
-  else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
-    return kBnLt_NOT;
-  }
-  else {
-    ymuint input_num = tv.input_num();
-    ymuint np = 1UL << input_num;
-    int val_0;
-    int val_1;
-    bool has_0 = false;
-    bool has_1 = false;
-    bool xor_match = true;
-    bool xnor_match = true;
-    for (ymuint p = 0; p < np; ++ p) {
-      int val = tv.value(p);
-      if ( p == 0UL ) {
-	val_0 = val;
-      }
-      else if ( p == (np - 1) ) {
-	val_1 = val;
-      }
-      else {
-	if ( val == 0 ) {
-	  has_0 = true;
-	}
-	else {
-	  has_1 = true;
-	}
-      }
-      bool parity = false;
-      for (ymuint i = 0; i < input_num; ++ i) {
-	if ( (1UL << i) & p ) {
-	  parity = !parity;
-	}
-      }
-      if ( parity ) {
-	if ( val ) {
-	  xnor_match = false;
-	}
-      }
-      else {
-	if ( val ) {
-	  xor_match = false;
-	}
-      }
-    }
-    if ( val_0 == 0 && val_1 == 1 ) {
-      if ( !has_0 ) {
-	// 00...00 だけ 0 で残りが 1
-	return kBnLt_OR;
-      }
-      else if ( !has_1 ) {
-	// 11...11 だけ 1 で残りが 0
-	return kBnLt_AND;
-      }
-    }
-    else if ( val_0 == 1 && val_1 == 0 ) {
-      if ( !has_0 ) {
-	// 11...11 だけ 0 で残りが 1
-	return kBnLt_NAND;
-      }
-      else if ( !has_1 ) {
-	// 00...00 だけ 1 で残りが 0
-	return kBnLt_NOR;
-      }
-    }
-    else if ( xor_match ) {
-      return kBnLt_XOR;
-    }
-    else if ( xnor_match ) {
-      return kBnLt_XNOR;
-    }
-  }
-
-  return kBnLt_TV;
-}
-
-END_NONAMESPACE
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnNetwork
@@ -644,11 +549,16 @@ BnNetwork::func(ymuint func_id) const
 
 // @brief 関数番号から論理式を得る．
 // @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-const Expr&
+Expr
 BnNetwork::expr(ymuint func_id) const
 {
   ASSERT_COND( func_id < func_num() );
-  return mExprList[func_id];
+  Expr expr;
+  if ( mExprMap.find(func_id, expr) ) {
+    return expr;
+  }
+  ASSERT_NOT_REACHED;
+  return expr;
 }
 
 // @brief 内容を出力する．
@@ -1046,16 +956,16 @@ BnNetwork::analyze_expr(const Expr& expr,
     BnLogicType logic_type = analyze_func(tv, func_id);
     if ( logic_type == kBnLt_TV ) {
       logic_type = kBnLt_EXPR;
-      if ( func_id == mExprList.size() ) {
-	mExprList.push_back(expr);
+      if ( func_id == mFuncList.size() ) {
+	// 新規に登録された関数だった
+	mExprMap.add(func_id, expr);
       }
     }
     return logic_type;
   }
   // 11入力以上の場合は常に新しい関数だと思う．
   func_id = mFuncList.size();
-  mFuncList.push_back(TvFunc()); // ダミー
-  mExprList.push_back(expr);
+  mExprMap.add(func_id, expr);
   return kBnLt_EXPR;
 }
 
@@ -1073,13 +983,15 @@ BnLogicType
 BnNetwork::analyze_func(const TvFunc& func,
 			ymuint& func_id)
 {
-  ymuint input_num = func.input_num();
-  BnLogicType logic_type = tv2logic_type(func);
+  BnLogicType logic_type = FuncAnalyzer::analyze(func);
   if ( logic_type != kBnLt_TV ) {
+    // プリミティブ型だった．
     return logic_type;
   }
 
+  // 同じ関数が登録されていないか調べる．
   if ( !mFuncMap.find(func, func_id) ) {
+    // 新たに登録する．
     func_id = mFuncList.size();
     mFuncList.push_back(func);
     mFuncMap.add(func, func_id);

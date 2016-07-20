@@ -175,7 +175,7 @@ public:
 
   /// @brief 関数番号から論理式を得る．
   /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-  const Expr&
+  Expr
   expr(ymuint func_id) const;
 
   /// @brief 内容を出力する．
@@ -370,16 +370,17 @@ private:
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNode*> mNodeList;
 
-  // 真理値表をキーにして論理式番号を記録するハッシュ表
+  // 真理値表をキーにして関数番号を記録するハッシュ表
   HashMap<TvFunc, ymuint> mFuncMap;
 
   // 関数のリスト
   // mFuncMap に対応する．
   vector<TvFunc> mFuncList;
 
-  // 論理式のリスト
+  // 関数番号をキーにした論理式のハッシュ表
   // mFuncMap に対応する．
-  vector<Expr> mExprList;
+  // すべての関数が式を持つとは限らないのでハッシュを用いる．
+  HashMap<ymuint, Expr> mExprMap;
 
 };
 

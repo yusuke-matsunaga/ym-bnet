@@ -257,7 +257,7 @@ public:
 
     /// @brief セル
     ///
-    /// オプショナルなので nullptr のときもある．
+    /// mLogicType == kBnLt_NONE のときのみ意味を持つ．
     const Cell* mCell;
 
   };
