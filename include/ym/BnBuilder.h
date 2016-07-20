@@ -30,10 +30,12 @@ public:
   // 各要素の情報を表すデータ構造
   //////////////////////////////////////////////////////////////////////
 
-  // ポートの情報
+  /// @brief ポートの情報
   struct PortInfo {
 
-    // コンストラクタ
+    /// @brief コンストラクタ
+    /// @param[in] name ポート名
+    /// @param[in] bits 各ビットのノード番号の配列
     PortInfo(const string& name,
 	     const vector<ymuint>& bits) :
       mName(name),
@@ -41,7 +43,9 @@ public:
     {
     }
 
-    // 1ビット用のコンストラクタ
+    /// @brief 1ビット用のコンストラクタ
+    /// @param[in] name ポート名
+    /// @param[in] bit ノード番号
     PortInfo(const string& name,
 	     ymuint bit) :
       mName(name),
@@ -49,18 +53,23 @@ public:
     {
     }
 
-    // 名前
+    /// @brief 名前
     string mName;
 
-    // ビットの内容
-    // ノード番号を持つ．
+    /// @brief ビットの内容
+    ///
+    /// ノード番号を持つ．
     vector<ymuint> mBits;
+
   };
 
-  // DFFの情報
+  /// @brief DFFの情報
   struct DffInfo {
 
-    // コンストラクタ
+    /// @brief コンストラクタ
+    /// @param[in] name 名前
+    ///
+    /// 端子には0(未接続)が設定される．
     DffInfo(const string& name = string()) :
       mName(name),
       mInput(0),
@@ -71,30 +80,33 @@ public:
     {
     }
 
-    // 名前
+    /// @brief 名前
     string mName;
 
-    // 入力のノード番号
+    /// @brief 入力のノード番号
     ymuint mInput;
 
-    // 出力のノード番号
+    /// @brief 出力のノード番号
     ymuint mOutput;
 
-    // クロック端子のノード番号
+    /// @brief クロック端子のノード番号
     ymuint mClock;
 
-    // クリア端子のノード番号
+    /// @brief クリア端子のノード番号
     ymuint mClear;
 
-    // プリセット端子のノード番号
+    /// @brief プリセット端子のノード番号
     ymuint mPreset;
 
   };
 
-  // ラッチの情報
+  /// @brief ラッチの情報
   struct LatchInfo {
 
-    // コンストラクタ
+    /// @brief コンストラクタ
+    /// @param[in] name 名前
+    ///
+    /// 端子には0(未接続)が設定される．
     LatchInfo(const string& name = string()) :
       mName(name),
       mInput(0),
@@ -105,43 +117,48 @@ public:
     {
     }
 
-    // 名前
+    /// @brief 名前
     string mName;
 
-    // 入力のノード番号
+    /// @brief 入力のノード番号
     ymuint mInput;
 
-    // 出力のノード番号
+    /// @brief 出力のノード番号
     ymuint mOutput;
 
-    // イネーブル端子のノード番号
+    /// @brief イネーブル端子のノード番号
     ymuint mEnable;
 
-    // クリア端子のノード番号
+    /// @brief クリア端子のノード番号
     ymuint mClear;
 
-    // プリセット端子のノード番号
+    /// @brief プリセット端子のノード番号
     ymuint mPreset;
 
   };
 
-  // ノードの情報
+  /// @brief ノードの情報
   struct NodeInfo {
 
-    // 空のコンストラクタ
+    /// @brief 空のコンストラクタ
     NodeInfo() :
       mType(BnNode::kInput)
     {
     }
 
-    // 入力用のコンストラクタ
+    /// @brief 入力用のコンストラクタ
+    /// @param[in] name ノード名
     NodeInfo(const string& name) :
       mType(BnNode::kInput),
       mName(name)
     {
     }
 
-    // 出力用のコンストラクタ
+    /// @brief 出力用のコンストラクタ
+    /// @param[in] name ノード名
+    /// @param[in] input 入力のノード番号
+    ///
+    /// input が決まっていないときは 0 を入れておく．
     NodeInfo(const string& name,
 	     ymuint input) :
       mType(BnNode::kOutput),
@@ -150,7 +167,10 @@ public:
     {
     }
 
-    // プリミティブ型の論理ノード用のコンストラクタ
+    /// @brief プリミティブ型の論理ノード用のコンストラクタ
+    /// @param[in] name ノード名
+    /// @param[in] logic_type 論理型
+    /// @param[in] ni ファンイン数
     NodeInfo(const string& name,
 	     BnLogicType logic_type,
 	     ymuint ni) :
@@ -162,7 +182,10 @@ public:
     {
     }
 
-    // 論理式型の論理ノード用のコンストラクタ
+    /// @brief 論理式型の論理ノード用のコンストラクタ
+    /// @param[in] name ノード名
+    /// @param[in] expr 論理式
+    /// @param[in] ni ファンイン数
     NodeInfo(const string& name,
 	     const Expr& expr,
 	     ymuint ni) :
@@ -175,7 +198,10 @@ public:
     {
     }
 
-    // セル型の論理ノード用のコンストラクタ
+    /// @brief セル型の論理ノード用のコンストラクタ
+    /// @param[in] name ノード名
+    /// @param[in] cell セル
+    /// @param[in] ni ファンイン数
     NodeInfo(const string& name,
 	     const Cell* cell,
 	     ymuint ni) :
@@ -187,7 +213,9 @@ public:
     {
     }
 
-    // 真理値表型の論理ノード用のコンストラクタ
+    /// @brief 真理値表型の論理ノード用のコンストラクタ
+    /// @param[in] name ノード名
+    /// @param[in] tv 真理値表
     NodeInfo(const string& name,
 	     const TvFunc& tv) :
       mType(BnNode::kLogic),
@@ -199,31 +227,37 @@ public:
     {
     }
 
-    // ID番号
+    /// @brief ID番号
     ymuint mId;
 
-    // タイプ
+    /// @brief タイプ
     BnNode::Type mType;
 
-    // 名前
+    /// @brief 名前
     string mName;
 
-    // ファンインのノード番号の配列
+    /// @brief ファンインのノード番号の配列
     vector<ymuint> mFaninList;
 
-    // ファンアウトのノード番号の配列
+    /// @brief ファンアウトのノード番号の配列
     vector<ymuint> mFanoutList;
 
-    // 論理型
+    /// @brief 論理型
     BnLogicType mLogicType;
 
-    // 論理式
+    /// @brief 論理式
+    ///
+    /// mLogicType == kBnLt_EXPR のときのみ意味を持つ．
     Expr mExpr;
 
-    // 真理値表
+    /// @brief 真理値表
+    ///
+    /// mLogicType == kBnLt_TV のときのみ意味を持つ．
     TvFunc mTv;
 
-    // セル
+    /// @brief セル
+    ///
+    /// オプショナルなので nullptr のときもある．
     const Cell* mCell;
 
   };
@@ -444,6 +478,7 @@ public:
   /// - 各ノードのファンインが設定されているか？
   ///
   /// この関数を呼んだあとは論理ノードがトポロジカルソートされる．
+  /// というかこの関数を呼ばないと logic_num(), logic() は正しくない．
   bool
   wrap_up();
 

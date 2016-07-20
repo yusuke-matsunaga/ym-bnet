@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnBlifReader BnBlifReader.h "BnBlifReader.h"
-/// @brief blif ファイルを読み込んで BnNetwork に設定するクラス
+/// @brief blif ファイルを読み込んで BnBuilder に設定するクラス
 //////////////////////////////////////////////////////////////////////
 class BnBlifReader
 {
@@ -39,12 +39,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief blif ファイルを読み込む．
-  /// @param[in] network 設定対象のネットワーク
+  /// @param[in] builder 設定対象のビルダーオブジェクト
   /// @param[in] filename ファイル名
   /// @param[in] cell_library セルライブラリ
   /// @return 読み込みが成功したら true を返す．
   bool
-  read(BnNetwork& network,
+  read(BnBuilder& builder,
        const string& filename,
        const CellLibrary* cell_library = nullptr);
 

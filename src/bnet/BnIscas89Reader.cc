@@ -8,11 +8,8 @@
 
 
 #include "ym/BnIscas89Reader.h"
-
-#include "ym/Iscas89Parser.h"
 #include "ym/BnBuilder.h"
-#include "ym/BnNetwork.h"
-
+#include "ym/Iscas89Parser.h"
 #include "BnIscas89Handler.h"
 
 
@@ -35,28 +32,21 @@ BnIscas89Reader::~BnIscas89Reader()
 }
 
 // @brief blif ファイルを読み込む．
-// @param[in] network 設定対象のネットワーク
+// @param[in] builder 設定対象のビルダーオブジェクト
 // @param[in] filename ファイル名
 // @return 読み込みが成功したら true を返す．
 bool
-BnIscas89Reader::read(BnNetwork& network,
+BnIscas89Reader::read(BnBuilder& builder,
 		      const string& filename)
 {
-  BnBuilder builder;
-
   BnIscas89Handler* handler = new BnIscas89Handler(&builder, mClockName);
 
   Iscas89Parser parser;
   parser.add_handler(handler);
 
   bool stat = parser.read(filename);
-  if ( !stat ) {
-    return false;
-  }
 
-  network.copy(builder);
-
-  return true;
+  return stat;
 }
 
 END_NAMESPACE_YM_BNET

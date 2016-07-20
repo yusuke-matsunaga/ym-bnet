@@ -8,12 +8,10 @@
 
 
 #include "ym/BnBlifReader.h"
-
 #include "ym/BlifParser.h"
 #include "ym/BnBuilder.h"
-#include "ym/BnNetwork.h"
-
 #include "BnBlifHandler.h"
+
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -37,29 +35,22 @@ BnBlifReader::~BnBlifReader()
 }
 
 // @brief blif ファイルを読み込む．
-// @param[in] network 設定対象のネットワーク
+// @param[in] builder 設定対象のビルダーオブジェクト
 // @param[in] filename ファイル名
 // @param[in] cell_library セルライブラリ
 bool
-BnBlifReader::read(BnNetwork& network,
+BnBlifReader::read(BnBuilder& builder,
 		   const string& filename,
 		   const CellLibrary* cell_library)
 {
-  BnBuilder builder;
-
   BnBlifHandler* handler = new BnBlifHandler(&builder, mClockName, mResetName);
 
   BlifParser parser;
   parser.add_handler(handler);
 
   bool stat = parser.read(filename, cell_library);
-  if ( !stat ) {
-    return false;
-  }
 
-  network.copy(builder);
-
-  return true;
+  return stat;
 }
 
 END_NAMESPACE_YM_BNET

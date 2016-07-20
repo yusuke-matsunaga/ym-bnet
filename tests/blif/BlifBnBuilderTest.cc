@@ -7,13 +7,11 @@
 /// All rights reserved.
 
 
+#include "ym/BnBlifReader.h"
 #include "ym/BnBuilder.h"
-#include "ym/BlifParser.h"
-
-#include "BnBlifHandler.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM
 
 int
 BlifBnBuilderTest(int argc,
@@ -24,14 +22,11 @@ BlifBnBuilderTest(int argc,
   }
 
   BnBuilder builder;
-  BnBlifHandler* handler = new BnBlifHandler(&builder);
-
-  BlifParser parser;
-  parser.add_handler(handler);
+  BnBlifReader reader;
 
   string filename = argv[1];
   const CellLibrary* cell_library = nullptr;
-  bool stat = parser.read(filename, cell_library);
+  bool stat = reader.read(builder, filename, cell_library);
   if ( !stat ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;
@@ -42,11 +37,11 @@ BlifBnBuilderTest(int argc,
   return 0;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM
 
 int
 main(int argc,
      char** argv)
 {
-  return nsYm::nsBnet::BlifBnBuilderTest(argc, argv);
+  return nsYm::BlifBnBuilderTest(argc, argv);
 }

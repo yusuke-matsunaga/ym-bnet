@@ -9,6 +9,7 @@
 
 #include "ym/BnBlifReader.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnBuilder.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -22,18 +23,18 @@ BnBlifReaderTest(int argc,
     return -1;
   }
 
-  BnNetwork network;
-
+  BnBuilder builder;
   BnBlifReader reader;
 
   string filename = argv[1];
   const CellLibrary* cell_library = nullptr;
-  bool stat = reader.read(network, filename, cell_library);
+  bool stat = reader.read(builder, filename, cell_library);
   if ( !stat ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;
   }
 
+  BnNetwork network(builder);
   network.write(cout);
 
   return 0;

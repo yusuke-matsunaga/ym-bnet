@@ -8,12 +8,10 @@
 
 
 #include "ym/BnBuilder.h"
-
-#include "ym/Iscas89Parser.h"
-#include "BnIscas89Handler.h"
+#include "ym/BnIscas89Reader.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM
 
 int
 Iscas89BnBuilderTest(int argc,
@@ -24,14 +22,10 @@ Iscas89BnBuilderTest(int argc,
   }
 
   BnBuilder builder;
-
-  BnIscas89Handler* handler = new BnIscas89Handler(&builder);
-
-  Iscas89Parser parser;
-  parser.add_handler(handler);
+  BnIscas89Reader reader;
 
   string filename = argv[1];
-  bool stat = parser.read(filename);
+  bool stat = reader.read(builder, filename);
   if ( !stat ) {
     cerr << "read_iscas(" << filename << ") failed" << endl;
     return -1;
@@ -42,11 +36,11 @@ Iscas89BnBuilderTest(int argc,
   return 0;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM
 
 int
 main(int argc,
      char** argv)
 {
-  return nsYm::nsBnet::Iscas89BnBuilderTest(argc, argv);
+  return nsYm::Iscas89BnBuilderTest(argc, argv);
 }
