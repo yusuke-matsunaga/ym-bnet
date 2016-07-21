@@ -111,6 +111,20 @@ BnNetwork::copy(const BnNetwork& src)
     mNodeMap.add(src_node->id(), dst_node);
   }
 
+  // 関数情報の生成
+  ymuint nfunc = src.func_num();
+  set_func_num(nfunc);
+  for (ymuint i = 0; i < nfunc; ++ i) {
+    set_func(i, src.func(i));
+  }
+
+  // 論理式情報の生成
+  ymuint nexpr = src.expr_num();
+  set_expr_num(nexpr);
+  for (ymuint i = 0; i < nexpr; ++ i) {
+    set_expr(i, src.expr(i));
+  }
+
   // 論理ノードの生成
   ymuint nl = src.logic_num();
   for (ymuint i = 0; i < nl; ++ i) {
@@ -124,23 +138,12 @@ BnNetwork::copy(const BnNetwork& src)
       ASSERT_COND( stat );
       inode_list[i] = inode;
     }
+    string name = src_node->name();
+    BnLogicType logic_type = src_node->logic_type();
+    ymuint expr_id = src_node->expr_id();
+    ymuint func_id = src_node->func_id();
     const Cell* cell = src_node->cell();
-    BnNode* dst_node = nullptr;
-    if ( cell != nullptr ) {
-      dst_node = new_cell(src_node->name(), inode_list, cell);
-    }
-    else {
-      BnLogicType logic_type = src_node->logic_type();
-      if ( logic_type == kBnLt_EXPR ) {
-	dst_node = new_expr(src_node->name(), inode_list, src_node->expr());
-      }
-      else if ( logic_type == kBnLt_TV ) {
-	dst_node = new_tv(src_node->name(), inode_list, src_node->tv());
-      }
-      else {
-	dst_node = new_primitive(src_node->name(), inode_list, logic_type);
-      }
-    }
+    BnNode* dst_node = new_logic(name, inode_list, logic_type, expr_id, func_id, cell);
     mNodeMap.add(src_node->id(), dst_node);
   }
 
@@ -276,6 +279,20 @@ BnNetwork::copy(const BnBuilder& builder)
     mNodeMap.add(src_info.mId, dst_node);
   }
 
+  // 関数情報の生成
+  ymuint nfunc = builder.func_num();
+  set_func_num(nfunc);
+  for (ymuint i = 0; i < nfunc; ++ i) {
+    set_func(i, builder.func(i));
+  }
+
+  // 論理式情報の生成
+  ymuint nexpr = builder.expr_num();
+  set_expr_num(nexpr);
+  for (ymuint i = 0; i < nexpr; ++ i) {
+    set_expr(i, builder.expr(i));
+  }
+
   // 論理ノードの生成
   ymuint nl = builder.logic_num();
   for (ymuint i = 0; i < nl; ++ i) {
@@ -289,24 +306,11 @@ BnNetwork::copy(const BnBuilder& builder)
       ASSERT_COND( stat );
       inode_list[j] = inode;
     }
-
+    string name = src_info.mName;
+    BnLogicType logic_type = src_info.mLogicType;
+    ymuint func_id = src_info.mFuncId;
     const Cell* cell = src_info.mCell;
-    BnNode* dst_node = nullptr;
-    if ( cell != nullptr ) {
-      dst_node = new_cell(src_info.mName, inode_list, cell);
-    }
-    else {
-      BnLogicType logic_type = src_info.mLogicType;
-      if ( logic_type == kBnLt_EXPR ) {
-	dst_node = new_expr(src_info.mName, inode_list, src_info.mExpr);
-      }
-      else if ( logic_type == kBnLt_TV ) {
-	dst_node = new_tv(src_info.mName, inode_list, src_info.mTv);
-      }
-      else {
-	dst_node = new_primitive(src_info.mName, inode_list, logic_type);
-      }
-    }
+    BnNode* dst_node = new_logic(name, inode_list, logic_type, func_id, func_id, cell);
     mNodeMap.add(src_info.mId, dst_node);
   }
 
@@ -547,18 +551,20 @@ BnNetwork::func(ymuint func_id) const
   return mFuncList[func_id];
 }
 
-// @brief 関数番号から論理式を得る．
-// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-Expr
-BnNetwork::expr(ymuint func_id) const
+// @brief 論理式の数を得る．
+ymuint
+BnNetwork::expr_num() const
 {
-  ASSERT_COND( func_id < func_num() );
-  Expr expr;
-  if ( mExprMap.find(func_id, expr) ) {
-    return expr;
-  }
-  ASSERT_NOT_REACHED;
-  return expr;
+  return mExprList.size();
+}
+
+// @brief 論理式番号から論理式を得る．
+// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+Expr
+BnNetwork::expr(ymuint expr_id) const
+{
+  ASSERT_COND( expr_id < expr_num() );
+  return mExprList[expr_id];
 }
 
 // @brief 内容を出力する．
@@ -588,7 +594,7 @@ BnNetwork::write(ostream& s) const
   for (ymuint i = 0; i < ni; ++ i) {
     const BnNode* node = input(i);
     ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->type() == BnNode::kInput );
+    ASSERT_COND( node->type() == kBnInput );
     s << "input#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl;
   }
@@ -598,7 +604,7 @@ BnNetwork::write(ostream& s) const
   for (ymuint i = 0; i < no; ++ i) {
     const BnNode* node = output(i);
     ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->type() == BnNode::kOutput );
+    ASSERT_COND( node->type() == kBnOutput );
     s << "output#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl
       << "    input: " << node->input()->id() << endl;
@@ -646,7 +652,7 @@ BnNetwork::write(ostream& s) const
   for (ymuint i = 0; i < nl; ++ i) {
     const BnNode* node = logic(i);
     ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->type() == BnNode::kLogic );
+    ASSERT_COND( node->type() == kBnLogic );
     s << "logic#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl
       << "    fanins: ";
@@ -691,10 +697,10 @@ BnNetwork::write(ostream& s) const
       s << "XNOR";
       break;
     case kBnLt_EXPR:
-      s << "expr: [" << node->func_id() << "] " << node->expr();
+      s << "expr#" << node->expr_id() << ": " << node->expr();
       break;
     case kBnLt_TV:
-      s << "tv: [" << node->func_id() << "] " << node->tv();
+      s << "func#" << node->func_id() << ": " << node->func();
       break;
     }
     s << endl;
@@ -705,11 +711,6 @@ BnNetwork::write(ostream& s) const
   }
 
   s << endl;
-  for (ymuint func_id = 0; func_id < func_num(); ++ func_id) {
-    s << "Func#" << func_id << ": " << func(func_id) << endl
-      << "          " << expr(func_id) << endl;
-  }
-
 }
 
 // @brief ネットワーク名を設定する．
@@ -754,116 +755,34 @@ BnNetwork::new_output(const string& node_name,
   return node;
 }
 
-// @brief プリミティブ型の論理ノードを追加する．
+// @brief 論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] inode_list ファンインのノードのリスト
-// @param[in] prim_type プリミティブの型
-// @return 追加が成功したら true を返す．
-//
-// ノード名の重複に関しては感知しない．
-BnNode*
-BnNetwork::new_primitive(const string& node_name,
-			 const vector<BnNode*>& inode_list,
-			 BnLogicType prim_type)
-{
-  ymuint id = mNodeList.size();
-  BnNode* node = new BnPrimNode(id, node_name, inode_list, prim_type);
-  mNodeList.push_back(node);
-  mLogicList.push_back(node);
-
-  return node;
-}
-
-// @brief セル型の論理ノードを追加する．
-// @param[in] node_name ノード名
-// @param[in] inode_list ファンインのノードのリスト
+// @param[in] logic_type 論理型
+// @param[in] expr_id 論理式番号
+// @param[in] func_id 関数番号
 // @param[in] cell セル
 // @return 生成した論理ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 BnNode*
-BnNetwork::new_cell(const string& node_name,
-		    const vector<BnNode*>& inode_list,
-		    const Cell* cell)
+BnNetwork::new_logic(const string& node_name,
+		     const vector<BnNode*>& inode_list,
+		     BnLogicType logic_type,
+		     ymuint expr_id,
+		     ymuint func_id,
+		     const Cell* cell)
 {
-
-  if ( !cell->has_logic() || cell->output_num() != 1 ) {
-    // 1出力の論理セルでなければエラー
-    return nullptr;
-  }
-
-  // expr がプリミティブ型かどうかチェックする．
-  Expr expr = cell->logic_expr(0);
-  ymuint func_id;
-  BnLogicType logic_type = analyze_expr(expr, func_id);
-
   ymuint id = mNodeList.size();
-  BnNode* node = nullptr;
+  BnNode* node;
   if ( logic_type == kBnLt_EXPR ) {
-    node = new BnExprNode(id, node_name, inode_list, expr, func_id, cell);
+    node = new BnExprNode(id, node_name, inode_list, expr(expr_id), expr_id, cell);
+  }
+  else if ( logic_type == kBnLt_TV ) {
+    node = new BnTvNode(id, node_name, inode_list, func(func_id), func_id, cell);
   }
   else {
     node = new BnPrimNode(id, node_name, inode_list, logic_type, cell);
-  }
-  mNodeList.push_back(node);
-  mLogicList.push_back(node);
-
-  return node;
-}
-
-// @brief 論理式型の論理ノードを追加する．
-// @param[in] node_name ノード名
-// @param[in] inode_list ファンインのノードのリスト
-// @param[in] expr 論理式
-// @return 生成した論理ノードを返す．
-//
-// ノード名の重複に関しては感知しない．
-BnNode*
-BnNetwork::new_expr(const string& node_name,
-		    const vector<BnNode*>& inode_list,
-		    const Expr& expr)
-{
-  // expr がプリミティブ型かどうかチェックする．
-  ymuint func_id;
-  BnLogicType logic_type = analyze_expr(expr, func_id);
-
-  ymuint id = mNodeList.size();
-  BnNode* node = nullptr;
-  if ( logic_type == kBnLt_EXPR ) {
-    node = new BnExprNode(id, node_name, inode_list, expr, func_id);
-  }
-  else {
-    node = new BnPrimNode(id, node_name, inode_list, logic_type);
-  }
-  mNodeList.push_back(node);
-  mLogicList.push_back(node);
-
-  return node;
-}
-
-// @brief 真理値表型の論理ノードを追加する．
-// @param[in] node_name ノード名
-// @param[in] inode_list ファンインのノードのリスト
-// @param[in] tv_func 心理値表
-// @return 生成した論理ノードを返す．
-//
-// ノード名の重複に関しては感知しない．
-BnNode*
-BnNetwork::new_tv(const string& node_name,
-		  const vector<BnNode*>& inode_list,
-		  const TvFunc& tv)
-{
-  // tv がプリミティブ型かどうかチェックする．
-  ymuint func_id;
-  BnLogicType logic_type = analyze_func(tv, func_id);
-
-  ymuint id = mNodeList.size();
-  BnNode* node = nullptr;
-  if ( logic_type == kBnLt_TV ) {
-    node = new BnTvNode(id, node_name, inode_list, tv, func_id);
-  }
-  else {
-    node = new BnPrimNode(id, node_name, inode_list, logic_type);
   }
   mNodeList.push_back(node);
   mLogicList.push_back(node);
@@ -941,62 +860,44 @@ BnNetwork::new_latch(const string& name,
   return latch;
 }
 
-// @brief 論理式を解析する．
-// @param[in] expr 対象の論理式
-// @param[out] func_id 関数番号
-// @return 論理タイプ
-BnLogicType
-BnNetwork::analyze_expr(const Expr& expr,
-			ymuint& func_id)
+// @brief 関数の数を設定する．
+// @param[in] func_num 関数の数
+void
+BnNetwork::set_func_num(ymuint func_num)
 {
-  ymuint input_num = expr.input_size();
-  if ( input_num <= 10 ) {
-    // 10入力以下の場合は一旦 TvFunc に変換する．
-    TvFunc tv = expr.make_tv(input_num);
-    BnLogicType logic_type = analyze_func(tv, func_id);
-    if ( logic_type == kBnLt_TV ) {
-      logic_type = kBnLt_EXPR;
-      if ( func_id == mFuncList.size() ) {
-	// 新規に登録された関数だった
-	mExprMap.add(func_id, expr);
-      }
-    }
-    return logic_type;
-  }
-  // 11入力以上の場合は常に新しい関数だと思う．
-  func_id = mFuncList.size();
-  mExprMap.add(func_id, expr);
-  return kBnLt_EXPR;
+  mFuncList.clear();
+  mFuncList.resize(func_num);
 }
 
-// @brief 関数を解析する．
-// @param[in] func 対象の関数
-// @param[out] func_id 関数番号
-// @return 論理タイプ
-//
-// func がプリミティブ型の場合，
-// プリミティブ型の値を返す．
-// それ以外の場合，既に同じ関数が登録されていないか調べ，
-// 関数番号を func_id に設定する．
-// この場合は kBnLt_TV を返す．
-BnLogicType
-BnNetwork::analyze_func(const TvFunc& func,
-			ymuint& func_id)
+// @brief 関数を設定する．
+// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+// @param[in] tv 設定する関数
+void
+BnNetwork::set_func(ymuint func_id,
+		    const TvFunc& tv)
 {
-  BnLogicType logic_type = FuncAnalyzer::analyze(func);
-  if ( logic_type != kBnLt_TV ) {
-    // プリミティブ型だった．
-    return logic_type;
-  }
+  ASSERT_COND( func_id < func_num() );
+  mFuncList[func_id] = tv;
+}
 
-  // 同じ関数が登録されていないか調べる．
-  if ( !mFuncMap.find(func, func_id) ) {
-    // 新たに登録する．
-    func_id = mFuncList.size();
-    mFuncList.push_back(func);
-    mFuncMap.add(func, func_id);
-  }
-  return kBnLt_TV;
+// @brief 論理式の数を設定する．
+// @param[in] expr_num 論理式の数
+void
+BnNetwork::set_expr_num(ymuint expr_num)
+{
+  mExprList.clear();
+  mExprList.resize(expr_num);
+}
+
+// @brief 論理式を設定する．
+// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+// @param[in] expr 設定する論理式
+void
+BnNetwork::set_expr(ymuint expr_id,
+		    const Expr& expr)
+{
+  ASSERT_COND( expr_id < expr_num() );
+  mExprList[expr_id] = expr;
 }
 
 END_NAMESPACE_YM_BNET

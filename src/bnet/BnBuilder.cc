@@ -163,6 +163,38 @@ BnBuilder::logic(ymuint pos) const
   return node(mLogicList[pos]);
 }
 
+// @brief 論理式の数を得る．
+ymuint
+BnBuilder::expr_num() const
+{
+  return mExprList.size();
+}
+
+// @brief 論理式番号から論理式を得る．
+// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+Expr
+BnBuilder::expr(ymuint expr_id) const
+{
+  ASSERT_COND( expr_id < expr_num() );
+  return mExprList[expr_id];
+}
+
+// @brief 関数の数を得る．
+ymuint
+BnBuilder::func_num() const
+{
+  return mFuncList.size();
+}
+
+// @brief 関数番号から真理値表を得る．
+// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+TvFunc
+BnBuilder::func(ymuint func_id) const
+{
+  ASSERT_COND( func_id < mFuncList.size() );
+  return mFuncList[func_id];
+}
+
 // @brief 内容を書き出す．
 // @param[in] s 出力先のストリーム
 void
@@ -272,17 +304,19 @@ BnBuilder::write(ostream& s) const
       s << "XNOR";
       break;
     case kBnLt_EXPR:
-      s << "EXPR: " << node_info.mExpr;
+      s << "EXPR#" << node_info.mFuncId << ": " << expr(node_info.mFuncId);
       break;
     case kBnLt_TV:
-      s << "TV: " << node_info.mTv;
+      s << "FUNC#" << node_info.mFuncId << ": " << func(node_info.mFuncId);
       break;
     case kBnLt_NONE:
-      s << "cell: " << node_info.mCell;
       break;
     }
-    s << endl
-      << endl;
+    s << endl;
+    if ( node_info.mCell ) {
+      s << "cell: " << node_info.mCell->name() << endl;
+    }
+    s << endl;
   }
 
   ymuint npo = output_num();
@@ -294,6 +328,9 @@ BnBuilder::write(ostream& s) const
       << "    input:  " << node_info.mFaninList[0] << endl
       << endl;
   }
+
+  cout << "# of functions   = " << func_num() << endl
+       << "# of expressions = " << expr_num() << endl;
 }
 
 // @brief 内容をクリアする．
@@ -409,7 +446,7 @@ BnBuilder::add_primitive(const string& name,
 			 BnLogicType logic_type,
 			 ymuint ni)
 {
-  ymuint id = _add_node(NodeInfo(name, logic_type, ni));
+  ymuint id = _add_node(NodeInfo(name, ni, logic_type, 0));
 
   return id;
 }
@@ -417,21 +454,18 @@ BnBuilder::add_primitive(const string& name,
 // @brief 論理式型の論理ノードを追加する．
 // @param[in] name ノード名
 // @param[in] expr 論理式
-// @param[in] ni ファンイン数
 // @return ノード番号を返す．
 ymuint
 BnBuilder::add_expr(const string& name,
-		    const Expr& expr,
-		    ymuint ni)
+		    const Expr& expr)
 {
   BnLogicType logic_type = FuncAnalyzer::analyze(expr);
-  ymuint id = 0;
+  ymuint func_id = 0;
   if ( logic_type == kBnLt_EXPR ) {
-    id = _add_node(NodeInfo(name, expr, ni));
+    func_id = _add_expr(expr);
   }
-  else {
-    id = _add_node(NodeInfo(name, logic_type, ni));
-  }
+  ymuint ni = expr.input_size();
+  ymuint id = _add_node(NodeInfo(name, ni, logic_type, func_id));
 
   return id;
 }
@@ -444,7 +478,14 @@ ymuint
 BnBuilder::add_cell(const string& name,
 		    const Cell* cell)
 {
-  ymuint id = _add_node(NodeInfo(name, cell, cell->input_num()));
+  const Expr& expr = cell->logic_expr(0);
+  BnLogicType logic_type = FuncAnalyzer::analyze(expr);
+  ymuint func_id = 0;
+  if ( logic_type == kBnLt_EXPR ) {
+    func_id = _add_expr(expr);
+  }
+  ymuint ni = expr.input_size();
+  ymuint id = _add_node(NodeInfo(name, ni, logic_type, func_id, cell));
 
   return id;
 }
@@ -458,13 +499,12 @@ BnBuilder::add_tv(const string& name,
 		  const TvFunc& tv)
 {
   BnLogicType logic_type = FuncAnalyzer::analyze(tv);
-  ymuint id = 0;
+  ymuint func_id = 0;
   if ( logic_type == kBnLt_TV ) {
-    id = _add_node(NodeInfo(name, tv));
+    func_id = _add_tv(tv);
   }
-  else {
-    id = _add_node(NodeInfo(name, logic_type, tv.input_num()));
-  }
+  ymuint ni = tv.input_num();
+  ymuint id = _add_node(NodeInfo(name, ni, logic_type, func_id));
 
   return id;
 }
@@ -482,6 +522,50 @@ BnBuilder::_add_node(const NodeInfo& node_info)
   mSane = false;
 
   return id;
+}
+
+// @brief 論理式を登録する．
+// @param[in] expr 論理式
+// @return 関数番号を返す．
+ymuint
+BnBuilder::_add_expr(const Expr& expr)
+{
+  ymuint ni = expr.input_size();
+  ymuint expr_id = 0;
+  if ( ni <= 10 ) {
+    // 10入力以下の場合は一旦 TvFunc に変換する．
+    TvFunc tv = expr.make_tv(ni);
+    if ( !mExprMap.find(tv, expr_id) ) {
+      // 新たに登録する．
+      expr_id = mExprList.size();
+      mExprList.push_back(expr);
+      mExprMap.add(tv, expr_id);
+    }
+    return expr_id;
+  }
+  else {
+    // 11入力以上は常に新規に登録する．
+    expr_id = mExprList.size();
+    mExprList.push_back(expr);
+  }
+  return expr_id;
+}
+
+// @brief 真理値表を登録する．
+// @param[in] tv 真理値表
+// @return 関数番号を返す．
+ymuint
+BnBuilder::_add_tv(const TvFunc& tv)
+{
+  // 同じ関数が登録されていないか調べる．
+  ymuint func_id;
+  if ( !mFuncMap.find(tv, func_id) ) {
+    // 新たに登録する．
+    func_id = mFuncList.size();
+    mFuncList.push_back(tv);
+    mFuncMap.add(tv, func_id);
+  }
+  return func_id;
 }
 
 // @brief ノード間を接続する．
@@ -666,7 +750,7 @@ BnBuilder::wrap_up()
   for (ymuint rpos = 0; rpos < queue.size(); ++ rpos) {
     ymuint id = queue[rpos];
     const NodeInfo& node_info = node(id);
-    if ( node_info.mType == BnNode::kLogic ) {
+    if ( node_info.mType == kBnLogic ) {
       mLogicList.push_back(id);
     }
     ymuint fo = node_info.mFanoutList.size();

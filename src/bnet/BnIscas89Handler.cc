@@ -169,7 +169,7 @@ BnIscas89Handler::end()
     }
 
     const BnBuilder::NodeInfo& node_info = mBuilder->node(node_id);
-    if ( node_info.mType == BnNode::kLogic ) {
+    if ( node_info.mType == kBnLogic ) {
       ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
@@ -178,7 +178,7 @@ BnIscas89Handler::end()
 	mBuilder->connect(inode_id, node_id, i);
       }
     }
-    else if ( node_info.mType == BnNode::kOutput ) {
+    else if ( node_info.mType == kBnOutput ) {
       ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);

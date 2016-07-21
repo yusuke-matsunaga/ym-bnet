@@ -12,7 +12,6 @@
 #include "ym/ym_bnet.h"
 #include "ym/ym_cell.h"
 #include "ym/ym_logic.h"
-#include "ym/BnNode.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 
@@ -142,14 +141,14 @@ public:
 
     /// @brief 空のコンストラクタ
     NodeInfo() :
-      mType(BnNode::kInput)
+      mType(kBnInput)
     {
     }
 
     /// @brief 入力用のコンストラクタ
     /// @param[in] name ノード名
     NodeInfo(const string& name) :
-      mType(BnNode::kInput),
+      mType(kBnInput),
       mName(name)
     {
     }
@@ -161,68 +160,28 @@ public:
     /// input が決まっていないときは 0 を入れておく．
     NodeInfo(const string& name,
 	     ymuint input) :
-      mType(BnNode::kOutput),
+      mType(kBnOutput),
       mName(name),
       mFaninList(1, input)
     {
     }
 
-    /// @brief プリミティブ型の論理ノード用のコンストラクタ
+    /// @brief 論理ノード用のコンストラクタ
     /// @param[in] name ノード名
+    /// @param[in] ni 入力数
     /// @param[in] logic_type 論理型
-    /// @param[in] ni ファンイン数
+    /// @param[in] func_id 関数番号
+    /// @param[in] cell セル
     NodeInfo(const string& name,
+	     ymuint ni,
 	     BnLogicType logic_type,
-	     ymuint ni) :
-      mType(BnNode::kLogic),
+	     ymuint func_id,
+	     const Cell* cell = nullptr) :
+      mType(kBnLogic),
       mName(name),
       mLogicType(logic_type),
+      mFuncId(func_id),
       mFaninList(ni, 0),
-      mCell(nullptr)
-    {
-    }
-
-    /// @brief 論理式型の論理ノード用のコンストラクタ
-    /// @param[in] name ノード名
-    /// @param[in] expr 論理式
-    /// @param[in] ni ファンイン数
-    NodeInfo(const string& name,
-	     const Expr& expr,
-	     ymuint ni) :
-      mType(BnNode::kLogic),
-      mName(name),
-      mFaninList(ni, 0),
-      mLogicType(kBnLt_EXPR),
-      mExpr(expr),
-      mCell(nullptr)
-    {
-    }
-
-    /// @brief セル型の論理ノード用のコンストラクタ
-    /// @param[in] name ノード名
-    /// @param[in] cell セル
-    /// @param[in] ni ファンイン数
-    NodeInfo(const string& name,
-	     const Cell* cell,
-	     ymuint ni) :
-      mType(BnNode::kLogic),
-      mName(name),
-      mFaninList(ni, 0),
-      mLogicType(kBnLt_NONE),
-      mCell(cell)
-    {
-    }
-
-    /// @brief 真理値表型の論理ノード用のコンストラクタ
-    /// @param[in] name ノード名
-    /// @param[in] tv 真理値表
-    NodeInfo(const string& name,
-	     const TvFunc& tv) :
-      mType(BnNode::kLogic),
-      mName(name),
-      mFaninList(tv.input_num(), 0),
-      mLogicType(kBnLt_TV),
-      mTv(tv),
       mCell(nullptr)
     {
     }
@@ -231,10 +190,18 @@ public:
     ymuint mId;
 
     /// @brief タイプ
-    BnNode::Type mType;
+    BnNodeType mType;
 
     /// @brief 名前
     string mName;
+
+    /// @brief 論理型
+    BnLogicType mLogicType;
+
+    /// @brief 関数番号
+    ///
+    /// mLogicType が kBnLt_EXPR と kBnLt_TV のときに意味を持つ．
+    ymuint mFuncId;
 
     /// @brief ファンインのノード番号の配列
     vector<ymuint> mFaninList;
@@ -242,22 +209,9 @@ public:
     /// @brief ファンアウトのノード番号の配列
     vector<ymuint> mFanoutList;
 
-    /// @brief 論理型
-    BnLogicType mLogicType;
-
-    /// @brief 論理式
-    ///
-    /// mLogicType == kBnLt_EXPR のときのみ意味を持つ．
-    Expr mExpr;
-
-    /// @brief 真理値表
-    ///
-    /// mLogicType == kBnLt_TV のときのみ意味を持つ．
-    TvFunc mTv;
-
     /// @brief セル
     ///
-    /// mLogicType == kBnLt_NONE のときのみ意味を持つ．
+    /// nullptr の場合もある．
     const Cell* mCell;
 
   };
@@ -352,6 +306,24 @@ public:
   const NodeInfo&
   logic(ymuint pos) const;
 
+  /// @brief 論理式の数を得る．
+  ymuint
+  expr_num() const;
+
+  /// @brief 論理式番号から論理式を得る．
+  /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+  Expr
+  expr(ymuint expr_id) const;
+
+  /// @brief 関数の数を得る．
+  ymuint
+  func_num() const;
+
+  /// @brief 関数番号から真理値表を得る．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  TvFunc
+  func(ymuint func_id) const;
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -437,8 +409,7 @@ public:
   /// @return ノード番号を返す．
   ymuint
   add_expr(const string& name,
-	   const Expr& expr,
-	   ymuint ni);
+	   const Expr& expr);
 
   /// @brief セル型の論理ノードを追加する．
   /// @param[in] name ノード名
@@ -501,6 +472,18 @@ private:
   NodeInfo&
   _node(ymuint id);
 
+  /// @brief 論理式を登録する．
+  /// @param[in] expr 論理式
+  /// @return 関数番号を返す．
+  ymuint
+  _add_expr(const Expr& expr);
+
+  /// @brief 真理値表を登録する．
+  /// @param[in] tv 真理値表
+  /// @return 関数番号を返す．
+  ymuint
+  _add_tv(const TvFunc& tv);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -530,6 +513,18 @@ private:
 
   // 論理ノード番号のリスト
   vector<ymuint> mLogicList;
+
+  // 関数番号をキーにして TvFunc を入れる配列
+  vector<TvFunc> mFuncList;
+
+  // TvFunc をキーにして関数番号を入れるハッシュ表
+  HashMap<TvFunc, ymuint> mFuncMap;
+
+  // 論理式番号をキーにして論理式を入れる配列
+  vector<Expr> mExprList;
+
+  // TvFunc をキーにして論理式番号を入れるハッシュ表
+  HashMap<TvFunc, ymuint> mExprMap;
 
   // 内容が正常かどうかを示すフラグ
   bool mSane;

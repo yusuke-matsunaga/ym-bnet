@@ -10,7 +10,6 @@
 
 
 #include "ym/ym_bnet.h"
-#include "ym/BnNode.h"
 #include "Iscas89IdHash.h"
 #include "Iscas89Token.h"
 

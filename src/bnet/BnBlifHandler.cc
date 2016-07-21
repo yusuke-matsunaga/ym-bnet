@@ -111,7 +111,8 @@ BnBlifHandler::names(ymuint oname_id,
   const Expr& expr = cover->expr();
 
   ymuint ni = inode_id_array.size();
-  ymuint id = mBuilder->add_expr(oname, expr, ni);
+  ASSERT_COND( ni == expr.input_size() );
+  ymuint id = mBuilder->add_expr(oname, expr);
   mIdMap.add(oname_id, id);
 
   mFaninInfoMap.add(id, inode_id_array);
@@ -221,7 +222,7 @@ BnBlifHandler::end(const FileRegion& loc)
     }
 
     const BnBuilder::NodeInfo& node_info = mBuilder->node(node_id);
-    if ( node_info.mType == BnNode::kLogic ) {
+    if ( node_info.mType == kBnLogic ) {
       ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
@@ -230,7 +231,7 @@ BnBlifHandler::end(const FileRegion& loc)
 	mBuilder->connect(inode_id, node_id, i);
       }
     }
-    else if ( node_info.mType == BnNode::kOutput ) {
+    else if ( node_info.mType == kBnOutput ) {
       ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);

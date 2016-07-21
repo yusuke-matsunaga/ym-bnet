@@ -33,6 +33,9 @@ BEGIN_NAMESPACE_YM_BNET
 ///   - 論理式
 ///   - 真理値表
 ///   その他にセルのポインタを持つ場合もある．
+///   論理式と真理値表は BnNetwork 単位でユニークなID番号を持つ．
+///   ただし，論理式に関しては手抜きで 11 入力以上の式はすべて別個の式
+///   として扱う．
 ///
 /// ノードは名前を持つが．同じ名前のノードがあってもかまわない．
 /// ということは名前をキーにしてノードを検索することはできない．
@@ -41,22 +44,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 class BnNode
 {
-public:
-  //////////////////////////////////////////////////////////////////////
-  // データ型の定義
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードタイプ
-  enum Type {
-    /// @brief 外部入力ノード
-    kInput,
-    /// @brief 外部出力ノード
-    kOutput,
-    /// @brief 論理ノード
-    kLogic
-  };
-
-
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -84,26 +71,26 @@ public:
 
   /// @brief ノードのタイプを返す．
   virtual
-  Type
+  BnNodeType
   type() const = 0;
 
   /// @brief 外部入力の時 true を返す．
   ///
-  /// type() == kInput と等価
+  /// type() == kBnInput と等価
   virtual
   bool
   is_input() const = 0;
 
   /// @brief 外部出力の時 true を返す．
   ///
-  /// type() == kOutput と等価
+  /// type() == kBnOutput と等価
   virtual
   bool
   is_output() const = 0;
 
   /// @brief 論理ノードの時 true を返す．
   ///
-  /// type() == kLogic と等価
+  /// type() == kBnLogic と等価
   virtual
   bool
   is_logic() const = 0;
@@ -166,29 +153,40 @@ public:
   BnLogicType
   logic_type() const = 0;
 
-  /// @brief 関数番号を返す．
+  /// @brief 論理式番号を返す．
   ///
-  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
+  /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   ymuint
-  func_id() const = 0;
+  expr_id() const = 0;
 
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_EXPR の時の動作は不定
+  ///
+  /// 親のネットワークの expr(node->expr_id()) と同一
   virtual
   Expr
   expr() const = 0;
+
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const = 0;
 
   /// @brief 真理値表を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_TV の時の動作は不定
+  /// 親のネットワークの func(node->func_id()) と同一
   virtual
   TvFunc
-  tv() const = 0;
+  func() const = 0;
 
   /// @brief セルを返す．
   ///

@@ -173,10 +173,14 @@ public:
   const TvFunc&
   func(ymuint func_id) const;
 
-  /// @brief 関数番号から論理式を得る．
-  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  /// @brief 論理式の数を得る．
+  ymuint
+  expr_num() const;
+
+  /// @brief 論理式番号から論理式を得る．
+  /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
   Expr
-  expr(ymuint func_id) const;
+  expr(ymuint expr_id) const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
@@ -214,53 +218,25 @@ private:
   new_output(const string& node_name,
 	     BnNode* inode);
 
-  /// @brief プリミティブ型の論理ノードを追加する．
+  /// @brief 論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] inode_list ファンインのノードのリスト
-  /// @param[in] prim_type プリミティブの型
-  /// @return 生成した論理ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_primitive(const string& node_name,
-		const vector<BnNode*>& inode_list,
-		BnLogicType prim_type);
-
-  /// @brief セル型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_list ファンインのノード番号のリスト
+  /// @param[in] logic_type 論理型
+  /// @param[in] expr_id 論理式番号
+  /// @param[in] func_id 関数番号
   /// @param[in] cell セル
   /// @return 生成した論理ノードを返す．
   ///
   /// ノード名の重複に関しては感知しない．
+  /// expr_id と func_id はどちらか一方しか使われない．
+  /// プリミティブ型の場合にはどちらも使われない．
   BnNode*
-  new_cell(const string& node_name,
-	   const vector<BnNode*>& inode_list,
-	   const Cell* cell);
-
-  /// @brief 論理式型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_list ファンインのノード番号のリスト
-  /// @param[in] expr 論理式
-  /// @return 生成した論理ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_expr(const string& node_name,
-	   const vector<BnNode*>& inode_list,
-	   const Expr& expr);
-
-  /// @brief 真理値表型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_list ファンインのノード番号のリスト
-  /// @param[in] tv_func 心理値表
-  /// @return 生成した論理ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_tv(const string& node_name,
-	 const vector<BnNode*>& inode_list,
-	 const TvFunc& tv);
+  new_logic(const string& node_name,
+	    const vector<BnNode*>& inode_list,
+	    BnLogicType logic_type,
+	    ymuint expr_id,
+	    ymuint func_id,
+	    const Cell* cell = nullptr);
 
   /// @brief ポートを追加する．
   /// @param[in] port_name ポート名
@@ -318,27 +294,29 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 論理式を解析する．
-  /// @param[in] expr 対象の論理式
-  /// @param[out] func_id 関数番号
-  /// @return 論理タイプ
-  BnLogicType
-  analyze_expr(const Expr& expr,
-	       ymuint& func_id);
+  /// @brief 関数の数を設定する．
+  /// @param[in] func_num 関数の数
+  void
+  set_func_num(ymuint func_num);
 
-  /// @brief 関数を解析する．
-  /// @param[in] func 対象の関数
-  /// @param[out] func_id 関数番号
-  /// @return 論理タイプ
-  ///
-  /// func がプリミティブ型の場合，
-  /// プリミティブ型の値を返す．
-  /// それ以外の場合，既に同じ関数が登録されていないか調べ，
-  /// 関数番号を func_id に設定する．
-  /// この場合は kBnLt_TV を返す．
-  BnLogicType
-  analyze_func(const TvFunc& func,
-	       ymuint& func_id);
+  /// @brief 関数を設定する．
+  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+  /// @param[in] tv 設定する関数
+  void
+  set_func(ymuint func_id,
+	   const TvFunc& tv);
+
+  /// @brief 論理式の数を設定する．
+  /// @param[in] expr_num 論理式の数
+  void
+  set_expr_num(ymuint expr_num);
+
+  /// @brief 論理式を設定する．
+  /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+  /// @param[in] expr 設定する論理式
+  void
+  set_expr(ymuint expr_id,
+	   const Expr& expr);
 
 
 private:
@@ -370,17 +348,11 @@ private:
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNode*> mNodeList;
 
-  // 真理値表をキーにして関数番号を記録するハッシュ表
-  HashMap<TvFunc, ymuint> mFuncMap;
-
   // 関数のリスト
-  // mFuncMap に対応する．
   vector<TvFunc> mFuncList;
 
-  // 関数番号をキーにした論理式のハッシュ表
-  // mFuncMap に対応する．
-  // すべての関数が式を持つとは限らないのでハッシュを用いる．
-  HashMap<ymuint, Expr> mExprMap;
+  // 論理式のリスト
+  vector<Expr> mExprList;
 
 };
 

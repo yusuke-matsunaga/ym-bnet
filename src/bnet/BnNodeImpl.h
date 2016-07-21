@@ -112,18 +112,28 @@ public:
   BnLogicType
   logic_type() const;
 
+  /// @brief 論理式番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  expr_id() const;
+
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_EXPR の時の動作は不定
+  ///
+  /// 親のネットワークの expr(node->expr_id()) と同一
   virtual
   Expr
   expr() const;
 
   /// @brief 関数番号を返す．
   ///
-  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
-  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  /// logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   ymuint
   func_id() const;
@@ -132,9 +142,10 @@ public:
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_TV の時の動作は不定
+  /// 親のネットワークの func(node->func_id()) と同一
   virtual
   TvFunc
-  tv() const;
+  func() const;
 
   /// @brief セルを返す．
   ///
@@ -203,7 +214,7 @@ public:
 
   /// @brief タイプを返す．
   virtual
-  Type
+  BnNodeType
   type() const;
 
   /// @brief 外部入力の時 true を返す．
@@ -246,7 +257,7 @@ public:
 
   /// @brief タイプを返す．
   virtual
-  Type
+  BnNodeType
   type() const;
 
   /// @brief 外部出力ノードの時 true を返す．
@@ -313,7 +324,7 @@ public:
 
   /// @brief タイプを返す．
   virtual
-  Type
+  BnNodeType
   type() const;
 
   /// @brief 外部入力の時 true を返す．
@@ -429,13 +440,13 @@ public:
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのノードの配列
   /// @param[in] expr 論理式
-  /// @param[in] func_id 関数番号
+  /// @param[in] expr_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(ymuint id,
 	     const string& name,
 	     const vector<BnNode*>& fanins,
 	     const Expr& expr,
-	     ymuint func_id,
+	     ymuint expr_id,
 	     const Cell* cell = nullptr);
 
   /// @brief デストラクタ
@@ -454,6 +465,14 @@ public:
   BnLogicType
   logic_type() const;
 
+  /// @brief 論理式番号を返す．
+  ///
+  /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  expr_id() const;
+
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
@@ -461,14 +480,6 @@ public:
   virtual
   Expr
   expr() const;
-
-  /// @brief 関数番号を返す．
-  ///
-  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
-  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
-  virtual
-  ymuint
-  func_id() const;
 
 
 private:
@@ -485,8 +496,8 @@ private:
   // 論理式
   Expr mExpr;
 
-  // 関数番号
-  ymuint mFuncId;
+  // 論理式番号
+  ymuint mExprId;
 
 };
 
@@ -504,13 +515,13 @@ public:
   /// @param[in] id ID番号
   /// @param[in] name ノード名
   /// @param[in] fanins ファンインのノードの配列
-  /// @param[in] tv 真理値表
+  /// @param[in] func 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(ymuint id,
 	   const string& name,
 	   const vector<BnNode*>& fanins,
-	   const TvFunc& tv,
+	   const TvFunc& func,
 	   ymuint func_id,
 	   const Cell* cell = nullptr);
 
@@ -530,20 +541,20 @@ public:
   BnLogicType
   logic_type() const;
 
+  /// @brief 関数番号を返す．
+  ///
+  /// logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
+  ymuint
+  func_id() const;
+
   /// @brief 真理値表を返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != kBnLt_TV の時の動作は不定
   TvFunc
-  tv() const;
-
-  /// @brief 関数番号を返す．
-  ///
-  /// logic_type() == kBnLt_EXPR|kBnLt_TV の時のみ意味を持つ．
-  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
-  virtual
-  ymuint
-  func_id() const;
+  func() const;
 
 
 private:
@@ -558,7 +569,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 真理値表
-  TvFunc mTv;
+  TvFunc mFunc;
 
   // 関数番号
   ymuint mFuncId;
