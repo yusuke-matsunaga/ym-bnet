@@ -46,19 +46,25 @@ tv2logic_type(const TvFunc& tv)
     for (ymuint p = 0; p < np; ++ p) {
       int val = tv.value(p);
       if ( p == 0UL ) {
+	// 00...00 の時の値
 	val_0 = val;
       }
       else if ( p == (np - 1) ) {
+	// 11...11 の時の値
 	val_1 = val;
       }
       else {
 	if ( val == 0 ) {
+	  // 少なくとも1つは0になった．
 	  has_0 = true;
 	}
 	else {
+	  // 少なくとも1つは1になった．
 	  has_1 = true;
 	}
       }
+
+      // p のパリティを計算する．
       bool parity = false;
       for (ymuint i = 0; i < input_num; ++ i) {
 	if ( (1UL << i) & p ) {
@@ -66,13 +72,19 @@ tv2logic_type(const TvFunc& tv)
 	}
       }
       if ( parity ) {
-	if ( val ) {
+	if ( val == 1 ) {
 	  xnor_match = false;
+	}
+	else {
+	  xor_match = false;
 	}
       }
       else {
-	if ( val ) {
+	if ( val == 1 ) {
 	  xor_match = false;
+	}
+	else {
+	  xnor_match = false;
 	}
       }
     }
@@ -86,7 +98,7 @@ tv2logic_type(const TvFunc& tv)
 	return kBnLt_AND;
       }
     }
-    else if ( val_0 == 1 && val_1 == 0 ) {
+    if ( val_0 == 1 && val_1 == 0 ) {
       if ( !has_0 ) {
 	// 11...11 だけ 0 で残りが 1
 	return kBnLt_NAND;
@@ -96,7 +108,7 @@ tv2logic_type(const TvFunc& tv)
 	return kBnLt_NOR;
       }
     }
-    else if ( xor_match ) {
+    if ( xor_match ) {
       return kBnLt_XOR;
     }
     else if ( xnor_match ) {
