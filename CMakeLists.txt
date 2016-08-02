@@ -42,6 +42,7 @@ include_directories(
 
 #add_subdirectory ( cython-src )
 add_subdirectory ( tests )
+add_subdirectory ( gtest )
 
 
 # ===================================================================
