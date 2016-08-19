@@ -13,7 +13,7 @@ include_directories(
 
 
 # ===================================================================
-#  ソースファイルの設定
+#  blifparser_test
 # ===================================================================
 
 set ( blifparser_test_SOURCES
@@ -21,31 +21,6 @@ set ( blifparser_test_SOURCES
   blif/NullBlifHandler.cc
   blif/TestBlifHandler.cc
   )
-
-set ( BlifBnBuilderTest_SOURCES
-  blif/BlifBnBuilderTest.cc
-  )
-
-set ( Iscas89BnBuilderTest_SOURCES
-  iscas89/Iscas89BnBuilderTest.cc
-  )
-
-set ( iscas89parser_test_SOURCES
-  iscas89/iscas89parser_test.cc
-  )
-
-set ( BnBlifReaderTest_SOURCES
-  bnet/BnBlifReaderTest.cc
-  )
-
-set ( BnIscas89ReaderTest_SOURCES
-  bnet/BnIscas89ReaderTest.cc
-  )
-
-
-# ===================================================================
-#  テスト用のターゲットの設定
-# ===================================================================
 
 add_executable ( blifparser_test
   ${blifparser_test_SOURCES}
@@ -61,6 +36,15 @@ target_compile_options ( blifparser_test
 
 target_link_libraries ( blifparser_test
   ${YM_LIB_DEPENDS}
+  )
+
+
+# ===================================================================
+#  iscas89parset_test
+# ===================================================================
+
+set ( iscas89parser_test_SOURCES
+  iscas89/iscas89parser_test.cc
   )
 
 add_executable ( iscas89parser_test
@@ -79,6 +63,15 @@ target_link_libraries ( iscas89parser_test
   ${YM_LIB_DEPENDS}
   )
 
+
+# ===================================================================
+#  BlifBnBuilderTest
+# ===================================================================
+
+set ( BlifBnBuilderTest_SOURCES
+  blif/BlifBnBuilderTest.cc
+  )
+
 add_executable ( BlifBnBuilderTest
   ${BlifBnBuilderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
@@ -93,6 +86,15 @@ target_compile_options ( BlifBnBuilderTest
 
 target_link_libraries ( BlifBnBuilderTest
   ${YM_LIB_DEPENDS}
+  )
+
+
+# ===================================================================
+#  BlifBnBuilderTest
+# ===================================================================
+
+set ( Iscas89BnBuilderTest_SOURCES
+  iscas89/Iscas89BnBuilderTest.cc
   )
 
 add_executable ( Iscas89BnBuilderTest
@@ -111,6 +113,15 @@ target_link_libraries ( Iscas89BnBuilderTest
   ${YM_LIB_DEPENDS}
   )
 
+
+# ===================================================================
+#  BlifBnBuilderTest
+# ===================================================================
+
+set ( BnBlifReaderTest_SOURCES
+  bnet/BnBlifReaderTest.cc
+  )
+
 add_executable ( BnBlifReaderTest
   ${BnBlifReaderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
@@ -127,6 +138,15 @@ target_link_libraries ( BnBlifReaderTest
   ${YM_LIB_DEPENDS}
   )
 
+
+# ===================================================================
+#  BlifBnBuilderTest
+# ===================================================================
+
+set ( BnIscas89ReaderTest_SOURCES
+  bnet/BnIscas89ReaderTest.cc
+  )
+
 add_executable ( BnIscas89ReaderTest
   ${BnIscas89ReaderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
@@ -140,5 +160,30 @@ target_compile_options ( BnIscas89ReaderTest
   )
 
 target_link_libraries ( BnIscas89ReaderTest
+  ${YM_LIB_DEPENDS}
+  )
+
+
+# ===================================================================
+#  loop_test
+# ===================================================================
+
+set ( loop_test_SOURCES
+  bnet/loop_test.cc
+  )
+
+add_executable ( loop_test
+  ${loop_test_SOURCES}
+  $<TARGET_OBJECTS:ym_bnet_d>
+  $<TARGET_OBJECTS:ym_cell_d>
+  $<TARGET_OBJECTS:ym_logic_d>
+  $<TARGET_OBJECTS:ym_common_d>
+  )
+
+target_compile_options ( loop_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( loop_test
   ${YM_LIB_DEPENDS}
   )
