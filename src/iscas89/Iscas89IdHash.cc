@@ -57,7 +57,7 @@ Iscas89IdHash::~Iscas89IdHash()
 void
 Iscas89IdHash::clear()
 {
-  for (size_t i = 0; i < mTableSize; ++ i) {
+  for (ymuint i = 0; i < mTableSize; ++ i) {
     mTable[i] = nullptr;
   }
   mCellArray.clear();
@@ -89,8 +89,8 @@ Iscas89IdHash::find(const char* str,
 		    bool create)
 {
   ASSERT_COND(str );
-  size_t pos0 = hash_func(str);
-  size_t pos = pos0 % mTableSize;
+  ymuint pos0 = hash_func(str);
+  ymuint pos = pos0 % mTableSize;
   for (Iscas89IdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
@@ -104,22 +104,23 @@ Iscas89IdHash::find(const char* str,
   if ( mCellArray.size() >= mNextLimit ) {
     // テーブルを拡張する．
     Iscas89IdCell** old_table = mTable;
-    size_t old_size = mTableSize;
+    ymuint old_size = mTableSize;
     alloc_table(old_size * 2);
-    for (size_t i = 0; i < old_size; ++ i) {
+    for (ymuint i = 0; i < old_size; ++ i) {
       for (Iscas89IdCell* cell = old_table[i]; cell; ) {
 	Iscas89IdCell* next = cell->mLink;
-	size_t pos1 = hash_func(cell->mStr) % mTableSize;
+	ymuint pos1 = hash_func(cell->mStr) % mTableSize;
 	cell->mLink = mTable[pos1];
 	mTable[pos1] = cell;
 	cell = next;
       }
     }
+    delete [] old_table;
   }
 
   // 新しいセルを確保する．
-  size_t l = strlen(str);
-  size_t reqsize = sizeof(Iscas89IdCell) + l;
+  ymuint l = strlen(str);
+  ymuint reqsize = sizeof(Iscas89IdCell) + l;
   void* p = mAlloc.get_memory(reqsize);
   Iscas89IdCell* cell = new (p) Iscas89IdCell(mCellArray.size(), str);
   mCellArray.push_back(cell);
@@ -133,12 +134,12 @@ Iscas89IdHash::find(const char* str,
 
 // ハッシュ表を拡大する．
 void
-Iscas89IdHash::alloc_table(size_t new_size)
+Iscas89IdHash::alloc_table(ymuint new_size)
 {
   mTable = new Iscas89IdCell*[new_size];
   mTableSize = new_size;
-  mNextLimit = static_cast<size_t>(mTableSize * 1.8);
-  for (size_t i = 0; i < new_size; ++ i) {
+  mNextLimit = static_cast<ymuint>(mTableSize * 1.8);
+  for (ymuint i = 0; i < new_size; ++ i) {
     mTable[i] = nullptr;
   }
 }

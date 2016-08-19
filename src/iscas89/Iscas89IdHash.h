@@ -162,7 +162,7 @@ public:
        bool create);
 
   /// @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
-  size_t
+  ymuint
   num() const;
 
   /// @brief ID 番号に対応する Iscas89IdCell を得る．
@@ -189,7 +189,7 @@ private:
 
   // ハッシュ表を拡大する．
   void
-  alloc_table(size_t new_size);
+  alloc_table(ymuint new_size);
 
 
 private:
@@ -201,7 +201,7 @@ private:
   SimpleAlloc mAlloc;
 
   // テーブルサイズ
-  size_t mTableSize;
+  ymuint mTableSize;
 
   // ハッシュ表
   Iscas89IdCell** mTable;
@@ -210,7 +210,7 @@ private:
   vector<Iscas89IdCell*> mCellArray;
 
   // ハッシュ表を拡張する目安
-  size_t mNextLimit;
+  ymuint mNextLimit;
 
 };
 
@@ -314,7 +314,7 @@ Iscas89IdCell::set_output()
 
 // @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
 inline
-size_t
+ymuint
 Iscas89IdHash::num() const
 {
   return mCellArray.size();
