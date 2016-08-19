@@ -121,6 +121,111 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンイン情報
+  class FaninInfo
+  {
+  public:
+
+    /// @brief 空のコンストラクタ
+    FaninInfo()
+    {
+      mNi = 0;
+      mFaninArray = nullptr;
+    }
+
+    /// @brief コンストラクタ
+    /// @param[in] fanin_list ファンイン番号のリスト
+    FaninInfo(const vector<ymuint>& fanin_list) :
+      mNi(fanin_list.size())
+    {
+      mFaninArray = new ymuint[mNi];
+      for (ymuint i = 0; i < mNi; ++ i) {
+	mFaninArray[i] = fanin_list[i];
+      }
+    }
+
+    /// @brief コピーコンストラクタ
+    /// @param[in] src コピー元
+    FaninInfo(const FaninInfo& src) :
+      mNi(src.mNi)
+    {
+      mFaninArray = new ymuint[mNi];
+      for (ymuint i = 0; i < mNi; ++ i) {
+	mFaninArray[i] = src.mFaninArray[i];
+      }
+    }
+
+    /// @brief 代入演算子
+    const FaninInfo&
+    operator=(const FaninInfo& src)
+    {
+      if ( &src != this ) {
+	delete [] mFaninArray;
+	mNi = src.mNi;
+	mFaninArray = new ymuint[mNi];
+	for (ymuint i = 0; i < mNi; ++ i) {
+	  mFaninArray[i] = src.mFaninArray[i];
+	}
+      }
+      return *this;
+    }
+
+    /// @brief デストラクタ
+    ~FaninInfo()
+    {
+      delete [] mFaninArray;
+    }
+
+    /// @brief ファンイン数を返す．
+    ymuint
+    fanin_num() const
+    {
+      return mNi;
+    }
+
+    /// @brief ファンインのノード番号を返す．
+    /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
+    ymuint
+    fanin(ymuint pos) const
+    {
+      ASSERT_COND( pos < fanin_num() );
+      return mFaninArray[pos];
+    }
+
+
+  private:
+    //////////////////////////////////////////////////////////////////////
+    // データメンバ
+    //////////////////////////////////////////////////////////////////////
+
+    // ファンイン数
+    ymuint mNi;
+
+    // ファンイン番号の配列
+    ymuint* mFaninArray;
+
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンイン情報を追加する．
+  /// @param[in] id ID番号
+  /// @param[in] fanin_list ファンイン番号のリスト
+  void
+  add_fanin_info(ymuint id,
+		 const vector<ymuint>& fanin_list);
+
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -134,7 +239,7 @@ private:
   HashMap<ymuint, ymuint> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  HashMap<ymuint, vector<ymuint> > mFaninInfoMap;
+  HashMap<ymuint, FaninInfo> mFaninInfoMap;
 
   // クロック端子のノード番号
   ymuint mClockId;

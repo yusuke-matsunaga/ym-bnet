@@ -77,7 +77,7 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 {
   ymuint id = mBuilder->add_output(name, 0);
 
-  mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
+  add_fanin_info(id, vector<ymuint>(1, name_id));
 
   mBuilder->add_port(name, id);
 
@@ -103,7 +103,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
   ymuint id = mBuilder->add_primitive(oname, logic_type, ni);
   mIdMap.add(oname_id, id);
 
-  mFaninInfoMap.add(id, iname_list);
+  add_fanin_info(id, iname_list);
 
   return true;
 }
@@ -136,7 +136,7 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
   dff_info.mInput = output_id;
 
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  mFaninInfoMap.add(output_id, vector<ymuint>(1, iname_id));
+  add_fanin_info(output_id, vector<ymuint>(1, iname_id));
 
   if ( mClockId == 0 ) {
     // クロック端子を作る．
@@ -162,33 +162,29 @@ BnIscas89Handler::end()
 {
   // ノードのファンインを設定する．
   for (ymuint node_id = 1; node_id <= mBuilder->node_num(); ++ node_id) {
-    vector<ymuint> fanin_info;
-    bool stat = mFaninInfoMap.find(node_id, fanin_info);
-    if ( !stat ) {
+    if ( !mFaninInfoMap.check(node_id) ) {
       continue;
     }
-
+    const FaninInfo& fanin_info = mFaninInfoMap[node_id];
     const BnBuilder::NodeInfo& node_info = mBuilder->node(node_id);
     if ( node_info.mType == kBnLogic ) {
-      ymuint ni = fanin_info.size();
+      ymuint ni = fanin_info.fanin_num();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
-	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
+	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	ASSERT_COND( stat1 );
 	mBuilder->connect(inode_id, node_id, i);
       }
     }
     else if ( node_info.mType == kBnOutput ) {
-      ymuint iname_id = fanin_info[0];
+      ymuint iname_id = fanin_info.fanin(0);
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
       mBuilder->connect(inode_id, node_id, 0);
     }
   }
-
   bool stat = mBuilder->wrap_up();
-
   return stat;
 }
 
@@ -203,6 +199,16 @@ void
 BnIscas89Handler::error_exit()
 {
   mBuilder->clear();
+}
+
+// @brief ファンイン情報を追加する．
+// @param[in] id ID番号
+// @param[in] fanin_list ファンイン番号のリスト
+void
+BnIscas89Handler::add_fanin_info(ymuint id,
+				 const vector<ymuint>& fanin_list)
+{
+  mFaninInfoMap.add(id, FaninInfo(fanin_list));
 }
 
 END_NAMESPACE_YM_BNET
