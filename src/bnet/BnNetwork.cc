@@ -166,13 +166,9 @@ BnNetwork::copy(const BnNetwork& src)
   for (ymuint i = 0; i < np; ++ i) {
     const BnPort* src_port = src.port(i);
     ymuint nb = src_port->bit_width();
-    vector<BnNode*> bits(nb);
+    vector<ymuint> bits(nb);
     for (ymuint j = 0; j < nb; ++ j) {
-      ymuint id = src_port->bit(j)->id();
-      BnNode* inode;
-      bool stat = mNodeMap.find(id, inode);
-      ASSERT_COND( stat );
-      bits[j] = inode;
+      bits[j] = src_port->bit(j);
     }
     new_port(src_port->name(), bits);
   }
@@ -333,13 +329,9 @@ BnNetwork::copy(const BnBuilder& builder)
   for (ymuint i = 0; i < np; ++ i) {
     const BnBuilder::PortInfo& src_info = builder.port(i);
     ymuint nb = src_info.mBits.size();
-    vector<BnNode*> bits(nb);
+    vector<ymuint> bits(nb);
     for (ymuint j = 0; j < nb; ++ j) {
-      ymuint id = src_info.mBits[j];
-      BnNode* inode;
-      bool stat = mNodeMap.find(id, inode);
-      ASSERT_COND( stat );
-      bits[j] = inode;
+      bits[j] = src_info.mBits[j];
     }
     new_port(src_info.mName, bits);
   }
@@ -584,7 +576,7 @@ BnNetwork::write(ostream& s) const
     s << "(" << port->name() << ") : ";
     ymuint bw = port->bit_width();
     for (ymuint j = 0; j < bw; ++ j) {
-      s << " " << port->bit(j)->id();
+      s << " " << port->bit(j);
     }
     s << endl;
   }
@@ -792,22 +784,27 @@ BnNetwork::new_logic(const string& node_name,
 
 // @brief ポートを追加する．
 // @param[in] port_name ポート名
-// @param[in] bits 内容のノードのリスト
+// @param[in] bits 内容のノード番号のリスト
 void
 BnNetwork::new_port(const string& port_name,
-		    const vector<BnNode*>& bits)
+		    const vector<ymuint>& bits)
 {
-  mPortList.push_back(new BnPortImpl(port_name, bits));
+  if ( bits.size() == 1 ) {
+    mPortList.push_back(new BnPort1(port_name, bits[0]));
+  }
+  else {
+    mPortList.push_back(new BnPortN(port_name, bits));
+  }
 }
 
 // @brief ポートを追加する(1ビット版)．
 // @param[in] port_name ポート名
-// @param[in] bit 内容のノード
+// @param[in] bit 内容のノード番号
 void
 BnNetwork::new_port(const string& port_name,
-		    BnNode* bit)
+		    ymuint bit)
 {
-  new_port(port_name, vector<BnNode*>(1, bit));
+  mPortList.push_back(new BnPort1(port_name, bit));
 }
 
 // @brief DFFを追加する．
