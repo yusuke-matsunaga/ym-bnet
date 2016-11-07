@@ -18,11 +18,8 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] name 名前
-// @param[in] bits 内容のベクタ
-BnPortImpl::BnPortImpl(const string& name,
-		       const vector<BnNode*>& bits) :
-  mName(name),
-  mBits(bits)
+BnPortImpl::BnPortImpl(const string& name) :
+  mName(name)
 {
 }
 
@@ -38,18 +35,75 @@ BnPortImpl::name() const
   return mName;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnPort1
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] name 名前
+// @param[in] bit ノード番号
+BnPort1::BnPort1(const string& name,
+		 ymuint bit) :
+  BnPortImpl(name),
+  mBit(bit)
+{
+}
+
+// @brief デストラクタ
+BnPort1::~BnPort1()
+{
+}
+
 // @brief ビット数を得る．
 ymuint
-BnPortImpl::bit_width() const
+BnPort1::bit_width() const
+{
+  return 1;
+}
+
+// @brief pos ビット目の内容を得る．
+// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
+// @return 対応するノード番号を返す．
+ymuint
+BnPort1::bit(ymuint pos) const
+{
+  ASSERT_COND( pos == 0 );
+  return mBit;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnPortN
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] name 名前
+// @param[in] bits 内容のベクタ
+BnPortN::BnPortN(const string& name,
+		 const vector<ymuint>& bits) :
+  BnPortImpl(name),
+  mBits(bits)
+{
+}
+
+// @brief デストラクタ
+BnPortN::~BnPortN()
+{
+}
+
+// @brief ビット数を得る．
+ymuint
+BnPortN::bit_width() const
 {
   return mBits.size();
 }
 
 // @brief pos ビット目の内容を得る．
 // @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-// @return 対応するノードを返す．
-const BnNode*
-BnPortImpl::bit(ymuint pos) const
+// @return 対応するノード番号を返す．
+ymuint
+BnPortN::bit(ymuint pos) const
 {
   ASSERT_COND( pos < bit_width() );
   return mBits[pos];

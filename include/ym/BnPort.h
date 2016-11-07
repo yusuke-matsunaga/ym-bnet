@@ -48,11 +48,11 @@ public:
   ymuint
   bit_width() const = 0;
 
-  /// @brief pos ビット目の内容を得る．
+  /// @brief pos ビット目のノード番号を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-  /// @return 対応するノードを返す．
+  /// @return 対応するノードのノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   bit(ymuint pos) const = 0;
 
 };

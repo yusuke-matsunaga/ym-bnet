@@ -226,7 +226,6 @@ public:
   BnBuilder();
 
   /// @brief デストラクタ
-  virtual
   ~BnBuilder();
 
 

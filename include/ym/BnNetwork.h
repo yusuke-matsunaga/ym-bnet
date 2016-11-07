@@ -240,17 +240,17 @@ private:
 
   /// @brief ポートを追加する．
   /// @param[in] port_name ポート名
-  /// @param[in] bits 内容のノードのリスト
+  /// @param[in] bits 内容のノード番号のリスト
   void
   new_port(const string& port_name,
-	   const vector<BnNode*>& bits);
+	   const vector<ymuint>& bits);
 
   /// @brief ポートを追加する(1ビット版)．
   /// @param[in] port_name ポート名
-  /// @param[in] bit 内容のノード
+  /// @param[in] bit 内容のノード番号
   void
   new_port(const string& port_name,
-	   BnNode* bit);
+	   ymuint bit);
 
   /// @brief DFFを追加する．
   /// @param[in] name DFF名

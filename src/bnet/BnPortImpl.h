@@ -24,9 +24,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] name 名前
-  /// @param[in] bits 内容のベクタ
-  BnPortImpl(const string& name,
-	     const vector<BnNode*>& bits);
+  BnPortImpl(const string& name);
 
   /// @brief デストラクタ
   virtual
@@ -43,18 +41,6 @@ public:
   string
   name() const;
 
-  /// @brief ビット数を得る．
-  virtual
-  ymuint
-  bit_width() const;
-
-  /// @brief pos ビット目の内容を得る．
-  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-  /// @return 対応するノードを返す．
-  virtual
-  const BnNode*
-  bit(ymuint pos) const;
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -70,8 +56,115 @@ private:
   // 名前
   string mName;
 
-  // 個々のビットに対応するノード番号のリスト
-  vector<BnNode*> mBits;
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnPort1 BnPortImpl.h "BnPortImpl.h"
+/// @brief 1ビットの BnPort の実装クラス
+//////////////////////////////////////////////////////////////////////
+class BnPort1 :
+  public BnPortImpl
+{
+public:
+
+  /// @brief コンストラクタ
+  /// @param[in] name 名前
+  /// @param[in] bit 内容のノード番号
+  BnPort1(const string& name,
+	     ymuint bit);
+
+  /// @brief デストラクタ
+  virtual
+  ~BnPort1();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ビット数を得る．
+  virtual
+  ymuint
+  bit_width() const;
+
+  /// @brief pos ビット目のノード番号を得る．
+  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
+  /// @return 対応するノードのノード番号を返す．
+  virtual
+  ymuint
+  bit(ymuint pos) const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ノード番号
+  ymuint mBit;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnPortN BnPortImpl.h "BnPortImpl.h"
+/// @brief 多ビットの BnPort の実装クラス
+//////////////////////////////////////////////////////////////////////
+class BnPortN :
+  public BnPortImpl
+{
+public:
+
+  /// @brief コンストラクタ
+  /// @param[in] name 名前
+  /// @param[in] bits 内容のノード番号のベクタ
+  BnPortN(const string& name,
+	  const vector<ymuint>& bits);
+
+  /// @brief デストラクタ
+  virtual
+  ~BnPortN();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ビット数を得る．
+  virtual
+  ymuint
+  bit_width() const;
+
+  /// @brief pos ビット目のノード番号を得る．
+  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
+  /// @return 対応するノードのノード番号を返す．
+  virtual
+  ymuint
+  bit(ymuint pos) const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ノード番号のベクタ
+  vector<ymuint> mBits;
 
 };
 
