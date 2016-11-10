@@ -24,8 +24,10 @@ BEGIN_NAMESPACE_YM_BNET
 ///
 /// ノードには以下の3種類がある．
 /// - 外部入力ノード
+///
 /// - 外部出力ノード
-///   入力のノードを持つ．
+///   入力のノード番号を持つ．
+///
 /// - 論理ノード
 ///   ファンインと論理関数を持つ．
 ///   論理関数は以下の3種類の方法で表す．
@@ -96,20 +98,20 @@ public:
   is_logic() const = 0;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node ノード
+  /// @param[in] onode_id ファンアウトのノード番号
   virtual
   void
-  add_fanout(BnNode* node) = 0;
+  add_fanout(ymuint onode_id) = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
   fanout_num() const = 0;
 
-  /// @brief ファンアウトのノードを返す．
+  /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  const BnNode*
+  ymuint
   fanout(ymuint pos) const = 0;
 
 
@@ -118,11 +120,11 @@ public:
   // 外部出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノードを返す．
+  /// @brief 入力のノード番号を返す．
   ///
   /// is_output() == false の時の動作は不定
   virtual
-  const BnNode*
+  ymuint
   input() const = 0;
 
 
@@ -138,12 +140,12 @@ public:
   ymuint
   fanin_num() const = 0;
 
-  /// @brief ファンインのノードを返す．
+  /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   ///
   /// is_logic() == false の時の動作は不定
   virtual
-  const BnNode*
+  ymuint
   fanin(ymuint pos) const = 0;
 
   /// @brief 論理タイプを返す．

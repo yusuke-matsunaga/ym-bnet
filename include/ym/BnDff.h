@@ -47,31 +47,33 @@ public:
   string
   name() const = 0;
 
-  /// @brief データ出力ノードを返す．
+  /// @brief データ出力のノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   output() const = 0;
 
-  /// @brief データ入力ノードを返す．
+  /// @brief データ入力のノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   input() const = 0;
 
-  /// @brief クロックのノードを返す．
+  /// @brief クロックのノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   clock() const = 0;
 
-  /// @brief クリア信号のノードを返す．
-  /// @note nullptr の場合もある．
+  /// @brief クリア信号のノード番号を返す．
+  ///
+  /// kBnNullId の場合もある．
   virtual
-  const BnNode*
+  ymuint
   clear() const = 0;
 
   /// @brief プリセット信号のノードを返す．
-  /// @note nullptr の場合もある．
+  ///
+  /// kBnNullId の場合もある．
   virtual
-  const BnNode*
+  ymuint
   preset() const = 0;
 
 };

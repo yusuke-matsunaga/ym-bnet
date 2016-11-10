@@ -83,20 +83,25 @@ BnPort1::bit(ymuint pos) const
 BnPortN::BnPortN(const string& name,
 		 const vector<ymuint>& bits) :
   BnPortImpl(name),
-  mBits(bits)
+  mBitWidth(bits.size())
 {
+  mBits = new ymuint[mBitWidth];
+  for (ymuint i = 0; i < mBitWidth; ++ i) {
+    mBits[i] = bits[i];
+  }
 }
 
 // @brief デストラクタ
 BnPortN::~BnPortN()
 {
+  delete [] mBits;
 }
 
 // @brief ビット数を得る．
 ymuint
 BnPortN::bit_width() const
 {
-  return mBits.size();
+  return mBitWidth;
 }
 
 // @brief pos ビット目の内容を得る．

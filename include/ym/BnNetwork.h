@@ -30,17 +30,16 @@ BEGIN_NAMESPACE_YM_BNET
 ///
 /// 組み合わせ回路部分は BnNode のネットワークで表す．
 /// 全体の構造を表すためにそれ以外のデータ構造として以下の要素を持つ．
+/// - ポート(BnPort)
+///   名前とビット幅，各ビットに対応するノード番号を持つ．
 /// - D-FFノード(BnDff)
-///   入力と出力およびクロックの BnNode を持つ．
-///   オプションとしてセット，リセット端子のBnNodeを持つ．
+///   入力と出力およびクロックのノード番号を持つ．
+///   オプションとしてセット，リセット端子のノード番号を持つ．
 /// - ラッチノード(BnLatch)
-///   入力と出力およびイネーブル端子の BnNode を持つ．
-///   オプションとしてセット，リセット端子のBnNodeを持つ．
+///   入力と出力およびイネーブル端子のノード番号を持つ．
+///   オプションとしてセット，リセット端子のノード番号を持つ．
 ///
-/// 回路全体の入出力インターフェイスとしてポートを持つ．
-/// ポートは複数ビットをひとまとめにしたもので名前を持つ．
-/// - ポートの名前空間はノードとは別に設ける．
-/// - ポートは入力/出力ノードのベクタを内容として持つ．
+/// ポートの名前空間はノードとは別に設ける．
 /// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，ポートは1つのノードに対応する．
 ///
 /// このクラスはファイル入出力用のモデルであり，このクラス上で
@@ -49,6 +48,9 @@ BEGIN_NAMESPACE_YM_BNET
 class BnNetwork
 {
 public:
+  //////////////////////////////////////////////////////////////////////
+  // コンストラクタ/デストラクタ
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 空のコンストラクタ
   ///
@@ -59,9 +61,10 @@ public:
   /// @param[in] src コピー元のオブジェクト
   BnNetwork(const BnNetwork& src);
 
-  /// @brief ビルダーを引数にとるコンストラクタ
-  /// @param[in] builder ビルダーオブジェクト
-  BnNetwork(const BnBuilder& builder);
+  /// @brief BnBuilder からのコンストラクタ
+  /// @param[in] src コピー元のBnBuilder
+  explicit
+  BnNetwork(const BnBuilder& src);
 
   /// @brief デストラクタ
   ~BnNetwork();
@@ -83,10 +86,125 @@ public:
   void
   copy(const BnNetwork& src);
 
-  /// @brief ビルダーオブジェクトからの生成
-  /// @param[in] builder ビルダーオブジェクト
+  /// @brief 内容をコピーする．
+  /// @param[in] src コピー元のBnBuilder
   void
-  copy(const BnBuilder& builder);
+  copy(const BnBuilder& src);
+
+  /// @brief ネットワーク名を設定する．
+  /// @param[in] name ネットワーク名
+  void
+  set_name(const string& name);
+
+  /// @brief 外部入力ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @return 生成した入力ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_input(const string& node_name);
+
+  /// @brief 外部出力ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id 入力のノード番号
+  /// @return 生成した出力ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_output(const string& node_name,
+	     ymuint inode_id);
+
+  /// @brief プリミティブ型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] logic_type 論理型
+  /// @param[in] cell セル
+  /// @return 生成した論理ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_primitive(const string& node_name,
+		const vector<ymuint>& inode_id_list,
+		BnLogicType logic_type,
+		const Cell* cell = nullptr);
+
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] expr 論理式
+  /// @param[in] cell セル
+  /// @return 生成した論理ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_expr(const string& node_name,
+	   const vector<ymuint>& inode_id_list,
+	   const Expr& expr,
+	   const Cell* cell = nullptr);
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] tv 真理値表
+  /// @param[in] cell セル
+  /// @return 生成した論理ノードを返す．
+  ///
+  /// ノード名の重複に関しては感知しない．
+  BnNode*
+  new_tv(const string& node_name,
+	 const vector<ymuint>& inode_id_list,
+	 const TvFunc& tv,
+	 const Cell* cell = nullptr);
+
+  /// @brief ポートを追加する．
+  /// @param[in] port_name ポート名
+  /// @param[in] bits 内容のノード番号のリスト
+  void
+  new_port(const string& port_name,
+	   const vector<ymuint>& bits);
+
+  /// @brief ポートを追加する(1ビット版)．
+  /// @param[in] port_name ポート名
+  /// @param[in] bit 内容のノード番号
+  void
+  new_port(const string& port_name,
+	   ymuint bit);
+
+  /// @brief DFFを追加する．
+  /// @param[in] name DFF名
+  /// @param[in] input 入力端子のノード番号
+  /// @param[in] output 出力端子のノード番号
+  /// @param[in] clock クロック端子のノード番号
+  /// @param[in] clear クリア端子のノード番号
+  /// @param[in] preset プリセット端子のノード番号
+  /// @return 生成したDFFを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnDff*
+  new_dff(const string& name,
+	  ymuint input,
+	  ymuint output,
+	  ymuint clock,
+	  ymuint clear = kBnNullId,
+	  ymuint preset = kBnNullId);
+
+  /// @brief ラッチを追加する．
+  /// @param[in] name ラッチ名
+  /// @param[in] input 入力端子のノード番号
+  /// @param[in] output 出力端子のノード番号
+  /// @param[in] enable イネーブル端子のノード番号
+  /// @param[in] clear クリア端子のノード番号
+  /// @param[in] preset プリセット端子のノード番号
+  /// @return 生成したラッチを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnLatch*
+  new_latch(const string& name,
+	    ymuint input,
+	    ymuint output,
+	    ymuint enable,
+	    ymuint clear = kBnNullId,
+	    ymuint preset = kBnNullId);
 
 
 public:
@@ -96,7 +214,7 @@ public:
 
   /// @brief ネットワーク名を得る．
   string
-  model_name() const;
+  name() const;
 
   /// @brief ポート数を得る．
   ymuint
@@ -135,7 +253,7 @@ public:
   /// BnNode* node = BnNetwork::node(id);
   /// node->id() == id が成り立つ．
   const BnNode*
-  node(ymuint pos) const;
+  node(ymuint id) const;
 
   /// @brief 入力数を得る．
   ymuint
@@ -192,108 +310,22 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内容を設定する関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ネットワーク名を設定する．
-  /// @param[in] name ネットワーク名
-  void
-  set_model_name(const string& name);
-
-  /// @brief 外部入力ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @return 生成した入力ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_input(const string& node_name);
-
-  /// @brief 外部出力ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode 入力のノード
-  /// @return 生成した出力ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  BnNode*
-  new_output(const string& node_name,
-	     BnNode* inode);
-
-  /// @brief 論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_list ファンインのノードのリスト
-  /// @param[in] logic_type 論理型
-  /// @param[in] expr_id 論理式番号
-  /// @param[in] func_id 関数番号
-  /// @param[in] cell セル
-  /// @return 生成した論理ノードを返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  /// expr_id と func_id はどちらか一方しか使われない．
-  /// プリミティブ型の場合にはどちらも使われない．
-  BnNode*
-  new_logic(const string& node_name,
-	    const vector<BnNode*>& inode_list,
-	    BnLogicType logic_type,
-	    ymuint expr_id,
-	    ymuint func_id,
-	    const Cell* cell = nullptr);
-
-  /// @brief ポートを追加する．
-  /// @param[in] port_name ポート名
-  /// @param[in] bits 内容のノード番号のリスト
-  void
-  new_port(const string& port_name,
-	   const vector<ymuint>& bits);
-
-  /// @brief ポートを追加する(1ビット版)．
-  /// @param[in] port_name ポート名
-  /// @param[in] bit 内容のノード番号
-  void
-  new_port(const string& port_name,
-	   ymuint bit);
-
-  /// @brief DFFを追加する．
-  /// @param[in] name DFF名
-  /// @param[in] input 入力端子のノード
-  /// @param[in] output 出力端子のノード
-  /// @param[in] clock クロック端子のノード
-  /// @param[in] clear クリア端子のノード
-  /// @param[in] preset プリセット端子のノード
-  /// @return 生成したDFFを返す．
-  ///
-  /// 名前の重複に関しては感知しない．
-  BnDff*
-  new_dff(const string& name,
-	  BnNode* input,
-	  BnNode* output,
-	  BnNode* clock,
-	  BnNode* clear = nullptr,
-	  BnNode* preset = nullptr);
-
-  /// @brief ラッチを追加する．
-  /// @param[in] name ラッチ名
-  /// @param[in] input 入力端子のノード
-  /// @param[in] output 出力端子のノード
-  /// @param[in] enable イネーブル端子のノード
-  /// @param[in] clear クリア端子のノード
-  /// @param[in] preset プリセット端子のノード
-  /// @return 生成したラッチを返す．
-  ///
-  /// 名前の重複に関しては感知しない．
-  BnLatch*
-  new_latch(const string& name,
-	    BnNode* input,
-	    BnNode* output,
-	    BnNode* enable,
-	    BnNode* clear = nullptr,
-	    BnNode* preset = nullptr);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 論理式を登録する．
+  /// @param[in] expr 論理式
+  /// @return 関数番号を返す．
+  ymuint
+  _add_expr(const Expr& expr);
+
+  /// @brief 真理値表を登録する．
+  /// @param[in] tv 真理値表
+  /// @return 関数番号を返す．
+  ymuint
+  _add_tv(const TvFunc& tv);
+
+#if 0
   /// @brief 関数の数を設定する．
   /// @param[in] func_num 関数の数
   void
@@ -317,7 +349,7 @@ private:
   void
   set_expr(ymuint expr_id,
 	   const Expr& expr);
-
+#endif
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -325,7 +357,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ネットワーク名
-  string mNetworkName;
+  string mName;
 
   // ポート情報のリスト
   vector<BnPort*> mPortList;
@@ -351,8 +383,14 @@ private:
   // 関数のリスト
   vector<TvFunc> mFuncList;
 
+  // TvFunc をキーにして関数番号を入れるハッシュ表
+  HashMap<TvFunc, ymuint> mFuncMap;
+
   // 論理式のリスト
   vector<Expr> mExprList;
+
+  // TvFunc をキーにして論理式番号を入れるハッシュ表
+  HashMap<TvFunc, ymuint> mExprMap;
 
 };
 

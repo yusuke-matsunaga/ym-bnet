@@ -8,9 +8,8 @@
 
 
 #include "ym/BnNetwork.h"
-#include "ym/Cell.h"
-
 #include "ym/BnBuilder.h"
+#include "ym/Cell.h"
 
 #include "BnPortImpl.h"
 #include "BnNodeImpl.h"
@@ -40,11 +39,11 @@ BnNetwork::BnNetwork(const BnNetwork& src)
   copy(src);
 }
 
-// @brief ビルダーを引数にとるコンストラクタ
-// @param[in] builder ビルダーオブジェクト
-BnNetwork::BnNetwork(const BnBuilder& builder)
+// @brief BnBuilder からのコンストラクタ
+// @param[in] src コピー元のBnBuilder
+BnNetwork::BnNetwork(const BnBuilder& src)
 {
-  copy(builder);
+  copy(src);
 }
 
 // @brief デストラクタ
@@ -76,7 +75,7 @@ BnNetwork::clear()
     delete node;
   }
 
-  mNetworkName = string();
+  mName = string();
   mPortList.clear();
   mDffList.clear();
   mLatchList.clear();
@@ -84,6 +83,28 @@ BnNetwork::clear()
   mOutputList.clear();
   mLogicList.clear();
 }
+
+BEGIN_NONAMESPACE
+
+// @brief id_map を使ってID番号を変換する．
+// @param[in] id ID番号
+// @param[in] id_map ID番号のハッシュ表
+// @return 変換先のID番号を返す．
+// 登録されていない場合には abort する．
+ymuint
+conv_id(ymuint id,
+	const HashMap<ymuint, ymuint>& id_map)
+{
+  if ( id == kBnNullId ) {
+    return kBnNullId;
+  }
+  ymuint dst_id;
+  bool stat = id_map.find(id, dst_id);
+  ASSERT_COND( stat );
+  return dst_id;
+}
+
+END_NONAMESPACE
 
 // @brief 内容をコピーする．
 // @param[in] src コピー元のオブジェクト
@@ -98,31 +119,34 @@ BnNetwork::copy(const BnNetwork& src)
   clear();
 
   // ネットワーク名の設定
-  set_model_name(src.model_name());
+  set_name(src.name());
 
-  // ノード番号をキーにしてノードを格納するハッシュ表
-  HashMap<ymuint, BnNode*> mNodeMap;
+  // srcのノード番号をキーにしてノード番号を格納するハッシュ表
+  HashMap<ymuint, ymuint> id_map;
 
   // 外部入力の生成
   ymuint ni = src.input_num();
   for (ymuint i = 0; i < ni; ++ i) {
     const BnNode* src_node = src.input(i);
     BnNode* dst_node = new_input(src_node->name());
-    mNodeMap.add(src_node->id(), dst_node);
+    id_map.add(src_node->id(), dst_node->id());
   }
 
   // 関数情報の生成
-  ymuint nfunc = src.func_num();
-  set_func_num(nfunc);
+  ymuint nfunc = src.mFuncList.size();
   for (ymuint i = 0; i < nfunc; ++ i) {
-    set_func(i, src.func(i));
+    const TvFunc& func = src.mFuncList[i];
+    ymuint func_id = _add_tv(func);
+    ASSERT_COND( func_id == i );
   }
 
   // 論理式情報の生成
-  ymuint nexpr = src.expr_num();
-  set_expr_num(nexpr);
+  ymuint nexpr = src.mExprList.size();
+  mExprList.resize(nexpr);
   for (ymuint i = 0; i < nexpr; ++ i) {
-    set_expr(i, src.expr(i));
+    const Expr& expr = src.mExprList[i];
+    ymuint expr_id = _add_expr(expr);
+    ASSERT_COND( expr_id == i );
   }
 
   // 論理ノードの生成
@@ -130,35 +154,38 @@ BnNetwork::copy(const BnNetwork& src)
   for (ymuint i = 0; i < nl; ++ i) {
     const BnNode* src_node = src.logic(i);
     ymuint nfi = src_node->fanin_num();
-    vector<BnNode*> inode_list(nfi);
+    vector<ymuint> inode_id_list(nfi);
     for (ymuint i = 0; i < nfi; ++ i) {
-      ymuint iid = src_node->fanin(i)->id();
-      BnNode* inode;
-      bool stat = mNodeMap.find(iid, inode);
-      ASSERT_COND( stat );
-      inode_list[i] = inode;
+      ymuint src_iid = src_node->fanin(i);
+      ymuint iid = conv_id(src_iid, id_map);
+      inode_id_list[i] = iid;
     }
     string name = src_node->name();
     BnLogicType logic_type = src_node->logic_type();
     ymuint expr_id = src_node->expr_id();
     ymuint func_id = src_node->func_id();
     const Cell* cell = src_node->cell();
-    BnNode* dst_node = new_logic(name, inode_list, logic_type, expr_id, func_id, cell);
-    mNodeMap.add(src_node->id(), dst_node);
+    BnNode* dst_node = nullptr;
+    if ( logic_type == kBnLt_EXPR ) {
+      dst_node = new_expr(name, inode_id_list, src.expr(expr_id), cell);
+    }
+    else if ( logic_type == kBnLt_TV ) {
+      dst_node = new_tv(name, inode_id_list, src.func(func_id), cell);
+    }
+    else {
+      dst_node = new_primitive(name, inode_id_list, logic_type, cell);
+    }
+    id_map.add(src_node->id(), dst_node->id());
   }
 
   // 外部出力の生成
   ymuint no = src.output_num();
   for (ymuint i = 0; i < no; ++ i) {
     const BnNode* src_node = src.output(i);
-    ymuint iid = src_node->input()->id();
-    BnNode* inode;
-    bool stat = mNodeMap.find(iid, inode);
-    ASSERT_COND( stat );
-
-    BnNode* dst_node = new_output(src_node->name(), inode);
-
-    mNodeMap.add(src_node->id(), dst_node);
+    ymuint src_iid = src_node->input();
+    ymuint iid = conv_id(src_iid, id_map);
+    BnNode* dst_node = new_output(src_node->name(), iid);
+    id_map.add(src_node->id(), dst_node->id());
   }
 
   // ポートの生成
@@ -168,7 +195,8 @@ BnNetwork::copy(const BnNetwork& src)
     ymuint nb = src_port->bit_width();
     vector<ymuint> bits(nb);
     for (ymuint j = 0; j < nb; ++ j) {
-      bits[j] = src_port->bit(j);
+      ymuint src_id = src_port->bit(j);
+      bits[j] = conv_id(src_id, id_map);
     }
     new_port(src_port->name(), bits);
   }
@@ -177,39 +205,11 @@ BnNetwork::copy(const BnNetwork& src)
   ymuint nff = src.dff_num();
   for (ymuint i = 0; i < nff; ++ i) {
     const BnDff* src_dff = src.dff(i);
-
-    BnNode* input = nullptr;
-    const BnNode* src_input = src_dff->input();
-    ASSERT_COND( src_input != nullptr );
-    bool stat1 = mNodeMap.find(src_input->id(), input);
-    ASSERT_COND( stat1 );
-
-    BnNode* output = nullptr;
-    const BnNode* src_output = src_dff->output();
-    ASSERT_COND( src_output != nullptr );
-    bool stat2 = mNodeMap.find(src_output->id(), output);
-    ASSERT_COND( stat2 );
-
-    BnNode* clock = nullptr;
-    const BnNode* src_clock = src_dff->clock();
-    ASSERT_COND( src_clock != nullptr );
-    bool stat3 = mNodeMap.find(src_clock->id(), clock);
-    ASSERT_COND( stat3 );
-
-    BnNode* clear = nullptr;
-    const BnNode* src_clear = src_dff->clear();
-    if ( src_clear != nullptr ) {
-      bool stat4 = mNodeMap.find(src_clear->id(), clear);
-      ASSERT_COND( stat4 );
-    }
-
-    BnNode* preset = nullptr;
-    const BnNode* src_preset = src_dff->preset();
-    if ( src_preset != nullptr ) {
-      bool stat5 = mNodeMap.find(src_preset->id(), preset);
-      ASSERT_COND( stat5 );
-    }
-
+    ymuint input = conv_id(src_dff->input(), id_map);
+    ymuint output = conv_id(src_dff->output(), id_map);
+    ymuint clock = conv_id(src_dff->clock(), id_map);
+    ymuint clear = conv_id(src_dff->clear(), id_map);
+    ymuint preset = conv_id(src_dff->preset(), id_map);
     new_dff(src_dff->name(), input, output, clock, clear, preset);
   }
 
@@ -217,199 +217,132 @@ BnNetwork::copy(const BnNetwork& src)
   ymuint nlatch = src.latch_num();
   for (ymuint i = 0; i < nlatch; ++ i) {
     const BnLatch* src_latch = src.latch(i);
-
-    BnNode* input = nullptr;
-    const BnNode* src_input = src_latch->input();
-    ASSERT_COND( src_input != nullptr );
-    bool stat1 = mNodeMap.find(src_input->id(), input);
-    ASSERT_COND( stat1 );
-
-    BnNode* output = nullptr;
-    const BnNode* src_output = src_latch->output();
-    ASSERT_COND( src_output != nullptr );
-    bool stat2 = mNodeMap.find(src_output->id(), output);
-    ASSERT_COND( stat2 );
-
-    BnNode* enable = nullptr;
-    const BnNode* src_enable = src_latch->enable();
-    ASSERT_COND( src_enable != nullptr );
-    bool stat3 = mNodeMap.find(src_enable->id(), enable);
-    ASSERT_COND( stat3 );
-
-    BnNode* clear = nullptr;
-    const BnNode* src_clear = src_latch->clear();
-    if ( src_clear != nullptr ) {
-      bool stat4 = mNodeMap.find(src_clear->id(), clear);
-      ASSERT_COND( stat4 );
-    }
-
-    BnNode* preset = nullptr;
-    const BnNode* src_preset = src_latch->preset();
-    if ( src_preset != nullptr ) {
-      bool stat5 = mNodeMap.find(src_preset->id(), preset);
-      ASSERT_COND( stat5 );
-    }
-
+    ymuint input = conv_id(src_latch->input(), id_map);
+    ymuint output = conv_id(src_latch->output(), id_map);
+    ymuint enable = conv_id(src_latch->enable(), id_map);
+    ymuint clear = conv_id(src_latch->clear(), id_map);
+    ymuint preset = conv_id(src_latch->preset(), id_map);
     new_latch(src_latch->name(), input, output, enable, clear, preset);
   }
 }
 
-// @brief ビルダーオブジェクトからの生成
-// @param[in] builder ビルダーオブジェクト
+// @brief 内容をコピーする．
+// @param[in] src コピー元のBnBuilder
 void
-BnNetwork::copy(const BnBuilder& builder)
+BnNetwork::copy(const BnBuilder& src)
 {
   clear();
 
   // ネットワーク名の設定
-  set_model_name(builder.model_name());
+  set_name(src.name());
 
-  // ノード番号をキーにしてノードを格納するハッシュ表
-  HashMap<ymuint, BnNode*> mNodeMap;
+  // ノード番号をキーにしてノード番号を格納するハッシュ表
+  HashMap<ymuint, ymuint> id_map;
 
   // 外部入力の生成
-  ymuint ni = builder.input_num();
+  ymuint ni = src.input_num();
   for (ymuint i = 0; i < ni; ++ i) {
-    const BnBuilder::NodeInfo& src_info = builder.input(i);
-    BnNode* dst_node = new_input(src_info.mName);
-    mNodeMap.add(src_info.mId, dst_node);
+    const BnBuilder::NodeInfo& src_node = src.input(i);
+    BnNode* dst_node = new_input(src_node.mName);
+    id_map.add(src_node.mId, dst_node->id());
   }
 
   // 関数情報の生成
-  ymuint nfunc = builder.func_num();
-  set_func_num(nfunc);
+  ymuint nfunc = src.func_num();
   for (ymuint i = 0; i < nfunc; ++ i) {
-    set_func(i, builder.func(i));
+    const TvFunc& func = src.func(i);
+    ymuint func_id = _add_tv(func);
+    ASSERT_COND( func_id == i );
   }
 
   // 論理式情報の生成
-  ymuint nexpr = builder.expr_num();
-  set_expr_num(nexpr);
+  ymuint nexpr = src.expr_num();
+  mExprList.resize(nexpr);
   for (ymuint i = 0; i < nexpr; ++ i) {
-    set_expr(i, builder.expr(i));
+    const Expr& expr = src.expr(i);
+    ymuint expr_id = _add_expr(expr);
+    ASSERT_COND( expr_id == i );
   }
 
   // 論理ノードの生成
-  ymuint nl = builder.logic_num();
+  ymuint nl = src.logic_num();
   for (ymuint i = 0; i < nl; ++ i) {
-    const BnBuilder::NodeInfo& src_info = builder.logic(i);
-    ymuint nfi = src_info.mFaninList.size();
-    vector<BnNode*> inode_list(nfi);
-    for (ymuint j = 0; j < nfi; ++ j) {
-      ymuint iid = src_info.mFaninList[j];
-      BnNode* inode;
-      bool stat = mNodeMap.find(iid, inode);
-      ASSERT_COND( stat );
-      inode_list[j] = inode;
+    const BnBuilder::NodeInfo& src_node = src.logic(i);
+    ymuint nfi = src_node.mFaninList.size();
+    vector<ymuint> inode_id_list(nfi);
+    for (ymuint i = 0; i < nfi; ++ i) {
+      ymuint src_iid = src_node.mFaninList[i];
+      inode_id_list[i] = conv_id(src_iid, id_map);
     }
-    string name = src_info.mName;
-    BnLogicType logic_type = src_info.mLogicType;
-    ymuint func_id = src_info.mFuncId;
-    const Cell* cell = src_info.mCell;
-    BnNode* dst_node = new_logic(name, inode_list, logic_type, func_id, func_id, cell);
-    mNodeMap.add(src_info.mId, dst_node);
+    string name = src_node.mName;
+    BnLogicType logic_type = src_node.mLogicType;
+    ymuint func_id = src_node.mFuncId;
+    const Cell* cell = src_node.mCell;
+    BnNode* dst_node = nullptr;
+    if ( logic_type == kBnLt_EXPR ) {
+      dst_node = new_expr(name, inode_id_list, src.expr(func_id), cell);
+    }
+    else if ( logic_type == kBnLt_TV ) {
+      dst_node = new_tv(name, inode_id_list, src.func(func_id), cell);
+    }
+    else {
+      dst_node = new_primitive(name, inode_id_list, logic_type, cell);
+    }
+    id_map.add(src_node.mId, dst_node->id());
   }
 
   // 外部出力の生成
-  ymuint no = builder.output_num();
+  ymuint no = src.output_num();
   for (ymuint i = 0; i < no; ++ i) {
-    const BnBuilder::NodeInfo& src_info = builder.output(i);
-    ymuint iid = src_info.mFaninList[0];
-    BnNode* inode;
-    bool stat = mNodeMap.find(iid, inode);
-    ASSERT_COND( stat );
-
-    BnNode* dst_node = new_output(src_info.mName, inode);
-
-    mNodeMap.add(src_info.mId, dst_node);
+    const BnBuilder::NodeInfo& src_node = src.output(i);
+    ymuint iid = conv_id(src_node.mFaninList[0], id_map);
+    BnNode* dst_node = new_output(src_node.mName, iid);
+    id_map.add(src_node.mId, dst_node->id());
   }
 
   // ポートの生成
-  ymuint np = builder.port_num();
+  ymuint np = src.port_num();
   for (ymuint i = 0; i < np; ++ i) {
-    const BnBuilder::PortInfo& src_info = builder.port(i);
-    ymuint nb = src_info.mBits.size();
+    const BnBuilder::PortInfo& src_port = src.port(i);
+    ymuint nb = src_port.mBits.size();
     vector<ymuint> bits(nb);
     for (ymuint j = 0; j < nb; ++ j) {
-      bits[j] = src_info.mBits[j];
+      ymuint src_id = src_port.mBits[j];
+      bits[j] = conv_id(src_id, id_map);
     }
-    new_port(src_info.mName, bits);
+    new_port(src_port.mName, bits);
   }
 
-  // DFF の生成
-  ymuint nff = builder.dff_num();
+  // DFFの生成
+  ymuint nff = src.dff_num();
   for (ymuint i = 0; i < nff; ++ i) {
-    const BnBuilder::DffInfo& src_info = builder.dff(i);
-
-    BnNode* input;
-    bool stat1 = mNodeMap.find(src_info.mInput, input);
-    ASSERT_COND( stat1 );
-
-    BnNode* output;
-    bool stat2 = mNodeMap.find(src_info.mOutput, output);
-    ASSERT_COND( stat2 );
-
-    BnNode* clock;
-    bool stat3 = mNodeMap.find(src_info.mClock, clock);
-    ASSERT_COND( stat3 );
-
-    BnNode* clear = nullptr;
-    ymuint clear_id = src_info.mClear;
-    if ( clear_id > 0 ) {
-      bool stat4 = mNodeMap.find(clear_id, clear);
-      ASSERT_COND( stat4 );
-    }
-
-    BnNode* preset = nullptr;
-    ymuint preset_id = src_info.mPreset;
-    if ( preset_id > 0 ) {
-      bool stat5 = mNodeMap.find(preset_id, preset);
-      ASSERT_COND( stat5 );
-    }
-
-    new_dff(src_info.mName, input, output, clock, clear, preset);
+    const BnBuilder::DffInfo& src_dff = src.dff(i);
+    ymuint input = conv_id(src_dff.mInput, id_map);
+    ymuint output = conv_id(src_dff.mOutput, id_map);
+    ymuint clock = conv_id(src_dff.mClock, id_map);
+    ymuint clear = conv_id(src_dff.mClear, id_map);
+    ymuint preset = conv_id(src_dff.mPreset, id_map);
+    new_dff(src_dff.mName, input, output, clock, clear, preset);
   }
 
   // ラッチの生成
-  ymuint nlatch = builder.latch_num();
+  ymuint nlatch = src.latch_num();
   for (ymuint i = 0; i < nlatch; ++ i) {
-    const BnBuilder::LatchInfo& src_info = builder.latch(i);
-
-    BnNode* input;
-    bool stat1 = mNodeMap.find(src_info.mInput, input);
-    ASSERT_COND( stat1 );
-
-    BnNode* output;
-    bool stat2 = mNodeMap.find(src_info.mOutput, output);
-    ASSERT_COND( stat2 );
-
-    BnNode* enable;
-    bool stat3 = mNodeMap.find(src_info.mEnable, enable);
-    ASSERT_COND( stat3 );
-
-    BnNode* clear = nullptr;
-    ymuint clear_id = src_info.mClear;
-    if ( clear_id > 0 ) {
-      bool stat4 = mNodeMap.find(clear_id, clear);
-      ASSERT_COND( stat4 );
-    }
-
-    BnNode* preset = nullptr;
-    ymuint preset_id = src_info.mPreset;
-    if ( preset_id > 0 ) {
-      bool stat5 = mNodeMap.find(preset_id, preset);
-      ASSERT_COND( stat5 );
-    }
-
-    new_latch(src_info.mName, input, output, enable, clear, preset);
+    const BnBuilder::LatchInfo& src_latch = src.latch(i);
+    ymuint input = conv_id(src_latch.mInput, id_map);
+    ymuint output = conv_id(src_latch.mOutput, id_map);
+    ymuint enable = conv_id(src_latch.mEnable, id_map);
+    ymuint clear = conv_id(src_latch.mClear, id_map);
+    ymuint preset = conv_id(src_latch.mPreset, id_map);
+    new_latch(src_latch.mName, input, output, enable, clear, preset);
   }
 }
 
 // @brief ネットワーク名を得る．
 string
-BnNetwork::model_name() const
+BnNetwork::name() const
 {
-  return mNetworkName;
+  return mName;
 }
 
 // @brief ポート数を得る．
@@ -566,7 +499,7 @@ BnNetwork::expr(ymuint expr_id) const
 void
 BnNetwork::write(ostream& s) const
 {
-  s << "network name : " << model_name() << endl
+  s << "network name : " << name() << endl
     << endl;
 
   ymuint np = port_num();
@@ -599,7 +532,7 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node->type() == kBnOutput );
     s << "output#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl
-      << "    input: " << node->input()->id() << endl;
+      << "    input: " << node->input() << endl;
   }
   s << endl;
 
@@ -609,14 +542,14 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node != nullptr );
     s << "dff#" << i
       << "(" << node->name() << ")" << endl
-      << "    input:  " << node->input()->id() << endl
-      << "    output: " << node->output()->id() << endl
-      << "    clock:  " << node->clock()->id() << endl;
-    if ( node->clear() != nullptr ) {
-      s << "    clear:  " << node->clear()->id() << endl;
+      << "    input:  " << node->input() << endl
+      << "    output: " << node->output() << endl
+      << "    clock:  " << node->clock() << endl;
+    if ( node->clear() != kBnNullId ) {
+      s << "    clear:  " << node->clear() << endl;
     }
-    if ( node->preset() != nullptr ) {
-      s << "    preset: " << node->preset()->id() << endl;
+    if ( node->preset() != kBnNullId ) {
+      s << "    preset: " << node->preset() << endl;
     }
     s << endl;
   }
@@ -628,14 +561,14 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node != nullptr );
     s << "latch#" << i
       << "(" << node->name() << ")" << endl
-      << "    input:  " << node->input()->id() << endl
-      << "    output: " << node->output()->id() << endl
-      << "    enable: " << node->enable()->id() << endl;
-    if ( node->clear() != nullptr ) {
-      s << "    clear:  " << node->clear()->id() << endl;
+      << "    input:  " << node->input() << endl
+      << "    output: " << node->output() << endl
+      << "    enable: " << node->enable() << endl;
+    if ( node->clear() != kBnNullId ) {
+      s << "    clear:  " << node->clear() << endl;
     }
-    if ( node->preset() != nullptr ) {
-      s << "    preset: " << node->preset()->id() << endl;
+    if ( node->preset() != kBnNullId ) {
+      s << "    preset: " << node->preset() << endl;
     }
   }
   s << endl;
@@ -650,7 +583,7 @@ BnNetwork::write(ostream& s) const
       << "    fanins: ";
     ymuint ni = node->fanin_num();
     for (ymuint j = 0; j < ni; ++ j) {
-      s << " " << node->fanin(j)->id();
+      s << " " << node->fanin(j);
     }
     s << endl;
     s << "    ";
@@ -708,9 +641,9 @@ BnNetwork::write(ostream& s) const
 // @brief ネットワーク名を設定する．
 // @param[in] name ネットワーク名
 void
-BnNetwork::set_model_name(const string& name)
+BnNetwork::set_name(const string& name)
 {
-  mNetworkName = name;
+  mName = name;
 }
 
 // @brief 外部入力ノードを追加する．
@@ -731,51 +664,96 @@ BnNetwork::new_input(const string& node_name)
 
 // @brief 外部出力ノードを追加する．
 // @param[in] node_name ノード名
-// @param[in] inode 入力のノード番号
+// @param[in] inode_id 入力のノード番号
 // @return 生成した出力ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 BnNode*
 BnNetwork::new_output(const string& node_name,
-		      BnNode* inode)
+		      ymuint inode_id)
 {
   ymuint id = mNodeList.size();
-  BnNode* node = new BnOutputNode(id, node_name, inode);
+  BnNode* node = new BnOutputNode(id, node_name, inode_id);
   mNodeList.push_back(node);
   mOutputList.push_back(node);
 
   return node;
 }
 
-// @brief 論理ノードを追加する．
+// @brief プリミティブ型の論理ノードを追加する．
 // @param[in] node_name ノード名
-// @param[in] inode_list ファンインのノードのリスト
+// @param[in] inode_id_list ファンインのノード番号のリスト
 // @param[in] logic_type 論理型
-// @param[in] expr_id 論理式番号
-// @param[in] func_id 関数番号
 // @param[in] cell セル
 // @return 生成した論理ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 BnNode*
-BnNetwork::new_logic(const string& node_name,
-		     const vector<BnNode*>& inode_list,
-		     BnLogicType logic_type,
-		     ymuint expr_id,
-		     ymuint func_id,
-		     const Cell* cell)
+BnNetwork::new_primitive(const string& node_name,
+			 const vector<ymuint>& inode_id_list,
+			 BnLogicType logic_type,
+			 const Cell* cell)
 {
   ymuint id = mNodeList.size();
-  BnNode* node;
-  if ( logic_type == kBnLt_EXPR ) {
-    node = new BnExprNode(id, node_name, inode_list, expr(expr_id), expr_id, cell);
+  BnNode* node = new BnPrimNode(id, node_name, inode_id_list, logic_type, cell);
+  mNodeList.push_back(node);
+  mLogicList.push_back(node);
+
+  return node;
+}
+
+// @brief 論理式型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] inode_id_list ファンインのノード番号のリスト
+// @param[in] expr 論理式
+// @param[in] cell セル
+// @return 生成した論理ノードを返す．
+//
+// ノード名の重複に関しては感知しない．
+BnNode*
+BnNetwork::new_expr(const string& node_name,
+		    const vector<ymuint>& inode_id_list,
+		    const Expr& expr,
+		    const Cell* cell)
+{
+  BnLogicType logic_type = FuncAnalyzer::analyze(expr);
+  if ( logic_type != kBnLt_EXPR ) {
+    // 組み込み型だった．
+    return new_primitive(node_name, inode_id_list, logic_type, cell);
   }
-  else if ( logic_type == kBnLt_TV ) {
-    node = new BnTvNode(id, node_name, inode_list, func(func_id), func_id, cell);
+
+  ymuint expr_id = _add_expr(expr);
+  ymuint id = mNodeList.size();
+  BnNode* node = new BnExprNode(id, node_name, inode_id_list, expr, expr_id, cell);
+  mNodeList.push_back(node);
+  mLogicList.push_back(node);
+
+  return node;
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] inode_id_list ファンインのノード番号のリスト
+// @param[in] tv 真理値表
+// @param[in] cell セル
+// @return 生成した論理ノードを返す．
+//
+// ノード名の重複に関しては感知しない．
+BnNode*
+BnNetwork::new_tv(const string& node_name,
+		  const vector<ymuint>& inode_id_list,
+		  const TvFunc& tv,
+		  const Cell* cell)
+{
+  BnLogicType logic_type = FuncAnalyzer::analyze(tv);
+  if ( logic_type != kBnLt_TV ) {
+    // 組み込み型だった．
+    return new_primitive(node_name, inode_id_list, logic_type, cell);
   }
-  else {
-    node = new BnPrimNode(id, node_name, inode_list, logic_type, cell);
-  }
+
+  ymuint func_id = _add_tv(tv);
+  ymuint id = mNodeList.size();
+  BnNode* node = new BnTvNode(id, node_name, inode_id_list, tv, func_id, cell);
   mNodeList.push_back(node);
   mLogicList.push_back(node);
 
@@ -809,21 +787,21 @@ BnNetwork::new_port(const string& port_name,
 
 // @brief DFFを追加する．
 // @param[in] name DFF名
-// @param[in] input 入力端子のノード
-// @param[in] output 出力端子のノード
-// @param[in] clock クロック端子のノード
-// @param[in] clear クリア端子のノード
-// @param[in] preset プリセット端子のノード
+// @param[in] input 入力端子のノード番号
+// @param[in] output 出力端子のノード番号
+// @param[in] clock クロック端子のノード番号
+// @param[in] clear クリア端子のノード番号
+// @param[in] preset プリセット端子のノード番号
 // @return 生成したDFFを返す．
 //
 // 名前の重複に関しては感知しない．
 BnDff*
 BnNetwork::new_dff(const string& name,
-		   BnNode* input,
-		   BnNode* output,
-		   BnNode* clock,
-		   BnNode* clear,
-		   BnNode* preset)
+		   ymuint input,
+		   ymuint output,
+		   ymuint clock,
+		   ymuint clear,
+		   ymuint preset)
 {
   ymuint id = mDffList.size();
   BnDff* dff = new BnDffImpl(id, name, input, output, clock, clear, preset);
@@ -834,21 +812,21 @@ BnNetwork::new_dff(const string& name,
 
 // @brief ラッチを追加する．
 // @param[in] name ラッチ名
-// @param[in] input 入力端子のノード
-// @param[in] output 出力端子のノード
-// @param[in] enable イネーブル端子のノード
-// @param[in] clear クリア端子のノード
-// @param[in] preset プリセット端子のノード
+// @param[in] input 入力端子のノード番号
+// @param[in] output 出力端子のノード番号
+// @param[in] enable イネーブル端子のノード番号
+// @param[in] clear クリア端子のノード番号
+// @param[in] preset プリセット端子のノード番号
 // @return 生成したラッチを返す．
 //
 // 名前の重複に関しては感知しない．
 BnLatch*
 BnNetwork::new_latch(const string& name,
-		     BnNode* input,
-		     BnNode* output,
-		     BnNode* enable,
-		     BnNode* clear,
-		     BnNode* preset)
+		     ymuint input,
+		     ymuint output,
+		     ymuint enable,
+		     ymuint clear,
+		     ymuint preset)
 {
   ymuint id = mLatchList.size();
   BnLatch* latch = new BnLatchImpl(id, name, input, output, enable, clear, preset);
@@ -857,6 +835,7 @@ BnNetwork::new_latch(const string& name,
   return latch;
 }
 
+#if 0
 // @brief 関数の数を設定する．
 // @param[in] func_num 関数の数
 void
@@ -895,6 +874,51 @@ BnNetwork::set_expr(ymuint expr_id,
 {
   ASSERT_COND( expr_id < expr_num() );
   mExprList[expr_id] = expr;
+}
+#endif
+
+// @brief 論理式を登録する．
+// @param[in] expr 論理式
+// @return 関数番号を返す．
+ymuint
+BnNetwork::_add_expr(const Expr& expr)
+{
+  ymuint ni = expr.input_size();
+  ymuint expr_id = 0;
+  if ( ni <= 10 ) {
+    // 10入力以下の場合は一旦 TvFunc に変換する．
+    TvFunc tv = expr.make_tv(ni);
+    if ( !mExprMap.find(tv, expr_id) ) {
+      // 新たに登録する．
+      expr_id = mExprList.size();
+      mExprList.push_back(expr);
+      mExprMap.add(tv, expr_id);
+    }
+    return expr_id;
+  }
+  else {
+    // 11入力以上は常に新規に登録する．
+    expr_id = mExprList.size();
+    mExprList.push_back(expr);
+  }
+  return expr_id;
+}
+
+// @brief 真理値表を登録する．
+// @param[in] tv 真理値表
+// @return 関数番号を返す．
+ymuint
+BnNetwork::_add_tv(const TvFunc& tv)
+{
+  // 同じ関数が登録されていないか調べる．
+  ymuint func_id;
+  if ( !mFuncMap.find(tv, func_id) ) {
+    // 新たに登録する．
+    func_id = mFuncList.size();
+    mFuncList.push_back(tv);
+    mFuncMap.add(tv, func_id);
+  }
+  return func_id;
 }
 
 END_NAMESPACE_YM_BNET

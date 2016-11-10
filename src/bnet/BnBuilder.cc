@@ -31,7 +31,7 @@ BnBuilder::~BnBuilder()
 
 // @brief 名前を得る．
 string
-BnBuilder::model_name() const
+BnBuilder::name() const
 {
   return mName;
 }
@@ -200,7 +200,7 @@ BnBuilder::func(ymuint func_id) const
 void
 BnBuilder::write(ostream& s) const
 {
-  s << "model_name: " << model_name() << endl;
+  s << "name: " << name() << endl;
 
   ymuint np = port_num();
   for (ymuint i = 0; i < np; ++ i) {

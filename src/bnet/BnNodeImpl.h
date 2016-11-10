@@ -72,10 +72,10 @@ public:
   is_logic() const;
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] node ノード番号
+  /// @param[in] node_id ノード番号
   virtual
   void
-  add_fanout(BnNode* node);
+  add_fanout(ymuint node_id);
 
   /// @brief ファンアウト数を得る．
   virtual
@@ -85,7 +85,7 @@ public:
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  const BnNode*
+  ymuint
   fanout(ymuint pos) const;
 
 
@@ -102,7 +102,7 @@ public:
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  const BnNode*
+  ymuint
   fanin(ymuint pos) const;
 
   /// @brief 論理タイプを返す．
@@ -161,9 +161,9 @@ public:
   // 外部出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノードを返す．
+  /// @brief 入力のノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   input() const;
 
 
@@ -178,8 +178,8 @@ private:
   // 名前
   string mName;
 
-  // ファンアウトのノードのリスト
-  vector<BnNode*> mFanoutList;
+  // ファンアウトのノード番号のリスト
+  vector<ymuint> mFanoutList;
 
 };
 
@@ -240,10 +240,10 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID 番号
   /// @param[in] name ノード名
-  /// @param[in] input 入力ノード
+  /// @param[in] input 入力のノード番号
   BnOutputNode(ymuint id,
 	       const string& name,
-	       BnNode* input);
+	       ymuint input);
 
   /// @brief デストラクタ
   virtual
@@ -271,11 +271,11 @@ public:
   // 外部出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノードを返す．
+  /// @brief 入力のノード番号を返す．
   ///
   /// is_output() == false の時の動作は不定
   virtual
-  const BnNode*
+  ymuint
   input() const;
 
 
@@ -284,8 +284,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力のノード
-  BnNode* mInput;
+  // 入力のノード番号
+  ymuint mInput;
 
 };
 
@@ -305,11 +305,11 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノードの配列
+  /// @param[in] fanins ファンインのノード番号の配列
   /// @param[in] cell セル (nullptr の場合もあり)
   BnLogicNode(ymuint id,
 	      const string& name,
-	      const vector<BnNode*>& fanins,
+	      const vector<ymuint>& fanins,
 	      const Cell* cell);
 
   /// @brief デストラクタ
@@ -343,10 +343,10 @@ public:
   ymuint
   fanin_num() const;
 
-  /// @brief ファンインのノードを返す．
+  /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  const BnNode*
+  ymuint
   fanin(ymuint pos) const;
 
   /// @brief セルを返す．
@@ -363,8 +363,12 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ファンインのノードの配列
-  vector<BnNode*> mFanins;
+  // ファンイン数
+  ymuint mFaninNum;
+
+  // ファンインのノード番号の配列
+  // サイズは mFaninNum
+  ymuint* mFanins;
 
   // セル
   const Cell* mCell;
@@ -387,12 +391,12 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノードの配列
+  /// @param[in] fanins ファンインのノード番号の配列
   /// @param[in] logic_type 論理タイプ
   /// @param[in] cell セル (nullptr の場合もあり)
   BnPrimNode(ymuint id,
 	     const string& name,
-	     const vector<BnNode*>& fanins,
+	     const vector<ymuint>& fanins,
 	     BnLogicType logic_type,
 	     const Cell* cell = nullptr);
 
@@ -438,13 +442,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノードの配列
+  /// @param[in] fanins ファンインのノード番号の配列
   /// @param[in] expr 論理式
   /// @param[in] expr_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(ymuint id,
 	     const string& name,
-	     const vector<BnNode*>& fanins,
+	     const vector<ymuint>& fanins,
 	     const Expr& expr,
 	     ymuint expr_id,
 	     const Cell* cell = nullptr);
@@ -514,13 +518,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノードの配列
+  /// @param[in] fanins ファンインのノード番号の配列
   /// @param[in] func 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(ymuint id,
 	   const string& name,
-	   const vector<BnNode*>& fanins,
+	   const vector<ymuint>& fanins,
 	   const TvFunc& func,
 	   ymuint func_id,
 	   const Cell* cell = nullptr);

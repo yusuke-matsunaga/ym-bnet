@@ -26,18 +26,18 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name 名前
-  /// @param[in] input 入力端子のノード
-  /// @param[in] output 出力端子のノード
-  /// @param[in] enable イネーブル端子のノード
-  /// @param[in] clear クリア端子のノード
-  /// @param[in] preset プリセット端子のノード
+  /// @param[in] input 入力端子のノード番号
+  /// @param[in] output 出力端子のノード番号
+  /// @param[in] enable イネーブル端子のノード番号
+  /// @param[in] clear クリア端子のノード番号
+  /// @param[in] preset プリセット端子のノード番号
   BnLatchImpl(ymuint id,
 	      const string& name,
-	      BnNode* input,
-	      BnNode* output,
-	      BnNode* enable,
-	      BnNode* clear,
-	      BnNode* preset);
+	      ymuint input,
+	      ymuint output,
+	      ymuint enable,
+	      ymuint clear,
+	      ymuint preset);
 
   /// @brief デストラクタ
   virtual
@@ -60,31 +60,33 @@ public:
   string
   name() const;
 
-  /// @brief データ出力ノードを返す．
+  /// @brief データ出力のノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   output() const;
 
-  /// @brief データ入力ノードを返す．
+  /// @brief データ入力のノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   input() const;
 
-  /// @brief イネーブルのノードを返す．
+  /// @brief イネーブルのノード番号を返す．
   virtual
-  const BnNode*
+  ymuint
   enable() const;
 
-  /// @brief クリア信号のノードを返す．
-  /// @note nullptr の場合もある．
+  /// @brief クリア信号のノード番号を返す．
+  ///
+  /// kBnNullId の場合もある．
   virtual
-  const BnNode*
+  ymuint
   clear() const;
 
-  /// @brief プリセット信号のノードを返す．
-  /// @note nullptr の場合もある．
+  /// @brief プリセット信号のノード番号を返す．
+  ///
+  /// kBnNullId の場合もある．
   virtual
-  const BnNode*
+  ymuint
   preset() const;
 
 
@@ -100,19 +102,19 @@ private:
   string mName;
 
   // データ出力ノード
-  BnNode* mOutput;
+  ymuint mOutput;
 
   // データ入力ノード
-  BnNode* mInput;
+  ymuint mInput;
 
   // イネーブルノード
-  BnNode* mEnable;
+  ymuint mEnable;
 
   // クリア信号ノード
-  BnNode* mClear;
+  ymuint mClear;
 
   // プリセット信号ノード
-  BnNode* mPreset;
+  ymuint mPreset;
 
 };
 

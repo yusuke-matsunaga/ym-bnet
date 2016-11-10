@@ -72,7 +72,7 @@ public:
   /// @param[in] name 名前
   /// @param[in] bit 内容のノード番号
   BnPort1(const string& name,
-	     ymuint bit);
+	  ymuint bit);
 
   /// @brief デストラクタ
   virtual
@@ -163,8 +163,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ノード番号のベクタ
-  vector<ymuint> mBits;
+  // ビット数
+  ymuint mBitWidth;
+
+  // ノード番号の配列
+  ymuint* mBits;
 
 };
 

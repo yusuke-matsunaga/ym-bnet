@@ -236,7 +236,7 @@ public:
 
   /// @brief 名前を得る．
   string
-  model_name() const;
+  name() const;
 
   /// @brief ポート数を得る．
   ymuint

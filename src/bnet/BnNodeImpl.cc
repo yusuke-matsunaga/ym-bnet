@@ -68,11 +68,11 @@ BnNodeImpl::is_logic() const
 }
 
 // @brief ファンアウトを追加する．
-// @param[in] node ノード
+// @param[in] node_id ノード番号
 void
-BnNodeImpl::add_fanout(BnNode* node)
+BnNodeImpl::add_fanout(ymuint node_id)
 {
-  mFanoutList.push_back(node);
+  mFanoutList.push_back(node_id);
 }
 
 // @brief ファンアウト数を得る．
@@ -82,9 +82,9 @@ BnNodeImpl::fanout_num() const
   return mFanoutList.size();
 }
 
-// @brief ファンアウトのノードを返す．
+// @brief ファンアウトのノード番号を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
-const BnNode*
+ymuint
 BnNodeImpl::fanout(ymuint pos) const
 {
   ASSERT_COND( pos < fanout_num() );
@@ -98,13 +98,13 @@ BnNodeImpl::fanin_num() const
   return 0;
 }
 
-// @brief ファンインのノードを返す．
+// @brief ファンインのノード番号を返す．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-const BnNode*
+ymuint
 BnNodeImpl::fanin(ymuint pos) const
 {
   ASSERT_NOT_REACHED;
-  return nullptr;
+  return kBnNullId;
 }
 
 // @brief 論理タイプを返す．
@@ -174,12 +174,12 @@ BnNodeImpl::cell() const
   return nullptr;
 }
 
-// @brief 入力のノードを返す．
-const BnNode*
+// @brief 入力のノード番号を返す．
+ymuint
 BnNodeImpl::input() const
 {
   ASSERT_NOT_REACHED;
-  return nullptr;
+  return kBnNullId;
 }
 
 
@@ -223,10 +223,10 @@ BnInputNode::is_input() const
 // @brief コンストラクタ
 // @param[in] id ID 番号
 // @param[in] name ノード名
-// @param[in] input 入力ノード
+// @param[in] input 入力のノード番号
 BnOutputNode::BnOutputNode(ymuint id,
 			   const string& name,
-			   BnNode* input) :
+			   ymuint input) :
   BnNodeImpl(id, name),
   mInput(input)
 {
@@ -254,7 +254,7 @@ BnOutputNode::is_output() const
 // @brief 入力のノード番号を返す．
 //
 // is_output() == false の時の動作は不定
-const BnNode*
+ymuint
 BnOutputNode::input() const
 {
   return mInput;
@@ -268,21 +268,26 @@ BnOutputNode::input() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのノードの配列
+// @param[in] fanins ファンインのノード番号の配列
 // @param[in] cell セル (nullptr の場合もあり)
 BnLogicNode::BnLogicNode(ymuint id,
 			 const string& name,
-			 const vector<BnNode*>& fanins,
+			 const vector<ymuint>& fanins,
 			 const Cell* cell) :
   BnNodeImpl(id, name),
-  mFanins(fanins),
+  mFaninNum(fanins.size()),
   mCell(cell)
 {
+  mFanins = new ymuint[mFaninNum];
+  for (ymuint i = 0; i < mFaninNum; ++ i) {
+    mFanins[i] = fanins[i];
+  }
 }
 
 // @brief デストラクタ
 BnLogicNode::~BnLogicNode()
 {
+  delete [] mFanins;
 }
 
 // @brief タイプを返す．
@@ -303,12 +308,12 @@ BnLogicNode::is_logic() const
 ymuint
 BnLogicNode::fanin_num() const
 {
-  return mFanins.size();
+  return mFaninNum;
 }
 
 // @brief ファンインを求める．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-const BnNode*
+ymuint
 BnLogicNode::fanin(ymuint pos) const
 {
   ASSERT_COND( pos < fanin_num() );
@@ -338,7 +343,7 @@ BnLogicNode::cell() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
-		       const vector<BnNode*>& fanins,
+		       const vector<ymuint>& fanins,
 		       BnLogicType logic_type,
 		       const Cell* cell) :
   BnLogicNode(id, name, fanins, cell),
@@ -374,7 +379,7 @@ BnPrimNode::logic_type() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnExprNode::BnExprNode(ymuint id,
 		       const string& name,
-		       const vector<BnNode*>& fanins,
+		       const vector<ymuint>& fanins,
 		       const Expr& expr,
 		       ymuint expr_id,
 		       const Cell* cell) :
@@ -432,7 +437,7 @@ BnExprNode::expr() const
 // @param[in] cell セル (nullptr の場合もあり)
 BnTvNode::BnTvNode(ymuint id,
 		   const string& name,
-		   const vector<BnNode*>& fanins,
+		   const vector<ymuint>& fanins,
 		   const TvFunc& func,
 		   ymuint func_id,
 		   const Cell* cell) :

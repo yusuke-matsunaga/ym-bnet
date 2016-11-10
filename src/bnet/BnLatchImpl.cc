@@ -19,18 +19,18 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name 名前
-// @param[in] input 入力端子のノード
-// @param[in] output 出力端子のノード
-// @param[in] enable イネーブル端子のノード
-// @param[in] clear クリア端子のノード
-// @param[in] preset プリセット端子のノード
+// @param[in] input 入力端子のノード番号
+// @param[in] output 出力端子のノード番号
+// @param[in] enable イネーブル端子のノード番号
+// @param[in] clear クリア端子のノード番号
+// @param[in] preset プリセット端子のノード番号
 BnLatchImpl::BnLatchImpl(ymuint id,
 			 const string& name,
-			 BnNode* input,
-			 BnNode* output,
-			 BnNode* enable,
-			 BnNode* clear,
-			 BnNode* preset) :
+			 ymuint input,
+			 ymuint output,
+			 ymuint enable,
+			 ymuint clear,
+			 ymuint preset) :
   mId(id),
   mName(name),
   mInput(input),
@@ -61,38 +61,40 @@ BnLatchImpl::name() const
   return mName;
 }
 
-// @brief データ出力ノードを返す．
-const BnNode*
+// @brief データ出力のノード番号を返す．
+ymuint
 BnLatchImpl::output() const
 {
   return mOutput;
 }
 
-// @brief データ入力ノードを返す．
-const BnNode*
+// @brief データ入力のノード番号を返す．
+ymuint
 BnLatchImpl::input() const
 {
   return mInput;
 }
 
-// @brief イネーブルのノードを返す．
-const BnNode*
+// @brief イネーブルのノード番号を返す．
+ymuint
 BnLatchImpl::enable() const
 {
   return mEnable;
 }
 
-// @brief クリア信号のノードを返す．
-// @note nullptr の場合もある．
-const BnNode*
+// @brief クリア信号のノード番号を返す．
+//
+// kBnNullId の場合もある．
+ymuint
 BnLatchImpl::clear() const
 {
   return mClear;
 }
 
-// @brief プリセット信号のノードを返す．
-// @note nullptr の場合もある．
-const BnNode*
+// @brief プリセット信号のノード番号を返す．
+//
+// kBnNullId の場合もある．
+ymuint
 BnLatchImpl::preset() const
 {
   return mPreset;
