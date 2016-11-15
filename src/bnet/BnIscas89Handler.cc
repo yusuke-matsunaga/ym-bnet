@@ -8,17 +8,18 @@
 
 
 #include "BnIscas89Handler.h"
-#include "ym/BnBuilder.h"
+#include "ym/BnNetwork.h"
+#include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-// @param[in] builder ビルダーオブジェクト
+// @param[in] network 設定対象のネットワーク
 // @param[in] clock_name クロック端子名
-BnIscas89Handler::BnIscas89Handler(BnBuilder* builder,
+BnIscas89Handler::BnIscas89Handler(BnNetwork* network,
 				   const string& clock_name) :
-  mBuilder(builder),
+  mNetwork(network),
   mClockName(clock_name)
 {
 }
@@ -34,9 +35,9 @@ BnIscas89Handler::~BnIscas89Handler()
 bool
 BnIscas89Handler::init()
 {
-  mBuilder->clear();
+  mNetwork->clear();
 
-  mBuilder->set_model_name("iscas89_network");
+  mNetwork->set_name("iscas89_network");
 
   mIdMap.clear();
   mFaninInfoMap.clear();
@@ -57,10 +58,10 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 			     ymuint name_id,
 			     const char* name)
 {
-  ymuint id = mBuilder->add_input(name);
+  ymuint id = mNetwork->new_input(name);
   mIdMap.add(name_id, id);
 
-  mBuilder->add_port(name, id);
+  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -75,11 +76,11 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 			      ymuint name_id,
 			      const char* name)
 {
-  ymuint id = mBuilder->add_output(name, 0);
+  ymuint id = mNetwork->new_output(name, 0);
 
   add_fanin_info(id, vector<ymuint>(1, name_id));
 
-  mBuilder->add_port(name, id);
+  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -100,7 +101,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 			    const vector<ymuint>& iname_list)
 {
   ymuint ni = iname_list.size();
-  ymuint id = mBuilder->add_primitive(oname, logic_type, ni);
+  ymuint id = mNetwork->new_primitive(oname, ni, logic_type);
   mIdMap.add(oname_id, id);
 
   add_fanin_info(id, iname_list);
@@ -121,35 +122,29 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 			   const char* oname,
 			   ymuint iname_id)
 {
-  // DFF 情報を生成する．
-  BnBuilder::DffInfo& dff_info = mBuilder->add_dff(oname);
-
   // DFF の出力(BnNode的には入力ノード)を生成する．
-  ymuint input_id = mBuilder->add_input(oname);
-  mIdMap.add(oname_id, input_id);
-
-  dff_info.mOutput = input_id;
+  ymuint output_id = mNetwork->new_input(oname);
+  mIdMap.add(oname_id, output_id);
 
   // DFF の入力(BnNode的には出力ノード)を生成する．
-  ymuint output_id = mBuilder->add_output(id2str(iname_id), 0);
-
-  dff_info.mInput = output_id;
+  ymuint input_id = mNetwork->new_output(id2str(iname_id), 0);
 
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  add_fanin_info(output_id, vector<ymuint>(1, iname_id));
+  add_fanin_info(input_id, vector<ymuint>(1, iname_id));
 
   if ( mClockId == 0 ) {
     // クロック端子を作る．
-    ymuint node_id = mBuilder->add_input(mClockName);
+    ymuint node_id = mNetwork->new_input(mClockName);
 
     // クロックのポートを作る．
-    mBuilder->add_port(mClockName, node_id);
+    mNetwork->new_port(mClockName, node_id);
 
     // クロック端子の外部出力を作る．
-    mClockId = mBuilder->add_output(mClockName, node_id);
+    mClockId = mNetwork->new_output(mClockName, node_id);
   }
 
-  dff_info.mClock = mClockId;
+  // DFFを生成する．
+  mNetwork->new_dff(oname, input_id, output_id, mClockId);
 
   return true;
 }
@@ -161,30 +156,31 @@ bool
 BnIscas89Handler::end()
 {
   // ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mBuilder->node_num(); ++ node_id) {
+  for (ymuint node_id = 1; node_id <= mNetwork->node_num(); ++ node_id) {
     if ( !mFaninInfoMap.check(node_id) ) {
       continue;
     }
     const FaninInfo& fanin_info = mFaninInfoMap[node_id];
-    const BnBuilder::NodeInfo& node_info = mBuilder->node(node_id);
-    if ( node_info.mType == kBnLogic ) {
+
+    const BnNode* node = mNetwork->node(node_id);
+    if ( node->is_logic() ) {
       ymuint ni = fanin_info.fanin_num();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	ASSERT_COND( stat1 );
-	mBuilder->connect(inode_id, node_id, i);
+	mNetwork->connect(inode_id, node_id, i);
       }
     }
-    else if ( node_info.mType == kBnOutput ) {
+    else if ( node->is_output() ) {
       ymuint iname_id = fanin_info.fanin(0);
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
-      mBuilder->connect(inode_id, node_id, 0);
+      mNetwork->connect(inode_id, node_id, 0);
     }
   }
-  bool stat = mBuilder->wrap_up();
+  bool stat = mNetwork->wrap_up();
   return stat;
 }
 
@@ -198,7 +194,7 @@ BnIscas89Handler::normal_exit()
 void
 BnIscas89Handler::error_exit()
 {
-  mBuilder->clear();
+  mNetwork->clear();
 }
 
 // @brief ファンイン情報を追加する．

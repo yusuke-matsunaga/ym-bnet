@@ -8,20 +8,22 @@
 
 
 #include "BnBlifHandler.h"
-#include "ym/BnBuilder.h"
+#include "ym/BnNetwork.h"
+#include "ym/BnNode.h"
 #include "ym/BlifCover.h"
+#include "ym/Cell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-// @param[in] builder ビルダーオブジェクト
+// @param[in] network ネットワーク
 // @param[in] clock_name クロック端子名
 // @param[in] reset_name リセット端子名
-BnBlifHandler::BnBlifHandler(BnBuilder* builder,
+BnBlifHandler::BnBlifHandler(BnNetwork* network,
 			     const string& clock_name,
 			     const string& reset_name) :
-  mBuilder(builder),
+  mNetwork(network),
   mClockName(clock_name),
   mResetName(reset_name)
 {
@@ -36,7 +38,7 @@ BnBlifHandler::~BnBlifHandler()
 bool
 BnBlifHandler::init()
 {
-  mBuilder->clear();
+  mNetwork->clear();
 
   mIdMap.clear();
   mFaninInfoMap.clear();
@@ -55,7 +57,7 @@ BnBlifHandler::model(const FileRegion& loc1,
 		     const FileRegion& loc2,
 		     const char* name)
 {
-  mBuilder->set_model_name(name);
+  mNetwork->set_name(name);
 
   return true;
 }
@@ -68,11 +70,11 @@ bool
 BnBlifHandler::inputs_elem(ymuint name_id,
 			   const char* name)
 {
-  ymuint id = mBuilder->add_input(name);
+  ymuint id = mNetwork->new_input(name);
   mIdMap.add(name_id, id);
 
   // 関連するポートを作る．
-  mBuilder->add_port(name, id);
+  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -84,12 +86,12 @@ bool
 BnBlifHandler::outputs_elem(ymuint name_id,
 			    const char* name)
 {
-  ymuint id = mBuilder->add_output(name);
+  ymuint id = mNetwork->new_output(name);
 
   mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
 
   // 関連するポートを作る．
-  mBuilder->add_port(name, id);
+  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -112,10 +114,10 @@ BnBlifHandler::names(ymuint oname_id,
 
   ymuint ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
-  ymuint id = mBuilder->add_expr(oname, expr);
-  mIdMap.add(oname_id, id);
+  ymuint node_id = mNetwork->new_expr(oname, ni, expr);
+  mIdMap.add(oname_id, node_id);
 
-  mFaninInfoMap.add(id, inode_id_array);
+  mFaninInfoMap.add(node_id, inode_id_array);
 
   return true;
 }
@@ -133,10 +135,13 @@ BnBlifHandler::gate(ymuint oname_id,
 		    const vector<ymuint>& inode_id_array,
 		    const Cell* cell)
 {
-  ymuint id = mBuilder->add_cell(oname, cell);
-  mIdMap.add(oname_id, id);
+  const Expr& expr = cell->logic_expr(0);
+  ymuint ni = inode_id_array.size();
+  ASSERT_COND( ni == expr.input_size() );
+  ymuint node_id = mNetwork->new_expr(oname, ni, expr, cell);
+  mIdMap.add(oname_id, node_id);
 
-  mFaninInfoMap.add(id, inode_id_array);
+  mFaninInfoMap.add(node_id, inode_id_array);
 
   return true;
 }
@@ -156,54 +161,49 @@ BnBlifHandler::latch(ymuint oname_id,
 		     const FileRegion& loc4,
 		     char rval)
 {
-  // DFF 情報を生成する．
-  BnBuilder::DffInfo& dff_info = mBuilder->add_dff(oname);
-
   // DFF の出力(BnNode的には入力ノード)を生成
-  ymuint input_id = mBuilder->add_input(oname);
-  mIdMap.add(oname_id, input_id);
-
-  dff_info.mOutput = input_id;
+  ymuint output_id = mNetwork->new_input(oname);
+  mIdMap.add(oname_id, output_id);
 
   // DFF の入力(BnNode的には出力ノード)を生成
-  ymuint output_id = mBuilder->add_output(id2str(iname_id));
-
-  dff_info.mInput = output_id;
+  ymuint input_id = mNetwork->new_output(id2str(iname_id));
 
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  mFaninInfoMap.add(output_id, vector<ymuint>(1, iname_id));
+  mFaninInfoMap.add(input_id, vector<ymuint>(1, iname_id));
 
   if ( mClockId == 0 ) {
     // クロック端子を作る．
-    ymuint node_id = mBuilder->add_input(mClockName);
+    ymuint node_id = mNetwork->new_input(mClockName);
 
     // クロックのポートを作る．
-    mBuilder->add_port(mClockName, node_id);
+    mNetwork->new_port(mClockName, node_id);
 
     // クロック端子の外部出力を作る．
-    mClockId = mBuilder->add_output(mClockName, node_id);
+    mClockId = mNetwork->new_output(mClockName, node_id);
   }
 
-  // クロック端子をセットする．
-  dff_info.mClock = mClockId;
-
+  ymuint clear_id = kBnNullId;
+  ymuint preset_id = kBnNullId;
   if ( rval == '0' || rval == '1' ) {
     // リセット端子を作る．
-    ymuint node_id = mBuilder->add_input(mResetName);
+    ymuint node_id = mNetwork->new_input(mResetName);
 
     // リセット端子のポートを作る．
-    mBuilder->add_port(mResetName, node_id);
+    mNetwork->new_port(mResetName, node_id);
 
     // リセット端子の外部出力を作る．
-    mResetId = mBuilder->add_output(mResetName, node_id);
+    mResetId = mNetwork->new_output(mResetName, node_id);
 
     if ( rval == 0 ) {
-      dff_info.mClear = mResetId;
+      clear_id = mResetId;
     }
     else if ( rval == 1 ) {
-      dff_info.mPreset = mResetId;
+      preset_id = mResetId;
     }
   }
+
+  // DFF 情報を生成する．
+  mNetwork->new_dff(oname, input_id, output_id, mClockId, clear_id, preset_id);
 
   return true;
 }
@@ -214,33 +214,33 @@ bool
 BnBlifHandler::end(const FileRegion& loc)
 {
   // ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mBuilder->node_num(); ++ node_id) {
+  for (ymuint node_id = 1; node_id <= mNetwork->node_num(); ++ node_id) {
     vector<ymuint> fanin_info;
     bool stat = mFaninInfoMap.find(node_id, fanin_info);
     if ( !stat ) {
       continue;
     }
 
-    const BnBuilder::NodeInfo& node_info = mBuilder->node(node_id);
-    if ( node_info.mType == kBnLogic ) {
+    const BnNode* node = mNetwork->node(node_id);
+    if ( node->is_logic() ) {
       ymuint ni = fanin_info.size();
       for (ymuint i = 0; i < ni; ++ i) {
 	ymuint inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
-	mBuilder->connect(inode_id, node_id, i);
+	mNetwork->connect(inode_id, node_id, i);
       }
     }
-    else if ( node_info.mType == kBnOutput ) {
+    else if ( node->is_output() ) {
       ymuint iname_id = fanin_info[0];
       ymuint inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
-      mBuilder->connect(inode_id, node_id, 0);
+      mNetwork->connect(inode_id, node_id, 0);
     }
   }
 
-  bool stat = mBuilder->wrap_up();
+  bool stat = mNetwork->wrap_up();
 
   return stat;
 }
@@ -255,7 +255,7 @@ BnBlifHandler::normal_exit()
 void
 BnBlifHandler::error_exit()
 {
-  mBuilder->clear();
+  mNetwork->clear();
 }
 
 END_NAMESPACE_YM_BNET

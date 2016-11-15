@@ -1,5 +1,5 @@
 
-/// @file BnBuilderTest.cc
+/// @file loop_test.cc
 /// @brief BnBuilderTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "ym/BnBuilder.h"
+#include "ym/BnNetwork.h"
 #include "ym/BnBlifReader.h"
 #include "ym/BnIscas89Reader.h"
 #include "ym/Iscas89Parser.h"
@@ -20,9 +20,8 @@ blif_loop_test(ymuint loop_count,
 	       const string& filename)
 {
   for (ymuint i = 0; i < loop_count; ++ i) {
-    BnBuilder builder;
-    BnBlifReader reader;
-    reader.read(builder, filename);
+    BnNetwork network;
+    BnBlifReader::read(network, filename);
   }
 }
 
@@ -31,9 +30,8 @@ iscas89_loop_test(ymuint loop_count,
 		  const string& filename)
 {
   for (ymuint i = 0; i < loop_count; ++ i) {
-    BnBuilder builder;
-    BnIscas89Reader reader;
-    reader.read(builder, filename);
+    BnNetwork network;
+    BnIscas89Reader::read(network, filename);
   }
 }
 

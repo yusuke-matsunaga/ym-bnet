@@ -67,14 +67,6 @@ BnNodeImpl::is_logic() const
   return false;
 }
 
-// @brief ファンアウトを追加する．
-// @param[in] node_id ノード番号
-void
-BnNodeImpl::add_fanout(ymuint node_id)
-{
-  mFanoutList.push_back(node_id);
-}
-
 // @brief ファンアウト数を得る．
 ymuint
 BnNodeImpl::fanout_num() const
@@ -182,6 +174,24 @@ BnNodeImpl::input() const
   return kBnNullId;
 }
 
+// @brief ファンインを設定する．
+// @param[in] ipos 入力位置
+// @param[in] fanin_id ファンインのノード番号
+void
+BnNodeImpl::set_fanin(ymuint ipos,
+		      ymuint fanin_id)
+{
+  ASSERT_NOT_REACHED;
+}
+
+// @brief ファンアウトを追加する．
+// @param[in] node_id ノード番号
+void
+BnNodeImpl::add_fanout(ymuint node_id)
+{
+  mFanoutList.push_back(node_id);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnInputNode
@@ -260,6 +270,17 @@ BnOutputNode::input() const
   return mInput;
 }
 
+// @brief ファンインを設定する．
+// @param[in] ipos 入力位置
+// @param[in] fanin_id ファンインのノード番号
+void
+BnOutputNode::set_fanin(ymuint ipos,
+			ymuint fanin_id)
+{
+  ASSERT_COND( ipos == 0 );
+  mInput = fanin_id;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnLogicNode
@@ -268,19 +289,19 @@ BnOutputNode::input() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのノード番号の配列
+/// @param[in] ni 入力数
 // @param[in] cell セル (nullptr の場合もあり)
 BnLogicNode::BnLogicNode(ymuint id,
 			 const string& name,
-			 const vector<ymuint>& fanins,
+			 ymuint ni,
 			 const Cell* cell) :
   BnNodeImpl(id, name),
-  mFaninNum(fanins.size()),
+  mFaninNum(ni),
   mCell(cell)
 {
   mFanins = new ymuint[mFaninNum];
   for (ymuint i = 0; i < mFaninNum; ++ i) {
-    mFanins[i] = fanins[i];
+    mFanins[i] = kBnNullId;
   }
 }
 
@@ -330,6 +351,17 @@ BnLogicNode::cell() const
   return mCell;
 }
 
+// @brief ファンインを設定する．
+// @param[in] ipos 入力位置
+// @param[in] fanin_id ファンインのノード番号
+void
+BnLogicNode::set_fanin(ymuint ipos,
+		       ymuint fanin_id)
+{
+  ASSERT_COND( ipos < fanin_num() );
+  mFanins[ipos] = fanin_id;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnPrimNode
@@ -338,15 +370,15 @@ BnLogicNode::cell() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのID番号の配列
+// @param[in] ni 入力数
 // @param[in] logic_type 論理タイプ
 // @param[in] cell セル (nullptr の場合もあり)
 BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
-		       const vector<ymuint>& fanins,
+		       ymuint ni,
 		       BnLogicType logic_type,
 		       const Cell* cell) :
-  BnLogicNode(id, name, fanins, cell),
+  BnLogicNode(id, name, ni, cell),
   mLogicType(logic_type)
 {
 }
@@ -373,17 +405,17 @@ BnPrimNode::logic_type() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのID番号の配列
+// @param[in] ni 入力数
 // @param[in] expr 論理式
 // @param[in] expr_id 論理式番号
 // @param[in] cell セル (nullptr の場合もあり)
 BnExprNode::BnExprNode(ymuint id,
 		       const string& name,
-		       const vector<ymuint>& fanins,
+		       ymuint ni,
 		       const Expr& expr,
 		       ymuint expr_id,
 		       const Cell* cell) :
-  BnLogicNode(id, name, fanins, cell),
+  BnLogicNode(id, name, ni, cell),
   mExpr(expr),
   mExprId(expr_id)
 {
@@ -431,17 +463,17 @@ BnExprNode::expr() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-// @param[in] fanins ファンインのID番号の配列
+// @param[in] ni 入力数
 // @param[in] tv 真理値表
 // @param[in] func_id 関数番号
 // @param[in] cell セル (nullptr の場合もあり)
 BnTvNode::BnTvNode(ymuint id,
 		   const string& name,
-		   const vector<ymuint>& fanins,
+		   ymuint ni,
 		   const TvFunc& func,
 		   ymuint func_id,
 		   const Cell* cell) :
-  BnLogicNode(id, name, fanins, cell),
+  BnLogicNode(id, name, ni, cell),
   mFunc(func),
   mFuncId(func_id)
 {

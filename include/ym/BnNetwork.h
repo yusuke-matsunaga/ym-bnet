@@ -17,6 +17,8 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BnNodeImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetwork BnNetwork.h "ym/BnNetwork.h"
 /// @brief ブーリアンネットワークを表すクラス
@@ -86,11 +88,6 @@ public:
   void
   copy(const BnNetwork& src);
 
-  /// @brief 内容をコピーする．
-  /// @param[in] src コピー元のBnBuilder
-  void
-  copy(const BnBuilder& src);
-
   /// @brief ネットワーク名を設定する．
   /// @param[in] name ネットワーク名
   void
@@ -98,61 +95,61 @@ public:
 
   /// @brief 外部入力ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @return 生成した入力ノードを返す．
+  /// @return 生成した入力ノードの番号を返す．
   ///
   /// ノード名の重複に関しては感知しない．
-  BnNode*
+  ymuint
   new_input(const string& node_name);
 
   /// @brief 外部出力ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] inode_id 入力のノード番号
-  /// @return 生成した出力ノードを返す．
+  /// @return 生成した出力ノードの番号を返す．
   ///
   /// ノード名の重複に関しては感知しない．
-  BnNode*
+  ymuint
   new_output(const string& node_name,
-	     ymuint inode_id);
+	     ymuint inode_id = kBnNullId);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] ni 入力数
   /// @param[in] logic_type 論理型
   /// @param[in] cell セル
-  /// @return 生成した論理ノードを返す．
+  /// @return 生成した論理ノードの番号を返す．
   ///
   /// ノード名の重複に関しては感知しない．
-  BnNode*
+  ymuint
   new_primitive(const string& node_name,
-		const vector<ymuint>& inode_id_list,
+		ymuint ni,
 		BnLogicType logic_type,
 		const Cell* cell = nullptr);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] ni 入力数
   /// @param[in] expr 論理式
   /// @param[in] cell セル
-  /// @return 生成した論理ノードを返す．
+  /// @return 生成した論理ノードの番号を返す．
   ///
   /// ノード名の重複に関しては感知しない．
-  BnNode*
+  ymuint
   new_expr(const string& node_name,
-	   const vector<ymuint>& inode_id_list,
+	   ymuint ni,
 	   const Expr& expr,
 	   const Cell* cell = nullptr);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] inode_id_list ファンインのノード番号のリスト
+  /// @param[in] ni 入力数
   /// @param[in] tv 真理値表
   /// @param[in] cell セル
-  /// @return 生成した論理ノードを返す．
+  /// @return 生成した論理ノードの番号を返す．
   ///
   /// ノード名の重複に関しては感知しない．
-  BnNode*
+  ymuint
   new_tv(const string& node_name,
-	 const vector<ymuint>& inode_id_list,
+	 ymuint ni,
 	 const TvFunc& tv,
 	 const Cell* cell = nullptr);
 
@@ -205,6 +202,32 @@ public:
 	    ymuint enable,
 	    ymuint clear = kBnNullId,
 	    ymuint preset = kBnNullId);
+
+  /// @brief ノード間を接続する．
+  /// @param[in] src_node ファンアウト元のノード番号
+  /// @param[in] dst_node ファンイン先のノード番号
+  /// @param[in] ipos ファンインの位置
+  void
+  connect(ymuint src_node,
+	  ymuint dst_node,
+	  ymuint ipos);
+
+  /// @brief 整合性のチェックを行う．
+  /// @return チェック結果を返す．
+  ///
+  /// チェック項目は以下の通り
+  /// - name() が設定されているか？
+  ///   設定されていない場合にはデフォルト値を設定する．
+  ///   エラーとはならない．
+  /// - 各ポートの各ビットのノード番号が適切か？
+  /// - 各DFFの入力，出力およびクロックが設定されているか？
+  /// - 各ラッチの入力，出力およびイネーブルが設定されているか？
+  /// - 各ノードのファンインが設定されているか？
+  ///
+  /// この関数を呼んだあとは論理ノードがトポロジカルソートされる．
+  /// というかこの関数を呼ばないと logic_num(), logic() は正しくない．
+  bool
+  wrap_up();
 
 
 public:
@@ -325,31 +348,6 @@ private:
   ymuint
   _add_tv(const TvFunc& tv);
 
-#if 0
-  /// @brief 関数の数を設定する．
-  /// @param[in] func_num 関数の数
-  void
-  set_func_num(ymuint func_num);
-
-  /// @brief 関数を設定する．
-  /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-  /// @param[in] tv 設定する関数
-  void
-  set_func(ymuint func_id,
-	   const TvFunc& tv);
-
-  /// @brief 論理式の数を設定する．
-  /// @param[in] expr_num 論理式の数
-  void
-  set_expr_num(ymuint expr_num);
-
-  /// @brief 論理式を設定する．
-  /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
-  /// @param[in] expr 設定する論理式
-  void
-  set_expr(ymuint expr_id,
-	   const Expr& expr);
-#endif
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -378,7 +376,7 @@ private:
   vector<BnNode*> mLogicList;
 
   // ノード番号をキーにしてノードを納めた配列
-  vector<BnNode*> mNodeList;
+  vector<BnNodeImpl*> mNodeList;
 
   // 関数のリスト
   vector<TvFunc> mFuncList;
@@ -391,6 +389,9 @@ private:
 
   // TvFunc をキーにして論理式番号を入れるハッシュ表
   HashMap<TvFunc, ymuint> mExprMap;
+
+  // wrap_up() が実行後の時に true となるフラグ
+  bool mSane;
 
 };
 

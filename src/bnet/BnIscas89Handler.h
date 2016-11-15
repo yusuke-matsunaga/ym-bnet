@@ -25,9 +25,9 @@ class BnIscas89Handler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] builder ビルダーオブジェクト
+  /// @param[in] network 設定対象のネットワーク
   /// @param[in] clock_name クロック端子名
-  BnIscas89Handler(BnBuilder* builder,
+  BnIscas89Handler(BnNetwork* network,
 		   const string& clock_name = "clock");
 
   /// @brief デストラクタ
@@ -229,8 +229,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ビルダーオブジェクト
-  BnBuilder* mBuilder;
+  // ネットワーク
+  BnNetwork* mNetwork;
 
   // クロック端子名
   string mClockName;

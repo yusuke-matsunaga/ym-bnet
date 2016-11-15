@@ -18,53 +18,30 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @class BnBlifReader BnBlifReader.h "BnBlifReader.h"
 /// @brief blif ファイルを読み込んで BnBuilder に設定するクラス
+///
+/// このクラスは実体を持たない．
 //////////////////////////////////////////////////////////////////////
 class BnBlifReader
 {
-public:
-
-  /// @brief コンストラクタ
-  /// @param[in] clock_name クロック端子名
-  /// @param[in] reset_name リセット端子名
-  BnBlifReader(const string& clock_name = "clock",
-	       const string& reset_name = "reset");
-
-  /// @brief デストラクタ
-  ~BnBlifReader();
-
-
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
   /// @brief blif ファイルを読み込む．
-  /// @param[in] builder 設定対象のビルダーオブジェクト
+  /// @param[in] network 設定対象のネットワーク
   /// @param[in] filename ファイル名
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
   /// @param[in] cell_library セルライブラリ
   /// @return 読み込みが成功したら true を返す．
+  static
   bool
-  read(BnBuilder& builder,
+  read(BnNetwork& network,
        const string& filename,
-       const CellLibrary* cell_library = nullptr);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // クロック端子名
-  string mClockName;
-
-  // リセット端子名
-  string mResetName;
+       const CellLibrary* cell_library = nullptr,
+       const string& clock_name = "clock",
+       const string& reset_name = "reset");
 
 };
 

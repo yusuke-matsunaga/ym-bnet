@@ -26,10 +26,10 @@ class BnBlifHandler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] builder ビルダーオブジェクト
+  /// @param[in] network ネットワーク
   /// @param[in] clock_name クロック端子名
   /// @param[in] reset_name リセット端子名
-  BnBlifHandler(BnBuilder* builder,
+  BnBlifHandler(BnNetwork* network,
 		const string& clock_name = "clock",
 		const string& reset_name = "reset");
 
@@ -145,8 +145,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ビルダーオブジェクト
-  BnBuilder* mBuilder;
+  // ネットワーク
+  BnNetwork* mNetwork;
 
   // クロック端子名
   string mClockName;

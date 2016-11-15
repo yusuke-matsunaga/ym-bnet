@@ -97,12 +97,6 @@ public:
   bool
   is_logic() const = 0;
 
-  /// @brief ファンアウトを追加する．
-  /// @param[in] onode_id ファンアウトのノード番号
-  virtual
-  void
-  add_fanout(ymuint onode_id) = 0;
-
   /// @brief ファンアウト数を得る．
   virtual
   ymuint

@@ -71,12 +71,6 @@ public:
   bool
   is_logic() const;
 
-  /// @brief ファンアウトを追加する．
-  /// @param[in] node_id ノード番号
-  virtual
-  void
-  add_fanout(ymuint node_id);
-
   /// @brief ファンアウト数を得る．
   virtual
   ymuint
@@ -165,6 +159,27 @@ public:
   virtual
   ymuint
   input() const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインを設定する．
+  /// @param[in] ipos 入力位置
+  /// @param[in] fanin_id ファンインのノード番号
+  virtual
+  void
+  set_fanin(ymuint ipos,
+	    ymuint fanin_id);
+
+  /// @brief ファンアウトを追加する．
+  /// @param[in] onode_id ファンアウトのノード番号
+  virtual
+  void
+  add_fanout(ymuint onode_id);
+
 
 
 private:
@@ -279,6 +294,20 @@ public:
   input() const;
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインを設定する．
+  /// @param[in] ipos 入力位置
+  /// @param[in] fanin_id ファンインのノード番号
+  virtual
+  void
+  set_fanin(ymuint ipos,
+	    ymuint fanin_id);
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
@@ -305,11 +334,11 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノード番号の配列
+  /// @param[in] ni 入力数
   /// @param[in] cell セル (nullptr の場合もあり)
   BnLogicNode(ymuint id,
 	      const string& name,
-	      const vector<ymuint>& fanins,
+	      ymuint ni,
 	      const Cell* cell);
 
   /// @brief デストラクタ
@@ -358,6 +387,20 @@ public:
   cell() const;
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインを設定する．
+  /// @param[in] ipos 入力位置
+  /// @param[in] fanin_id ファンインのノード番号
+  virtual
+  void
+  set_fanin(ymuint ipos,
+	    ymuint fanin_id);
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
@@ -391,12 +434,12 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノード番号の配列
+  /// @param[in] ni 入力数
   /// @param[in] logic_type 論理タイプ
   /// @param[in] cell セル (nullptr の場合もあり)
   BnPrimNode(ymuint id,
 	     const string& name,
-	     const vector<ymuint>& fanins,
+	     ymuint ni,
 	     BnLogicType logic_type,
 	     const Cell* cell = nullptr);
 
@@ -442,13 +485,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノード番号の配列
+  /// @param[in] ni 入力数
   /// @param[in] expr 論理式
   /// @param[in] expr_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(ymuint id,
 	     const string& name,
-	     const vector<ymuint>& fanins,
+	     ymuint ni,
 	     const Expr& expr,
 	     ymuint expr_id,
 	     const Cell* cell = nullptr);
@@ -518,13 +561,13 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] name ノード名
-  /// @param[in] fanins ファンインのノード番号の配列
+  /// @param[in] ni 入力数
   /// @param[in] func 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(ymuint id,
 	   const string& name,
-	   const vector<ymuint>& fanins,
+	   ymuint ni,
 	   const TvFunc& func,
 	   ymuint func_id,
 	   const Cell* cell = nullptr);

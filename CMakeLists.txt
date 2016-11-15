@@ -62,7 +62,6 @@ set ( blif_SOURCES
 set ( bnet_SOURCES
   src/bnet/BnBlifHandler.cc
   src/bnet/BnBlifReader.cc
-  src/bnet/BnBuilder.cc
   src/bnet/BnDffImpl.cc
   src/bnet/BnIscas89Handler.cc
   src/bnet/BnIscas89Reader.cc
