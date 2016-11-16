@@ -83,7 +83,7 @@ public:
   virtual
   bool
   outputs_elem(ymuint name_id,
-	       const char*) = 0;
+	       const char* name) = 0;
 
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号
