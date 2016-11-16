@@ -8,7 +8,7 @@
 /// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-/// @defgroup BlifGroup BLIF パーサ
+/// @defgroup ym-bnet Boolean Network を扱うモジュール
 ///
 /// UCB で開発された mis, sis の標準入出力フォーマット
 /// BLIF(Berkeley Logic Interchange Format) 用のパーサ
