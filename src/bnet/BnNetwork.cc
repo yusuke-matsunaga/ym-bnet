@@ -562,6 +562,10 @@ BnNetwork::new_output(const string& node_name,
   BnNodeImpl* node = new BnOutputNode(id, node_name, inode_id);
   mNodeList.push_back(node);
   mOutputList.push_back(node);
+  if ( inode_id != kBnNullId ) {
+    BnNodeImpl* inode = mNodeList[inode_id];
+    inode->add_fanout(id);
+  }
 
   return node->id();
 }
