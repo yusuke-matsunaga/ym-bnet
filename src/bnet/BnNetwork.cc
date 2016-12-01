@@ -9,9 +9,13 @@
 
 #include "ym/BnNetwork.h"
 #include "ym/Cell.h"
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
 
 #include "BnPortImpl.h"
-#include "BnNodeImpl.h"
+#include "BnInputNode.h"
+#include "BnOutputNode.h"
+#include "BnLogicNode.h"
 #include "BnDffImpl.h"
 #include "BnLatchImpl.h"
 
@@ -119,13 +123,123 @@ BnNetwork::copy(const BnNetwork& src)
   // srcのノード番号をキーにしてノード番号を格納するハッシュ表
   HashMap<ymuint, ymuint> id_map;
 
-  // 外部入力の生成
-  ymuint ni = src.input_num();
-  for (ymuint i = 0; i < ni; ++ i) {
-    const BnNode* src_node = src.input(i);
-    ymuint dst_id = new_input(src_node->name());
-    id_map.add(src_node->id(), dst_id);
+  // ポートの生成
+  ymuint np = src.port_num();
+  for (ymuint i = 0; i < np; ++ i) {
+    const BnPort* src_port = src.port(i);
+    string port_name = src_port->name();
+
+    // 各ビットの方向を求める．
+    ymuint nb = src_port->bit_width();
+    vector<int> dirs(nb);
+    for (ymuint j = 0; j < nb; ++ j) {
+      ymuint id = src_port->bit(j);
+      const BnNode* node = src.node(id);
+      if ( node->is_input() ) {
+	dirs[j] = 0;
+      }
+      else if ( node->is_output() ) {
+	dirs[j] = 1;
+      }
+      else {
+	ASSERT_NOT_REACHED;
+      }
+    }
+
+    // ポートの生成
+    BnPort* dst_port = new_port(port_name, dirs);
+
+    ASSERT_COND( src_port->id() == dst_port->id() );
+
+    // 各ビットの対応関係を記録する．
+    for (ymuint j = 0; j < nb; ++ j) {
+      ymuint src_id = src_port->bit(j);
+      ymuint dst_id = dst_port->bit(j);
+      id_map.add(src_id, dst_id);
+    }
   }
+
+  // DFF の生成
+  ymuint ndff = src.dff_num();
+  for (ymuint i = 0; i < ndff; ++ i) {
+    const BnDff* src_dff = src.dff(i);
+    string dff_name = src_dff->name();
+    bool has_clear = (src_dff->clear() != kBnNullId);
+    bool has_preset = (src_dff->preset() != kBnNullId);
+    BnDff* dst_dff = new_dff(dff_name, has_clear, has_preset);
+
+    ASSERT_COND( src_dff->id() == dst_dff->id() );
+
+    // 各端子の対応関係を記録する．
+    {
+      ymuint src_id = src_dff->input();
+      ymuint dst_id = dst_dff->input();
+      id_map.add(src_id, dst_id);
+    }
+    {
+      ymuint src_id = src_dff->output();
+      ymuint dst_id = dst_dff->output();
+      id_map.add(src_id, dst_id);
+    }
+    {
+      ymuint src_id = src_dff->clock();
+      ymuint dst_id = dst_dff->clock();
+      id_map.add(src_id, dst_id);
+    }
+    if ( has_clear ) {
+      ymuint src_id = src_dff->clear();
+      ymuint dst_id = dst_dff->clear();
+      id_map.add(src_id, dst_id);
+    }
+    if ( has_preset ) {
+      ymuint src_id = src_dff->preset();
+      ymuint dst_id = dst_dff->preset();
+      id_map.add(src_id, dst_id);
+    }
+  }
+
+  // ラッチの生成
+  ymuint nlatch = src.latch_num();
+  for (ymuint i = 0; i < nlatch; ++ i) {
+    const BnLatch* src_latch = src.latch(i);
+    string latch_name = src_latch->name();
+
+    bool has_clear = (src_latch->clear() != kBnNullId);
+    bool has_preset = (src_latch->preset() != kBnNullId);
+    BnLatch* dst_latch = new_latch(latch_name, has_clear, has_preset);
+
+    ASSERT_COND( dst_latch->id() == src_latch->id() );
+
+    // 各端子の対応関係を記録する．
+    {
+      ymuint src_id = src_latch->input();
+      ymuint dst_id = dst_latch->input();
+      id_map.add(src_id, dst_id);
+    }
+    {
+      ymuint src_id = src_latch->output();
+      ymuint dst_id = dst_latch->output();
+      id_map.add(src_id, dst_id);
+    }
+    {
+      ymuint src_id = src_latch->enable();
+      ymuint dst_id = dst_latch->enable();
+      id_map.add(src_id, dst_id);
+    }
+    if ( has_clear ) {
+      ymuint src_id = src_latch->clear();
+      ymuint dst_id = dst_latch->clear();
+      id_map.add(src_id, dst_id);
+    }
+    if ( has_preset ) {
+      ymuint src_id = src_latch->preset();
+      ymuint dst_id = dst_latch->preset();
+      id_map.add(src_id, dst_id);
+    }
+  }
+
+  ASSERT_COND( src.input_num() == input_num() );
+  ASSERT_COND( src.output_num() == output_num() );
 
   // 関数情報の生成
   ymuint nfunc = src.mFuncList.size();
@@ -172,51 +286,16 @@ BnNetwork::copy(const BnNetwork& src)
     }
   }
 
-  // 外部出力の生成
-  ymuint no = src.output_num();
-  for (ymuint i = 0; i < no; ++ i) {
+  // 出力端子のファンインの接続
+  ymuint npo = output_num();
+  for (ymuint i = 0; i < npo; ++ i) {
     const BnNode* src_node = src.output(i);
-    ymuint src_iid = src_node->input();
-    ymuint iid = conv_id(src_iid, id_map);
-    ymuint dst_id = new_output(src_node->name(), iid);
-    id_map.add(src_node->id(), dst_id);
-  }
+    ymuint src_id = src_node->id();
+    ymuint src_fanin_id = src_node->fanin();
 
-  // ポートの生成
-  ymuint np = src.port_num();
-  for (ymuint i = 0; i < np; ++ i) {
-    const BnPort* src_port = src.port(i);
-    ymuint nb = src_port->bit_width();
-    vector<ymuint> bits(nb);
-    for (ymuint j = 0; j < nb; ++ j) {
-      ymuint src_id = src_port->bit(j);
-      bits[j] = conv_id(src_id, id_map);
-    }
-    new_port(src_port->name(), bits);
-  }
-
-  // DFFの生成
-  ymuint nff = src.dff_num();
-  for (ymuint i = 0; i < nff; ++ i) {
-    const BnDff* src_dff = src.dff(i);
-    ymuint input = conv_id(src_dff->input(), id_map);
-    ymuint output = conv_id(src_dff->output(), id_map);
-    ymuint clock = conv_id(src_dff->clock(), id_map);
-    ymuint clear = conv_id(src_dff->clear(), id_map);
-    ymuint preset = conv_id(src_dff->preset(), id_map);
-    new_dff(src_dff->name(), input, output, clock, clear, preset);
-  }
-
-  // ラッチの生成
-  ymuint nlatch = src.latch_num();
-  for (ymuint i = 0; i < nlatch; ++ i) {
-    const BnLatch* src_latch = src.latch(i);
-    ymuint input = conv_id(src_latch->input(), id_map);
-    ymuint output = conv_id(src_latch->output(), id_map);
-    ymuint enable = conv_id(src_latch->enable(), id_map);
-    ymuint clear = conv_id(src_latch->clear(), id_map);
-    ymuint preset = conv_id(src_latch->preset(), id_map);
-    new_latch(src_latch->name(), input, output, enable, clear, preset);
+    ymuint dst_id = conv_id(src_id, id_map);
+    ymuint dst_fanin_id = conv_id(src_fanin_id, id_map);
+    connect(dst_fanin_id, dst_id, 0);
   }
 
   bool stat = wrap_up();
@@ -418,7 +497,7 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node->type() == kBnOutput );
     s << "output#" << i << ": " << node->id()
       << "(" << node->name() << ")" << endl
-      << "    input: " << node->input() << endl;
+      << "    input: " << node->fanin() << endl;
   }
   s << endl;
 
@@ -532,46 +611,6 @@ BnNetwork::set_name(const string& name)
   mName = name;
 }
 
-#if 0
-// @brief 外部入力ノードを追加する．
-// @param[in] node_name ノード名
-// @return 生成した入力ノードを返す．
-//
-// ノード名の重複に関しては感知しない．
-ymuint
-BnNetwork::new_input(const string& node_name)
-{
-  ymuint id = mNodeList.size();
-  BnNodeImpl* node = new BnInputNode(id, node_name);
-  mNodeList.push_back(node);
-  mInputList.push_back(node);
-
-  return node->id();
-}
-
-// @brief 外部出力ノードを追加する．
-// @param[in] node_name ノード名
-// @param[in] inode_id 入力のノード番号
-// @return 生成した出力ノードを返す．
-//
-// ノード名の重複に関しては感知しない．
-ymuint
-BnNetwork::new_output(const string& node_name,
-		      ymuint inode_id)
-{
-  ymuint id = mNodeList.size();
-  BnNodeImpl* node = new BnOutputNode(id, node_name, inode_id);
-  mNodeList.push_back(node);
-  mOutputList.push_back(node);
-  if ( inode_id != kBnNullId ) {
-    BnNodeImpl* inode = mNodeList[inode_id];
-    inode->add_fanout(id);
-  }
-
-  return node->id();
-}
-#endif
-
 // @brief 1ビットの入力ポートを作る．
 // @param[in] port_name ポート名
 // @return 生成したポートを返す．
@@ -623,7 +662,7 @@ BnNetwork::new_port(const string& port_name,
 		    const vector<int>& dir_vect)
 {
   ymuint port_id = mPortList.size();
-  bit_width = dir_vect.size();
+  ymuint bit_width = dir_vect.size();
   vector<ymuint> bits(bit_width);
   for (ymuint i = 0; i < bit_width; ++ i) {
     ymuint node_id = mNodeList.size();
@@ -690,7 +729,7 @@ BnNetwork::new_dff(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
     mNodeList.push_back(node);
-    mInputList.push_back(ode);
+    mInputList.push_back(node);
   }
 
   ymuint clock_id = mNodeList.size();
@@ -767,7 +806,7 @@ BnNetwork::new_latch(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
     mNodeList.push_back(node);
-    mInputList.push_back(ode);
+    mInputList.push_back(node);
   }
 
   ymuint enable_id = mNodeList.size();
@@ -890,33 +929,6 @@ BnNetwork::new_tv(const string& node_name,
 
   return node->id();
 }
-
-#if 0
-// @brief ポートを追加する．
-// @param[in] port_name ポート名
-// @param[in] bits 内容のノード番号のリスト
-void
-BnNetwork::new_port(const string& port_name,
-		    const vector<ymuint>& bits)
-{
-  if ( bits.size() == 1 ) {
-    mPortList.push_back(new BnPort1(port_name, bits[0]));
-  }
-  else {
-    mPortList.push_back(new BnPortN(port_name, bits));
-  }
-}
-
-// @brief ポートを追加する(1ビット版)．
-// @param[in] port_name ポート名
-// @param[in] bit 内容のノード番号
-void
-BnNetwork::new_port(const string& port_name,
-		    ymuint bit)
-{
-  mPortList.push_back(new BnPort1(port_name, bit));
-}
-#endif
 
 // @brief ノード間を接続する．
 // @param[in] src_id ファンアウト元のノード番号

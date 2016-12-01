@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "BnLogicNode.h"
+#include "BnNodeImpl.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 

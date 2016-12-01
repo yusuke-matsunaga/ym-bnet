@@ -9,6 +9,9 @@
 
 #include "BnNodeImpl.h"
 
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
+
 
 BEGIN_NAMESPACE_YM_BNET
 

@@ -32,7 +32,7 @@ public:
   /// @param[in] input_id 入力番号
   BnInputNode(ymuint id,
 	      const string& name,
-	      ymunt input_id);
+	      ymuint input_id);
 
   /// @brief デストラクタ
   virtual

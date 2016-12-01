@@ -10,6 +10,7 @@
 #include "BnBlifHandler.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
+#include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/BlifCover.h"
 #include "ym/Cell.h"
@@ -168,38 +169,41 @@ BnBlifHandler::latch(ymuint oname_id,
   }
   BnDff* dff = mNetwork->new_dff(oname, has_clear, has_preset);
 
-  ymuint input_id = dff->input();
+  ymuint output_id = dff->output();
+  mIdMap.add(oname_id, output_id);
 
+  ymuint input_id = dff->input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   mFaninInfoMap.add(input_id, vector<ymuint>(1, iname_id));
 
-  if ( mClockId == 0 ) {
+  if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
     BnPort* clock_port = mNetwork->new_input_port(mClockName);
+    // クロックの入力ノード番号を記録する．
     mClockId = clock_port->bit(0);
-
-    // クロック端子の外部出力を作る．
-    mClockId = mNetwork->new_output(mClockName, node_id);
   }
 
-  ymuint clear_id = kBnNullId;
-  ymuint preset_id = kBnNullId;
-  if ( rval == '0' || rval == '1' ) {
-    // リセット端子を作る．
-    ymuint node_id = mNetwork->new_input(mResetName);
+  // クロック入力とdffのクロック端子を結びつける．
+  ymuint clock_id = dff->clock();
+  mNetwork->connect(mClockId, clock_id, 0);
 
-    // リセット端子のポートを作る．
-    mNetwork->new_port(mResetName, node_id);
-
-    // リセット端子の外部出力を作る．
-    mResetId = mNetwork->new_output(mResetName, node_id);
-
-    if ( rval == 0 ) {
-      clear_id = mResetId;
+  if ( has_clear || has_preset ) {
+    if ( mResetId == kBnNullId ) {
+      // リセット端子のポートを作る．
+      BnPort* reset_port = mNetwork->new_input_port(mResetName);
+      // リセット端子の入力ノードを記録する．
+      mResetId = reset_port->bit(0);
     }
-    else if ( rval == 1 ) {
-      preset_id = mResetId;
-    }
+  }
+  if ( has_clear ) {
+    // リセット入力とクリア端子を結びつける．
+    ymuint clear_id = dff->clear();
+    mNetwork->connect(mResetId, clear_id, 0);
+  }
+  else if ( has_preset ) {
+    // リセット入力とプリセット端子を結びつける．
+    ymuint preset_id = dff->preset();
+    mNetwork->connect(mResetId, preset_id, 0);
   }
 
   return true;

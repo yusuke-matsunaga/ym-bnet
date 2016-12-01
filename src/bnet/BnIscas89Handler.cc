@@ -9,6 +9,8 @@
 
 #include "BnIscas89Handler.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnPort.h"
+#include "ym/BnDff.h"
 #include "ym/BnNode.h"
 
 
@@ -58,10 +60,9 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 			     ymuint name_id,
 			     const char* name)
 {
-  ymuint id = mNetwork->new_input(name);
+  BnPort* port = mNetwork->new_input_port(name);
+  ymuint id = port->bit(0);
   mIdMap.add(name_id, id);
-
-  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -76,11 +77,10 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 			      ymuint name_id,
 			      const char* name)
 {
-  ymuint id = mNetwork->new_output(name, 0);
+  BnPort* port = mNetwork->new_output_port(name);
+  ymuint id = port->bit(0);
 
   add_fanin_info(id, vector<ymuint>(1, name_id));
-
-  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -122,29 +122,27 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 			   const char* oname,
 			   ymuint iname_id)
 {
-  // DFF の出力(BnNode的には入力ノード)を生成する．
-  ymuint output_id = mNetwork->new_input(oname);
+  // この形式ではクロック以外の制御端子はない．
+
+  BnDff* dff = mNetwork->new_dff(oname);
+
+  ymuint output_id = dff->output();
   mIdMap.add(oname_id, output_id);
 
-  // DFF の入力(BnNode的には出力ノード)を生成する．
-  ymuint input_id = mNetwork->new_output(id2str(iname_id), 0);
-
+  ymuint input_id = dff->input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   add_fanin_info(input_id, vector<ymuint>(1, iname_id));
 
-  if ( mClockId == 0 ) {
-    // クロック端子を作る．
-    ymuint node_id = mNetwork->new_input(mClockName);
-
+  if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
-    mNetwork->new_port(mClockName, node_id);
-
-    // クロック端子の外部出力を作る．
-    mClockId = mNetwork->new_output(mClockName, node_id);
+    BnPort* clock_port = mNetwork->new_input_port(mClockName);
+    // クロックの入力ノード番号を記録する．
+    mClockId = clock_port->bit(0);
   }
 
-  // DFFを生成する．
-  mNetwork->new_dff(oname, input_id, output_id, mClockId);
+  // クロック入力とdffのクロック端子を結びつける．
+  ymuint clock_id = dff->clock();
+  mNetwork->connect(mClockId, clock_id, 0);
 
   return true;
 }

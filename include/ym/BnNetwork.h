@@ -63,18 +63,14 @@ public:
   /// @param[in] src コピー元のオブジェクト
   BnNetwork(const BnNetwork& src);
 
-  /// @brief BnBuilder からのコンストラクタ
-  /// @param[in] src コピー元のBnBuilder
-  explicit
-  BnNetwork(const BnBuilder& src);
-
   /// @brief デストラクタ
   ~BnNetwork();
 
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 内容を設定する関数
+  /// @name 内容を設定する関数
+  /// @{
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容をクリアする．
@@ -155,26 +151,6 @@ public:
 	    bool has_clear = false,
 	    bool has_preset = false);
 
-#if 0
-  /// @brief 外部入力ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @return 生成した入力ノードの番号を返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  ymuint
-  new_input(const string& node_name);
-
-  /// @brief 外部出力ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] inode_id 入力のノード番号
-  /// @return 生成した出力ノードの番号を返す．
-  ///
-  /// ノード名の重複に関しては感知しない．
-  ymuint
-  new_output(const string& node_name,
-	     ymuint inode_id = kBnNullId);
-#endif
-
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
@@ -217,22 +193,6 @@ public:
 	 const TvFunc& tv,
 	 const Cell* cell = nullptr);
 
-#if 0
-  /// @brief ポートを追加する．
-  /// @param[in] port_name ポート名
-  /// @param[in] bits 内容のノード番号のリスト
-  void
-  new_port(const string& port_name,
-	   const vector<ymuint>& bits);
-
-  /// @brief ポートを追加する(1ビット版)．
-  /// @param[in] port_name ポート名
-  /// @param[in] bit 内容のノード番号
-  void
-  new_port(const string& port_name,
-	   ymuint bit);
-#endif
-
   /// @brief ノード間を接続する．
   /// @param[in] src_node ファンアウト元のノード番号
   /// @param[in] dst_node ファンイン先のノード番号
@@ -259,10 +219,15 @@ public:
   bool
   wrap_up();
 
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 内容を取得する関数
+  /// @name 内容を取得する関数
+  /// @{
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ネットワーク名を得る．
@@ -359,6 +324,10 @@ public:
   /// 形式は独自フォーマット
   void
   write(ostream& s) const;
+
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
 
 
 private:

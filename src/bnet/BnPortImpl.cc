@@ -17,8 +17,11 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ポート番号
 // @param[in] name 名前
-BnPortImpl::BnPortImpl(const string& name) :
+BnPortImpl::BnPortImpl(ymuint id,
+		       const string& name) :
+  mId(id),
   mName(name)
 {
 }
@@ -26,6 +29,13 @@ BnPortImpl::BnPortImpl(const string& name) :
 // @brief デストラクタ
 BnPortImpl::~BnPortImpl()
 {
+}
+
+// @brief ポート番号を返す．
+ymuint
+BnPortImpl::id() const
+{
+  return mId;
 }
 
 // @brief 名前を得る．
@@ -41,11 +51,13 @@ BnPortImpl::name() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ポート番号
 // @param[in] name 名前
 // @param[in] bit ノード番号
-BnPort1::BnPort1(const string& name,
+BnPort1::BnPort1(ymuint id,
+		 const string& name,
 		 ymuint bit) :
-  BnPortImpl(name),
+  BnPortImpl(id, name),
   mBit(bit)
 {
 }
@@ -78,11 +90,13 @@ BnPort1::bit(ymuint pos) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+// @param[in] id ポート番号
 // @param[in] name 名前
 // @param[in] bits 内容のベクタ
-BnPortN::BnPortN(const string& name,
+BnPortN::BnPortN(ymuint id,
+		 const string& name,
 		 const vector<ymuint>& bits) :
-  BnPortImpl(name),
+  BnPortImpl(id, name),
   mBitWidth(bits.size())
 {
   mBits = new ymuint[mBitWidth];

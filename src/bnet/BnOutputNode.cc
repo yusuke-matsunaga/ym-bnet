@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] output_id 出力番号
 BnOutputNode::BnOutputNode(ymuint id,
 			   const string& name,
-			   ymuint output_id)
+			   ymuint output_id) :
   BnNodeImpl(id, name),
   mOutputId(output_id),
   mFanin(kBnNullId)
