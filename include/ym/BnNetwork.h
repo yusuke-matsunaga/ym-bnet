@@ -93,6 +93,69 @@ public:
   void
   set_name(const string& name);
 
+  /// @brief 1ビットの入力ポートを作る．
+  /// @param[in] port_name ポート名
+  /// @return 生成したポートを返す．
+  BnPort*
+  new_input_port(const string& port_name);
+
+  /// @brief 多ビットの入力ポートを作る．
+  /// @param[in] port_name ポート名
+  /// @param[in] bit_width ビット幅
+  /// @return 生成したポートを返す．
+  BnPort*
+  new_input_port(const string& port_name,
+		 ymuint bit_width);
+
+  /// @brief 1ビットの出力ポートを作る．
+  /// @param[in] port_name ポート名
+  /// @return 生成したポートを返す．
+  BnPort*
+  new_output_port(const string& port_name);
+
+  /// @brief 多ビットの出力ポートを作る．
+  /// @param[in] port_name ポート名
+  /// @param[in] bit_width ビット幅
+  /// @return 生成したポートを返す．
+  BnPort*
+  new_output_port(const string& port_name,
+		  ymuint bit_width);
+
+  /// @brief 入出力混合のポートを作る．
+  /// @param[in] port_name ポート名
+  /// @param[in] dir_vect 向きを表すベクタ
+  /// @return 生成したポートを返す．
+  ///
+  /// dir_vect[i] == 0 の時，入力を表す．
+  BnPort*
+  new_port(const string& port_name,
+	   const vector<int>& dir_vect);
+
+  /// @brief DFFを追加する．
+  /// @param[in] name DFF名
+  /// @param[in] has_clear クリア端子を持つ時 true にする．
+  /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @return 生成したDFFを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnDff*
+  new_dff(const string& name,
+	  bool has_clear = false,
+	  bool has_preset = false);
+
+  /// @brief ラッチを追加する．
+  /// @param[in] name ラッチ名
+  /// @param[in] has_clear クリア端子を持つ時 true にする．
+  /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @return 生成したラッチを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnLatch*
+  new_latch(const string& name,
+	    bool has_clear = false,
+	    bool has_preset = false);
+
+#if 0
   /// @brief 外部入力ノードを追加する．
   /// @param[in] node_name ノード名
   /// @return 生成した入力ノードの番号を返す．
@@ -110,6 +173,7 @@ public:
   ymuint
   new_output(const string& node_name,
 	     ymuint inode_id = kBnNullId);
+#endif
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -153,6 +217,7 @@ public:
 	 const TvFunc& tv,
 	 const Cell* cell = nullptr);
 
+#if 0
   /// @brief ポートを追加する．
   /// @param[in] port_name ポート名
   /// @param[in] bits 内容のノード番号のリスト
@@ -166,42 +231,7 @@ public:
   void
   new_port(const string& port_name,
 	   ymuint bit);
-
-  /// @brief DFFを追加する．
-  /// @param[in] name DFF名
-  /// @param[in] input 入力端子のノード番号
-  /// @param[in] output 出力端子のノード番号
-  /// @param[in] clock クロック端子のノード番号
-  /// @param[in] clear クリア端子のノード番号
-  /// @param[in] preset プリセット端子のノード番号
-  /// @return 生成したDFFを返す．
-  ///
-  /// 名前の重複に関しては感知しない．
-  BnDff*
-  new_dff(const string& name,
-	  ymuint input,
-	  ymuint output,
-	  ymuint clock,
-	  ymuint clear = kBnNullId,
-	  ymuint preset = kBnNullId);
-
-  /// @brief ラッチを追加する．
-  /// @param[in] name ラッチ名
-  /// @param[in] input 入力端子のノード番号
-  /// @param[in] output 出力端子のノード番号
-  /// @param[in] enable イネーブル端子のノード番号
-  /// @param[in] clear クリア端子のノード番号
-  /// @param[in] preset プリセット端子のノード番号
-  /// @return 生成したラッチを返す．
-  ///
-  /// 名前の重複に関しては感知しない．
-  BnLatch*
-  new_latch(const string& name,
-	    ymuint input,
-	    ymuint output,
-	    ymuint enable,
-	    ymuint clear = kBnNullId,
-	    ymuint preset = kBnNullId);
+#endif
 
   /// @brief ノード間を接続する．
   /// @param[in] src_node ファンアウト元のノード番号
@@ -357,7 +387,7 @@ private:
   // ネットワーク名
   string mName;
 
-  // ポート情報のリスト
+  // ポートのリスト
   vector<BnPort*> mPortList;
 
   // DFFのリスト

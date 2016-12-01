@@ -23,8 +23,10 @@ class BnPortImpl :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ポート番号
   /// @param[in] name 名前
-  BnPortImpl(const string& name);
+  BnPortImpl(ymuint id,
+	     const string& name);
 
   /// @brief デストラクタ
   virtual
@@ -35,6 +37,11 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief ポート番号を返す．
+  virtual
+  ymuint
+  id() const;
 
   /// @brief 名前を得る．
   virtual
@@ -53,6 +60,9 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // ポート番号
+  ymuint mId;
+
   // 名前
   string mName;
 
@@ -69,9 +79,11 @@ class BnPort1 :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ポート番号
   /// @param[in] name 名前
   /// @param[in] bit 内容のノード番号
-  BnPort1(const string& name,
+  BnPort1(ymuint id,
+	  const string& name,
 	  ymuint bit);
 
   /// @brief デストラクタ
@@ -124,9 +136,11 @@ class BnPortN :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] id ポート番号
   /// @param[in] name 名前
   /// @param[in] bits 内容のノード番号のベクタ
-  BnPortN(const string& name,
+  BnPortN(ymuint id,
+	  const string& name,
 	  const vector<ymuint>& bits);
 
   /// @brief デストラクタ

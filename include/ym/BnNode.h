@@ -23,10 +23,12 @@ BEGIN_NAMESPACE_YM_BNET
 /// @sa BnNetwork
 ///
 /// ノードには以下の3種類がある．
-/// - 外部入力ノード
+/// - 入力ノード
+///   外部入力もしくはDFF，ラッチの出力を表す．
 ///
-/// - 外部出力ノード
-///   入力のノード番号を持つ．
+/// - 出力ノード
+///   外部出力もしくはDFF，ラッチの入力を表す．
+///   ファンインのノード番号を持つ．
 ///
 /// - 論理ノード
 ///   ファンインと論理関数を持つ．
@@ -76,14 +78,14 @@ public:
   BnNodeType
   type() const = 0;
 
-  /// @brief 外部入力の時 true を返す．
+  /// @brief 入力タイプの時 true を返す．
   ///
   /// type() == kBnInput と等価
   virtual
   bool
   is_input() const = 0;
 
-  /// @brief 外部出力の時 true を返す．
+  /// @brief 出力タイプの時 true を返す．
   ///
   /// type() == kBnOutput と等価
   virtual
@@ -111,15 +113,133 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 外部出力ノードの外部インターフェイス
+  // 入力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力のノード番号を返す．
+  /// @brief 入力番号を返す．
+  ///
+  /// is_input() == false の時の動作は不定<br>
+  /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+  virtual
+  ymuint
+  input_id() const = 0;
+
+  /// @brief 外部入力端子の時 true を返す．
+  virtual
+  bool
+  is_port_input() const = 0;
+
+  /// @brief DFFの出力端子の時 true を返す．
+  virtual
+  bool
+  is_dff_output() const = 0;
+
+  /// @brief ラッチの出力端子の時 true を返す．
+  virtual
+  bool
+  is_latch_output() const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 出力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 出力番号を返す．
+  ///
+  /// is_output() == false の時の動作は不定<br>
+  /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+  virtual
+  ymuint
+  output_id() const = 0;
+
+  /// @brief 外部出力端子の時に true を返す．
+  virtual
+  bool
+  is_port_output() const = 0;
+
+  /// @brie DFFの入力端子の時に true を返す．
+  virtual
+  bool
+  is_dff_input() const = 0;
+
+  /// @brief DFFのクロック端子の時に true を返す．
+  virtual
+  bool
+  is_dff_clock() const = 0;
+
+  /// @brief DFFのクリア端子の時に true を返す．
+  virtual
+  bool
+  is_dff_clear() const = 0;
+
+  /// @brief DFFのプリセット端子の時に true を返す．
+  virtual
+  bool
+  is_dff_preset() const = 0;
+
+  /// @brief ラッチの入力端子の時に true を返す．
+  virtual
+  bool
+  is_latch_input() const = 0;
+
+  /// @brief ラッチのイネーブル端子の時に true を返す．
+  virtual
+  bool
+  is_latch_enable() const = 0;
+
+  /// @brief ラッチのクリア端子の時に true を返す．
+  virtual
+  bool
+  is_latch_clear() const = 0;
+
+  /// @brief ラッチのプリセット端子の時に true を返す．
+  virtual
+  bool
+  is_latch_preset() const = 0;
+
+  /// @brief ファンインのノード番号を返す．
   ///
   /// is_output() == false の時の動作は不定
   virtual
   ymuint
-  input() const = 0;
+  fanin() const = 0;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力タイプ/出力タイプに共通なインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 接続しているポート番号を返す．
+  ///
+  /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
+  virtual
+  ymuint
+  port_id() const = 0;
+
+  /// @brief 接続しているポート中のビット番号を返す．
+  ///
+  /// is_port_input() || is_port_output() の時のみ意味を持つ．
+  virtual
+  ymuint
+  port_bit() const = 0;
+
+  /// @brief 接続しているDFFの番号を返す．
+  ///
+  /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// の時のみ意味を持つ．
+  virtual
+  ymuint
+  dff_id() const = 0;
+
+  /// @brief 接続しているラッチの番号を返す．
+  ///
+  /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// の時のみ意味を持つ．
+  virtual
+  ymuint
+  latch_id() const = 0;
 
 
 public:

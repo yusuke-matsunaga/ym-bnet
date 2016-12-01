@@ -83,6 +83,164 @@ BnNodeImpl::fanout(ymuint pos) const
   return mFanoutList[pos];
 }
 
+// @brief 入力番号を返す．
+//
+// is_input() == false の時の動作は不定<br>
+// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+ymuint
+BnNodeImpl::input_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+// @brief 外部入力端子の時 true を返す．
+bool
+BnNodeImpl::is_port_input() const
+{
+  return false;
+}
+
+// @brief DFFの出力端子の時 true を返す．
+bool
+BnNodeImpl::is_dff_output() const
+{
+  return false;
+}
+
+// @brief ラッチの出力端子の時 true を返す．
+bool
+BnNodeImpl::is_latch_output() const
+{
+  return false;
+}
+
+// @brief 出力番号を返す．
+//
+// is_output() == false の時の動作は不定<br>
+// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+ymuint
+BnNodeImpl::output_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+// @brief 外部出力端子の時に true を返す．
+bool
+BnNodeImpl::is_port_output() const
+{
+  return false;
+}
+
+// @brie DFFの入力端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_input() const
+{
+  return false;
+}
+
+// @brief DFFのクロック端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_clock() const
+{
+  return false;
+}
+
+// @brief DFFのクリア端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_clear() const
+{
+  return false;
+}
+
+// @brief DFFのプリセット端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_preset() const
+{
+  return false;
+}
+
+// @brief ラッチの入力端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_input() const
+{
+  return false;
+}
+
+// @brief ラッチのイネーブル端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_enable() const
+{
+  return false;
+}
+
+// @brief ラッチのクリア端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_clear() const
+{
+  return false;
+}
+
+// @brief ラッチのプリセット端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_preset() const
+{
+  return false;
+}
+
+// @brief ファンインのノード番号を返す．
+//
+// is_output() == false の時の動作は不定
+ymuint
+BnNodeImpl::fanin() const
+{
+  ASSERT_NOT_REACHED;
+  return kBnNullId;
+}
+
+// @brief 接続しているポート番号を返す．
+//
+// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
+ymuint
+BnNodeImpl::port_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+// @brief 接続しているポート中のビット番号を返す．
+//
+// is_port_input() || is_port_output() の時のみ意味を持つ．
+ymuint
+BnNodeImpl::port_bit() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+// @brief 接続しているDFFの番号を返す．
+//
+// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+// の時のみ意味を持つ．
+ymuint
+BnNodeImpl::dff_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+// @brief 接続しているラッチの番号を返す．
+//
+// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+// の時のみ意味を持つ．
+ymuint
+BnNodeImpl::latch_id() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
 // @brief ファンイン数を得る．
 ymuint
 BnNodeImpl::fanin_num() const
@@ -166,14 +324,6 @@ BnNodeImpl::cell() const
   return nullptr;
 }
 
-// @brief 入力のノード番号を返す．
-ymuint
-BnNodeImpl::input() const
-{
-  ASSERT_NOT_REACHED;
-  return kBnNullId;
-}
-
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
@@ -190,327 +340,6 @@ void
 BnNodeImpl::add_fanout(ymuint node_id)
 {
   mFanoutList.push_back(node_id);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnInputNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-BnInputNode::BnInputNode(ymuint id,
-			 const string& name) :
-  BnNodeImpl(id, name)
-{
-}
-
-// @brief デストラクタ
-BnInputNode::~BnInputNode()
-{
-}
-
-// @brief タイプを返す．
-BnNodeType
-BnInputNode::type() const
-{
-  return kBnInput;
-}
-
-// @brief 外部入力の時 true を返す．
-bool
-BnInputNode::is_input() const
-{
-  return true;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnOutputNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input 入力のノード番号
-BnOutputNode::BnOutputNode(ymuint id,
-			   const string& name,
-			   ymuint input) :
-  BnNodeImpl(id, name),
-  mInput(input)
-{
-}
-
-// @brief デストラクタ
-BnOutputNode::~BnOutputNode()
-{
-}
-
-// @brief タイプを返す．
-BnNodeType
-BnOutputNode::type() const
-{
-  return kBnOutput;
-}
-
-// @brief 外部出力ノードの時 true を返す．
-bool
-BnOutputNode::is_output() const
-{
-  return true;
-}
-
-// @brief 入力のノード番号を返す．
-//
-// is_output() == false の時の動作は不定
-ymuint
-BnOutputNode::input() const
-{
-  return mInput;
-}
-
-// @brief ファンインを設定する．
-// @param[in] ipos 入力位置
-// @param[in] fanin_id ファンインのノード番号
-void
-BnOutputNode::set_fanin(ymuint ipos,
-			ymuint fanin_id)
-{
-  ASSERT_COND( ipos == 0 );
-  mInput = fanin_id;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnLogicNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-/// @param[in] ni 入力数
-// @param[in] cell セル (nullptr の場合もあり)
-BnLogicNode::BnLogicNode(ymuint id,
-			 const string& name,
-			 ymuint ni,
-			 const Cell* cell) :
-  BnNodeImpl(id, name),
-  mFaninNum(ni),
-  mCell(cell)
-{
-  mFanins = new ymuint[mFaninNum];
-  for (ymuint i = 0; i < mFaninNum; ++ i) {
-    mFanins[i] = kBnNullId;
-  }
-}
-
-// @brief デストラクタ
-BnLogicNode::~BnLogicNode()
-{
-  delete [] mFanins;
-}
-
-// @brief タイプを返す．
-BnNodeType
-BnLogicNode::type() const
-{
-  return kBnLogic;
-}
-
-// @brief 外部入力の時 true を返す．
-bool
-BnLogicNode::is_logic() const
-{
-  return true;
-}
-
-// @brief ファンイン数を得る．
-ymuint
-BnLogicNode::fanin_num() const
-{
-  return mFaninNum;
-}
-
-// @brief ファンインを求める．
-// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-ymuint
-BnLogicNode::fanin(ymuint pos) const
-{
-  ASSERT_COND( pos < fanin_num() );
-  return mFanins[pos];
-}
-
-// @brief セルを返す．
-//
-// is_logic() == false の時の動作は不定
-// 場合によっては nullptr を返す．
-const Cell*
-BnLogicNode::cell() const
-{
-  return mCell;
-}
-
-// @brief ファンインを設定する．
-// @param[in] ipos 入力位置
-// @param[in] fanin_id ファンインのノード番号
-void
-BnLogicNode::set_fanin(ymuint ipos,
-		       ymuint fanin_id)
-{
-  ASSERT_COND( ipos < fanin_num() );
-  mFanins[ipos] = fanin_id;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnPrimNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] logic_type 論理タイプ
-// @param[in] cell セル (nullptr の場合もあり)
-BnPrimNode::BnPrimNode(ymuint id,
-		       const string& name,
-		       ymuint ni,
-		       BnLogicType logic_type,
-		       const Cell* cell) :
-  BnLogicNode(id, name, ni, cell),
-  mLogicType(logic_type)
-{
-}
-
-// @brief デストラクタ
-BnPrimNode::~BnPrimNode()
-{
-}
-
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnPrimNode::logic_type() const
-{
-  return mLogicType;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnExprNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] expr 論理式
-// @param[in] expr_id 論理式番号
-// @param[in] cell セル (nullptr の場合もあり)
-BnExprNode::BnExprNode(ymuint id,
-		       const string& name,
-		       ymuint ni,
-		       const Expr& expr,
-		       ymuint expr_id,
-		       const Cell* cell) :
-  BnLogicNode(id, name, ni, cell),
-  mExpr(expr),
-  mExprId(expr_id)
-{
-}
-
-// @brief デストラクタ
-BnExprNode::~BnExprNode()
-{
-}
-
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnExprNode::logic_type() const
-{
-  return kBnLt_EXPR;
-}
-
-// @brief 論理式番号を返す．
-//
-// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
-// 論理式番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
-BnExprNode::expr_id() const
-{
-  return mExprId;
-}
-
-// @brief 論理式を返す．
-//
-// is_logic() == false の時の動作は不定
-// logic_type() != kBnLt_EXPR の時の動作は不定
-Expr
-BnExprNode::expr() const
-{
-  return mExpr;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnTvNode
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] tv 真理値表
-// @param[in] func_id 関数番号
-// @param[in] cell セル (nullptr の場合もあり)
-BnTvNode::BnTvNode(ymuint id,
-		   const string& name,
-		   ymuint ni,
-		   const TvFunc& func,
-		   ymuint func_id,
-		   const Cell* cell) :
-  BnLogicNode(id, name, ni, cell),
-  mFunc(func),
-  mFuncId(func_id)
-{
-}
-
-// @brief デストラクタ
-BnTvNode::~BnTvNode()
-{
-}
-
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnTvNode::logic_type() const
-{
-  return kBnLt_TV;
-}
-
-// @brief 関数番号を返す．
-//
-// logic_type() == kBnLt_TV の時のみ意味を持つ．
-// 関数番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
-BnTvNode::func_id() const
-{
-  return mFuncId;
-}
-
-// @brief 真理値表を返す．
-//
-// is_logic() == false の時の動作は不定
-// logic_type() != kBnLt_TV の時の動作は不定
-TvFunc
-BnTvNode::func() const
-{
-  return mFunc;
 }
 
 END_NAMESPACE_YM_BNET

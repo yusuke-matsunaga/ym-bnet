@@ -68,6 +68,9 @@ set ( bnet_SOURCES
   src/bnet/BnLatchImpl.cc
   src/bnet/BnNetwork.cc
   src/bnet/BnNodeImpl.cc
+  src/bnet/BnInputNode.cc
+  src/bnet/BnOutputNode.cc
+  src/bnet/BnLogicNode.cc
   src/bnet/BnPortImpl.cc
   src/bnet/FuncAnalyzer.cc
   )

@@ -9,6 +9,7 @@
 
 #include "BnBlifHandler.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnPort.h"
 #include "ym/BnNode.h"
 #include "ym/BlifCover.h"
 #include "ym/Cell.h"
@@ -70,11 +71,9 @@ bool
 BnBlifHandler::inputs_elem(ymuint name_id,
 			   const char* name)
 {
-  ymuint id = mNetwork->new_input(name);
+  BnPort* port = mNetwork->new_input_port(name);
+  ymuint id = port->bit(0);
   mIdMap.add(name_id, id);
-
-  // 関連するポートを作る．
-  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -86,12 +85,10 @@ bool
 BnBlifHandler::outputs_elem(ymuint name_id,
 			    const char* name)
 {
-  ymuint id = mNetwork->new_output(name);
+  BnPort* port = mNetwork->new_output_port(name);
+  ymuint id = port->bit(0);
 
   mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
-
-  // 関連するポートを作る．
-  mNetwork->new_port(name, id);
 
   return true;
 }
@@ -161,22 +158,25 @@ BnBlifHandler::latch(ymuint oname_id,
 		     const FileRegion& loc4,
 		     char rval)
 {
-  // DFF の出力(BnNode的には入力ノード)を生成
-  ymuint output_id = mNetwork->new_input(oname);
-  mIdMap.add(oname_id, output_id);
+  bool has_clear = false;
+  bool has_preset = false;
+  if ( rval == '0' ) {
+    has_clear = true;
+  }
+  else if ( rval == '1' ) {
+    has_preset = true;
+  }
+  BnDff* dff = mNetwork->new_dff(oname, has_clear, has_preset);
 
-  // DFF の入力(BnNode的には出力ノード)を生成
-  ymuint input_id = mNetwork->new_output(id2str(iname_id));
+  ymuint input_id = dff->input();
 
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   mFaninInfoMap.add(input_id, vector<ymuint>(1, iname_id));
 
   if ( mClockId == 0 ) {
-    // クロック端子を作る．
-    ymuint node_id = mNetwork->new_input(mClockName);
-
     // クロックのポートを作る．
-    mNetwork->new_port(mClockName, node_id);
+    BnPort* clock_port = mNetwork->new_input_port(mClockName);
+    mClockId = clock_port->bit(0);
 
     // クロック端子の外部出力を作る．
     mClockId = mNetwork->new_output(mClockName, node_id);
@@ -201,9 +201,6 @@ BnBlifHandler::latch(ymuint oname_id,
       preset_id = mResetId;
     }
   }
-
-  // DFF 情報を生成する．
-  mNetwork->new_dff(oname, input_id, output_id, mClockId, clear_id, preset_id);
 
   return true;
 }

@@ -532,6 +532,7 @@ BnNetwork::set_name(const string& name)
   mName = name;
 }
 
+#if 0
 // @brief 外部入力ノードを追加する．
 // @param[in] node_name ノード名
 // @return 生成した入力ノードを返す．
@@ -568,6 +569,246 @@ BnNetwork::new_output(const string& node_name,
   }
 
   return node->id();
+}
+#endif
+
+// @brief 1ビットの入力ポートを作る．
+// @param[in] port_name ポート名
+// @return 生成したポートを返す．
+BnPort*
+BnNetwork::new_input_port(const string& port_name)
+{
+  return new_port(port_name, vector<int>(1, 0));
+}
+
+// @brief 多ビットの入力ポートを作る．
+// @param[in] port_name ポート名
+// @param[in] bit_width ビット幅
+// @return 生成したポートを返す．
+BnPort*
+BnNetwork::new_input_port(const string& port_name,
+			  ymuint bit_width)
+{
+  return new_port(port_name, vector<int>(bit_width, 0));
+}
+
+// @brief 1ビットの出力ポートを作る．
+// @param[in] port_name ポート名
+// @return 生成したポートを返す．
+BnPort*
+BnNetwork::new_output_port(const string& port_name)
+{
+  return new_port(port_name, vector<int>(1, 1));
+}
+
+// @brief 多ビットの出力ポートを作る．
+// @param[in] port_name ポート名
+// @param[in] bit_width ビット幅
+// @return 生成したポートを返す．
+BnPort*
+BnNetwork::new_output_port(const string& port_name,
+			   ymuint bit_width)
+{
+  return new_port(port_name, vector<int>(bit_width, 1));
+}
+
+// @brief 入出力混合のポートを作る．
+// @param[in] port_name ポート名
+// @param[in] dir_vect 向きを表すベクタ
+// @return 生成したポートを返す．
+//
+// dir_vect[i] == 0 の時，入力を表す．
+BnPort*
+BnNetwork::new_port(const string& port_name,
+		    const vector<int>& dir_vect)
+{
+  ymuint port_id = mPortList.size();
+  bit_width = dir_vect.size();
+  vector<ymuint> bits(bit_width);
+  for (ymuint i = 0; i < bit_width; ++ i) {
+    ymuint node_id = mNodeList.size();
+    bits[i] = node_id;
+    ostringstream buf;
+    buf << port_name << "[" << i << "]";
+    string node_name = buf.str();
+    if ( dir_vect[i] == 0 ) {
+      ymuint input_id = mInputList.size();
+      BnNodeImpl* node = new BnPortInput(node_id, node_name, input_id, port_id, i);
+      mNodeList.push_back(node);
+      mInputList.push_back(node);
+    }
+    else {
+      ymuint output_id = mOutputList.size();
+      BnNodeImpl* node = new BnPortOutput(node_id, node_name, output_id, port_id, i);
+      mNodeList.push_back(node);
+      mOutputList.push_back(node);
+    }
+  }
+
+  BnPort* port;
+  if ( bit_width == 1 ) {
+    port = new BnPort1(port_id, port_name, bits[0]);
+  }
+  else {
+    port = new BnPortN(port_id, port_name, bits);
+  }
+  mPortList.push_back(port);
+
+  return port;
+}
+
+// @brief DFFを追加する．
+// @param[in] name DFF名
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @return 生成したDFFを返す．
+//
+// 名前の重複に関しては感知しない．
+BnDff*
+BnNetwork::new_dff(const string& name,
+		   bool has_clear,
+		   bool has_preset)
+{
+  ymuint dff_id = mDffList.size();
+
+  ymuint input_id = mNodeList.size();
+  {
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".input";
+    string name = buf.str();
+    BnNodeImpl* node = new BnDffInput(input_id, name, oid, dff_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint output_id = mNodeList.size();
+  {
+    ymuint iid = mInputList.size();
+    ostringstream buf;
+    buf << name << ".output";
+    string name = buf.str();
+    BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
+    mNodeList.push_back(node);
+    mInputList.push_back(ode);
+  }
+
+  ymuint clock_id = mNodeList.size();
+  {
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".clock";
+    string name = buf.str();
+    BnNodeImpl* node = new BnDffClock(clock_id, name, oid, dff_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint clear_id = kBnNullId;
+  if ( has_clear ) {
+    clear_id = mNodeList.size();
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".clear";
+    string name = buf.str();
+    BnNodeImpl* node = new BnDffClear(clear_id, name, oid, dff_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint preset_id = kBnNullId;
+  if ( has_preset ) {
+    preset_id = mNodeList.size();
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".preset";
+    BnNodeImpl* node = new BnDffPreset(preset_id, name, oid, dff_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id,
+			     clock_id, clear_id, preset_id);
+  mDffList.push_back(dff);
+
+  return dff;
+}
+
+// @brief ラッチを追加する．
+// @param[in] name ラッチ名
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @return 生成したラッチを返す．
+//
+// 名前の重複に関しては感知しない．
+BnLatch*
+BnNetwork::new_latch(const string& name,
+		     bool has_clear,
+		     bool has_preset)
+{
+  ymuint latch_id = mLatchList.size();
+
+  ymuint input_id = mNodeList.size();
+  {
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".input";
+    string name = buf.str();
+    BnNodeImpl* node = new BnLatchInput(input_id, name, oid, latch_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint output_id = mNodeList.size();
+  {
+    ymuint iid = mInputList.size();
+    ostringstream buf;
+    buf << name << ".output";
+    string name = buf.str();
+    BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
+    mNodeList.push_back(node);
+    mInputList.push_back(ode);
+  }
+
+  ymuint enable_id = mNodeList.size();
+  {
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".enable";
+    string name = buf.str();
+    BnNodeImpl* node = new BnLatchEnable(enable_id, name, oid, latch_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint clear_id = kBnNullId;
+  if ( has_clear ) {
+    clear_id = mNodeList.size();
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".clear";
+    string name = buf.str();
+    BnNodeImpl* node = new BnLatchClear(clear_id, name, oid, latch_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  ymuint preset_id = kBnNullId;
+  if ( has_preset ) {
+    preset_id = mNodeList.size();
+    ymuint oid = mOutputList.size();
+    ostringstream buf;
+    buf << name << ".preset";
+    BnNodeImpl* node = new BnLatchPreset(preset_id, name, oid, latch_id);
+    mNodeList.push_back(node);
+    mOutputList.push_back(node);
+  }
+
+  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
+				   enable_id, clear_id, preset_id);
+  mLatchList.push_back(latch);
+
+  return latch;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -650,6 +891,7 @@ BnNetwork::new_tv(const string& node_name,
   return node->id();
 }
 
+#if 0
 // @brief ポートを追加する．
 // @param[in] port_name ポート名
 // @param[in] bits 内容のノード番号のリスト
@@ -674,56 +916,7 @@ BnNetwork::new_port(const string& port_name,
 {
   mPortList.push_back(new BnPort1(port_name, bit));
 }
-
-// @brief DFFを追加する．
-// @param[in] name DFF名
-// @param[in] input 入力端子のノード番号
-// @param[in] output 出力端子のノード番号
-// @param[in] clock クロック端子のノード番号
-// @param[in] clear クリア端子のノード番号
-// @param[in] preset プリセット端子のノード番号
-// @return 生成したDFFを返す．
-//
-// 名前の重複に関しては感知しない．
-BnDff*
-BnNetwork::new_dff(const string& name,
-		   ymuint input,
-		   ymuint output,
-		   ymuint clock,
-		   ymuint clear,
-		   ymuint preset)
-{
-  ymuint id = mDffList.size();
-  BnDff* dff = new BnDffImpl(id, name, input, output, clock, clear, preset);
-  mDffList.push_back(dff);
-
-  return dff;
-}
-
-// @brief ラッチを追加する．
-// @param[in] name ラッチ名
-// @param[in] input 入力端子のノード番号
-// @param[in] output 出力端子のノード番号
-// @param[in] enable イネーブル端子のノード番号
-// @param[in] clear クリア端子のノード番号
-// @param[in] preset プリセット端子のノード番号
-// @return 生成したラッチを返す．
-//
-// 名前の重複に関しては感知しない．
-BnLatch*
-BnNetwork::new_latch(const string& name,
-		     ymuint input,
-		     ymuint output,
-		     ymuint enable,
-		     ymuint clear,
-		     ymuint preset)
-{
-  ymuint id = mLatchList.size();
-  BnLatch* latch = new BnLatchImpl(id, name, input, output, enable, clear, preset);
-  mLatchList.push_back(latch);
-
-  return latch;
-}
+#endif
 
 // @brief ノード間を接続する．
 // @param[in] src_id ファンアウト元のノード番号
