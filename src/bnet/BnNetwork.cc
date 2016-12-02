@@ -667,9 +667,15 @@ BnNetwork::new_port(const string& port_name,
   for (ymuint i = 0; i < bit_width; ++ i) {
     ymuint node_id = mNodeList.size();
     bits[i] = node_id;
-    ostringstream buf;
-    buf << port_name << "[" << i << "]";
-    string node_name = buf.str();
+    string node_name;
+    if ( bit_width > 1 ) {
+      ostringstream buf;
+      buf << port_name << "[" << i << "]";
+      node_name = buf.str();
+    }
+    else {
+      node_name = port_name;
+    }
     if ( dir_vect[i] == 0 ) {
       ymuint input_id = mInputList.size();
       BnNodeImpl* node = new BnPortInput(node_id, node_name, input_id, port_id, i);

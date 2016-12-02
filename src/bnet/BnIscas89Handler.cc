@@ -44,7 +44,7 @@ BnIscas89Handler::init()
   mIdMap.clear();
   mFaninInfoMap.clear();
 
-  mClockId = 0;
+  mClockId = kBnNullId;
 
   return true;
 }

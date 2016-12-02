@@ -45,8 +45,8 @@ BnBlifHandler::init()
   mIdMap.clear();
   mFaninInfoMap.clear();
 
-  mClockId = 0;
-  mResetId = 0;
+  mClockId = kBnNullId;
+  mResetId = kBnNullId;
 
   return true;
 }
