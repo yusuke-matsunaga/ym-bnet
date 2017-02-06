@@ -79,6 +79,7 @@ BnNetwork::clear()
   mInputList.clear();
   mOutputList.clear();
   mLogicList.clear();
+  mNodeList.clear();
 
   mSane = false;
 }
@@ -1076,6 +1077,7 @@ BnNetwork::wrap_up()
   // ノードのチェック
   for (ymuint i = 0; i < node_num(); ++ i) {
     const BnNode* node = mNodeList[i];
+    ASSERT_COND( node->id() == i );
     ymuint ni = node->fanin_num();
     for (ymuint j = 0; j < ni; ++ j) {
       ymuint id = node->fanin(j);
