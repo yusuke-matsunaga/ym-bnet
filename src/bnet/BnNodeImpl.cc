@@ -111,6 +111,13 @@ BnNodeImpl::is_dff_output() const
   return false;
 }
 
+// @brief DFFの出力端子の時 true を返す．
+bool
+BnNodeImpl::is_dff_xoutput() const
+{
+  return false;
+}
+
 // @brief ラッチの出力端子の時 true を返す．
 bool
 BnNodeImpl::is_latch_output() const

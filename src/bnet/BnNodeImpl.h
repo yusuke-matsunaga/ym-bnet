@@ -104,6 +104,11 @@ public:
   bool
   is_dff_output() const;
 
+  /// @brief DFFの反転出力端子の時 true を返す．
+  virtual
+  bool
+  is_dff_xoutput() const;
+
   /// @brief ラッチの出力端子の時 true を返す．
   virtual
   bool

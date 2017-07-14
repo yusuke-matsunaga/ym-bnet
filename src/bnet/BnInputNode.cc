@@ -152,6 +152,47 @@ BnDffOutput::dff_id() const
 
 
 //////////////////////////////////////////////////////////////////////
+// クラス BnDffXOutput
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID 番号
+// @param[in] name ノード名
+// @param[in] input_id 入力番号
+// @param[in] dff_id DFF番号
+BnDffXOutput::BnDffXOutput(ymuint id,
+			   const string& name,
+			   ymuint input_id,
+			   ymuint dff_id) :
+  BnInputNode(id, name, input_id),
+  mDffId(dff_id)
+{
+}
+
+// @brief デストラクタ
+BnDffXOutput::~BnDffXOutput()
+{
+}
+
+// @brief DFFの反転出力端子の時 true を返す．
+bool
+BnDffXOutput::is_dff_xoutput() const
+{
+  return true;
+}
+
+// @brief 接続しているDFFの番号を返す．
+//
+// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+// の時のみ意味を持つ．
+ymuint
+BnDffXOutput::dff_id() const
+{
+  return mDffId;
+}
+
+
+//////////////////////////////////////////////////////////////////////
 // クラス BnLatchOutput
 //////////////////////////////////////////////////////////////////////
 

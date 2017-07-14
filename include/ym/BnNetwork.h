@@ -129,27 +129,35 @@ public:
 
   /// @brief DFFを追加する．
   /// @param[in] name DFF名
+  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @param[in] cell 対応するセル
   /// @return 生成したDFFを返す．
   ///
   /// 名前の重複に関しては感知しない．
+  /// cell は FF のセルでなければならない．
   BnDff*
   new_dff(const string& name,
+	  bool has_xoutput = false,
 	  bool has_clear = false,
-	  bool has_preset = false);
+	  bool has_preset = false,
+	  const Cell* cell = nullptr);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @param[in] cell 対応するセル．
   /// @return 生成したラッチを返す．
   ///
   /// 名前の重複に関しては感知しない．
+  /// cell はラッチのセルでなければならない．
   BnLatch*
   new_latch(const string& name,
 	    bool has_clear = false,
-	    bool has_preset = false);
+	    bool has_preset = false,
+	    const Cell* cell = nullptr);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名

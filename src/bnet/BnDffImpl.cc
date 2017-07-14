@@ -3,11 +3,14 @@
 /// @brief BnDffImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "BnDffImpl.h"
+#include "ym/Cell.h"
+#include "ym/CellGroup.h"
+#include "ym/CellFFInfo.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -21,24 +24,33 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] name 名前
 // @param[in] input 入力端子のノード番号
 // @param[in] output 出力端子のノード番号
+// @param[in] xoutput 出力端子のノード番号
 // @param[in] clock クロック端子のノード番号
 // @param[in] clear クリア端子のノード番号
 // @param[in] preset プリセット端子のノード番号
+// @param[in] cell セル
 BnDffImpl::BnDffImpl(ymuint id,
 		     const string& name,
 		     ymuint input,
 		     ymuint output,
+		     ymuint xoutput,
 		     ymuint clock,
 		     ymuint clear,
-		     ymuint preset) :
+		     ymuint preset,
+		     const Cell* cell) :
   mId(id),
   mName(name),
   mInput(input),
   mOutput(output),
+  mXOutput(xoutput),
   mClock(clock),
   mClear(clear),
-  mPreset(preset)
+  mPreset(preset),
+  mCell(cell)
 {
+  if ( cell != nullptr ) {
+    ASSERT_COND( cell->is_ff() );
+  }
 }
 
 // @brief デストラクタ
@@ -66,6 +78,13 @@ ymuint
 BnDffImpl::output() const
 {
   return mOutput;
+}
+
+// @brief データ出力のノード番号を返す．
+ymuint
+BnDffImpl::xoutput() const
+{
+  return mXOutput;
 }
 
 // @brief データ入力のノード番号を返す．
@@ -98,6 +117,107 @@ ymuint
 BnDffImpl::preset() const
 {
   return mPreset;
+}
+
+// @brief セルを返す．
+//
+// nullptr の場合もある．
+const Cell*
+BnDffImpl::cell() const
+{
+  return mCell;
+}
+
+// @brief データ出力のピン番号を返す．
+//
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::output_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.q_pos();
+}
+
+// @brief 反転データ出力のピン番号を返す．
+//
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::xoutput_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.xq_pos();
+}
+
+// @brief データ入力のピン番号を返す．
+//
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::input_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.data_pos();
+}
+
+// @brief クロックのピン番号を返す．
+//
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::clock_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.clock_pos();
+}
+
+// @brief クリア信号のピン番号を返す．
+//
+// kBnNullId の場合もある．
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::clear_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.clear_pos();
+}
+
+// @brief プリセット信号のピン番号を返す．
+//
+// kBnNullId の場合もある．
+// cell() == nullptr の場合の値は不定
+ymuint
+BnDffImpl::preset_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  const CellGroup* cg = cell()->cell_group();
+  CellFFInfo ffinfo = cg->ff_info();
+  return ffinfo.preset_pos();
 }
 
 END_NAMESPACE_YM_BNET

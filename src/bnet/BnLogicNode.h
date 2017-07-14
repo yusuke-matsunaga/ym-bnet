@@ -113,6 +113,11 @@ private:
   // セル
   const Cell* mCell;
 
+  // セルのピン番号の対応表
+  // mCell == nullptr なら nullptr
+  // mCellPinMap[i] に i 番目のファンインに対応するピン番号が入る．
+  ymuint* mCellPinMap;
+
 };
 
 

@@ -10,6 +10,7 @@
 
 
 #include "ym/ym_bnet.h"
+#include "ym/ym_cell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -21,6 +22,17 @@ BEGIN_NAMESPACE_YM_BNET
 /// @sa BnNode
 ///
 /// このクラスは実体を持たない純粋仮想基底クラスである．
+/// 以下の情報を持つ．
+/// - ID番号: これは親の BnNetwork 内で唯一のもの．
+/// - 名前: 場合によっては空文字列となる．
+/// - 出力の BnNode:
+/// - 反転出力の BnNode: 場合によっては nullptr となる．
+/// - 入力の BnNode:
+/// - クロックの BnNode:
+/// - クリア端子の BnNode: 場合によっては nullptr となる．
+/// - プリセット端子の BnNode: 場合によっては nullptr となる．
+/// - セル: 場合によっては nullptr となる．
+/// - 各端子とセルのピン番号との対応表: セルと対応づいていなければ無効
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {
@@ -52,6 +64,13 @@ public:
   ymuint
   output() const = 0;
 
+  /// @brief 反転データ出力のノード番号を返す．
+  ///
+  /// kBnNullId の場合もある．
+  virtual
+  ymuint
+  xoutput() const = 0;
+
   /// @brief データ入力のノード番号を返す．
   virtual
   ymuint
@@ -69,12 +88,63 @@ public:
   ymuint
   clear() const = 0;
 
-  /// @brief プリセット信号のノードを返す．
+  /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
   ymuint
   preset() const = 0;
+
+  /// @brief セルを返す．
+  ///
+  /// nullptr の場合もある．
+  virtual
+  const Cell*
+  cell() const = 0;
+
+  /// @brief データ出力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  output_pin_id() const = 0;
+
+  /// @brief 反転データ出力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  xoutput_pin_id() const = 0;
+
+  /// @brief データ入力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  input_pin_id() const = 0;
+
+  /// @brief クロックのピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  clock_pin_id() const = 0;
+
+  /// @brief クリア信号のピン番号を返す．
+  ///
+  /// kBnNullId の場合もある．
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  clear_pin_id() const = 0;
+
+  /// @brief プリセット信号のピン番号を返す．
+  ///
+  /// kBnNullId の場合もある．
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  preset_pin_id() const = 0;
 
 };
 

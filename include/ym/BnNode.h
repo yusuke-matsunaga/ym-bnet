@@ -5,7 +5,7 @@
 /// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -118,8 +118,9 @@ public:
 
   /// @brief 入力番号を返す．
   ///
-  /// is_input() == false の時の動作は不定<br>
-  /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+  /// - is_input() == false の時の動作は不定
+  /// - node = BnNetwork::input(id) の時 node->input_id() = id となる．
+  /// @sa BnNetwork::input()
   virtual
   ymuint
   input_id() const = 0;
@@ -134,6 +135,11 @@ public:
   bool
   is_dff_output() const = 0;
 
+  /// @brief DFFの反転出力端子の時 true を返す．
+  virtual
+  bool
+  is_dff_xoutput() const = 0;
+
   /// @brief ラッチの出力端子の時 true を返す．
   virtual
   bool
@@ -147,8 +153,9 @@ public:
 
   /// @brief 出力番号を返す．
   ///
-  /// is_output() == false の時の動作は不定<br>
-  /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+  /// - is_output() == false の時の動作は不定
+  /// - node = BnNetwork::output(id) の時，node->output_id() = id となる．
+  /// @sa BnNetwork::output()
   virtual
   ymuint
   output_id() const = 0;
@@ -249,7 +256,7 @@ public:
 
   /// @brief ファンイン数を得る．
   ///
-  /// is_logic() == false の時の動作は不定
+  /// - is_logic() == false の時の動作は不定
   virtual
   ymuint
   fanin_num() const = 0;
@@ -257,57 +264,61 @@ public:
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   ///
-  /// is_logic() == false の時の動作は不定
+  /// - is_logic() == false の時の動作は不定
   virtual
   ymuint
   fanin(ymuint pos) const = 0;
 
   /// @brief 論理タイプを返す．
   ///
-  /// is_logic() == false の時の動作は不定
+  /// - is_logic() == false の時の動作は不定
   virtual
   BnLogicType
   logic_type() const = 0;
 
   /// @brief 論理式番号を返す．
   ///
-  /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
-  /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  /// - logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+  /// - 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  /// @sa BnNetwork::expr()
   virtual
   ymuint
   expr_id() const = 0;
 
   /// @brief 論理式を返す．
   ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_EXPR の時の動作は不定
-  ///
-  /// 親のネットワークの expr(node->expr_id()) と同一
+  /// - is_logic() == false の時の動作は不定
+  /// - logic_type() != kBnLt_EXPR の時の動作は不定
+  /// - 親のネットワークの BnNetwork::expr(node->expr_id()) と同一
+  /// @sa BnNetwork::expr()
   virtual
   Expr
   expr() const = 0;
 
   /// @brief 関数番号を返す．
   ///
-  /// logic_type() == kBnLt_TV の時のみ意味を持つ．
-  /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  /// - logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// - 関数番号は同じ BnNetwork 内で唯一となるもの．
+  /// @sa BnNetwork::func()
   virtual
   ymuint
   func_id() const = 0;
 
   /// @brief 真理値表を返す．
   ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_TV の時の動作は不定
-  /// 親のネットワークの func(node->func_id()) と同一
+  /// - is_logic() == false の時の動作は不定
+  /// - logic_type() != kBnLt_TV の時の動作は不定
+  /// - 親のネットワークの BnNetwork::func(node->func_id()) と同一
+  /// @sa BnNetwork::func()
   virtual
   TvFunc
   func() const = 0;
 
   /// @brief セルを返す．
   ///
-  /// is_logic() == false の時の動作は不定
-  /// 場合によっては nullptr を返す．
+  /// - is_logic() == false の時の動作は不定
+  /// - 場合によっては nullptr を返す．
+  /// - セルの入力ピンの並びと BnNode の入力ノードの並びは一致している．
   virtual
   const Cell*
   cell() const = 0;

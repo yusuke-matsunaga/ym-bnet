@@ -705,15 +705,19 @@ BnNetwork::new_port(const string& port_name,
 
 // @brief DFFを追加する．
 // @param[in] name DFF名
+// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
+// @param[in] cell 対応するセル．
 // @return 生成したDFFを返す．
 //
 // 名前の重複に関しては感知しない．
 BnDff*
 BnNetwork::new_dff(const string& name,
+		   bool has_xoutput,
 		   bool has_clear,
-		   bool has_preset)
+		   bool has_preset,
+		   const Cell* cell)
 {
   ymuint dff_id = mDffList.size();
 
@@ -735,6 +739,18 @@ BnNetwork::new_dff(const string& name,
     buf << name << ".output";
     string name = buf.str();
     BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
+    mNodeList.push_back(node);
+    mInputList.push_back(node);
+  }
+
+  ymuint xoutput_id = kBnNullId;
+  if ( has_xoutput ) {
+    ymuint xoutput_id = mNodeList.size();
+    ymuint iid = mInputList.size();
+    ostringstream buf;
+    buf << name << ".xoutput";
+    string name = buf.str();
+    BnNodeImpl* node = new BnDffXOutput(output_id, name, iid, dff_id);
     mNodeList.push_back(node);
     mInputList.push_back(node);
   }
@@ -773,8 +789,8 @@ BnNetwork::new_dff(const string& name,
     mOutputList.push_back(node);
   }
 
-  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id,
-			     clock_id, clear_id, preset_id);
+  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id, xoutput_id,
+			     clock_id, clear_id, preset_id, cell);
   mDffList.push_back(dff);
 
   return dff;
@@ -784,13 +800,15 @@ BnNetwork::new_dff(const string& name,
 // @param[in] name ラッチ名
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
+// @param[in] cell 対応するセル．
 // @return 生成したラッチを返す．
 //
 // 名前の重複に関しては感知しない．
 BnLatch*
 BnNetwork::new_latch(const string& name,
 		     bool has_clear,
-		     bool has_preset)
+		     bool has_preset,
+		     const Cell* cell)
 {
   ymuint latch_id = mLatchList.size();
 
@@ -851,7 +869,7 @@ BnNetwork::new_latch(const string& name,
   }
 
   BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
-				   enable_id, clear_id, preset_id);
+				   enable_id, clear_id, preset_id, cell);
   mLatchList.push_back(latch);
 
   return latch;

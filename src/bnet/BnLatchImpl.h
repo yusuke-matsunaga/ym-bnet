@@ -31,13 +31,15 @@ public:
   /// @param[in] enable イネーブル端子のノード番号
   /// @param[in] clear クリア端子のノード番号
   /// @param[in] preset プリセット端子のノード番号
+  /// @param[in] cell セル
   BnLatchImpl(ymuint id,
 	      const string& name,
 	      ymuint input,
 	      ymuint output,
 	      ymuint enable,
 	      ymuint clear,
-	      ymuint preset);
+	      ymuint preset,
+	      const Cell* cell = nullptr);
 
   /// @brief デストラクタ
   virtual
@@ -89,6 +91,50 @@ public:
   ymuint
   preset() const;
 
+  /// @brief セルを返す．
+  ///
+  /// nullptr の場合もある．
+  virtual
+  const Cell*
+  cell() const;
+
+  /// @brief データ出力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  output_pin_id() const;
+
+  /// @brief データ入力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  input_pin_id() const;
+
+  /// @brief イネーブル端子のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  enable_pin_id() const;
+
+  /// @brief クリア信号のピン番号を返す．
+  ///
+  /// kBnNullId の場合もある．
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  clear_pin_id() const;
+
+  /// @brief プリセット信号のピン番号を返す．
+  ///
+  /// kBnNullId の場合もある．
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  ymuint
+  preset_pin_id() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -115,6 +161,9 @@ private:
 
   // プリセット信号ノード
   ymuint mPreset;
+
+  // セル
+  const Cell* mCell;
 
 };
 
