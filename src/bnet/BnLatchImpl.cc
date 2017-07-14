@@ -128,8 +128,7 @@ BnLatchImpl::output_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellLatchInfo ffinfo = cg->latch_info();
+  CellLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.q_pos();
 }
 
@@ -143,8 +142,7 @@ BnLatchImpl::input_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellLatchInfo ffinfo = cg->latch_info();
+  CellLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.data_pos();
 }
 
@@ -158,8 +156,7 @@ BnLatchImpl::enable_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellLatchInfo ffinfo = cg->latch_info();
+  CellLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.enable_pos();
 }
 
@@ -174,8 +171,7 @@ BnLatchImpl::clear_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellLatchInfo ffinfo = cg->latch_info();
+  CellLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.clear_pos();
 }
 
@@ -190,8 +186,7 @@ BnLatchImpl::preset_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellLatchInfo ffinfo = cg->latch_info();
+  CellLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.preset_pos();
 }
 

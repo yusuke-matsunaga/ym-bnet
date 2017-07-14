@@ -5,7 +5,7 @@
 /// @brief BnNetwork のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -36,6 +36,7 @@ class BnNodeImpl;
 ///   名前とビット幅，各ビットに対応するノード番号を持つ．
 /// - D-FFノード(BnDff)
 ///   入力と出力およびクロックのノード番号を持つ．
+///   反転出力を持つ場合もある．
 ///   オプションとしてセット，リセット端子のノード番号を持つ．
 /// - ラッチノード(BnLatch)
 ///   入力と出力およびイネーブル端子のノード番号を持つ．
@@ -132,17 +133,25 @@ public:
   /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @return 生成したDFFを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnDff*
+  new_dff(const string& name,
+	  bool has_xoutput = false,
+	  bool has_clear = false,
+	  bool has_preset = false);
+
+  /// @brief セルの情報を持ったDFFを追加する．
+  /// @param[in] name DFF名
   /// @param[in] cell 対応するセル
   /// @return 生成したDFFを返す．
   ///
   /// 名前の重複に関しては感知しない．
   /// cell は FF のセルでなければならない．
   BnDff*
-  new_dff(const string& name,
-	  bool has_xoutput = false,
-	  bool has_clear = false,
-	  bool has_preset = false,
-	  const Cell* cell = nullptr);
+  new_dff_cell(const string& name,
+	       const Cell* cell);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
@@ -156,8 +165,18 @@ public:
   BnLatch*
   new_latch(const string& name,
 	    bool has_clear = false,
-	    bool has_preset = false,
-	    const Cell* cell = nullptr);
+	    bool has_preset = false);
+
+  /// @brief セルの情報を持ったラッチを追加する．
+  /// @param[in] name ラッチ名
+  /// @param[in] cell 対応するセル．
+  /// @return 生成したラッチを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  /// cell はラッチのセルでなければならない．
+  BnLatch*
+  new_latch_cell(const string& name,
+		 const Cell* cell);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -342,6 +361,37 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFFを追加する共通の処理を行う関数
+  /// @param[in] name DFF名
+  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
+  /// @param[in] has_clear クリア端子を持つ時 true にする．
+  /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @param[in] cell 対応するセル．
+  /// @return 生成したDFFを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  BnDff*
+  _new_dff(const string& name,
+	   bool has_xoutput,
+	   bool has_clear,
+	   bool has_preset,
+	   const Cell* cell);
+
+  /// @brief ラッチを追加する共通の処理を行う関数
+  /// @param[in] name ラッチ名
+  /// @param[in] has_clear クリア端子を持つ時 true にする．
+  /// @param[in] has_preset プリセット端子を持つ時 true にする．
+  /// @param[in] cell 対応するセル．
+  /// @return 生成したラッチを返す．
+  ///
+  /// 名前の重複に関しては感知しない．
+  /// cell はラッチのセルでなければならない．
+  BnLatch*
+  _new_latch(const string& name,
+	     bool has_clear,
+	     bool has_preset,
+	     const Cell* cell);
 
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式

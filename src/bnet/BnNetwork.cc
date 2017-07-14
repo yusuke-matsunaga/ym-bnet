@@ -9,6 +9,8 @@
 
 #include "ym/BnNetwork.h"
 #include "ym/Cell.h"
+#include "ym/CellFFInfo.h"
+#include "ym/CellLatchInfo.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 
@@ -708,7 +710,6 @@ BnNetwork::new_port(const string& port_name,
 // @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @param[in] cell 対応するセル．
 // @return 生成したDFFを返す．
 //
 // 名前の重複に関しては感知しない．
@@ -716,8 +717,46 @@ BnDff*
 BnNetwork::new_dff(const string& name,
 		   bool has_xoutput,
 		   bool has_clear,
-		   bool has_preset,
-		   const Cell* cell)
+		   bool has_preset)
+{
+  return _new_dff(name, has_xoutput, has_clear, has_preset, nullptr);
+}
+
+// @brief セルの情報を持ったDFFを追加する．
+// @param[in] name DFF名
+// @param[in] cell 対応するセル．
+// @return 生成したDFFを返す．
+//
+// 名前の重複に関しては感知しない．
+BnDff*
+BnNetwork::new_dff_cell(const string& name,
+			const Cell* cell)
+{
+  ASSERT_COND( cell->is_ff() );
+
+  CellFFInfo ffinfo = cell->ff_info();
+
+  bool has_xoutput = ffinfo.has_xq();
+  bool has_clear = ffinfo.has_clear();
+  bool has_preset = ffinfo.has_preset();
+  return _new_dff(name, has_xoutput, has_clear, has_preset, cell);
+}
+
+// @brief DFFを追加する共通の関数
+// @param[in] name DFF名
+// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @param[in] cell 対応するセル．
+// @return 生成したDFFを返す．
+//
+// 名前の重複に関しては感知しない．
+BnDff*
+BnNetwork::_new_dff(const string& name,
+		    bool has_xoutput,
+		    bool has_clear,
+		    bool has_preset,
+		    const Cell* cell)
 {
   ymuint dff_id = mDffList.size();
 
@@ -800,15 +839,51 @@ BnNetwork::new_dff(const string& name,
 // @param[in] name ラッチ名
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @param[in] cell 対応するセル．
 // @return 生成したラッチを返す．
 //
 // 名前の重複に関しては感知しない．
 BnLatch*
 BnNetwork::new_latch(const string& name,
 		     bool has_clear,
-		     bool has_preset,
-		     const Cell* cell)
+		     bool has_preset)
+{
+  return _new_latch(name, has_clear, has_preset, nullptr);
+}
+
+// @brief セルの情報を持ったラッチを追加する．
+// @param[in] name ラッチ名
+// @param[in] cell 対応するセル．
+// @return 生成したラッチを返す．
+//
+// 名前の重複に関しては感知しない．
+// cell はラッチのセルでなければならない．
+BnLatch*
+BnNetwork::new_latch_cell(const string& name,
+			  const Cell* cell)
+{
+  ASSERT_COND( cell->is_latch() );
+
+  CellLatchInfo latchinfo = cell->latch_info();
+
+  bool has_clear = latchinfo.has_clear();
+  bool has_preset = latchinfo.has_preset();
+  return _new_latch(name, has_clear, has_preset, cell);
+}
+
+// @brief ラッチを追加する共通の処理を行う関数
+// @param[in] name ラッチ名
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @param[in] cell 対応するセル．
+// @return 生成したラッチを返す．
+//
+// 名前の重複に関しては感知しない．
+// cell はラッチのセルでなければならない．
+BnLatch*
+BnNetwork::_new_latch(const string& name,
+		      bool has_clear,
+		      bool has_preset,
+		      const Cell* cell)
 {
   ymuint latch_id = mLatchList.size();
 

@@ -9,7 +9,6 @@
 
 #include "BnDffImpl.h"
 #include "ym/Cell.h"
-#include "ym/CellGroup.h"
 #include "ym/CellFFInfo.h"
 
 
@@ -138,8 +137,7 @@ BnDffImpl::output_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.q_pos();
 }
 
@@ -153,8 +151,7 @@ BnDffImpl::xoutput_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.xq_pos();
 }
 
@@ -168,8 +165,7 @@ BnDffImpl::input_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.data_pos();
 }
 
@@ -183,8 +179,7 @@ BnDffImpl::clock_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.clock_pos();
 }
 
@@ -199,8 +194,7 @@ BnDffImpl::clear_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.clear_pos();
 }
 
@@ -215,8 +209,7 @@ BnDffImpl::preset_pin_id() const
     return 0;
   }
 
-  const CellGroup* cg = cell()->cell_group();
-  CellFFInfo ffinfo = cg->ff_info();
+  CellFFInfo ffinfo = cell()->ff_info();
   return ffinfo.preset_pos();
 }
 
