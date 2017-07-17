@@ -161,6 +161,20 @@ BlifCoverMgr::pat2cover(ymuint input_num,
   return cover;
 }
 
+BEGIN_NONAMESPACE
+
+// @brief リテラル式を作る．
+// @param[in] ipat_str 入力パタンを表す文字列
+// @param[in] ipos 入力位置
+// @return 生成した式を返す．
+Expr
+new_literal(const string& ipat_str,
+	    ymuint ipos)
+{
+}
+
+END_NONAMESPACE
+
 // @brief BlifCover を作る．
 // @param[in] input_num 入力数
 // @param[in] cube_num キューブ数
@@ -194,22 +208,23 @@ BlifCoverMgr::new_cover(ymuint input_num,
 
   ymuint j = 0;
   ymuint k = 0;
-  Expr expr = Expr::make_zero();
+  vector<Expr> prod_list(cube_num);
   for (ymuint c = 0; c < cube_num; ++ c) {
     ymuint64 tmp = 0UL;
     ymuint shift = 0;
-    Expr prod = Expr::make_one();
+    vector<Expr> lit_list;
+    lit_list.reserve(input_num);
     for (ymuint i = 0; i < input_num; ++ i, ++ k) {
       ymuint64 pat;
       switch ( ipat_str[k] ) {
       case '0':
 	pat = 0UL;
-	prod &= Expr::make_negaliteral(VarId(i));
+	lit_list.push_back(Expr::nega_literal(VarId(i)));
 	break;
 
       case '1':
 	pat = 1UL;
-	prod &= Expr::make_posiliteral(VarId(i));
+	lit_list.push_back(Expr::posi_literal(VarId(i)));
 	break;
 
       case '-':
@@ -232,8 +247,10 @@ BlifCoverMgr::new_cover(ymuint input_num,
       cover->mPatArray[j] = tmp;
       ++ j;
     }
-    expr |= prod;
+    prod_list[c] = Expr::make_and(lit_list);
   }
+  Expr expr = Expr::make_or(prod_list);
+
   if ( cover->mOutputPat == BlifCover::kPat_0 ) {
     expr = ~expr;
   }
