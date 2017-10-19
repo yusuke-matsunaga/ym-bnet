@@ -5,7 +5,7 @@
 /// @brief ym-bnet の定義
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 /// @defgroup ym-bnet Boolean Network を扱うモジュール
@@ -62,29 +62,34 @@ enum BnNodeType {
   kBnInput,
   /// @brief 外部出力ノード
   kBnOutput,
-  /// @brief 論理ノード
-  kBnLogic
+  /// @brief 論理ノード(定数0)
+  kBnLogic_C0,
+  /// @brief 論理ノード(定数1)
+  kBnLogic_C1,
+  /// @brief 論理ノード(バッファ)
+  kBnLogic_BUFF,
+  /// @brief 論理ノード(NOT)
+  kBnLogic_NOT,
+  /// @brief 論理ノード(AND)
+  kBnLogic_AND,
+  /// @brief 論理ノード(NAND)
+  kBnLogic_NAND,
+  /// @brief 論理ノード(OR)
+  kBnLogic_OR,
+  /// @brief 論理ノード(NOR)
+  kBnLogic_NOR,
+  /// @brief 論理ノード(XOR)
+  kBnLogic_XOR,
+  /// @brief 論理ノード(XNOR)
+  kBnLogic_XNOR,
+  /// @brief 論理ノード(論理式:Expr)
+  kBnLogic_EXPR,
+  /// @brief 論理ノード(真理値表:TvFunc)
+  kBnLogic_TV,
+  /// @brief 論理ノード(不正値)
+  kBnLogic_NONE,
 };
 
-
-//////////////////////////////////////////////////////////////////////
-/// @brief 論理ノードの論理型を表す列挙型
-//////////////////////////////////////////////////////////////////////
-enum BnLogicType {
-  kBnLt_NONE,
-  kBnLt_C0,
-  kBnLt_C1,
-  kBnLt_BUFF,
-  kBnLt_NOT,
-  kBnLt_AND,
-  kBnLt_NAND,
-  kBnLt_OR,
-  kBnLt_NOR,
-  kBnLt_XOR,
-  kBnLt_XNOR,
-  kBnLt_EXPR,
-  kBnLt_TV
-};
 
 using nsBnet::BlifCover;
 using nsBnet::BlifHandler;

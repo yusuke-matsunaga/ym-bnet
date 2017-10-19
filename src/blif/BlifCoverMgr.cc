@@ -161,20 +161,6 @@ BlifCoverMgr::pat2cover(ymuint input_num,
   return cover;
 }
 
-BEGIN_NONAMESPACE
-
-// @brief リテラル式を作る．
-// @param[in] ipat_str 入力パタンを表す文字列
-// @param[in] ipos 入力位置
-// @return 生成した式を返す．
-Expr
-new_literal(const string& ipat_str,
-	    ymuint ipos)
-{
-}
-
-END_NONAMESPACE
-
 // @brief BlifCover を作る．
 // @param[in] input_num 入力数
 // @param[in] cube_num キューブ数

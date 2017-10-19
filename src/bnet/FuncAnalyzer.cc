@@ -18,21 +18,21 @@ BEGIN_NONAMESPACE
 
 // @brief 真理値表から論理型を得る．
 //
-// プリミティブ型でなかった場合は kBnLt_NONE を返す．
-BnLogicType
+// プリミティブ型でなかった場合は kBnLogic_NONE を返す．
+BnNodeType
 tv2logic_type(const TvFunc& tv)
 {
   if ( tv == TvFunc::const_zero(0) ) {
-    return kBnLt_C0;
+    return kBnLogic_C0;
   }
   else if ( tv == TvFunc::const_one(0) ) {
-    return kBnLt_C1;
+    return kBnLogic_C1;
   }
   else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
-    return kBnLt_BUFF;
+    return kBnLogic_BUFF;
   }
   else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
-    return kBnLt_NOT;
+    return kBnLogic_NOT;
   }
   else {
     ymuint input_num = tv.input_num();
@@ -91,32 +91,32 @@ tv2logic_type(const TvFunc& tv)
     if ( val_0 == 0 && val_1 == 1 ) {
       if ( !has_0 ) {
 	// 00...00 だけ 0 で残りが 1
-	return kBnLt_OR;
+	return kBnLogic_OR;
       }
       else if ( !has_1 ) {
 	// 11...11 だけ 1 で残りが 0
-	return kBnLt_AND;
+	return kBnLogic_AND;
       }
     }
     if ( val_0 == 1 && val_1 == 0 ) {
       if ( !has_0 ) {
 	// 11...11 だけ 0 で残りが 1
-	return kBnLt_NAND;
+	return kBnLogic_NAND;
       }
       else if ( !has_1 ) {
 	// 00...00 だけ 1 で残りが 0
-	return kBnLt_NOR;
+	return kBnLogic_NOR;
       }
     }
     if ( xor_match ) {
-      return kBnLt_XOR;
+      return kBnLogic_XOR;
     }
     else if ( xnor_match ) {
-      return kBnLt_XNOR;
+      return kBnLogic_XNOR;
     }
   }
 
-  return kBnLt_NONE;
+  return kBnLogic_NONE;
 }
 
 END_NONAMESPACE
@@ -128,33 +128,33 @@ END_NONAMESPACE
 
 // @brief 与えられた論理式が組み込み型かどうか判定する．
 //
-// 組み込み型でない場合には kBnLt_EXPR が返される．
-BnLogicType
+// 組み込み型でない場合には kBnLogic_EXPR が返される．
+BnNodeType
 FuncAnalyzer::analyze(const Expr& expr)
 {
   ymuint input_num = expr.input_size();
   if ( input_num <= 10 ) {
     // 10入力以下の場合は一旦 TvFunc に変換する．
     TvFunc tv = expr.make_tv(input_num);
-    BnLogicType logic_type = tv2logic_type(tv);
-    if ( logic_type != kBnLt_NONE ) {
+    BnNodeType logic_type = tv2logic_type(tv);
+    if ( logic_type != kBnLogic_NONE ) {
       return logic_type;
     }
   }
-  return kBnLt_EXPR;
+  return kBnLogic_EXPR;
 }
 
 // @brief 与えられた真理値表が組み込み型かどうか判定する．
 //
-// 組み込み型でない場合には kBnLt_TV が返される．
-BnLogicType
+// 組み込み型でない場合には kBnLogic_TV が返される．
+BnNodeType
 FuncAnalyzer::analyze(const TvFunc& func)
 {
-  BnLogicType logic_type = tv2logic_type(func);
-  if ( logic_type != kBnLt_NONE ) {
+  BnNodeType logic_type = tv2logic_type(func);
+  if ( logic_type != kBnLogic_NONE ) {
     return logic_type;
   }
-  return kBnLt_TV;
+  return kBnLogic_TV;
 }
 
 END_NAMESPACE_YM_BNET

@@ -86,7 +86,7 @@ public:
   virtual
   bool
   read_gate(const FileRegion& loc,
-	    BnLogicType logic_type,
+	    BnNodeType logic_type,
 	    ymuint oname_id,
 	    const char* oname,
 	    const vector<ymuint>& iname_list);

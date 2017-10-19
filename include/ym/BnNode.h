@@ -94,7 +94,7 @@ public:
 
   /// @brief 論理ノードの時 true を返す．
   ///
-  /// type() == kBnLogic と等価
+  /// type() == kBnLogic_XXX と等価
   virtual
   bool
   is_logic() const = 0;
@@ -269,16 +269,9 @@ public:
   ymuint
   fanin(ymuint pos) const = 0;
 
-  /// @brief 論理タイプを返す．
-  ///
-  /// - is_logic() == false の時の動作は不定
-  virtual
-  BnLogicType
-  logic_type() const = 0;
-
   /// @brief 論理式番号を返す．
   ///
-  /// - logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+  /// - type() == kBnLogic_EXPR の時のみ意味を持つ．
   /// - 論理式番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::expr()
   virtual
@@ -287,8 +280,7 @@ public:
 
   /// @brief 論理式を返す．
   ///
-  /// - is_logic() == false の時の動作は不定
-  /// - logic_type() != kBnLt_EXPR の時の動作は不定
+  /// - type() != kBnLogic_EXPR の時の動作は不定
   /// - 親のネットワークの BnNetwork::expr(node->expr_id()) と同一
   /// @sa BnNetwork::expr()
   virtual
@@ -297,7 +289,7 @@ public:
 
   /// @brief 関数番号を返す．
   ///
-  /// - logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// - type() == kBnLogic_TV の時のみ意味を持つ．
   /// - 関数番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::func()
   virtual
@@ -306,8 +298,7 @@ public:
 
   /// @brief 真理値表を返す．
   ///
-  /// - is_logic() == false の時の動作は不定
-  /// - logic_type() != kBnLt_TV の時の動作は不定
+  /// - type() != kBnLogic_TV の時の動作は不定
   /// - 親のネットワークの BnNetwork::func(node->func_id()) と同一
   /// @sa BnNetwork::func()
   virtual

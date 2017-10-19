@@ -41,13 +41,6 @@ BnLogicNode::~BnLogicNode()
   delete [] mFanins;
 }
 
-// @brief タイプを返す．
-BnNodeType
-BnLogicNode::type() const
-{
-  return kBnLogic;
-}
-
 // @brief 外部入力の時 true を返す．
 bool
 BnLogicNode::is_logic() const
@@ -106,7 +99,7 @@ BnLogicNode::set_fanin(ymuint ipos,
 BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
 		       ymuint ni,
-		       BnLogicType logic_type,
+		       BnNodeType logic_type,
 		       const Cell* cell) :
   BnLogicNode(id, name, ni, cell),
   mLogicType(logic_type)
@@ -118,11 +111,9 @@ BnPrimNode::~BnPrimNode()
 {
 }
 
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnPrimNode::logic_type() const
+// @brief タイプを返す．
+BnNodeType
+BnPrimNode::type() const
 {
   return mLogicType;
 }
@@ -156,18 +147,16 @@ BnExprNode::~BnExprNode()
 {
 }
 
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnExprNode::logic_type() const
+// @brief タイプを返す．
+BnNodeType
+BnExprNode::type() const
 {
-  return kBnLt_EXPR;
+  return kBnLogic_EXPR;
 }
 
 // @brief 論理式番号を返す．
 //
-// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+// logic_type() == kBnLogic_EXPR の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
 ymuint
 BnExprNode::expr_id() const
@@ -177,8 +166,7 @@ BnExprNode::expr_id() const
 
 // @brief 論理式を返す．
 //
-// is_logic() == false の時の動作は不定
-// logic_type() != kBnLt_EXPR の時の動作は不定
+// type() != kBnLogic_EXPR の時の動作は不定
 Expr
 BnExprNode::expr() const
 {
@@ -214,18 +202,16 @@ BnTvNode::~BnTvNode()
 {
 }
 
-// @brief 論理タイプを返す．
-//
-// is_logic() == false の時の動作は不定
-BnLogicType
-BnTvNode::logic_type() const
+// @brief タイプを返す．
+BnNodeType
+BnTvNode::type() const
 {
-  return kBnLt_TV;
+  return kBnLogic_TV;
 }
 
 // @brief 関数番号を返す．
 //
-// logic_type() == kBnLt_TV の時のみ意味を持つ．
+// type() == kBnLogic_TV の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
 ymuint
 BnTvNode::func_id() const
@@ -236,7 +222,7 @@ BnTvNode::func_id() const
 // @brief 真理値表を返す．
 //
 // is_logic() == false の時の動作は不定
-// logic_type() != kBnLt_TV の時の動作は不定
+// logic_type() != kBnLogic_TV の時の動作は不定
 TvFunc
 BnTvNode::func() const
 {

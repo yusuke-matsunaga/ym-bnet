@@ -123,7 +123,7 @@ public:
   /// @param[in] dir_vect 向きを表すベクタ
   /// @return 生成したポートを返す．
   ///
-  /// dir_vect[i] == 0 の時，入力を表す．
+  /// - dir_vect[i] == 0 の時，入力を表す．
   BnPort*
   new_port(const string& port_name,
 	   const vector<int>& dir_vect);
@@ -135,7 +135,7 @@ public:
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
   /// @return 生成したDFFを返す．
   ///
-  /// 名前の重複に関しては感知しない．
+  /// - 名前の重複に関しては感知しない．
   BnDff*
   new_dff(const string& name,
 	  bool has_xoutput = false,
@@ -147,8 +147,8 @@ public:
   /// @param[in] cell 対応するセル
   /// @return 生成したDFFを返す．
   ///
-  /// 名前の重複に関しては感知しない．
-  /// cell は FF のセルでなければならない．
+  /// - 名前の重複に関しては感知しない．
+  /// - cell は FF のセルでなければならない．
   BnDff*
   new_dff_cell(const string& name,
 	       const Cell* cell);
@@ -160,8 +160,8 @@ public:
   /// @param[in] cell 対応するセル．
   /// @return 生成したラッチを返す．
   ///
-  /// 名前の重複に関しては感知しない．
-  /// cell はラッチのセルでなければならない．
+  /// - 名前の重複に関しては感知しない．
+  /// - cell はラッチのセルでなければならない．
   BnLatch*
   new_latch(const string& name,
 	    bool has_clear = false,
@@ -172,8 +172,8 @@ public:
   /// @param[in] cell 対応するセル．
   /// @return 生成したラッチを返す．
   ///
-  /// 名前の重複に関しては感知しない．
-  /// cell はラッチのセルでなければならない．
+  /// - 名前の重複に関しては感知しない．
+  /// - cell はラッチのセルでなければならない．
   BnLatch*
   new_latch_cell(const string& name,
 		 const Cell* cell);
@@ -185,11 +185,12 @@ public:
   /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
-  /// ノード名の重複に関しては感知しない．
+  /// - ノード名の重複に関しては感知しない．
+  /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   ymuint
   new_primitive(const string& node_name,
 		ymuint ni,
-		BnLogicType logic_type,
+		BnNodeType logic_type,
 		const Cell* cell = nullptr);
 
   /// @brief 論理式型の論理ノードを追加する．
@@ -199,7 +200,7 @@ public:
   /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
-  /// ノード名の重複に関しては感知しない．
+  /// - ノード名の重複に関しては感知しない．
   ymuint
   new_expr(const string& node_name,
 	   ymuint ni,
@@ -213,7 +214,7 @@ public:
   /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
-  /// ノード名の重複に関しては感知しない．
+  /// - ノード名の重複に関しては感知しない．
   ymuint
   new_tv(const string& node_name,
 	 ymuint ni,
@@ -348,7 +349,7 @@ public:
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   ///
-  /// 形式は独自フォーマット
+  /// - 形式は独自フォーマット
   void
   write(ostream& s) const;
 
@@ -370,7 +371,7 @@ private:
   /// @param[in] cell 対応するセル．
   /// @return 生成したDFFを返す．
   ///
-  /// 名前の重複に関しては感知しない．
+  /// - 名前の重複に関しては感知しない．
   BnDff*
   _new_dff(const string& name,
 	   bool has_xoutput,
@@ -385,8 +386,8 @@ private:
   /// @param[in] cell 対応するセル．
   /// @return 生成したラッチを返す．
   ///
-  /// 名前の重複に関しては感知しない．
-  /// cell はラッチのセルでなければならない．
+  /// - 名前の重複に関しては感知しない．
+  /// - cell はラッチのセルでなければならない．
   BnLatch*
   _new_latch(const string& name,
 	     bool has_clear,

@@ -137,16 +137,16 @@ Iscas89ParserImpl::read(const string& filename)
 	  }
 	}
 	else {
-	  BnLogicType type;
+	  BnNodeType type;
 	  switch ( gate_type ) {
-	  case kIscas89_BUFF: type = kBnLt_BUFF; break;
-	  case kIscas89_NOT:  type = kBnLt_NOT;  break;
-	  case kIscas89_AND:  type = kBnLt_AND;  break;
-	  case kIscas89_NAND: type = kBnLt_NAND; break;
-	  case kIscas89_OR:   type = kBnLt_OR;   break;
-	  case kIscas89_NOR:  type = kBnLt_NOR;  break;
-	  case kIscas89_XOR:  type = kBnLt_XOR;  break;
-	  case kIscas89_XNOR: type = kBnLt_XNOR; break;
+	  case kIscas89_BUFF: type = kBnLogic_BUFF; break;
+	  case kIscas89_NOT:  type = kBnLogic_NOT;  break;
+	  case kIscas89_AND:  type = kBnLogic_AND;  break;
+	  case kIscas89_NAND: type = kBnLogic_NAND; break;
+	  case kIscas89_OR:   type = kBnLogic_OR;   break;
+	  case kIscas89_NOR:  type = kBnLogic_NOR;  break;
+	  case kIscas89_XOR:  type = kBnLogic_XOR;  break;
+	  case kIscas89_XNOR: type = kBnLogic_XNOR; break;
 	  default: ASSERT_NOT_REACHED;
 	  }
 	  if ( !read_gate(FileRegion(first_loc, last_loc),
@@ -405,7 +405,7 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     ymuint oname_id,
-			     BnLogicType logic_type,
+			     BnNodeType logic_type,
 			     const vector<ymuint>& iname_id_list)
 {
   Iscas89IdCell* cell = id2cell(oname_id);

@@ -95,7 +95,7 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 BnIscas89Handler::read_gate(const FileRegion& loc,
-			    BnLogicType logic_type,
+			    BnNodeType logic_type,
 			    ymuint oname_id,
 			    const char* oname,
 			    const vector<ymuint>& iname_list)

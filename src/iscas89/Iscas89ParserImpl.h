@@ -117,7 +117,7 @@ private:
   bool
   read_gate(const FileRegion& loc,
 	    ymuint oname_id,
-	    BnLogicType type,
+	    BnNodeType type,
 	    const vector<ymuint>& iname_id_list);
 
   /// @brief D-FF用のゲート文を読み込む．

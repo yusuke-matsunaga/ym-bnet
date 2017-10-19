@@ -69,7 +69,7 @@ public:
   virtual
   bool
   read_gate(const FileRegion& loc,
-	    BnLogicType type,
+	    BnNodeType type,
 	    ymuint32 oname_id,
 	    const char* oname,
 	    const vector<ymuint32>& iname_list);
@@ -166,7 +166,7 @@ TestIscas89Handler::read_output(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_gate(const FileRegion& loc,
-			      BnLogicType type,
+			      BnNodeType type,
 			      ymuint32 oname_id,
 			      const char* oname,
 			      const vector<ymuint32>& iname_list)
@@ -177,14 +177,14 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 		<< "  loc(oname_id) = " << id2loc(oname_id) << endl;
   (*mStreamPtr) << "  type = ";
   switch ( type ) {
-  case kBnLt_BUFF: (*mStreamPtr) << "BUFF"; break;
-  case kBnLt_NOT:  (*mStreamPtr) << "NOT"; break;
-  case kBnLt_AND:  (*mStreamPtr) << "AND"; break;
-  case kBnLt_NAND: (*mStreamPtr) << "NAND"; break;
-  case kBnLt_OR:   (*mStreamPtr) << "OR"; break;
-  case kBnLt_NOR:  (*mStreamPtr) << "NOR"; break;
-  case kBnLt_XOR:  (*mStreamPtr) << "XOR"; break;
-  case kBnLt_XNOR: (*mStreamPtr) << "XNOR"; break;
+  case kBnLogic_BUFF: (*mStreamPtr) << "BUFF"; break;
+  case kBnLogic_NOT:  (*mStreamPtr) << "NOT"; break;
+  case kBnLogic_AND:  (*mStreamPtr) << "AND"; break;
+  case kBnLogic_NAND: (*mStreamPtr) << "NAND"; break;
+  case kBnLogic_OR:   (*mStreamPtr) << "OR"; break;
+  case kBnLogic_NOR:  (*mStreamPtr) << "NOR"; break;
+  case kBnLogic_XOR:  (*mStreamPtr) << "XOR"; break;
+  case kBnLogic_XNOR: (*mStreamPtr) << "XNOR"; break;
   default: ASSERT_NOT_REACHED; break;
   }
   (*mStreamPtr) << endl;
