@@ -38,10 +38,10 @@ BlifScanner::~BlifScanner()
 
 // @brief トークンを一つ読み出す．
 // @param[out] loc トークンの位置を格納する変数
-tToken
+Token
 BlifScanner::read_token(FileRegion& loc)
 {
-  tToken token = scan();
+  Token token = scan();
   loc = cur_loc();
 
   if ( debug_read_token ) {
@@ -59,7 +59,7 @@ BlifScanner::read_token(FileRegion& loc)
 
 // @brief read_token() の下請け関数
 // @return トークンを返す．
-tToken
+Token
 BlifScanner::scan()
 {
   mCurString = "";
@@ -182,12 +182,12 @@ BlifScanner::scan()
 // @brief 予約後の検査をする．
 // @param[in] start_with_dot '.' で始まっている時に true を渡す．
 // @return トークンを返す．
-tToken
+Token
 BlifScanner::check_word(bool start_with_dot)
 {
   if ( start_with_dot ) {
     // 予約後の検索
-    tToken token = mDic.get_token(cur_string());
+    Token token = mDic.get_token(cur_string());
     if ( token != kTokenEOF ) {
       return token;
     }

@@ -36,7 +36,7 @@ public:
   BnLogicNode(ymuint id,
 	      const string& name,
 	      ymuint ni,
-	      const Cell* cell);
+	      const ClibCell* cell);
 
   /// @brief デストラクタ
   virtual
@@ -75,7 +75,7 @@ public:
   /// is_logic() == false の時の動作は不定
   /// 場合によっては nullptr を返す．
   virtual
-  const Cell*
+  const ClibCell*
   cell() const;
 
 
@@ -106,7 +106,7 @@ private:
   ymuint* mFanins;
 
   // セル
-  const Cell* mCell;
+  const ClibCell* mCell;
 
   // セルのピン番号の対応表
   // mCell == nullptr なら nullptr
@@ -138,7 +138,7 @@ public:
 	     const string& name,
 	     ymuint ni,
 	     BnNodeType logic_type,
-	     const Cell* cell = nullptr);
+	     const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
   virtual
@@ -195,7 +195,7 @@ public:
 	     ymuint ni,
 	     const Expr& expr,
 	     ymuint expr_id,
-	     const Cell* cell = nullptr);
+	     const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
   ~BnExprNode();
@@ -275,7 +275,7 @@ public:
 	   ymuint ni,
 	   const TvFunc& func,
 	   ymuint func_id,
-	   const Cell* cell = nullptr);
+	   const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
   ~BnTvNode();

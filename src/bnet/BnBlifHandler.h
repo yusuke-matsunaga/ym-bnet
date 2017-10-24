@@ -10,7 +10,6 @@
 
 
 #include "ym/BlifHandler.h"
-#include "ym/ym_cell.h"
 #include "ym/HashMap.h"
 
 
@@ -103,7 +102,7 @@ public:
   gate(ymuint oname_id,
        const char* oname,
        const vector<ymuint>& inode_id_array,
-       const Cell* cell);
+       const ClibCell* cell);
 
   /// @brief .latch 文の処理
   /// @param[in] oname_id 出力ノードのID番号

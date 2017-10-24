@@ -1,15 +1,15 @@
-#ifndef BLIFCOVER_H
-#define BLIFCOVER_H
+#ifndef YM_BLIFCOVER_H
+#define YM_BLIFCOVER_H
 
-/// @file BlifCover.h
+/// @file ym/BlifCover.h
 /// @brief BlifCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym_bnet.h"
+#include "bnet.h"
 #include "ym/Expr.h"
 
 
@@ -194,4 +194,4 @@ operator<<(ostream& s,
 
 END_NAMESPACE_YM_BNET
 
-#endif // BLIFCOVER_H
+#endif // YM_BLIFCOVER_H

@@ -25,7 +25,7 @@ BnBlifReaderTest(int argc,
   BnNetwork network;
 
   string filename = argv[1];
-  const CellLibrary* cell_library = nullptr;
+  const ClibCellLibrary* cell_library = nullptr;
   bool stat = BnBlifReader::read(network, filename, cell_library);
   if ( !stat ) {
     cerr << "read_blif(" << filename << ") failed" << endl;

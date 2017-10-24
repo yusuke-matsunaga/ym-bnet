@@ -9,9 +9,9 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_logic.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/logic.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -311,7 +311,7 @@ public:
   /// - 場合によっては nullptr を返す．
   /// - セルの入力ピンの並びと BnNode の入力ノードの並びは一致している．
   virtual
-  const Cell*
+  const ClibCell*
   cell() const = 0;
 
 };

@@ -9,8 +9,8 @@
 
 #include "TestBlifHandler.h"
 #include "ym/BlifCover.h"
-#include "ym/Cell.h"
-#include "ym/CellPin.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibCellPin.h"
 #include "ym/FileRegion.h"
 
 
@@ -115,7 +115,7 @@ bool
 TestBlifHandler::gate(ymuint onode_id,
 		      const char* oname,
 		      const vector<ymuint>& inode_id_array,
-		      const Cell* cell)
+		      const ClibCell* cell)
 {
   (*mStreamPtr) << ".gate " << cell->name() << " " << oname
 		<< "\t[" << id2loc(onode_id) << "]" << endl;

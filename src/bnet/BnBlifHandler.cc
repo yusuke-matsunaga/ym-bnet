@@ -13,7 +13,7 @@
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/BlifCover.h"
-#include "ym/Cell.h"
+#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -131,7 +131,7 @@ bool
 BnBlifHandler::gate(ymuint oname_id,
 		    const char* oname,
 		    const vector<ymuint>& inode_id_array,
-		    const Cell* cell)
+		    const ClibCell* cell)
 {
   const Expr& expr = cell->logic_expr(0);
   ymuint ni = inode_id_array.size();

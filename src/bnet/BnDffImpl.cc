@@ -8,8 +8,8 @@
 
 
 #include "BnDffImpl.h"
-#include "ym/Cell.h"
-#include "ym/CellFFInfo.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibFFInfo.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -36,7 +36,7 @@ BnDffImpl::BnDffImpl(ymuint id,
 		     ymuint clock,
 		     ymuint clear,
 		     ymuint preset,
-		     const Cell* cell) :
+		     const ClibCell* cell) :
   mId(id),
   mName(name),
   mInput(input),
@@ -121,7 +121,7 @@ BnDffImpl::preset() const
 // @brief セルを返す．
 //
 // nullptr の場合もある．
-const Cell*
+const ClibCell*
 BnDffImpl::cell() const
 {
   return mCell;
@@ -137,7 +137,7 @@ BnDffImpl::output_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.q_pos();
 }
 
@@ -151,7 +151,7 @@ BnDffImpl::xoutput_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.xq_pos();
 }
 
@@ -165,7 +165,7 @@ BnDffImpl::input_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.data_pos();
 }
 
@@ -179,7 +179,7 @@ BnDffImpl::clock_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.clock_pos();
 }
 
@@ -194,7 +194,7 @@ BnDffImpl::clear_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.clear_pos();
 }
 
@@ -209,7 +209,7 @@ BnDffImpl::preset_pin_id() const
     return 0;
   }
 
-  CellFFInfo ffinfo = cell()->ff_info();
+  ClibFFInfo ffinfo = cell()->ff_info();
   return ffinfo.preset_pos();
 }
 

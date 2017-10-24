@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
+#include "ym/bnet.h"
 #include "Iscas89IdHash.h"
 #include "Iscas89Token.h"
 

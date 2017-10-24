@@ -41,7 +41,7 @@ public:
 	    ymuint clock,
 	    ymuint clear,
 	    ymuint preset,
-	    const Cell* cell = nullptr);
+	    const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
   virtual
@@ -102,7 +102,7 @@ public:
   ///
   /// nullptr の場合もある．
   virtual
-  const Cell*
+  const ClibCell*
   cell() const;
 
   /// @brief データ出力のピン番号を返す．
@@ -180,7 +180,7 @@ private:
   ymuint mPreset;
 
   // セル
-  const Cell* mCell;
+  const ClibCell* mCell;
 
 };
 

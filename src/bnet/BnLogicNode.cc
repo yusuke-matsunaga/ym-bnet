@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_YM_BNET
 BnLogicNode::BnLogicNode(ymuint id,
 			 const string& name,
 			 ymuint ni,
-			 const Cell* cell) :
+			 const ClibCell* cell) :
   BnNodeImpl(id, name),
   mFaninNum(ni),
   mCell(cell)
@@ -68,7 +68,7 @@ BnLogicNode::fanin(ymuint pos) const
 //
 // is_logic() == false の時の動作は不定
 // 場合によっては nullptr を返す．
-const Cell*
+const ClibCell*
 BnLogicNode::cell() const
 {
   return mCell;
@@ -100,7 +100,7 @@ BnPrimNode::BnPrimNode(ymuint id,
 		       const string& name,
 		       ymuint ni,
 		       BnNodeType logic_type,
-		       const Cell* cell) :
+		       const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
   mLogicType(logic_type)
 {
@@ -135,7 +135,7 @@ BnExprNode::BnExprNode(ymuint id,
 		       ymuint ni,
 		       const Expr& expr,
 		       ymuint expr_id,
-		       const Cell* cell) :
+		       const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
   mExpr(expr),
   mExprId(expr_id)
@@ -190,7 +190,7 @@ BnTvNode::BnTvNode(ymuint id,
 		   ymuint ni,
 		   const TvFunc& func,
 		   ymuint func_id,
-		   const Cell* cell) :
+		   const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
   mFunc(func),
   mFuncId(func_id)

@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -47,7 +47,7 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(const string& filename,
-       const CellLibrary* cell_library);
+       const ClibCellLibrary* cell_library);
 
   /// @brief イベントハンドラの登録
   /// @param[in] handler 登録するハンドラ

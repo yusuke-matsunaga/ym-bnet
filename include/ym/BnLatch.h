@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -91,7 +91,7 @@ public:
   ///
   /// nullptr の場合もある．
   virtual
-  const Cell*
+  const ClibCell*
   cell() const = 0;
 
   /// @brief データ出力のピン番号を返す．

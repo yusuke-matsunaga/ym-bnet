@@ -271,7 +271,7 @@ public:
   /// is_logic() == false の時の動作は不定
   /// 場合によっては nullptr の場合もある．
   virtual
-  const Cell*
+  const ClibCell*
   cell() const;
 
 

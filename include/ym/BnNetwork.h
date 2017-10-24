@@ -9,9 +9,9 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
-#include "ym/ym_logic.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
+#include "ym/logic.h"
 #include "ym/HashMap.h"
 
 
@@ -151,7 +151,7 @@ public:
   /// - cell は FF のセルでなければならない．
   BnDff*
   new_dff_cell(const string& name,
-	       const Cell* cell);
+	       const ClibCell* cell);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
@@ -176,7 +176,7 @@ public:
   /// - cell はラッチのセルでなければならない．
   BnLatch*
   new_latch_cell(const string& name,
-		 const Cell* cell);
+		 const ClibCell* cell);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -191,7 +191,7 @@ public:
   new_primitive(const string& node_name,
 		ymuint ni,
 		BnNodeType logic_type,
-		const Cell* cell = nullptr);
+		const ClibCell* cell = nullptr);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -205,7 +205,7 @@ public:
   new_expr(const string& node_name,
 	   ymuint ni,
 	   const Expr& expr,
-	   const Cell* cell = nullptr);
+	   const ClibCell* cell = nullptr);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -219,7 +219,7 @@ public:
   new_tv(const string& node_name,
 	 ymuint ni,
 	 const TvFunc& tv,
-	 const Cell* cell = nullptr);
+	 const ClibCell* cell = nullptr);
 
   /// @brief ノード間を接続する．
   /// @param[in] src_node ファンアウト元のノード番号
@@ -377,7 +377,7 @@ private:
 	   bool has_xoutput,
 	   bool has_clear,
 	   bool has_preset,
-	   const Cell* cell);
+	   const ClibCell* cell);
 
   /// @brief ラッチを追加する共通の処理を行う関数
   /// @param[in] name ラッチ名
@@ -392,7 +392,7 @@ private:
   _new_latch(const string& name,
 	     bool has_clear,
 	     bool has_preset,
-	     const Cell* cell);
+	     const ClibCell* cell);
 
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式

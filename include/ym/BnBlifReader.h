@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -39,7 +39,7 @@ public:
   bool
   read(BnNetwork& network,
        const string& filename,
-       const CellLibrary* cell_library = nullptr,
+       const ClibCellLibrary* cell_library = nullptr,
        const string& clock_name = "clock",
        const string& reset_name = "reset");
 

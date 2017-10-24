@@ -99,7 +99,7 @@ bool
 NullBlifHandler::gate(ymuint onode_id,
 		      const char* oname,
 		      const vector<ymuint>& inode_id_array,
-		      const Cell* cell)
+		      const ClibCell* cell)
 {
   return true;
 }

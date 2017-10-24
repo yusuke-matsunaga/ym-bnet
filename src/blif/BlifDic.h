@@ -9,13 +9,13 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
+#include "ym/bnet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 /// @brief blif 形式のトークン
-enum tToken {
+enum Token {
   kTokenEOF,
   kTokenNL,
   kTokenSTRING,
@@ -75,14 +75,14 @@ public:
 public:
 
   /// @brief str に対応したトークンを返す．
-  tToken
+  Token
   get_token(const char* str);
 
   /// @brief トークンの内容を出力する．
   static
   void
   dump_token(ostream& s,
-	     tToken token);
+	     Token token);
 
 
 private:
@@ -93,7 +93,7 @@ private:
     const char* mStr;
 
     // 予約語のトークン
-    tToken mToken;
+    Token mToken;
 
     // ハッシュ表の次の要素を指すポインタ
     Cell* mLink;
@@ -117,13 +117,13 @@ private:
 
 };
 
-/// @relates tToken
+/// @relates Token
 /// @brief トークンを出力する．
 /// @param[in] s 出力先のストリーム
 /// @param[in] token トークン
 ostream&
 operator<<(ostream& s,
-	   tToken token);
+	   Token token);
 
 
 END_NAMESPACE_YM_BNET

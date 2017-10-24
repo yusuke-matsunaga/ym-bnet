@@ -1,7 +1,7 @@
-﻿#ifndef YM_YM_BNET_H
-#define YM_YM_BNET_H
+﻿#ifndef YM_BNET_H
+#define YM_BNET_H
 
-/// @file ym/ym_bnet.h
+/// @file ym/bnet.h
 /// @brief ym-bnet の定義
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -10,8 +10,8 @@
 
 /// @defgroup ym-bnet Boolean Network を扱うモジュール
 ///
-/// UCB で開発された mis, sis の標準入出力フォーマット
-/// BLIF(Berkeley Logic Interchange Format) 用のパーサ
+///
+///
 
 
 #include "ym_config.h"
@@ -108,4 +108,4 @@ using nsBnet::Iscas89Handler;
 
 END_NAMESPACE_YM
 
-#endif // YM_YM_BNET_H
+#endif // YM_BNET_H

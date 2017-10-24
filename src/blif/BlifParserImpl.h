@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
 #include "ym/HashMap.h"
 #include "BlifIdHash.h"
 #include "BlifScanner.h"
@@ -49,7 +49,7 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(const string& filename,
-       const CellLibrary* cell_library);
+       const ClibCellLibrary* cell_library);
 
   /// @brief イベントハンドラの登録
   /// @param[in] handler 登録するハンドラ
@@ -91,12 +91,12 @@ private:
 
   /// @brief トークンを一つ読み出す．
   /// @param[out] loc トークンの位置を格納する変数
-  tToken
+  Token
   get_token(FileRegion& loc);
 
   /// @brief トークンを戻す．
   void
-  unget_token(tToken token,
+  unget_token(Token token,
 	      const FileRegion& loc);
 
 
@@ -107,13 +107,13 @@ private:
 
   // セルライブラリ
   // nullptr の場合もある．
-  const CellLibrary* mCellLibrary;
+  const ClibCellLibrary* mCellLibrary;
 
   // 字句解析器
   BlifScanner* mScanner;
 
   // 読み戻されたトークン
-  tToken mUngetToken;
+  Token mUngetToken;
 
   // mUngetToken に対応する位置情報
   FileRegion mUngetTokenLoc;
@@ -149,7 +149,7 @@ private:
   char mOpatChar;
 
   // 現在のセル
-  const Cell* mCell;
+  const ClibCell* mCell;
 
   // 位置情報バッファ
   FileRegion mLoc1;
@@ -210,7 +210,7 @@ BlifParserImpl::id2cover(ymuint id)
 // @brief トークンを戻す．
 inline
 void
-BlifParserImpl::unget_token(tToken token,
+BlifParserImpl::unget_token(Token token,
 			    const FileRegion& loc)
 {
   mUngetToken = token;

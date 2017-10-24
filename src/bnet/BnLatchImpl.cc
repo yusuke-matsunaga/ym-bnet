@@ -8,9 +8,9 @@
 
 
 #include "BnLatchImpl.h"
-#include "ym/Cell.h"
-#include "ym/CellGroup.h"
-#include "ym/CellLatchInfo.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibCellGroup.h"
+#include "ym/ClibLatchInfo.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -35,7 +35,7 @@ BnLatchImpl::BnLatchImpl(ymuint id,
 			 ymuint enable,
 			 ymuint clear,
 			 ymuint preset,
-			 const Cell* cell) :
+			 const ClibCell* cell) :
   mId(id),
   mName(name),
   mInput(input),
@@ -112,7 +112,7 @@ BnLatchImpl::preset() const
 // @brief セルを返す．
 //
 // nullptr の場合もある．
-const Cell*
+const ClibCell*
 BnLatchImpl::cell() const
 {
   return mCell;
@@ -128,7 +128,7 @@ BnLatchImpl::output_pin_id() const
     return 0;
   }
 
-  CellLatchInfo ffinfo = cell()->latch_info();
+  ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.q_pos();
 }
 
@@ -142,7 +142,7 @@ BnLatchImpl::input_pin_id() const
     return 0;
   }
 
-  CellLatchInfo ffinfo = cell()->latch_info();
+  ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.data_pos();
 }
 
@@ -156,7 +156,7 @@ BnLatchImpl::enable_pin_id() const
     return 0;
   }
 
-  CellLatchInfo ffinfo = cell()->latch_info();
+  ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.enable_pos();
 }
 
@@ -171,7 +171,7 @@ BnLatchImpl::clear_pin_id() const
     return 0;
   }
 
-  CellLatchInfo ffinfo = cell()->latch_info();
+  ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.clear_pos();
 }
 
@@ -186,7 +186,7 @@ BnLatchImpl::preset_pin_id() const
     return 0;
   }
 
-  CellLatchInfo ffinfo = cell()->latch_info();
+  ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.preset_pos();
 }
 

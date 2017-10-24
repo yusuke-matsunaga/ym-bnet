@@ -8,8 +8,8 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_logic.h"
+#include "ym/bnet.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

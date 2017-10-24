@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
+#include "ym/bnet.h"
 #include "ym/SimpleAlloc.h"
 #include "ym/FileRegion.h"
 

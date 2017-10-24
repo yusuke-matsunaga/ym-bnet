@@ -315,7 +315,7 @@ BnNodeImpl::func() const
 // @brief セルを返す．
 //
 // is_logic() == false の時の動作は不定
-const Cell*
+const ClibCell*
 BnNodeImpl::cell() const
 {
   ASSERT_NOT_REACHED;

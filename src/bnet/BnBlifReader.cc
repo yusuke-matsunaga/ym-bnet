@@ -29,7 +29,7 @@ BEGIN_NAMESPACE_YM_BNET
 bool
 BnBlifReader::read(BnNetwork& network,
 		   const string& filename,
-		   const CellLibrary* cell_library,
+		   const ClibCellLibrary* cell_library,
 		   const string& clock_name,
 		   const string& reset_name)
 {

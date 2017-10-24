@@ -99,7 +99,7 @@ public:
   gate(ymuint onode_id,
        const char* oname,
        const vector<ymuint>& inode_id_array,
-       const Cell* cell);
+       const ClibCell* cell);
 
   /// @brief .latch 文の処理
   /// @param[in] onode_id 出力ノードのID番号

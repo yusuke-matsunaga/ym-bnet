@@ -37,7 +37,7 @@ BlifDic::BlifDic()
   // 予約語テーブルの生成
   struct InitData {
     const char* mKey;
-    tToken mVal;
+    Token mVal;
   };
   static InitData init_data[] = {
     {"model", kTokenMODEL},
@@ -101,7 +101,7 @@ BlifDic::~BlifDic()
 }
 
 /// @brief str に対応したトークンを返す．
-tToken
+Token
 BlifDic::get_token(const char* str)
 {
   ymuint pos = hash_func(str) % mTableSize;
@@ -116,7 +116,7 @@ BlifDic::get_token(const char* str)
 // @brief トークンの内容を出力する．
 void
 BlifDic::dump_token(ostream& s,
-		    tToken token)
+		    Token token)
 {
   switch (token) {
   case kTokenEOF    : s << "EOF"; break;
@@ -164,7 +164,7 @@ BlifDic::dump_token(ostream& s,
 // トークンの出力関数
 ostream&
 operator<<(ostream& s,
-	   tToken token)
+	   Token token)
 {
   BlifDic::dump_token(s, token);
   return s;

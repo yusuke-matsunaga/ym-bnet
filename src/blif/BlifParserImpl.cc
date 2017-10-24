@@ -12,9 +12,9 @@
 #include "ym/BlifCover.h"
 #include "ym/BlifHandler.h"
 #include "ym/BlifParser.h"
-#include "ym/CellLibrary.h"
-#include "ym/Cell.h"
-#include "ym/CellPin.h"
+#include "ym/ClibCellLibrary.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibCellPin.h"
 #include "ym/FileIDO.h"
 #include "ym/MsgMgr.h"
 
@@ -44,7 +44,7 @@ BlifParser::~BlifParser()
 // @retval false 読み込みが失敗した．
 bool
 BlifParser::read(const string& filename,
-		 const CellLibrary* cell_library)
+		 const ClibCellLibrary* cell_library)
 {
   return mImpl->read(filename, cell_library);
 }
@@ -121,7 +121,7 @@ BlifParserImpl::~BlifParserImpl()
 // @brief 読み込みを行う．
 bool
 BlifParserImpl::read(const string& filename,
-		     const CellLibrary* cell_library)
+		     const ClibCellLibrary* cell_library)
 {
   // ファイルをオープンする．
   FileIDO ido;
@@ -165,7 +165,7 @@ BlifParserImpl::read(const string& filename,
  ST_INIT:
   // 読込開始
   {
-    tToken tk= get_token(mLoc1);
+    Token tk= get_token(mLoc1);
     if ( tk == kTokenNL ) {
       // 読み飛ばす
       goto ST_INIT;
@@ -187,7 +187,7 @@ BlifParserImpl::read(const string& filename,
   // .model 文の処理
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk != kTokenSTRING ) {
       MsgMgr::put_msg(__FILE__, __LINE__,
 		      loc,
@@ -223,7 +223,7 @@ BlifParserImpl::read(const string& filename,
  ST_NEUTRAL:
   // 本体の処理
   {
-    tToken tk= get_token(mLoc1);
+    Token tk= get_token(mLoc1);
     switch (tk) {
     case kTokenNL:
       goto ST_NEUTRAL;
@@ -314,7 +314,7 @@ BlifParserImpl::read(const string& filename,
  ST_INPUTS:
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
       BlifIdCell* cell = mIdHash.find(name, true);
@@ -366,7 +366,7 @@ BlifParserImpl::read(const string& filename,
  ST_OUTPUTS:
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
       BlifIdCell* cell = mIdHash.find(name, true);
@@ -412,7 +412,7 @@ BlifParserImpl::read(const string& filename,
  ST_NAMES:
   { // str* nl
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenSTRING ) {
       const char* name = mScanner->cur_string();
       BlifIdCell* cell = mIdHash.find(name, true);
@@ -446,7 +446,7 @@ BlifParserImpl::read(const string& filename,
  ST_NAMES0:
   { // str nl
     FileRegion loc1;
-    tToken tk= get_token(loc1);
+    Token tk= get_token(loc1);
     if ( tk == kTokenSTRING ) {
       mName1 = mScanner->cur_string();
       char ochar = mName1[0];
@@ -493,7 +493,7 @@ BlifParserImpl::read(const string& filename,
  ST_NAMES1:
   { // str str nl
     FileRegion loc1;
-    tToken tk= get_token(loc1);
+    Token tk= get_token(loc1);
     if ( tk == kTokenSTRING ) {
       mName1 = mScanner->cur_string();
       if ( mName1.size() != mNameArray.size() - 1 ) {
@@ -614,7 +614,7 @@ BlifParserImpl::read(const string& filename,
  ST_GATE:
   { // str -> ST_GATE1
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk != kTokenSTRING ) {
       error_loc = loc;
       goto ST_GATE_SYNERROR;
@@ -666,11 +666,11 @@ BlifParserImpl::read(const string& filename,
  ST_GATE1:
   { // (str '=' str)* nl
     FileRegion loc1;
-    tToken tk= get_token(loc1);
+    Token tk= get_token(loc1);
     if ( tk == kTokenSTRING ) {
       mName1 = mScanner->cur_string();
       const char* name1 = mName1.c_str();
-      const CellPin* pin = mCell->pin(name1);
+      const ClibCellPin* pin = mCell->pin(name1);
       if ( pin == nullptr ) {
 	ostringstream buf;
 	buf << name1 << ": No such pin.";
@@ -724,13 +724,13 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc1;
 	goto ST_GATE_SYNERROR;
       }
-      const CellPin* opin = mCell->output(0);
+      const ClibCellPin* opin = mCell->output(0);
       BlifIdCell* oid = mNameArray[opin->pin_id()];
       ymuint onode_id = oid->id();
       ymuint ni = mCell->input_num();
       mIdArray.clear();
       for (ymuint i = 0; i < ni; ++ i) {
-	const CellPin* ipin = mCell->input(i);
+	const ClibCellPin* ipin = mCell->input(i);
 	ymuint inode_id = mNameArray[ipin->pin_id()]->id();
 	mIdArray.push_back(inode_id);
       }
@@ -757,7 +757,7 @@ BlifParserImpl::read(const string& filename,
  ST_LATCH:
   {
     FileRegion loc2;
-    tToken tk= get_token(loc2);
+    Token tk= get_token(loc2);
     if ( tk == kTokenSTRING ) {
       const char* name1 = mScanner->cur_string();
       BlifIdCell* cell1 = mIdHash.find(name1, true);
@@ -832,7 +832,7 @@ BlifParserImpl::read(const string& filename,
  ST_AFTER_END:
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenEOF ) {
       goto ST_NORMAL_EXIT;
     }
@@ -848,7 +848,7 @@ BlifParserImpl::read(const string& filename,
  ST_EXDC:
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenEND ) {
       goto ST_NEUTRAL;
     }
@@ -858,7 +858,7 @@ BlifParserImpl::read(const string& filename,
  ST_DUMMY_READ1:
   {
     FileRegion loc;
-    tToken tk= get_token(loc);
+    Token tk= get_token(loc);
     if ( tk == kTokenNL ) {
       goto ST_NEUTRAL;
     }
@@ -966,14 +966,14 @@ BlifParserImpl::add_handler(BlifHandler* handler)
 
 // @brief トークンを一つ読み出す．
 // @param[out] loc トークンの位置を格納する変数
-tToken
+Token
 BlifParserImpl::get_token(FileRegion& loc)
 {
   if ( mUngetToken == kTokenEOF ) {
     return mScanner->read_token(loc);
   }
   // トークンバッファに値がある場合にはそれを返す．
-  tToken tk = mUngetToken;
+  Token tk = mUngetToken;
   mUngetToken = kTokenEOF;
   loc = mUngetTokenLoc;
   return tk;

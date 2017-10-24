@@ -5,12 +5,12 @@
 /// @brief BlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
 #include "ym/FileRegion.h"
 
 
@@ -114,7 +114,7 @@ public:
   gate(ymuint onode_id,
        const char* oname,
        const vector<ymuint>& inode_id_array,
-       const Cell* cell) = 0;
+       const ClibCell* cell) = 0;
 
   /// @brief .latch 文の処理
   /// @param[in] onode_id 出力ノードのID番号

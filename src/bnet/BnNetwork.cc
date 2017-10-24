@@ -8,9 +8,9 @@
 
 
 #include "ym/BnNetwork.h"
-#include "ym/Cell.h"
-#include "ym/CellFFInfo.h"
-#include "ym/CellLatchInfo.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibFFInfo.h"
+#include "ym/ClibLatchInfo.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 
@@ -270,7 +270,7 @@ BnNetwork::copy(const BnNetwork& src)
     BnNodeType logic_type = src_node->type();
     ymuint expr_id = src_node->expr_id();
     ymuint func_id = src_node->func_id();
-    const Cell* cell = src_node->cell();
+    const ClibCell* cell = src_node->cell();
     ymuint dst_id = kBnNullId;
     if ( logic_type == kBnLogic_EXPR ) {
       dst_id = new_expr(name, nfi, src.expr(expr_id), cell);
@@ -732,11 +732,11 @@ BnNetwork::new_dff(const string& name,
 // 名前の重複に関しては感知しない．
 BnDff*
 BnNetwork::new_dff_cell(const string& name,
-			const Cell* cell)
+			const ClibCell* cell)
 {
   ASSERT_COND( cell->is_ff() );
 
-  CellFFInfo ffinfo = cell->ff_info();
+  ClibFFInfo ffinfo = cell->ff_info();
 
   bool has_xoutput = ffinfo.has_xq();
   bool has_clear = ffinfo.has_clear();
@@ -758,7 +758,7 @@ BnNetwork::_new_dff(const string& name,
 		    bool has_xoutput,
 		    bool has_clear,
 		    bool has_preset,
-		    const Cell* cell)
+		    const ClibCell* cell)
 {
   ymuint dff_id = mDffList.size();
 
@@ -861,11 +861,11 @@ BnNetwork::new_latch(const string& name,
 // cell はラッチのセルでなければならない．
 BnLatch*
 BnNetwork::new_latch_cell(const string& name,
-			  const Cell* cell)
+			  const ClibCell* cell)
 {
   ASSERT_COND( cell->is_latch() );
 
-  CellLatchInfo latchinfo = cell->latch_info();
+  ClibLatchInfo latchinfo = cell->latch_info();
 
   bool has_clear = latchinfo.has_clear();
   bool has_preset = latchinfo.has_preset();
@@ -885,7 +885,7 @@ BnLatch*
 BnNetwork::_new_latch(const string& name,
 		      bool has_clear,
 		      bool has_preset,
-		      const Cell* cell)
+		      const ClibCell* cell)
 {
   ymuint latch_id = mLatchList.size();
 
@@ -964,7 +964,7 @@ ymuint
 BnNetwork::new_primitive(const string& node_name,
 			 ymuint ni,
 			 BnNodeType logic_type,
-			 const Cell* cell)
+			 const ClibCell* cell)
 {
   ymuint id = mNodeList.size();
   BnNodeImpl* node = new BnPrimNode(id, node_name, ni, logic_type, cell);
@@ -986,7 +986,7 @@ ymuint
 BnNetwork::new_expr(const string& node_name,
 		    ymuint ni,
 		    const Expr& expr,
-		    const Cell* cell)
+		    const ClibCell* cell)
 {
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
   if ( logic_type != kBnLogic_EXPR ) {
@@ -1015,7 +1015,7 @@ ymuint
 BnNetwork::new_tv(const string& node_name,
 		  ymuint ni,
 		  const TvFunc& tv,
-		  const Cell* cell)
+		  const ClibCell* cell)
 {
   BnNodeType logic_type = FuncAnalyzer::analyze(tv);
   if ( logic_type != kBnLogic_TV ) {
