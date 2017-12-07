@@ -10,7 +10,7 @@
 
 
 #include "ym/bnet.h"
-#include "ym/clib.h"
+#include "ym/ClibCellLibrary.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -39,7 +39,21 @@ public:
   bool
   read(BnNetwork& network,
        const string& filename,
-       const ClibCellLibrary* cell_library = nullptr,
+       const string& clock_name = "clock",
+       const string& reset_name = "reset");
+
+  /// @brief blif ファイルを読み込む(セルライブラリ付き)．
+  /// @param[in] network 設定対象のネットワーク
+  /// @param[in] filename ファイル名
+  /// @param[in] cell_library セルライブラリ
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
+  /// @return 読み込みが成功したら true を返す．
+  static
+  bool
+  read(BnNetwork& network,
+       const string& filename,
+       const ClibCellLibrary& cell_library,
        const string& clock_name = "clock",
        const string& reset_name = "reset");
 

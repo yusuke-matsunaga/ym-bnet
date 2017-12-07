@@ -44,7 +44,7 @@ public:
 
   /// @brief 読み込みを行う．
   /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリ
+  /// @param[in] cell_library セルライブラリへのポインタ
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
@@ -105,8 +105,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // セルライブラリ
-  // nullptr の場合もある．
+  // セルライブラリのポインタ
   const ClibCellLibrary* mCellLibrary;
 
   // 字句解析器

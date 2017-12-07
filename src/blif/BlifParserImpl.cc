@@ -3,7 +3,7 @@
 /// @brief BlibParserImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 BlifParser::BlifParser()
 {
-  mImpl = new BlifParserImpl;
+  mImpl = new BlifParserImpl();
 }
 
 // @brief デストラクタ
@@ -39,14 +39,26 @@ BlifParser::~BlifParser()
 
 // @brief 読み込みを行う．
 // @param[in] filename ファイル名
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+bool
+BlifParser::read(const string& filename)
+{
+  bool stat = mImpl->read(filename, nullptr);
+  return stat;
+}
+
+// @brief 読み込みを行う(セルライブラリ付き)．
+// @param[in] filename ファイル名
 // @param[in] cell_library セルライブラリ
 // @retval true 読み込みが成功した．
 // @retval false 読み込みが失敗した．
 bool
 BlifParser::read(const string& filename,
-		 const ClibCellLibrary* cell_library)
+		 const ClibCellLibrary& cell_library)
 {
-  return mImpl->read(filename, cell_library);
+  bool stat = mImpl->read(filename, &cell_library);
+  return stat;
 }
 
 // @brief イベントハンドラの登録
@@ -255,7 +267,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_NAMES;
 
     case kTokenGATE:
-      if ( mCellLibrary == nullptr ) {
+      if ( mCellLibrary == nullptr || mCellLibrary->cell_num() == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__,
 			mLoc1,
 			kMsgError,

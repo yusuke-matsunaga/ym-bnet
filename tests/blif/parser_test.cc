@@ -8,6 +8,7 @@
 
 
 #include "ym/BlifParser.h"
+#include "ym/ClibCellLibrary.h"
 #include "TestBlifHandler.h"
 #include "NullBlifHandler.h"
 #include "ym/MsgMgr.h"
@@ -58,7 +59,7 @@ main(int argc,
     StreamMsgHandler* msg_handler = new StreamMsgHandler(&cerr);
     MsgMgr::reg_handler(msg_handler);
 
-    if ( !parser.read(filename, nullptr) ) {
+    if ( !parser.read(filename) ) {
       cerr << "Error in reading " << filename << endl;
       return 4;
     }
