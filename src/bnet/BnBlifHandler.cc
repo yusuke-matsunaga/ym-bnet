@@ -51,6 +51,16 @@ BnBlifHandler::init()
   return true;
 }
 
+// @brief セルライブラリの設定
+// @param[in] library セルライブラリ
+//
+// この関数が呼ばれないこともある．
+void
+BnBlifHandler::set_cell_library(const ClibCellLibrary& library)
+{
+  mNetwork->set_library(library);
+}
+
 // @brief .model 文の読み込み
 // @param[in] loc 位置情報
 // @param[in] name model名
@@ -133,10 +143,9 @@ BnBlifHandler::gate(ymuint oname_id,
 		    const vector<ymuint>& inode_id_array,
 		    const ClibCell* cell)
 {
-  const Expr& expr = cell->logic_expr(0);
   ymuint ni = inode_id_array.size();
-  ASSERT_COND( ni == expr.input_size() );
-  ymuint node_id = mNetwork->new_expr(oname, ni, expr, cell);
+  ASSERT_COND( ni == cell->input_num() );
+  ymuint node_id = mNetwork->new_logic_cell(oname, cell->name());
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);

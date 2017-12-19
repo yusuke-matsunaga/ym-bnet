@@ -9,6 +9,7 @@
 
 #include "TestBlifHandler.h"
 #include "ym/BlifCover.h"
+#include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibCellPin.h"
 #include "ym/FileRegion.h"
@@ -32,6 +33,16 @@ bool
 TestBlifHandler::init()
 {
   return true;
+}
+
+// @brief セルライブラリの設定
+// @param[in] library セルライブラリ
+//
+// この関数が呼ばれないこともある．
+void
+TestBlifHandler::set_cell_library(const ClibCellLibrary& library)
+{
+  (*mStreamPtr) << "set_cell_library(" << library.name() << ")" << endl;
 }
 
 // @brief .model 文の開始

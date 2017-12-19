@@ -10,8 +10,8 @@
 
 
 #include "ym/bnet.h"
-#include "ym/clib.h"
 #include "ym/logic.h"
+#include "ym/ClibCellLibrary.h"
 #include "ym/HashMap.h"
 
 
@@ -85,6 +85,11 @@ public:
   void
   copy(const BnNetwork& src);
 
+  /// @brief セルライブラリをセットする．
+  /// @param[in] library ライブラリ
+  void
+  set_library(const ClibCellLibrary& library);
+
   /// @brief ネットワーク名を設定する．
   /// @param[in] name ネットワーク名
   void
@@ -144,24 +149,22 @@ public:
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @param[in] name DFF名
-  /// @param[in] cell 対応するセル
+  /// @param[in] cell_name 対応するセル名
   /// @return 生成したDFFを返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - cell は FF のセルでなければならない．
+  /// - セル名に合致するセルがない場合とFFセルでない場合には nullptr を返す．
   BnDff*
   new_dff_cell(const string& name,
-	       const ClibCell* cell);
+	       const string& cell_name);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @param[in] cell 対応するセル．
   /// @return 生成したラッチを返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - cell はラッチのセルでなければならない．
   BnLatch*
   new_latch(const string& name,
 	    bool has_clear = false,
@@ -169,20 +172,19 @@ public:
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @param[in] name ラッチ名
-  /// @param[in] cell 対応するセル．
+  /// @param[in] cell_name 対応するセル名．
   /// @return 生成したラッチを返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - cell はラッチのセルでなければならない．
+  /// - セル名に合致するセルがない場合とラッチセルでない場合には nullptr を返す．
   BnLatch*
   new_latch_cell(const string& name,
-		 const ClibCell* cell);
+		 const string& cell_name);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] logic_type 論理型
-  /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
@@ -190,36 +192,42 @@ public:
   ymuint
   new_primitive(const string& node_name,
 		ymuint ni,
-		BnNodeType logic_type,
-		const ClibCell* cell = nullptr);
+		BnNodeType logic_type);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] expr 論理式
-  /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   ymuint
   new_expr(const string& node_name,
 	   ymuint ni,
-	   const Expr& expr,
-	   const ClibCell* cell = nullptr);
+	   const Expr& expr);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] tv 真理値表
-  /// @param[in] cell セル
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   ymuint
   new_tv(const string& node_name,
 	 ymuint ni,
-	 const TvFunc& tv,
-	 const ClibCell* cell = nullptr);
+	 const TvFunc& tv);
+
+  /// @brief 論理セルを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] cell_name セル名
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
+  ymuint
+  new_logic_cell(const string& node_name,
+		 const string& cell_name);
 
   /// @brief ノード間を接続する．
   /// @param[in] src_node ファンアウト元のノード番号
@@ -257,6 +265,12 @@ public:
   /// @name 内容を取得する関数
   /// @{
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 関連するセルライブラリを得る．
+  ///
+  /// 場合によっては空の場合もある．
+  const ClibCellLibrary&
+  library() const;
 
   /// @brief ネットワーク名を得る．
   string
@@ -394,6 +408,42 @@ private:
 	     bool has_preset,
 	     const ClibCell* cell);
 
+  /// @brief プリミティブ型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @param[in] logic_type 論理型
+  /// @param[in] cell 対応するセル
+  /// @return 生成した論理ノードの番号を返す．
+  ymuint
+  _new_primitive(const string& node_name,
+		 ymuint ni,
+		 BnNodeType logic_type,
+		 const ClibCell* cell);
+
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @param[in] expr 論理式
+  /// @param[in] cell 対応するセル
+  /// @return 生成した論理ノードの番号を返す．
+  ymuint
+  _new_expr(const string& node_name,
+	    ymuint ni,
+	    const Expr& expr,
+	    const ClibCell* cell);
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @param[in] tv 真理値表
+  /// @param[in] cell 対応するセル
+  /// @return 生成した論理ノードの番号を返す．
+  ymuint
+  _new_tv(const string& node_name,
+	  ymuint ni,
+	  const TvFunc& tv,
+	  const ClibCell* cell);
+
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式
   /// @return 関数番号を返す．
@@ -414,6 +464,9 @@ private:
 
   // ネットワーク名
   string mName;
+
+  // 関連するセルライブラリ
+  ClibCellLibrary mCellLibrary;
 
   // ポートのリスト
   vector<BnPort*> mPortList;
@@ -453,6 +506,17 @@ private:
 
 };
 
+/// @relates BnNetwork
+/// @brief 内容を blif 形式で出力する．
+/// @param[in] s 出力先のストリーム
+/// @param[in] network ネットワーク
+///
+/// ポートの情報は無視される．
+void
+write_blif(ostream& s,
+	   const BnNetwork& network);
+
+/// @relates
 END_NAMESPACE_YM_BNET
 
 #endif // BNNETWORK_H

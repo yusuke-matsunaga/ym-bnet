@@ -47,6 +47,14 @@ public:
   bool
   init();
 
+  /// @brief セルライブラリの設定
+  /// @param[in] library セルライブラリ
+  ///
+  /// この関数が呼ばれないこともある．
+  virtual
+  void
+  set_cell_library(const ClibCellLibrary& library);
+
   /// @brief .model 文中の文字列の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．

@@ -53,6 +53,14 @@ public:
   bool
   init() = 0;
 
+  /// @brief セルライブラリの設定
+  /// @param[in] library セルライブラリ
+  ///
+  /// この関数が呼ばれないこともある．
+  virtual
+  void
+  set_cell_library(const ClibCellLibrary& library) = 0;
+
   /// @brief .model 文の処理
   /// @param[in] loc1 .model の位置情報
   /// @param[in] loc2 文字列の位置情報

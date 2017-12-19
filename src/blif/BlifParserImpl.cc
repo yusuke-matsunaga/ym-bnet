@@ -172,6 +172,15 @@ BlifParserImpl::read(const string& filename,
     goto ST_ERROR_EXIT;
   }
 
+  if ( mCellLibrary != nullptr && mCellLibrary->cell_num() > 0 ) {
+    // セルライブラリの設定
+    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
+	 p != mHandlerList.end(); ++ p) {
+      BlifHandler* handler = *p;
+      handler->set_cell_library(*mCellLibrary);
+    }
+  }
+
   // ハードコーディングした状態遷移
 
  ST_INIT:
