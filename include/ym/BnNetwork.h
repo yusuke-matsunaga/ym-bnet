@@ -266,15 +266,15 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief ネットワーク名を得る．
+  string
+  name() const;
+
   /// @brief 関連するセルライブラリを得る．
   ///
   /// 場合によっては空の場合もある．
   const ClibCellLibrary&
   library() const;
-
-  /// @brief ネットワーク名を得る．
-  string
-  name() const;
 
   /// @brief ポート数を得る．
   int
@@ -285,6 +285,10 @@ public:
   const BnPort*
   port(int pos) const;
 
+  /// @brief ポートのリストを得る．
+  const vector<const BnPort*>&
+  port_list() const;
+
   /// @brief DFF数を得る．
   int
   dff_num() const;
@@ -294,6 +298,10 @@ public:
   const BnDff*
   dff(int pos) const;
 
+  /// @brief DFFのリストを得る．
+  const vector<const BnDff*>&
+  dff_list() const;
+
   /// @brief ラッチ数を得る．
   int
   latch_num() const;
@@ -302,6 +310,10 @@ public:
   /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
   const BnLatch*
   latch(int pos) const;
+
+  /// @brief ラッチのリストを得る．
+  const vector<const BnLatch*>&
+  latch_list() const;
 
   /// @brief ノード数を得る．
   int
@@ -315,6 +327,10 @@ public:
   const BnNode*
   node(int id) const;
 
+  /// @brief ノードのリストを得る．
+  const vector<const BnNode*>&
+  node_list() const;
+
   /// @brief 入力数を得る．
   int
   input_num() const;
@@ -323,6 +339,10 @@ public:
   /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
   const BnNode*
   input(int pos) const;
+
+  /// @brief 入力ノードのリストを得る．
+  const vector<const BnNode*>&
+  input_list() const;
 
   /// @brief 出力数を得る．
   int
@@ -333,6 +353,10 @@ public:
   const BnNode*
   output(int pos) const;
 
+  /// @brief 出力ノードのリストを得る．
+  const vector<const BnNode*>&
+  output_list() const;
+
   /// @brief 論理ノード数を得る．
   int
   logic_num() const;
@@ -341,6 +365,10 @@ public:
   /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
   const BnNode*
   logic(int pos) const;
+
+  /// @brief 論理ノードのリストを得る．
+  const vector<const BnNode*>&
+  logic_list() const;
 
   /// @brief 関数の数を得る．
   int
@@ -351,6 +379,10 @@ public:
   const TvFunc&
   func(int func_id) const;
 
+  /// @brief 関数のリストを得る．
+  const vector<TvFunc>&
+  func_list() const;
+
   /// @brief 論理式の数を得る．
   int
   expr_num() const;
@@ -359,6 +391,10 @@ public:
   /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
   Expr
   expr(int expr_id) const;
+
+  /// @brief 論理式のリストを得る．
+  const vector<Expr>&
+  expr_list() const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
@@ -469,22 +505,22 @@ private:
   ClibCellLibrary mCellLibrary;
 
   // ポートのリスト
-  vector<BnPort*> mPortList;
+  vector<const BnPort*> mPortList;
 
   // DFFのリスト
-  vector<BnDff*> mDffList;
+  vector<const BnDff*> mDffList;
 
   // ラッチのリスト
-  vector<BnLatch*> mLatchList;
+  vector<const BnLatch*> mLatchList;
 
   // 入力ノードのリスト
-  vector<BnNode*> mInputList;
+  vector<const BnNode*> mInputList;
 
   // 出力ノードのリスト
-  vector<BnNode*> mOutputList;
+  vector<const BnNode*> mOutputList;
 
   // 論理ノードのリスト
-  vector<BnNode*> mLogicList;
+  vector<const BnNode*> mLogicList;
 
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNodeImpl*> mNodeList;
@@ -516,7 +552,93 @@ void
 write_blif(ostream& s,
 	   const BnNetwork& network);
 
-/// @relates
+
+//////////////////////////////////////////////////////////////////////
+// インライン関数の定義
+//////////////////////////////////////////////////////////////////////
+
+// @brief ネットワーク名を得る．
+inline
+string
+BnNetwork::name() const
+{
+  return mName;
+}
+
+// @brief 関連するセルライブラリを得る．
+//
+// 場合によっては空の場合もある．
+inline
+const ClibCellLibrary&
+BnNetwork::library() const
+{
+  return mCellLibrary;
+}
+
+// @brief ポートのリストを得る．
+inline
+const vector<const BnPort*>&
+BnNetwork::port_list() const
+{
+  return mPortList;
+}
+
+// @brief DFFのリストを得る．
+inline
+const vector<const BnDff*>&
+BnNetwork::dff_list() const
+{
+  return mDffList;
+}
+
+// @brief ラッチのリストを得る．
+inline
+const vector<const BnLatch*>&
+BnNetwork::latch_list() const
+{
+  return mLatchList;
+}
+
+// @brief 入力ノードのリストを得る．
+inline
+const vector<const BnNode*>&
+BnNetwork::input_list() const
+{
+  return mInputList;
+}
+
+// @brief 出力ノードのリストを得る．
+inline
+const vector<const BnNode*>&
+BnNetwork::output_list() const
+{
+  return mOutputList;
+}
+
+// @brief 論理ノードのリストを得る．
+inline
+const vector<const BnNode*>&
+BnNetwork::logic_list() const
+{
+  return mLogicList;
+}
+
+// @brief 関数のリストを得る．
+inline
+const vector<TvFunc>&
+BnNetwork::func_list() const
+{
+  return mFuncList;
+}
+
+// @brief 論理式のリストを得る．
+inline
+const vector<Expr>&
+BnNetwork::expr_list() const
+{
+  return mExprList;
+}
+
 END_NAMESPACE_YM_BNET
 
 #endif // BNNETWORK_H

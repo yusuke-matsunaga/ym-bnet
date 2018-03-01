@@ -13,6 +13,7 @@
 #include "ym/ClibLatchInfo.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
+#include "ym/Range.h"
 
 #include "BnPortImpl.h"
 #include "BnInputNode.h"
@@ -127,21 +128,20 @@ BnNetwork::copy(const BnNetwork& src)
 
   // ポートの生成
   int np = src.port_num();
-  for ( int i = 0; i < np; ++ i ) {
-    const BnPort* src_port = src.port(i);
+  for ( auto src_port: src.port_list() ) {
     string port_name = src_port->name();
 
     // 各ビットの方向を求める．
     int nb = src_port->bit_width();
     vector<int> dirs(nb);
-    for ( int j = 0; j < nb; ++ j ) {
-      int id = src_port->bit(j);
+    for ( auto i: Range(nb) ) {
+      int id = src_port->bit(i);
       const BnNode* node = src.node(id);
       if ( node->is_input() ) {
-	dirs[j] = 0;
+	dirs[i] = 0;
       }
       else if ( node->is_output() ) {
-	dirs[j] = 1;
+	dirs[i] = 1;
       }
       else {
 	ASSERT_NOT_REACHED;
@@ -154,17 +154,15 @@ BnNetwork::copy(const BnNetwork& src)
     ASSERT_COND( src_port->id() == dst_port->id() );
 
     // 各ビットの対応関係を記録する．
-    for ( int j = 0; j < nb; ++ j ) {
-      int src_id = src_port->bit(j);
-      int dst_id = dst_port->bit(j);
+    for ( auto i: Range(nb) ) {
+      int src_id = src_port->bit(i);
+      int dst_id = dst_port->bit(i);
       id_map.add(src_id, dst_id);
     }
   }
 
   // DFF の生成
-  int ndff = src.dff_num();
-  for ( int i = 0; i < ndff; ++ i ) {
-    const BnDff* src_dff = src.dff(i);
+  for ( auto src_dff: src.dff_list() ) {
     string dff_name = src_dff->name();
     bool has_clear = (src_dff->clear() != kBnNullId);
     bool has_preset = (src_dff->preset() != kBnNullId);
@@ -201,9 +199,7 @@ BnNetwork::copy(const BnNetwork& src)
   }
 
   // ラッチの生成
-  int nlatch = src.latch_num();
-  for ( int i = 0; i < nlatch; ++ i ) {
-    const BnLatch* src_latch = src.latch(i);
+  for ( auto src_latch: src.latch_list() ) {
     string latch_name = src_latch->name();
 
     bool has_clear = (src_latch->clear() != kBnNullId);
@@ -244,26 +240,17 @@ BnNetwork::copy(const BnNetwork& src)
   ASSERT_COND( src.output_num() == output_num() );
 
   // 関数情報の生成
-  int nfunc = src.mFuncList.size();
-  for ( int i = 0; i < nfunc; ++ i ) {
-    const TvFunc& func = src.mFuncList[i];
+  for ( auto func: src.func_list() ) {
     int func_id = _add_tv(func);
-    ASSERT_COND( func_id == i );
   }
 
   // 論理式情報の生成
-  int nexpr = src.mExprList.size();
-  mExprList.resize(nexpr);
-  for ( int i = 0; i < nexpr; ++ i ) {
-    const Expr& expr = src.mExprList[i];
+  for ( auto expr: src.expr_list() ) {
     int expr_id = _add_expr(expr);
-    ASSERT_COND( expr_id == i );
   }
 
   // 論理ノードの生成
-  int nl = src.logic_num();
-  for ( int i = 0; i < nl; ++ i ) {
-    const BnNode* src_node = src.logic(i);
+  for ( auto src_node: src.logic_list() ) {
     int nfi = src_node->fanin_num();
     string name = src_node->name();
     BnNodeType logic_type = src_node->type();
@@ -281,7 +268,7 @@ BnNetwork::copy(const BnNetwork& src)
       dst_id = _new_primitive(name, nfi, logic_type, cell);
     }
     id_map.add(src_node->id(), dst_id);
-    for ( int i = 0; i < nfi; ++ i ) {
+    for ( auto i: Range(nfi) ) {
       int src_iid = src_node->fanin(i);
       int iid = conv_id(src_iid, id_map);
       connect(iid, dst_id, i);
@@ -289,9 +276,7 @@ BnNetwork::copy(const BnNetwork& src)
   }
 
   // 出力端子のファンインの接続
-  int npo = output_num();
-  for ( int i = 0; i < npo; ++ i ) {
-    const BnNode* src_node = src.output(i);
+  for ( auto src_node: src.output_list() ) {
     int src_id = src_node->id();
     int src_fanin_id = src_node->fanin();
 
@@ -303,22 +288,6 @@ BnNetwork::copy(const BnNetwork& src)
   bool stat = wrap_up();
 
   ASSERT_COND( stat );
-}
-
-// @brief 関連するセルライブラリを得る．
-//
-// 場合によっては空の場合もある．
-const ClibCellLibrary&
-BnNetwork::library() const
-{
-  return mCellLibrary;
-}
-
-// @brief ネットワーク名を得る．
-string
-BnNetwork::name() const
-{
-  return mName;
 }
 
 // @brief ポート数を得る．
@@ -478,88 +447,74 @@ BnNetwork::write(ostream& s) const
   s << "network name : " << name() << endl
     << endl;
 
-  int np = port_num();
-  for ( int i = 0; i < np; ++ i ) {
-    const BnPort* port = this->port(i);
-    s << "port#" << i << ": ";
+  for ( auto port: port_list() ) {
+    s << "port#" << port->id() << ": ";
     s << "(" << port->name() << ") : ";
-    int bw = port->bit_width();
-    for ( int j = 0; j < bw; ++ j ) {
-      s << " " << port->bit(j);
+    for ( auto i: Range(port->bit_width()) ) {
+      s << " " << port->bit(i);
     }
     s << endl;
   }
   s << endl;
 
-  int ni = input_num();
-  for ( int i = 0; i < ni; ++ i ) {
-    const BnNode* node = input(i);
+  for ( auto node: input_list() ) {
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == kBnInput );
-    s << "input#" << i << ": " << node->id()
+    s << "input: " << node->id()
       << "(" << node->name() << ")" << endl;
   }
   s << endl;
 
-  int no = output_num();
-  for ( int i = 0; i < no; ++ i ) {
-    const BnNode* node = output(i);
+  for ( auto node: output_list() ) {
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == kBnOutput );
-    s << "output#" << i << ": " << node->id()
+    s << "output: " << node->id()
       << "(" << node->name() << ")" << endl
       << "    input: " << node->fanin() << endl;
   }
   s << endl;
 
-  int nf = dff_num();
-  for ( int i = 0; i < nf; ++ i ) {
-    const BnDff* node = dff(i);
-    ASSERT_COND( node != nullptr );
-    s << "dff#" << i
-      << "(" << node->name() << ")" << endl
-      << "    input:  " << node->input() << endl
-      << "    output: " << node->output() << endl
-      << "    clock:  " << node->clock() << endl;
-    if ( node->clear() != kBnNullId ) {
-      s << "    clear:  " << node->clear() << endl;
+  for ( auto dff: dff_list() ) {
+    ASSERT_COND( dff != nullptr );
+    s << "dff#" << dff->id()
+      << "(" << dff->name() << ")" << endl
+      << "    input:  " << dff->input() << endl
+      << "    output: " << dff->output() << endl
+      << "    clock:  " << dff->clock() << endl;
+    if ( dff->clear() != kBnNullId ) {
+      s << "    clear:  " << dff->clear() << endl;
     }
-    if ( node->preset() != kBnNullId ) {
-      s << "    preset: " << node->preset() << endl;
+    if ( dff->preset() != kBnNullId ) {
+      s << "    preset: " << dff->preset() << endl;
     }
     s << endl;
   }
   s << endl;
 
-  int nlatch = latch_num();
-  for ( int i = 0; i < nlatch; ++ i ) {
-    const BnLatch* node = latch(i);
-    ASSERT_COND( node != nullptr );
-    s << "latch#" << i
-      << "(" << node->name() << ")" << endl
-      << "    input:  " << node->input() << endl
-      << "    output: " << node->output() << endl
-      << "    enable: " << node->enable() << endl;
-    if ( node->clear() != kBnNullId ) {
-      s << "    clear:  " << node->clear() << endl;
+  for ( auto latch: latch_list() ) {
+    ASSERT_COND( latch != nullptr );
+    s << "latch#" << latch->id()
+      << "(" << latch->name() << ")" << endl
+      << "    input:  " << latch->input() << endl
+      << "    output: " << latch->output() << endl
+      << "    enable: " << latch->enable() << endl;
+    if ( latch->clear() != kBnNullId ) {
+      s << "    clear:  " << latch->clear() << endl;
     }
-    if ( node->preset() != kBnNullId ) {
-      s << "    preset: " << node->preset() << endl;
+    if ( latch->preset() != kBnNullId ) {
+      s << "    preset: " << latch->preset() << endl;
     }
   }
   s << endl;
 
-  int nl = logic_num();
-  for ( int i = 0; i < nl; ++ i ) {
-    const BnNode* node = logic(i);
+  for ( auto node: logic_list() ) {
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->is_logic() );
-    s << "logic#" << i << ": " << node->id()
+    s << "logic: " << node->id()
       << "(" << node->name() << ")" << endl
       << "    fanins: ";
-    int ni = node->fanin_num();
-    for ( int j = 0; j < ni; ++ j ) {
-      s << " " << node->fanin(j);
+    for ( auto i: Range(node->fanin_num()) ) {
+      s << " " << node->fanin(i);
     }
     s << endl;
     s << "    ";
@@ -685,7 +640,7 @@ BnNetwork::new_port(const string& port_name,
   int port_id = mPortList.size();
   int bit_width = dir_vect.size();
   vector<int> bits(bit_width);
-  for ( int i = 0; i < bit_width; ++ i ) {
+  for ( auto i: Range(bit_width) ) {
     int node_id = mNodeList.size();
     bits[i] = node_id;
     string node_name;
@@ -1163,116 +1118,119 @@ BnNetwork::wrap_up()
   bool error = false;
 
   // ポートのチェック
-  for ( int i = 0; i < port_num(); ++ i ) {
-    const BnPort* port = mPortList[i];
-    int nb = port->bit_width();
-    for ( int j = 0; j < nb; ++ j ) {
-      int id = port->bit(j);
+  for ( auto port: port_list() ) {
+    for ( auto i: Range(port->bit_width()) ) {
+      int id = port->bit(i);
       if ( id == kBnNullId || id >= node_num() ) {
-	cerr << "Port#" << i << "(" << port->name() << ").bit["
-	     << j << "] is not set" << endl;
+	cerr << "Port#" << port->id() << "(" << port->name() << ").bit["
+	     << i << "] is not set" << endl;
 	error = true;
       }
     }
   }
 
   // DFF のチェック
-  for ( int i = 0; i < dff_num(); ++ i ) {
-    const BnDff* dff = mDffList[i];
+  for ( auto dff: dff_list() ) {
     int id1 = dff->input();
     if ( id1 == kBnNullId ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").input is not set" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").input is not set" << endl;
       error = true;
     }
     else if ( id1 >= node_num() ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").input is not valid" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").input is not valid" << endl;
       error = true;
     }
     int id2 = dff->output();
     if ( id2 == kBnNullId ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").output is not set" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").output is not set" << endl;
       error = true;
     }
     else if ( id2 >= node_num() ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").output is not valid" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").output is not valid" << endl;
       error = true;
     }
     int id3 = dff->clock();
     if ( id3 == kBnNullId ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").clock is not set" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").clock is not set" << endl;
       error = true;
     }
     else if ( id3 >= node_num() ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").clock is not valid" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").clock is not valid" << endl;
       error = true;
     }
     int id4 = dff->clear();
     if ( id4 != kBnNullId && id4 >= node_num() ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").clear is not valid" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").clear is not valid" << endl;
       error = true;
     }
     int id5 = dff->preset();
     if ( id5 != kBnNullId && id5 >= node_num() ) {
-      cerr << "DFF#" << i << "(" << dff->name() << ").preset is not valid" << endl;
+      cerr << "DFF#" << dff->id() << "(" << dff->name() << ").preset is not valid" << endl;
       error = true;
     }
   }
 
   // ラッチのチェック
-  for ( int i = 0; i < latch_num(); ++ i ) {
-    const BnLatch* latch = mLatchList[i];
+  for ( auto latch: latch_list() ) {
     int id1 = latch->input();
     if ( id1 == kBnNullId ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").input is not set" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").input is not set" << endl;
       error = true;
     }
     else if ( id1 >= node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").input is not valid" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").input is not valid" << endl;
       error = true;
     }
     int id2 = latch->output();
     if ( id2 == kBnNullId ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").output is not set" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").output is not set" << endl;
       error = true;
     }
     else if ( id2 >= node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").output is not valid" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").output is not valid" << endl;
       error = true;
     }
     int id3 = latch->enable();
     if ( id3 == kBnNullId ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").enable is not set" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").enable is not set" << endl;
       error = true;
     }
     else if ( id3 >= node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").enable is not valid" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").enable is not valid" << endl;
       error = true;
     }
     int id4 = latch->clear();
     if ( id4 != kBnNullId && id4 >= node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").clear is not valid" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").clear is not valid" << endl;
       error = true;
     }
     int id5 = latch->preset();
     if ( id5 != kBnNullId && id5 >= node_num() ) {
-      cerr << "LATCH#" << i << "(" << latch->name() << ").preset is not valid" << endl;
+      cerr << "LATCH#" << latch->id()
+	   << "(" << latch->name() << ").preset is not valid" << endl;
       error = true;
     }
   }
 
   // ノードのチェック
   for ( auto node: mNodeList ) {
-    int ni = node->fanin_num();
-    for ( int j = 0; j < ni; ++ j ) {
-      int id = node->fanin(j);
+    for ( auto i: Range(node->fanin_num()) ) {
+      int id = node->fanin(i);
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
-	     << j << "] is not set" << endl;
+	     << i << "] is not set" << endl;
 	error = true;
       }
       else if ( id >= node_num() ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
-	     << j << "] is not valid" << endl;
+	     << i << "] is not valid" << endl;
 	error = true;
       }
     }
@@ -1292,8 +1250,7 @@ BnNetwork::wrap_up()
   vector<bool> mark(node_num() + 1, false);
 
   // 入力ノードをキューに積む．
-  for ( int i = 0; i < input_num(); ++ i ) {
-    const BnNode* node = input(i);
+  for ( auto node: input_list() ) {
     int id = node->id();
     queue.push_back(id);
     mark[id] = true;
@@ -1309,16 +1266,14 @@ BnNetwork::wrap_up()
     if ( node->is_logic() ) {
       mLogicList.push_back(node);
     }
-    int fo = node->fanout_num();
-    for ( int i = 0; i < fo; ++ i ) {
+    for ( auto i: Range(node->fanout_num()) ) {
       int oid = node->fanout(i);
       if ( mark[oid] ) {
 	continue;
       }
       const BnNode* onode = mNodeList[oid];
-      int ni = onode->fanin_num();
       bool ready = true;
-      for ( int j = 0; j < ni; ++ j ) {
+      for ( auto j: Range(onode->fanin_num()) ) {
 	if ( !mark[onode->fanin(j)] ) {
 	  ready = false;
 	  break;

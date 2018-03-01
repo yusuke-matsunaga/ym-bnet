@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 BlifIdCell::BlifIdCell(int id,
-	       const char* str) :
+		       const char* str) :
   mId(id),
   mFlags(0U),
   mLink(nullptr)
@@ -42,7 +42,8 @@ BlifIdCell::~BlifIdCell()
 // @brief コンストラクタ
 BlifIdHash::BlifIdHash() :
   mAlloc(4096),
-  mTableSize(0)
+  mTableSize(0),
+  mTable(nullptr)
 {
   alloc_table(1024);
 }
@@ -73,7 +74,7 @@ int
 hash_func(const char* str)
 {
   int h = 0;
-  for (char c; (c = *str); ++ str) {
+  for ( char c; (c = *str); ++ str ) {
     h = h * 33 + static_cast<int>(c);
   }
   return h;
@@ -89,10 +90,11 @@ BlifIdCell*
 BlifIdHash::find(const char* str,
 		 bool create)
 {
-  ASSERT_COND(str );
+  ASSERT_COND( str != nullptr);
+
   int pos0 = hash_func(str);
   int pos = pos0 % mTableSize;
-  for (BlifIdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
+  for ( BlifIdCell* cell = mTable[pos]; cell; cell = cell->mLink ) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
     }
@@ -104,18 +106,7 @@ BlifIdHash::find(const char* str,
 
   if ( mCellArray.size() >= mNextLimit ) {
     // テーブルを拡張する．
-    BlifIdCell** old_table = mTable;
-    int old_size = mTableSize;
-    alloc_table(old_size * 2);
-    for (int i = 0; i < old_size; ++ i) {
-      for (BlifIdCell* cell = old_table[i]; cell; ) {
-	BlifIdCell* next = cell->mLink;
-	int pos1 = hash_func(cell->mStr) % mTableSize;
-	cell->mLink = mTable[pos1];
-	mTable[pos1] = cell;
-	cell = next;
-      }
-    }
+    alloc_table(mTableSize * 2);
   }
 
   // 新しいセルを確保する．
@@ -136,12 +127,26 @@ BlifIdHash::find(const char* str,
 void
 BlifIdHash::alloc_table(int new_size)
 {
+  BlifIdCell** old_table = mTable;
+  int old_size = mTableSize;
+
   mTable = new BlifIdCell*[new_size];
   mTableSize = new_size;
   mNextLimit = static_cast<int>(mTableSize * 1.8);
-  for (int i = 0; i < new_size; ++ i) {
+
+  for ( int i = 0; i < new_size; ++ i ) {
     mTable[i] = nullptr;
   }
+  for ( int i = 0; i < old_size; ++ i ) {
+    for ( BlifIdCell* cell = old_table[i]; cell; ) {
+      BlifIdCell* next = cell->mLink;
+      int pos1 = hash_func(cell->mStr) % mTableSize;
+      cell->mLink = mTable[pos1];
+      mTable[pos1] = cell;
+      cell = next;
+    }
+  }
+  delete [] old_table;
 }
 
 // @brief ID 番号から文字列を得る．
