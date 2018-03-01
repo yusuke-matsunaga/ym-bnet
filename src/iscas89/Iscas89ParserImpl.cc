@@ -29,9 +29,7 @@ Iscas89ParserImpl::Iscas89ParserImpl()
 // デストラクタ
 Iscas89ParserImpl::~Iscas89ParserImpl()
 {
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     delete handler;
   }
   delete mScanner;
@@ -71,9 +69,7 @@ Iscas89ParserImpl::read(const string& filename)
 
   mScanner = new Iscas89Scanner(ido);
 
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {
       delete mScanner;
       mScanner = nullptr;
@@ -85,7 +81,7 @@ Iscas89ParserImpl::read(const string& filename)
   bool go_on = true;
   bool has_error = false;
   while ( go_on ) {
-    ymuint name_id;
+    int name_id;
     FileRegion first_loc;
     FileRegion last_loc;
     Iscas89Token tok = read_token(name_id, first_loc);
@@ -110,7 +106,7 @@ Iscas89ParserImpl::read(const string& filename)
 
     case kIscas89_NAME:
       {
-	ymuint cur_lval;
+	int cur_lval;
 	FileRegion cur_loc;
 
 	if ( !expect(kIscas89_EQ, cur_lval, cur_loc) ) {
@@ -121,7 +117,7 @@ Iscas89ParserImpl::read(const string& filename)
 	if ( gate_type == kIscas89_ERROR ) {
 	  goto error;
 	}
-	vector<ymuint> iname_id_list;
+	vector<int> iname_id_list;
 	if ( !parse_name_list(iname_id_list, last_loc) ) {
 	  goto error;
 	}
@@ -173,13 +169,11 @@ Iscas89ParserImpl::read(const string& filename)
   }
 
   // 出力文の処理を行う．
-  for (ymuint i = 0; i < mOidArray.size(); ++ i) {
-    ymuint oid = mOidArray[i];
+  for ( int i = 0; i < mOidArray.size(); ++ i ) {
+    int oid = mOidArray[i];
     FileRegion loc = mOlocArray[i];
     Iscas89IdCell* cell = id2cell(oid);
-    for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      Iscas89Handler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       if ( !handler->read_output(loc, oid, cell->str()) ) {
 	has_error = true;
       }
@@ -187,9 +181,7 @@ Iscas89ParserImpl::read(const string& filename)
   }
 
   // 終了処理を行う．
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->end() ) {
       has_error = true;
     }
@@ -200,9 +192,7 @@ Iscas89ParserImpl::read(const string& filename)
 
   if ( !has_error ) {
     // 成功
-    for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      Iscas89Handler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       handler->normal_exit();
     }
     mIdHash.clear();
@@ -210,9 +200,7 @@ Iscas89ParserImpl::read(const string& filename)
   }
   else {
     // 失敗
-    for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      Iscas89Handler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       handler->error_exit();
     }
     mIdHash.clear();
@@ -235,7 +223,7 @@ Iscas89ParserImpl::add_handler(Iscas89Handler* handler)
 Iscas89Token
 Iscas89ParserImpl::parse_gate_type()
 {
-  ymuint cur_lval;
+  int cur_lval;
   FileRegion cur_loc;
 
   Iscas89Token tok = read_token(cur_lval, cur_loc);
@@ -273,10 +261,10 @@ Iscas89ParserImpl::parse_gate_type()
 //
 // エラーが起きたらエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::parse_name(ymuint& name_id,
+Iscas89ParserImpl::parse_name(int& name_id,
 			      FileRegion& last_loc)
 {
-  ymuint cur_lval;
+  int cur_lval;
   FileRegion cur_loc;
 
   if ( !expect(kIscas89_LPAR, cur_lval, cur_loc) ) {
@@ -301,10 +289,10 @@ Iscas89ParserImpl::parse_name(ymuint& name_id,
 //
 // エラーが起きたらエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::parse_name_list(vector<ymuint>& name_id_list,
+Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
 				   FileRegion& last_loc)
 {
-  ymuint cur_lval;
+  int cur_lval;
   FileRegion cur_loc;
 
   name_id_list.clear();
@@ -346,7 +334,7 @@ Iscas89ParserImpl::parse_name_list(vector<ymuint>& name_id_list,
 // @return エラーが起きたら false を返す．
 bool
 Iscas89ParserImpl::read_input(const FileRegion& loc,
-			      ymuint name_id)
+			      int name_id)
 {
   Iscas89IdCell* cell = id2cell(name_id);
   if ( cell->is_defined() ) {
@@ -361,9 +349,7 @@ Iscas89ParserImpl::read_input(const FileRegion& loc,
   }
   cell->set_defined();
   cell->set_input();
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->read_input(loc, name_id, cell->str()) ) {
       return false;
     }
@@ -377,7 +363,7 @@ Iscas89ParserImpl::read_input(const FileRegion& loc,
 // @return エラーが起きたら false を返す．
 bool
 Iscas89ParserImpl::read_output(const FileRegion& loc,
-			       ymuint name_id)
+			       int name_id)
 {
   Iscas89IdCell* cell = id2cell(name_id);
   if ( cell->is_input() ) {
@@ -404,9 +390,9 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 // @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
-			     ymuint oname_id,
+			     int oname_id,
 			     BnNodeType logic_type,
-			     const vector<ymuint>& iname_id_list)
+			     const vector<int>& iname_id_list)
 {
   Iscas89IdCell* cell = id2cell(oname_id);
   if ( cell->is_defined() ) {
@@ -422,9 +408,7 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
   }
   cell->set_defined();
   bool stat = true;
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->read_gate(loc, logic_type, oname_id, cell->str(), iname_id_list) ) {
       stat = false;
       break;
@@ -441,8 +425,8 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 // @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_dff(const FileRegion& loc,
-			    ymuint oname_id,
-			    ymuint iname_id)
+			    int oname_id,
+			    int iname_id)
 {
   Iscas89IdCell* cell = id2cell(oname_id);
   if ( cell->is_defined() ) {
@@ -458,9 +442,7 @@ Iscas89ParserImpl::read_dff(const FileRegion& loc,
   }
   cell->set_defined();
   bool stat = true;
-  for (list<Iscas89Handler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    Iscas89Handler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->read_dff(loc, oname_id, cell->str(), iname_id) ) {
       stat = false;
       break;
@@ -509,7 +491,7 @@ END_NONAMESPACE
 // トークンの方が一致しなかった場合にはエラーメッセージをセットする．
 bool
 Iscas89ParserImpl::expect(Iscas89Token exp_token,
-			  ymuint& lval,
+			  int& lval,
 			  FileRegion& loc)
 {
   if ( read_token(lval, loc) != exp_token ) {
@@ -531,7 +513,7 @@ Iscas89ParserImpl::expect(Iscas89Token exp_token,
 // @param[out] lloc トークンの位置を格納する変数
 // @return トークンの型を返す．
 Iscas89Token
-Iscas89ParserImpl::read_token(ymuint& lval,
+Iscas89ParserImpl::read_token(int& lval,
 			      FileRegion& lloc)
 {
   Iscas89Token token = mScanner->read_token(lloc);
@@ -545,7 +527,7 @@ Iscas89ParserImpl::read_token(ymuint& lval,
 // @param[in] src_str ソース文字列
 // @param[in] loc 文字列の位置情報
 // @return 文字列の ID 番号
-ymuint
+int
 Iscas89ParserImpl::reg_str(const char* src_str,
 			   const FileRegion& loc)
 {

@@ -25,7 +25,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ポート番号
   /// @param[in] name 名前
-  BnPortImpl(ymuint id,
+  BnPortImpl(int id,
 	     const string& name);
 
   /// @brief デストラクタ
@@ -40,7 +40,7 @@ public:
 
   /// @brief ポート番号を返す．
   virtual
-  ymuint
+  int
   id() const;
 
   /// @brief 名前を得る．
@@ -61,7 +61,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ポート番号
-  ymuint mId;
+  int mId;
 
   // 名前
   string mName;
@@ -82,9 +82,9 @@ public:
   /// @param[in] id ポート番号
   /// @param[in] name 名前
   /// @param[in] bit 内容のノード番号
-  BnPort1(ymuint id,
+  BnPort1(int id,
 	  const string& name,
-	  ymuint bit);
+	  int bit);
 
   /// @brief デストラクタ
   virtual
@@ -98,15 +98,15 @@ public:
 
   /// @brief ビット数を得る．
   virtual
-  ymuint
+  int
   bit_width() const;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
   virtual
-  ymuint
-  bit(ymuint pos) const;
+  int
+  bit(int pos) const;
 
 
 private:
@@ -121,7 +121,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノード番号
-  ymuint mBit;
+  int mBit;
 
 };
 
@@ -139,9 +139,9 @@ public:
   /// @param[in] id ポート番号
   /// @param[in] name 名前
   /// @param[in] bits 内容のノード番号のベクタ
-  BnPortN(ymuint id,
+  BnPortN(int id,
 	  const string& name,
-	  const vector<ymuint>& bits);
+	  const vector<int>& bits);
 
   /// @brief デストラクタ
   virtual
@@ -155,15 +155,15 @@ public:
 
   /// @brief ビット数を得る．
   virtual
-  ymuint
+  int
   bit_width() const;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
   virtual
-  ymuint
-  bit(ymuint pos) const;
+  int
+  bit(int pos) const;
 
 
 private:
@@ -178,10 +178,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ビット数
-  ymuint mBitWidth;
+  int mBitWidth;
 
   // ノード番号の配列
-  ymuint* mBits;
+  int* mBits;
 
 };
 

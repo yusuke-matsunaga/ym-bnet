@@ -71,7 +71,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  inputs_elem(ymuint name_id,
+  inputs_elem(int name_id,
 	      const char* name);
 
   /// @brief .outputs 文中の文字列の処理
@@ -81,7 +81,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  outputs_elem(ymuint name_id,
+  outputs_elem(int name_id,
 	       const char* name);
 
   /// @brief .names 文の処理
@@ -93,10 +93,10 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  names(ymuint oname_id,
+  names(int oname_id,
 	const char* oname,
-	const vector<ymuint>& inode_id_array,
-	ymuint cover_id);
+	const vector<int>& inode_id_array,
+	int cover_id);
 
   /// @brief .gate 文の処理
   /// @param[in] oname_id 出力ノードのID番号
@@ -107,9 +107,9 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  gate(ymuint oname_id,
+  gate(int oname_id,
        const char* oname,
-       const vector<ymuint>& inode_id_array,
+       const vector<int>& inode_id_array,
        const ClibCell* cell);
 
   /// @brief .latch 文の処理
@@ -122,9 +122,9 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  latch(ymuint oname_id,
+  latch(int oname_id,
 	const char* oname,
-	ymuint inode_id,
+	int inode_id,
 	const FileRegion& loc4,
 	char rval);
 
@@ -162,16 +162,16 @@ private:
   string mResetName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  HashMap<ymuint, ymuint> mIdMap;
+  HashMap<int, int> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  HashMap<ymuint, vector<ymuint> > mFaninInfoMap;
+  HashMap<int, vector<int> > mFaninInfoMap;
 
   // クロック端子のノード番号
-  ymuint mClockId;
+  int mClockId;
 
   // リセット端子のノード番号
-  ymuint mResetId;
+  int mResetId;
 
 };
 

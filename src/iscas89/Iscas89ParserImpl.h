@@ -51,11 +51,11 @@ public:
 
   /// @brief ID 番号から文字列を得る．
   const char*
-  id2str(ymuint id) const;
+  id2str(int id) const;
 
   /// @brief ID 番号から位置情報を得る．
   FileRegion
-  id2loc(ymuint id) const;
+  id2loc(int id) const;
 
 
 private:
@@ -78,7 +78,7 @@ private:
   ///
   /// エラーが起きたらエラーメッセージをセットする．
   bool
-  parse_name(ymuint& name_id,
+  parse_name(int& name_id,
 	     FileRegion& last_loc);
 
   /// @brief '(' ')' で囲まれた名前のリストを読み込む．
@@ -89,7 +89,7 @@ private:
   ///
   /// エラーが起きたらエラーメッセージをセットする．
   bool
-  parse_name_list(vector<ymuint>& name_id_list,
+  parse_name_list(vector<int>& name_id_list,
 		  FileRegion& last_loc);
 
   /// @brief INPUT 文を読み込む．
@@ -98,7 +98,7 @@ private:
   /// @return エラーが起きたら false を返す．
   bool
   read_input(const FileRegion& loc,
-	     ymuint name_id);
+	     int name_id);
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
@@ -106,7 +106,7 @@ private:
   /// @return エラーが起きたら false を返す．
   bool
   read_output(const FileRegion& loc,
-	      ymuint name_id);
+	      int name_id);
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -116,9 +116,9 @@ private:
   /// @note 入力名のリストは push_str() で積まれている．
   bool
   read_gate(const FileRegion& loc,
-	    ymuint oname_id,
+	    int oname_id,
 	    BnNodeType type,
-	    const vector<ymuint>& iname_id_list);
+	    const vector<int>& iname_id_list);
 
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -128,8 +128,8 @@ private:
   /// @note 入力名のリストは push_str() で積まれている．
   bool
   read_dff(const FileRegion& loc,
-	   ymuint oname_id,
-	   ymuint iname_id);
+	   int oname_id,
+	   int iname_id);
 
   /// @brief 次のトークンが期待されている型か調べる．
   /// @param[in] exp_token トークンの期待値
@@ -141,7 +141,7 @@ private:
   /// トークンの方が一致しなかった場合にはエラーメッセージをセットする．
   bool
   expect(Iscas89Token exp_token,
-	 ymuint& lval,
+	 int& lval,
 	 FileRegion& loc);
 
   /// @brief トークンを一つ読みだす．
@@ -151,18 +151,18 @@ private:
   ///
   /// lval に値が入るのはトークンが kIscas89_NAME の時だけ
   Iscas89Token
-  read_token(ymuint& lval,
+  read_token(int& lval,
 	     FileRegion& lloc);
 
   /// @brief ID 番号から Iscas89IdCell を得る．
   Iscas89IdCell*
-  id2cell(ymuint id) const;
+  id2cell(int id) const;
 
   /// @brief 文字列用の領域を確保する．
   /// @param[in] src_str ソース文字列
   /// @param[in] loc 文字列の位置情報
   /// @return 文字列の ID 番号
-  ymuint
+  int
   reg_str(const char* src_str,
 	  const FileRegion& loc);
 
@@ -182,7 +182,7 @@ private:
   Iscas89IdHash mIdHash;
 
   // 出力の ID 番号のリスト
-  vector<ymuint> mOidArray;
+  vector<int> mOidArray;
 
   // 出力のファイル位置のリスト
   vector<FileRegion> mOlocArray;
@@ -197,7 +197,7 @@ private:
 // @brief ID 番号から Iscas89IdCell を得る．
 inline
 Iscas89IdCell*
-Iscas89ParserImpl::id2cell(ymuint id) const
+Iscas89ParserImpl::id2cell(int id) const
 {
   return mIdHash.cell(id);
 }
@@ -205,7 +205,7 @@ Iscas89ParserImpl::id2cell(ymuint id) const
 // @brief ID 番号から文字列を得る．
 inline
 const char*
-Iscas89ParserImpl::id2str(ymuint id) const
+Iscas89ParserImpl::id2str(int id) const
 {
   return mIdHash.str(id);
 }
@@ -213,7 +213,7 @@ Iscas89ParserImpl::id2str(ymuint id) const
 // @brief ID 番号から位置情報を得る．
 inline
 FileRegion
-Iscas89ParserImpl::id2loc(ymuint id) const
+Iscas89ParserImpl::id2loc(int id) const
 {
   return mIdHash.loc(id);
 }

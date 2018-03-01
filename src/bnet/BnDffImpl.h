@@ -33,14 +33,14 @@ public:
   /// @param[in] clear クリア端子のノード番号
   /// @param[in] preset プリセット端子のノード番号
   /// @param[in] cell セル
-  BnDffImpl(ymuint id,
+  BnDffImpl(int id,
 	    const string& name,
-	    ymuint input,
-	    ymuint output,
-	    ymuint xoutput,
-	    ymuint clock,
-	    ymuint clear,
-	    ymuint preset,
+	    int input,
+	    int output,
+	    int xoutput,
+	    int clock,
+	    int clear,
+	    int preset,
 	    const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
@@ -56,7 +56,7 @@ public:
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
   virtual
-  ymuint
+  int
   id() const;
 
   /// @brief 名前を返す．
@@ -66,36 +66,36 @@ public:
 
   /// @brief データ出力のノード番号を返す．
   virtual
-  ymuint
+  int
   output() const;
 
   /// @brief 反転データ出力のノード番号を返す．
   virtual
-  ymuint
+  int
   xoutput() const;
 
   /// @brief データ入力のノード番号を返す．
   virtual
-  ymuint
+  int
   input() const;
 
   /// @brief クロックのノード番号を返す．
   virtual
-  ymuint
+  int
   clock() const;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   clear() const;
 
   /// @brief プリセット信号のノードを返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   preset() const;
 
   /// @brief セルを返す．
@@ -109,28 +109,28 @@ public:
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   output_pin_id() const;
 
   /// @brief 反転データ出力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   xoutput_pin_id() const;
 
   /// @brief データ入力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   input_pin_id() const;
 
   /// @brief クロックのピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clock_pin_id() const;
 
   /// @brief クリア信号のピン番号を返す．
@@ -138,7 +138,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clear_pin_id() const;
 
   /// @brief プリセット信号のピン番号を返す．
@@ -146,7 +146,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   preset_pin_id() const;
 
 
@@ -156,28 +156,28 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint32 mId;
+  int mId;
 
   // 名前
   string mName;
 
   // データ出力ノード
-  ymuint mOutput;
+  int mOutput;
 
   // 反転データ出力ノード
-  ymuint mXOutput;
+  int mXOutput;
 
   // データ入力ノード
-  ymuint mInput;
+  int mInput;
 
   // クロックノード
-  ymuint mClock;
+  int mClock;
 
   // クリア信号ノード
-  ymuint mClear;
+  int mClear;
 
   // プリセット信号ノード
-  ymuint mPreset;
+  int mPreset;
 
   // セル
   const ClibCell* mCell;

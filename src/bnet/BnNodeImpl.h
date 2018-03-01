@@ -31,7 +31,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID 番号
   /// @param[in] name ノード名
-  BnNodeImpl(ymuint id,
+  BnNodeImpl(int id,
 	     const string& name);
 
   /// @brief デストラクタ
@@ -46,7 +46,7 @@ public:
 
   /// @brief ノードID を返す．
   virtual
-  ymuint
+  int
   id() const;
 
   /// @brief 名前を返す．
@@ -71,14 +71,14 @@ public:
 
   /// @brief ファンアウト数を得る．
   virtual
-  ymuint
+  int
   fanout_num() const;
 
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
-  fanout(ymuint pos) const;
+  int
+  fanout(int pos) const;
 
 
 public:
@@ -91,7 +91,7 @@ public:
   /// is_input() == false の時の動作は不定<br>
   /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
   virtual
-  ymuint
+  int
   input_id() const;
 
   /// @brief 外部入力端子の時 true を返す．
@@ -125,7 +125,7 @@ public:
   /// is_output() == false の時の動作は不定<br>
   /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
   virtual
-  ymuint
+  int
   output_id() const;
 
   /// @brief 外部出力端子の時に true を返す．
@@ -177,7 +177,7 @@ public:
   ///
   /// is_output() == false の時の動作は不定
   virtual
-  ymuint
+  int
   fanin() const;
 
 
@@ -190,14 +190,14 @@ public:
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_id() const;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_bit() const;
 
   /// @brief 接続しているDFFの番号を返す．
@@ -205,7 +205,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   dff_id() const;
 
   /// @brief 接続しているラッチの番号を返す．
@@ -213,7 +213,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   latch_id() const;
 
 
@@ -224,21 +224,21 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
+  int
   fanin_num() const;
 
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  ymuint
-  fanin(ymuint pos) const;
+  int
+  fanin(int pos) const;
 
   /// @brief 論理式番号を返す．
   ///
   /// type() == kBnLogic_EXPR の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
-  ymuint
+  int
   expr_id() const;
 
   /// @brief 論理式を返す．
@@ -255,7 +255,7 @@ public:
   /// type() == kBnLogic_TV の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
-  ymuint
+  int
   func_id() const;
 
   /// @brief 真理値表を返す．
@@ -285,14 +285,14 @@ public:
   /// @param[in] fanin_id ファンインのノード番号
   virtual
   void
-  set_fanin(ymuint ipos,
-	    ymuint fanin_id);
+  set_fanin(int ipos,
+	    int fanin_id);
 
   /// @brief ファンアウトを追加する．
   /// @param[in] onode_id ファンアウトのノード番号
   virtual
   void
-  add_fanout(ymuint onode_id);
+  add_fanout(int onode_id);
 
 
 
@@ -302,13 +302,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint mId;
+  int mId;
 
   // 名前
   string mName;
 
   // ファンアウトのノード番号のリスト
-  vector<ymuint> mFanoutList;
+  vector<int> mFanoutList;
 
 };
 

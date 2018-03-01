@@ -30,9 +30,9 @@ public:
   /// @param[in] id ID 番号
   /// @param[in] name ノード名
   /// @param[in] input_id 入力番号
-  BnInputNode(ymuint id,
+  BnInputNode(int id,
 	      const string& name,
-	      ymuint input_id);
+	      int input_id);
 
   /// @brief デストラクタ
   virtual
@@ -65,7 +65,7 @@ public:
   /// is_input() == false の時の動作は不定<br>
   /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
   virtual
-  ymuint
+  int
   input_id() const;
 
 
@@ -75,7 +75,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力番号
-  ymuint mInputId;
+  int mInputId;
 
 };
 
@@ -95,11 +95,11 @@ public:
   /// @param[in] input_id 入力番号
   /// @param[in] port_id ポート番号
   /// @param[in] port_bit ポート中のビット位置
-  BnPortInput(ymuint id,
+  BnPortInput(int id,
 	      const string& name,
-	      ymuint input_id,
-	      ymuint port_id,
-	      ymuint port_bit);
+	      int input_id,
+	      int port_id,
+	      int port_bit);
 
   /// @brief デストラクタ
   virtual
@@ -126,14 +126,14 @@ public:
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_id() const;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_bit() const;
 
 
@@ -143,10 +143,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ポート番号
-  ymuint mPortId;
+  int mPortId;
 
   // ポート中のビット位置
-  ymuint mPortBit;
+  int mPortBit;
 
 };
 
@@ -167,10 +167,10 @@ public:
   /// @param[in] name ノード名
   /// @param[in] input_id 入力番号
   /// @param[in] dff_id DFF番号
-  BnDffOutput(ymuint id,
+  BnDffOutput(int id,
 	      const string& name,
-	      ymuint inputid,
-	      ymuint dff_id);
+	      int inputid,
+	      int dff_id);
 
   /// @brief デストラクタ
   virtual
@@ -198,7 +198,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   dff_id() const;
 
 
@@ -208,7 +208,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF 番号
-  ymuint mDffId;
+  int mDffId;
 
 };
 
@@ -229,10 +229,10 @@ public:
   /// @param[in] name ノード名
   /// @param[in] input_id 入力番号
   /// @param[in] dff_id DFF番号
-  BnDffXOutput(ymuint id,
+  BnDffXOutput(int id,
 	      const string& name,
-	      ymuint inputid,
-	      ymuint dff_id);
+	      int inputid,
+	      int dff_id);
 
   /// @brief デストラクタ
   virtual
@@ -260,7 +260,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   dff_id() const;
 
 
@@ -270,7 +270,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF 番号
-  ymuint mDffId;
+  int mDffId;
 
 };
 
@@ -291,10 +291,10 @@ public:
   /// @param[in] name ノード名
   /// @param[in] input_id 入力番号
   /// @param[in] latch_id ラッチ番号
-  BnLatchOutput(ymuint id,
+  BnLatchOutput(int id,
 		const string& name,
-		ymuint input_id,
-		ymuint latch_id);
+		int input_id,
+		int latch_id);
 
   /// @brief デストラクタ
   virtual
@@ -322,7 +322,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   latch_id() const;
 
 
@@ -332,7 +332,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ラッチ番号
-  ymuint mLatchId;
+  int mLatchId;
 
 };
 

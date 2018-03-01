@@ -5,7 +5,7 @@
 /// @brief BnIscas89Reader のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnIscas89Reader BnIscas89Reader.h "BnIscas89Reader.h"
-/// @brief iscas89(.bench) ファイルを読み込んで BnBuilder に設定するクラス
+/// @brief iscas89(.bench) ファイルを読み込んで BnNetwork に設定するクラス
 ///
 /// このクラスは実体を持たない．
 //////////////////////////////////////////////////////////////////////

@@ -20,9 +20,9 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] id ID 番号
 // @param[in] name ノード名
 // @param[in] input_id 入力番号
-BnInputNode::BnInputNode(ymuint id,
+BnInputNode::BnInputNode(int id,
 			 const string& name,
-			 ymuint input_id) :
+			 int input_id) :
   BnNodeImpl(id, name),
   mInputId(input_id)
 {
@@ -51,7 +51,7 @@ BnInputNode::is_input() const
 //
 // is_input() == false の時の動作は不定<br>
 // node = BnNetwork::input(id) の時 node->input_id() = id となる．
-ymuint
+int
 BnInputNode::input_id() const
 {
   return mInputId;
@@ -68,11 +68,11 @@ BnInputNode::input_id() const
 // @param[in] input_id 入力番号
 // @param[in] port_id ポート番号
 // @param[in] port_bit ポート中のビット位置
-BnPortInput::BnPortInput(ymuint id,
+BnPortInput::BnPortInput(int id,
 			 const string& name,
-			 ymuint input_id,
-			 ymuint port_id,
-			 ymuint port_bit) :
+			 int input_id,
+			 int port_id,
+			 int port_bit) :
   BnInputNode(id, name, input_id),
   mPortId(port_id),
   mPortBit(port_bit)
@@ -94,7 +94,7 @@ BnPortInput::is_port_input() const
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-ymuint
+int
 BnPortInput::port_id() const
 {
   return mPortId;
@@ -103,7 +103,7 @@ BnPortInput::port_id() const
 // @brief 接続しているポート中のビット番号を返す．
 //
 // is_port_input() || is_port_output() の時のみ意味を持つ．
-ymuint
+int
 BnPortInput::port_bit() const
 {
   return mPortBit;
@@ -119,10 +119,10 @@ BnPortInput::port_bit() const
 // @param[in] name ノード名
 // @param[in] input_id 入力番号
 // @param[in] dff_id DFF番号
-BnDffOutput::BnDffOutput(ymuint id,
+BnDffOutput::BnDffOutput(int id,
 			 const string& name,
-			 ymuint input_id,
-			 ymuint dff_id) :
+			 int input_id,
+			 int dff_id) :
   BnInputNode(id, name, input_id),
   mDffId(dff_id)
 {
@@ -144,7 +144,7 @@ BnDffOutput::is_dff_output() const
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnDffOutput::dff_id() const
 {
   return mDffId;
@@ -160,10 +160,10 @@ BnDffOutput::dff_id() const
 // @param[in] name ノード名
 // @param[in] input_id 入力番号
 // @param[in] dff_id DFF番号
-BnDffXOutput::BnDffXOutput(ymuint id,
+BnDffXOutput::BnDffXOutput(int id,
 			   const string& name,
-			   ymuint input_id,
-			   ymuint dff_id) :
+			   int input_id,
+			   int dff_id) :
   BnInputNode(id, name, input_id),
   mDffId(dff_id)
 {
@@ -185,7 +185,7 @@ BnDffXOutput::is_dff_xoutput() const
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnDffXOutput::dff_id() const
 {
   return mDffId;
@@ -201,10 +201,10 @@ BnDffXOutput::dff_id() const
 // @param[in] name ノード名
 // @param[in] input_id 入力番号
 // @param[in] latch_id ラッチ番号
-BnLatchOutput::BnLatchOutput(ymuint id,
+BnLatchOutput::BnLatchOutput(int id,
 			     const string& name,
-			     ymuint input_id,
-			     ymuint latch_id) :
+			     int input_id,
+			     int latch_id) :
   BnInputNode(id, name, input_id),
   mLatchId(latch_id)
 {
@@ -226,7 +226,7 @@ BnLatchOutput::is_latch_output() const
 //
 // is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnLatchOutput::latch_id() const
 {
   return mLatchId;

@@ -20,9 +20,9 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] id ID 番号
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
-BnOutputNode::BnOutputNode(ymuint id,
+BnOutputNode::BnOutputNode(int id,
 			   const string& name,
-			   ymuint output_id) :
+			   int output_id) :
   BnNodeImpl(id, name),
   mOutputId(output_id),
   mFanin(kBnNullId)
@@ -52,7 +52,7 @@ BnOutputNode::is_output() const
 //
 // is_output() == false の時の動作は不定<br>
 // node = BnNetwork::output(id) の時，node->output_id() = id となる．
-ymuint
+int
 BnOutputNode::output_id() const
 {
   return mOutputId;
@@ -61,7 +61,7 @@ BnOutputNode::output_id() const
 // @brief 入力のノード番号を返す．
 //
 // is_output() == false の時の動作は不定
-ymuint
+int
 BnOutputNode::fanin() const
 {
   return mFanin;
@@ -71,8 +71,8 @@ BnOutputNode::fanin() const
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
 void
-BnOutputNode::set_fanin(ymuint ipos,
-			ymuint fanin_id)
+BnOutputNode::set_fanin(int ipos,
+			int fanin_id)
 {
   ASSERT_COND( ipos == 0 );
   mFanin = fanin_id;
@@ -90,11 +90,11 @@ BnOutputNode::set_fanin(ymuint ipos,
 // @param[in] output_id 出力番号
 // @param[in] port_id ポート番号
 // @param[in] port_bit ポート中のビット位置
-BnPortOutput::BnPortOutput(ymuint id,
+BnPortOutput::BnPortOutput(int id,
 			   const string& name,
-			   ymuint output_id,
-			   ymuint port_id,
-			   ymuint port_bit) :
+			   int output_id,
+			   int port_id,
+			   int port_bit) :
   BnOutputNode(id, name, output_id),
   mPortId(port_id),
   mPortBit(port_bit)
@@ -116,7 +116,7 @@ BnPortOutput::is_port_output() const
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-ymuint
+int
 BnPortOutput::port_id() const
 {
   return mPortId;
@@ -125,7 +125,7 @@ BnPortOutput::port_id() const
 // @brief 接続しているポート中のビット番号を返す．
 //
 // is_port_input() || is_port_output() の時のみ意味を持つ．
-ymuint
+int
 BnPortOutput::port_bit() const
 {
   return mPortBit;
@@ -142,10 +142,10 @@ BnPortOutput::port_bit() const
 // @param[in] input 入力のノード番号
 // @param[in] output_id 出力番号
 // @param[in] dff_id DFF番号
-BnDffControl::BnDffControl(ymuint id,
+BnDffControl::BnDffControl(int id,
 			   const string& name,
-			   ymuint output_id,
-			   ymuint dff_id) :
+			   int output_id,
+			   int dff_id) :
   BnOutputNode(id, name, output_id),
   mDffId(dff_id)
 {
@@ -160,7 +160,7 @@ BnDffControl::~BnDffControl()
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnDffControl::dff_id() const
 {
   return mDffId;
@@ -176,10 +176,10 @@ BnDffControl::dff_id() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] dff_id DFF番号
-BnDffInput::BnDffInput(ymuint id,
+BnDffInput::BnDffInput(int id,
 		       const string& name,
-		       ymuint output_id,
-		       ymuint dff_id) :
+		       int output_id,
+		       int dff_id) :
   BnDffControl(id, name, output_id, dff_id)
 {
 }
@@ -206,10 +206,10 @@ BnDffInput::is_dff_input() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] dff_id DFF番号
-BnDffClock::BnDffClock(ymuint id,
+BnDffClock::BnDffClock(int id,
 		       const string& name,
-		       ymuint output_id,
-		       ymuint dff_id) :
+		       int output_id,
+		       int dff_id) :
   BnDffControl(id, name, output_id, dff_id)
 {
 }
@@ -236,10 +236,10 @@ BnDffClock::is_dff_clock() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] dff_id DFF番号
-BnDffClear::BnDffClear(ymuint id,
+BnDffClear::BnDffClear(int id,
 		       const string& name,
-		       ymuint output_id,
-		       ymuint dff_id) :
+		       int output_id,
+		       int dff_id) :
   BnDffControl(id, name, output_id, dff_id)
 {
 }
@@ -266,10 +266,10 @@ BnDffClear::is_dff_clear() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] dff_id DFF番号
-BnDffPreset::BnDffPreset(ymuint id,
+BnDffPreset::BnDffPreset(int id,
 			 const string& name,
-			 ymuint output_id,
-			 ymuint dff_id) :
+			 int output_id,
+			 int dff_id) :
   BnDffControl(id, name, output_id, dff_id)
 {
 }
@@ -296,10 +296,10 @@ BnDffPreset::is_dff_preset() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] latch_id ラッチ番号
-BnLatchControl::BnLatchControl(ymuint id,
+BnLatchControl::BnLatchControl(int id,
 			       const string& name,
-			       ymuint output_id,
-			       ymuint latch_id) :
+			       int output_id,
+			       int latch_id) :
   BnOutputNode(id, name, output_id),
   mLatchId(latch_id)
 {
@@ -314,7 +314,7 @@ BnLatchControl::~BnLatchControl()
 //
 // is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnLatchControl::latch_id() const
 {
   return mLatchId;
@@ -330,10 +330,10 @@ BnLatchControl::latch_id() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] latch_id ラッチ番号
-BnLatchInput::BnLatchInput(ymuint id,
+BnLatchInput::BnLatchInput(int id,
 			   const string& name,
-			   ymuint output_id,
-			   ymuint latch_id) :
+			   int output_id,
+			   int latch_id) :
   BnLatchControl(id, name, output_id, latch_id)
 {
 }
@@ -360,10 +360,10 @@ BnLatchInput::is_latch_input() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] latch_id ラッチ番号
-BnLatchEnable::BnLatchEnable(ymuint id,
+BnLatchEnable::BnLatchEnable(int id,
 			     const string& name,
-			     ymuint output_id,
-			     ymuint latch_id) :
+			     int output_id,
+			     int latch_id) :
   BnLatchControl(id, name, output_id, latch_id)
 {
 }
@@ -390,10 +390,10 @@ BnLatchEnable::is_latch_enable() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] latch_id ラッチ番号
-BnLatchClear::BnLatchClear(ymuint id,
+BnLatchClear::BnLatchClear(int id,
 			   const string& name,
-			   ymuint output_id,
-			   ymuint latch_id) :
+			   int output_id,
+			   int latch_id) :
   BnLatchControl(id, name, output_id, latch_id)
 {
 }
@@ -420,10 +420,10 @@ BnLatchClear::is_latch_clear() const
 // @param[in] name ノード名
 // @param[in] output_id 出力番号
 // @param[in] latch_id ラッチ番号
-BnLatchPreset::BnLatchPreset(ymuint id,
+BnLatchPreset::BnLatchPreset(int id,
 			     const string& name,
-			     ymuint output_id,
-			     ymuint latch_id) :
+			     int output_id,
+			     int latch_id) :
   BnLatchControl(id, name, output_id, latch_id)
 {
 }

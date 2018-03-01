@@ -50,7 +50,7 @@ public:
   /// @brief ID番号の取得
   /// @return ID番号を返す．
   virtual
-  ymuint
+  int
   id() const = 0;
 
   /// @brief 名前を返す．
@@ -60,31 +60,31 @@ public:
 
   /// @brief データ出力のノード番号を返す．
   virtual
-  ymuint
+  int
   output() const = 0;
 
   /// @brief データ入力のノード番号を返す．
   virtual
-  ymuint
+  int
   input() const = 0;
 
   /// @brief ラッチイネーブルのノード番号を返す．
   virtual
-  ymuint
+  int
   enable() const = 0;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   clear() const = 0;
 
   /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   preset() const = 0;
 
   /// @brief セルを返す．
@@ -98,21 +98,21 @@ public:
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   output_pin_id() const = 0;
 
   /// @brief データ入力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   input_pin_id() const = 0;
 
   /// @brief イネーブル端子のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   enable_pin_id() const = 0;
 
   /// @brief クリア信号のピン番号を返す．
@@ -120,7 +120,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clear_pin_id() const = 0;
 
   /// @brief プリセット信号のピン番号を返す．
@@ -128,7 +128,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   preset_pin_id() const = 0;
 
 };

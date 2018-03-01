@@ -5,7 +5,7 @@
 /// @brief BnBlifReader のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnBlifReader BnBlifReader.h "BnBlifReader.h"
-/// @brief blif ファイルを読み込んで BnBuilder に設定するクラス
+/// @brief blif ファイルを読み込んで BnNetwork に設定するクラス
 ///
 /// このクラスは実体を持たない．
 //////////////////////////////////////////////////////////////////////

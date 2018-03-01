@@ -5,7 +5,7 @@
 /// @brief BlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -22,6 +22,7 @@ class BlifParserImpl;
 /// @class BlifHandler BlifHandler.h "ym/BlifHandler.h"
 /// @ingroup BlifGroup
 /// @brief blif パーサーのイベントハンドラの基底クラス
+///
 /// 純粋仮想関数を持っているので，このクラスを継承し，仮想関数を上書き
 /// する必要がある．
 /// @sa BlifParser
@@ -80,7 +81,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  inputs_elem(ymuint name_id,
+  inputs_elem(int name_id,
 	      const char* name) = 0;
 
   /// @brief .outputs 文中の文字列の処理
@@ -90,7 +91,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  outputs_elem(ymuint name_id,
+  outputs_elem(int name_id,
 	       const char* name) = 0;
 
   /// @brief .names 文の処理
@@ -105,10 +106,10 @@ public:
   /// @note opat は '0' か '1' のどちらか
   virtual
   bool
-  names(ymuint onode_id,
+  names(int onode_id,
 	const char* oname,
-	const vector<ymuint>& inode_id_array,
-	ymuint cover_id) = 0;
+	const vector<int>& inode_id_array,
+	int cover_id) = 0;
 
   /// @brief .gate 文の処理
   /// @param[in] onode_id 出力ノードのID番号
@@ -119,9 +120,9 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  gate(ymuint onode_id,
+  gate(int onode_id,
        const char* oname,
-       const vector<ymuint>& inode_id_array,
+       const vector<int>& inode_id_array,
        const ClibCell* cell) = 0;
 
   /// @brief .latch 文の処理
@@ -134,9 +135,9 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  latch(ymuint onode_id,
+  latch(int onode_id,
 	const char* oname,
-	ymuint inode_id,
+	int inode_id,
 	const FileRegion& loc4,
 	char rval) = 0;
 
@@ -166,23 +167,23 @@ protected:
 
   /// @brief ID番号から文字列を得る．
   const char*
-  id2str(ymuint id);
+  id2str(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2loc(ymuint id);
+  id2loc(int id);
 
   /// @brief ID番号からそれに関連した位置情報その2を得る．
   const FileRegion&
-  id2def_loc(ymuint id);
+  id2def_loc(int id);
 
   /// @brief カバーの数を得る．
-  ymuint
+  int
   cover_num();
 
   /// @brief カバーIDからカバーを得る．
   const BlifCover*
-  id2cover(ymuint id);
+  id2cover(int id);
 
 
 private:

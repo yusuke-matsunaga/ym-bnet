@@ -31,14 +31,17 @@ BlifCover::~BlifCover()
 // @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
 // @return パタンを返す．
 BlifCover::Pat
-BlifCover::input_pat(ymuint ipos,
-		     ymuint cpos) const
+BlifCover::input_pat(int ipos,
+		     int cpos) const
 {
-  // キューブ1つ分のブロック数
-  ymuint nb1 = ((input_num() * 2) + 63) / 64;
+  ASSERT_COND( ipos >= 0 && ipos < input_num() );
+  ASSERT_COND( cpos >= 0 && cpos < cube_num() );
 
-  ymuint blk = (ipos * 2) / 64;
-  ymuint sft = (ipos * 2) % 64;
+  // キューブ1つ分のブロック数
+  int nb1 = ((input_num() * 2) + 63) / 64;
+
+  int blk = (ipos * 2) / 64;
+  int sft = (ipos * 2) % 64;
   ymuint64 tmp = (mPatArray[nb1 * cpos + blk] >> sft) & 3U;
   switch ( tmp ) {
   case 0: return kPat_0;
@@ -54,17 +57,14 @@ BlifCover::input_pat(ymuint ipos,
 void
 BlifCover::print(ostream& s) const
 {
-  for (ymuint c = 0; c < cube_num(); ++ c) {
-    for (ymuint i = 0; i < input_num(); ++ i) {
-      Pat ipat = input_pat(i, c);
-      s << ipat;
+  for ( int c = 0; c < cube_num(); ++ c ) {
+    for ( int i = 0; i < input_num(); ++ i ) {
+      s << input_pat(i, c);
     }
     if ( input_num() > 0 ) {
       s << ' ';
     }
-    Pat opat = output_pat();
-    s << opat
-      << endl;
+    s << output_pat() << endl;
   }
 }
 

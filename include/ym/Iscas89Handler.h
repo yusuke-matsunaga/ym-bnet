@@ -5,7 +5,7 @@
 /// @brief Iscas89Handler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -60,7 +60,7 @@ public:
   virtual
   bool
   read_input(const FileRegion& loc,
-	     ymuint name_id,
+	     int name_id,
 	     const char* name);
 
   /// @brief OUTPUT 文を読み込む．
@@ -72,7 +72,7 @@ public:
   virtual
   bool
   read_output(const FileRegion& loc,
-	      ymuint name_id,
+	      int name_id,
 	      const char* name);
 
   /// @brief ゲート文を読み込む．
@@ -87,9 +87,9 @@ public:
   bool
   read_gate(const FileRegion& loc,
 	    BnNodeType logic_type,
-	    ymuint oname_id,
+	    int oname_id,
 	    const char* oname,
-	    const vector<ymuint>& iname_list);
+	    const vector<int>& iname_list);
 
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -101,9 +101,9 @@ public:
   virtual
   bool
   read_dff(const FileRegion& loc,
-	   ymuint oname_id,
+	   int oname_id,
 	   const char* oname,
-	   ymuint iname_id);
+	   int iname_id);
 
   /// @brief 終了操作
   /// @retval true 処理が成功した．
@@ -130,11 +130,11 @@ protected:
 
   /// @brief ID 番号から文字列を得る．
   const char*
-  id2str(ymuint id) const;
+  id2str(int id) const;
 
   /// @brief ID 番号から位置情報を得る．
   FileRegion
-  id2loc(ymuint id) const;
+  id2loc(int id) const;
 
 
 private:

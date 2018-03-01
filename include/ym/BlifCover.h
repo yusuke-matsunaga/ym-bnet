@@ -5,7 +5,7 @@
 /// @brief BlifCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -18,6 +18,10 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCover BlifCover.h "ym/BlifCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
+///
+/// 実際にはキューブ数に応じてアロケートするサイズが異なるので
+/// 通常のコンストラクタは使用できない．
+/// 必ず BlifCoverMgr を用いること．
 //////////////////////////////////////////////////////////////////////
 class BlifCover
 {
@@ -48,15 +52,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を返す．
-  ymuint
+  int
   id() const;
 
   /// @brief 入力数を返す．
-  ymuint
+  int
   input_num() const;
 
   /// @brief キューブ数を返す．
-  ymuint
+  int
   cube_num() const;
 
   /// @brief 入力パタンを返す．
@@ -64,8 +68,8 @@ public:
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
   /// @return パタンを返す．
   Pat
-  input_pat(ymuint ipos,
-	    ymuint cpos) const;
+  input_pat(int ipos,
+	    int cpos) const;
 
   /// @brief 出力パタンを返す．
   ///
@@ -96,16 +100,16 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力数
-  ymuint8 mInputNum;
+  int mInputNum;
 
   // 出力パタン
-  ymuint8 mOutputPat;
+  int mOutputPat;
 
   // キューブ数
-  ymuint16 mCubeNum;
+  int mCubeNum;
 
   // ID番号
-  ymuint32 mId;
+  int mId;
 
   // 論理式
   Expr mExpr;
@@ -131,7 +135,7 @@ operator<<(ostream& s,
 
 // @brief ID番号を返す．
 inline
-ymuint
+int
 BlifCover::id() const
 {
   return mId;
@@ -139,7 +143,7 @@ BlifCover::id() const
 
 // @brief 入力数を返す．
 inline
-ymuint
+int
 BlifCover::input_num() const
 {
   return mInputNum;
@@ -147,7 +151,7 @@ BlifCover::input_num() const
 
 // @brief キューブ数を返す．
 inline
-ymuint
+int
 BlifCover::cube_num() const
 {
   return mCubeNum;

@@ -5,7 +5,7 @@
 /// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -65,7 +65,7 @@ public:
 
   /// @brief ノードID を返す．
   virtual
-  ymuint
+  int
   id() const = 0;
 
   /// @brief 名前を返す．
@@ -101,14 +101,14 @@ public:
 
   /// @brief ファンアウト数を得る．
   virtual
-  ymuint
+  int
   fanout_num() const = 0;
 
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
-  ymuint
-  fanout(ymuint pos) const = 0;
+  int
+  fanout(int pos) const = 0;
 
 
 public:
@@ -122,7 +122,7 @@ public:
   /// - node = BnNetwork::input(id) の時 node->input_id() = id となる．
   /// @sa BnNetwork::input()
   virtual
-  ymuint
+  int
   input_id() const = 0;
 
   /// @brief 外部入力端子の時 true を返す．
@@ -157,7 +157,7 @@ public:
   /// - node = BnNetwork::output(id) の時，node->output_id() = id となる．
   /// @sa BnNetwork::output()
   virtual
-  ymuint
+  int
   output_id() const = 0;
 
   /// @brief 外部出力端子の時に true を返す．
@@ -209,7 +209,7 @@ public:
   ///
   /// is_output() == false の時の動作は不定
   virtual
-  ymuint
+  int
   fanin() const = 0;
 
 
@@ -222,14 +222,14 @@ public:
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_id() const = 0;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   port_bit() const = 0;
 
   /// @brief 接続しているDFFの番号を返す．
@@ -237,7 +237,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   dff_id() const = 0;
 
   /// @brief 接続しているラッチの番号を返す．
@@ -245,7 +245,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   latch_id() const = 0;
 
 
@@ -258,7 +258,7 @@ public:
   ///
   /// - is_logic() == false の時の動作は不定
   virtual
-  ymuint
+  int
   fanin_num() const = 0;
 
   /// @brief ファンインのノード番号を返す．
@@ -266,8 +266,8 @@ public:
   ///
   /// - is_logic() == false の時の動作は不定
   virtual
-  ymuint
-  fanin(ymuint pos) const = 0;
+  int
+  fanin(int pos) const = 0;
 
   /// @brief 論理式番号を返す．
   ///
@@ -275,7 +275,7 @@ public:
   /// - 論理式番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::expr()
   virtual
-  ymuint
+  int
   expr_id() const = 0;
 
   /// @brief 論理式を返す．
@@ -293,7 +293,7 @@ public:
   /// - 関数番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::func()
   virtual
-  ymuint
+  int
   func_id() const = 0;
 
   /// @brief 真理値表を返す．

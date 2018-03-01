@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] id ID 番号
 // @param[in] name ノード名
-BnNodeImpl::BnNodeImpl(ymuint id,
+BnNodeImpl::BnNodeImpl(int id,
 		       const string& name) :
   mId(id),
   mName(name)
@@ -36,7 +36,7 @@ BnNodeImpl::~BnNodeImpl()
 }
 
 // @brief ID を返す．
-ymuint
+int
 BnNodeImpl::id() const
 {
   return mId;
@@ -71,7 +71,7 @@ BnNodeImpl::is_logic() const
 }
 
 // @brief ファンアウト数を得る．
-ymuint
+int
 BnNodeImpl::fanout_num() const
 {
   return mFanoutList.size();
@@ -79,8 +79,8 @@ BnNodeImpl::fanout_num() const
 
 // @brief ファンアウトのノード番号を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
-ymuint
-BnNodeImpl::fanout(ymuint pos) const
+int
+BnNodeImpl::fanout(int pos) const
 {
   ASSERT_COND( pos < fanout_num() );
   return mFanoutList[pos];
@@ -90,7 +90,7 @@ BnNodeImpl::fanout(ymuint pos) const
 //
 // is_input() == false の時の動作は不定<br>
 // node = BnNetwork::input(id) の時 node->input_id() = id となる．
-ymuint
+int
 BnNodeImpl::input_id() const
 {
   ASSERT_NOT_REACHED;
@@ -129,7 +129,7 @@ BnNodeImpl::is_latch_output() const
 //
 // is_output() == false の時の動作は不定<br>
 // node = BnNetwork::output(id) の時，node->output_id() = id となる．
-ymuint
+int
 BnNodeImpl::output_id() const
 {
   ASSERT_NOT_REACHED;
@@ -202,7 +202,7 @@ BnNodeImpl::is_latch_preset() const
 // @brief ファンインのノード番号を返す．
 //
 // is_output() == false の時の動作は不定
-ymuint
+int
 BnNodeImpl::fanin() const
 {
   ASSERT_NOT_REACHED;
@@ -212,7 +212,7 @@ BnNodeImpl::fanin() const
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-ymuint
+int
 BnNodeImpl::port_id() const
 {
   ASSERT_NOT_REACHED;
@@ -222,7 +222,7 @@ BnNodeImpl::port_id() const
 // @brief 接続しているポート中のビット番号を返す．
 //
 // is_port_input() || is_port_output() の時のみ意味を持つ．
-ymuint
+int
 BnNodeImpl::port_bit() const
 {
   ASSERT_NOT_REACHED;
@@ -233,7 +233,7 @@ BnNodeImpl::port_bit() const
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnNodeImpl::dff_id() const
 {
   ASSERT_NOT_REACHED;
@@ -244,7 +244,7 @@ BnNodeImpl::dff_id() const
 //
 // is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-ymuint
+int
 BnNodeImpl::latch_id() const
 {
   ASSERT_NOT_REACHED;
@@ -252,7 +252,7 @@ BnNodeImpl::latch_id() const
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 BnNodeImpl::fanin_num() const
 {
   return 0;
@@ -260,8 +260,8 @@ BnNodeImpl::fanin_num() const
 
 // @brief ファンインのノード番号を返す．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-ymuint
-BnNodeImpl::fanin(ymuint pos) const
+int
+BnNodeImpl::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
   return kBnNullId;
@@ -271,7 +271,7 @@ BnNodeImpl::fanin(ymuint pos) const
 //
 // logic_type() == kBnLogic_EXPR の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
+int
 BnNodeImpl::expr_id() const
 {
   ASSERT_NOT_REACHED;
@@ -294,7 +294,7 @@ BnNodeImpl::expr() const
 //
 // type() == kBnLogic_TV の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
+int
 BnNodeImpl::func_id() const
 {
   ASSERT_NOT_REACHED;
@@ -326,8 +326,8 @@ BnNodeImpl::cell() const
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
 void
-BnNodeImpl::set_fanin(ymuint ipos,
-		      ymuint fanin_id)
+BnNodeImpl::set_fanin(int ipos,
+		      int fanin_id)
 {
   ASSERT_NOT_REACHED;
 }
@@ -335,7 +335,7 @@ BnNodeImpl::set_fanin(ymuint ipos,
 // @brief ファンアウトを追加する．
 // @param[in] node_id ノード番号
 void
-BnNodeImpl::add_fanout(ymuint node_id)
+BnNodeImpl::add_fanout(int node_id)
 {
   mFanoutList.push_back(node_id);
 }

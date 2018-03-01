@@ -33,9 +33,9 @@ public:
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
   /// @param[in] cell セル (nullptr の場合もあり)
-  BnLogicNode(ymuint id,
+  BnLogicNode(int id,
 	      const string& name,
-	      ymuint ni,
+	      int ni,
 	      const ClibCell* cell);
 
   /// @brief デストラクタ
@@ -61,14 +61,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
+  int
   fanin_num() const;
 
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
-  ymuint
-  fanin(ymuint pos) const;
+  int
+  fanin(int pos) const;
 
   /// @brief セルを返す．
   ///
@@ -89,8 +89,8 @@ public:
   /// @param[in] fanin_id ファンインのノード番号
   virtual
   void
-  set_fanin(ymuint ipos,
-	    ymuint fanin_id);
+  set_fanin(int ipos,
+	    int fanin_id);
 
 
 private:
@@ -99,11 +99,11 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンイン数
-  ymuint mFaninNum;
+  int mFaninNum;
 
   // ファンインのノード番号の配列
   // サイズは mFaninNum
-  ymuint* mFanins;
+  int* mFanins;
 
   // セル
   const ClibCell* mCell;
@@ -111,7 +111,7 @@ private:
   // セルのピン番号の対応表
   // mCell == nullptr なら nullptr
   // mCellPinMap[i] に i 番目のファンインに対応するピン番号が入る．
-  ymuint* mCellPinMap;
+  int* mCellPinMap;
 
 };
 
@@ -134,9 +134,9 @@ public:
   /// @param[in] ni 入力数
   /// @param[in] logic_type 論理タイプ
   /// @param[in] cell セル (nullptr の場合もあり)
-  BnPrimNode(ymuint id,
+  BnPrimNode(int id,
 	     const string& name,
-	     ymuint ni,
+	     int ni,
 	     BnNodeType logic_type,
 	     const ClibCell* cell = nullptr);
 
@@ -190,11 +190,11 @@ public:
   /// @param[in] expr 論理式
   /// @param[in] expr_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
-  BnExprNode(ymuint id,
+  BnExprNode(int id,
 	     const string& name,
-	     ymuint ni,
+	     int ni,
 	     const Expr& expr,
-	     ymuint expr_id,
+	     int expr_id,
 	     const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
@@ -222,7 +222,7 @@ public:
   /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
-  ymuint
+  int
   expr_id() const;
 
   /// @brief 論理式を返す．
@@ -249,7 +249,7 @@ private:
   Expr mExpr;
 
   // 論理式番号
-  ymuint mExprId;
+  int mExprId;
 
 };
 
@@ -270,11 +270,11 @@ public:
   /// @param[in] func 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
-  BnTvNode(ymuint id,
+  BnTvNode(int id,
 	   const string& name,
-	   ymuint ni,
+	   int ni,
 	   const TvFunc& func,
-	   ymuint func_id,
+	   int func_id,
 	   const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
@@ -302,7 +302,7 @@ public:
   /// logic_type() == kBnLt_TV の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
-  ymuint
+  int
   func_id() const;
 
   /// @brief 真理値表を返す．
@@ -328,7 +328,7 @@ private:
   TvFunc mFunc;
 
   // 関数番号
-  ymuint mFuncId;
+  int mFuncId;
 
 };
 

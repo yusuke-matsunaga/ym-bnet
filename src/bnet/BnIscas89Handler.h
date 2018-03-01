@@ -56,7 +56,7 @@ public:
   virtual
   bool
   read_input(const FileRegion& loc,
-	     ymuint name_id,
+	     int name_id,
 	     const char* name);
 
   /// @brief OUTPUT 文を読み込む．
@@ -68,7 +68,7 @@ public:
   virtual
   bool
   read_output(const FileRegion& loc,
-	      ymuint name_id,
+	      int name_id,
 	      const char* name);
 
   /// @brief ゲート文を読み込む．
@@ -83,9 +83,9 @@ public:
   bool
   read_gate(const FileRegion& loc,
 	    BnNodeType logic_type,
-	    ymuint oname_id,
+	    int oname_id,
 	    const char* name,
-	    const vector<ymuint>& iname_list);
+	    const vector<int>& iname_list);
 
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -97,9 +97,9 @@ public:
   virtual
   bool
   read_dff(const FileRegion& loc,
-	   ymuint oname_id,
+	   int oname_id,
 	   const char* oname,
-	   ymuint iname_id);
+	   int iname_id);
 
   /// @brief 終了操作
   /// @retval true 処理が成功した．
@@ -138,11 +138,11 @@ private:
 
     /// @brief コンストラクタ
     /// @param[in] fanin_list ファンイン番号のリスト
-    FaninInfo(const vector<ymuint>& fanin_list) :
+    FaninInfo(const vector<int>& fanin_list) :
       mNi(fanin_list.size())
     {
-      mFaninArray = new ymuint[mNi];
-      for (ymuint i = 0; i < mNi; ++ i) {
+      mFaninArray = new int[mNi];
+      for (int i = 0; i < mNi; ++ i) {
 	mFaninArray[i] = fanin_list[i];
       }
     }
@@ -152,8 +152,8 @@ private:
     FaninInfo(const FaninInfo& src) :
       mNi(src.mNi)
     {
-      mFaninArray = new ymuint[mNi];
-      for (ymuint i = 0; i < mNi; ++ i) {
+      mFaninArray = new int[mNi];
+      for (int i = 0; i < mNi; ++ i) {
 	mFaninArray[i] = src.mFaninArray[i];
       }
     }
@@ -165,8 +165,8 @@ private:
       if ( &src != this ) {
 	delete [] mFaninArray;
 	mNi = src.mNi;
-	mFaninArray = new ymuint[mNi];
-	for (ymuint i = 0; i < mNi; ++ i) {
+	mFaninArray = new int[mNi];
+	for (int i = 0; i < mNi; ++ i) {
 	  mFaninArray[i] = src.mFaninArray[i];
 	}
       }
@@ -180,7 +180,7 @@ private:
     }
 
     /// @brief ファンイン数を返す．
-    ymuint
+    int
     fanin_num() const
     {
       return mNi;
@@ -188,8 +188,8 @@ private:
 
     /// @brief ファンインのノード番号を返す．
     /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-    ymuint
-    fanin(ymuint pos) const
+    int
+    fanin(int pos) const
     {
       ASSERT_COND( pos < fanin_num() );
       return mFaninArray[pos];
@@ -202,10 +202,10 @@ private:
     //////////////////////////////////////////////////////////////////////
 
     // ファンイン数
-    ymuint mNi;
+    int mNi;
 
     // ファンイン番号の配列
-    ymuint* mFaninArray;
+    int* mFaninArray;
 
   };
 
@@ -219,8 +219,8 @@ private:
   /// @param[in] id ID番号
   /// @param[in] fanin_list ファンイン番号のリスト
   void
-  add_fanin_info(ymuint id,
-		 const vector<ymuint>& fanin_list);
+  add_fanin_info(int id,
+		 const vector<int>& fanin_list);
 
 
 
@@ -236,13 +236,13 @@ private:
   string mClockName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  HashMap<ymuint, ymuint> mIdMap;
+  HashMap<int, int> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  HashMap<ymuint, FaninInfo> mFaninInfoMap;
+  HashMap<int, FaninInfo> mFaninInfoMap;
 
   // クロック端子のノード番号
-  ymuint mClockId;
+  int mClockId;
 
 };
 

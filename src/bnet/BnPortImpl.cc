@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] id ポート番号
 // @param[in] name 名前
-BnPortImpl::BnPortImpl(ymuint id,
+BnPortImpl::BnPortImpl(int id,
 		       const string& name) :
   mId(id),
   mName(name)
@@ -32,7 +32,7 @@ BnPortImpl::~BnPortImpl()
 }
 
 // @brief ポート番号を返す．
-ymuint
+int
 BnPortImpl::id() const
 {
   return mId;
@@ -54,9 +54,9 @@ BnPortImpl::name() const
 // @param[in] id ポート番号
 // @param[in] name 名前
 // @param[in] bit ノード番号
-BnPort1::BnPort1(ymuint id,
+BnPort1::BnPort1(int id,
 		 const string& name,
-		 ymuint bit) :
+		 int bit) :
   BnPortImpl(id, name),
   mBit(bit)
 {
@@ -68,7 +68,7 @@ BnPort1::~BnPort1()
 }
 
 // @brief ビット数を得る．
-ymuint
+int
 BnPort1::bit_width() const
 {
   return 1;
@@ -77,8 +77,8 @@ BnPort1::bit_width() const
 // @brief pos ビット目の内容を得る．
 // @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
 // @return 対応するノード番号を返す．
-ymuint
-BnPort1::bit(ymuint pos) const
+int
+BnPort1::bit(int pos) const
 {
   ASSERT_COND( pos == 0 );
   return mBit;
@@ -93,14 +93,14 @@ BnPort1::bit(ymuint pos) const
 // @param[in] id ポート番号
 // @param[in] name 名前
 // @param[in] bits 内容のベクタ
-BnPortN::BnPortN(ymuint id,
+BnPortN::BnPortN(int id,
 		 const string& name,
-		 const vector<ymuint>& bits) :
+		 const vector<int>& bits) :
   BnPortImpl(id, name),
   mBitWidth(bits.size())
 {
-  mBits = new ymuint[mBitWidth];
-  for (ymuint i = 0; i < mBitWidth; ++ i) {
+  mBits = new int[mBitWidth];
+  for ( int i = 0; i < mBitWidth; ++ i ) {
     mBits[i] = bits[i];
   }
 }
@@ -112,7 +112,7 @@ BnPortN::~BnPortN()
 }
 
 // @brief ビット数を得る．
-ymuint
+int
 BnPortN::bit_width() const
 {
   return mBitWidth;
@@ -121,8 +121,8 @@ BnPortN::bit_width() const
 // @brief pos ビット目の内容を得る．
 // @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
 // @return 対応するノード番号を返す．
-ymuint
-BnPortN::bit(ymuint pos) const
+int
+BnPortN::bit(int pos) const
 {
   ASSERT_COND( pos < bit_width() );
   return mBits[pos];

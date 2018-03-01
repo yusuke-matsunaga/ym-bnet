@@ -21,16 +21,16 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] name ノード名
 /// @param[in] ni 入力数
 // @param[in] cell セル (nullptr の場合もあり)
-BnLogicNode::BnLogicNode(ymuint id,
+BnLogicNode::BnLogicNode(int id,
 			 const string& name,
-			 ymuint ni,
+			 int ni,
 			 const ClibCell* cell) :
   BnNodeImpl(id, name),
   mFaninNum(ni),
   mCell(cell)
 {
-  mFanins = new ymuint[mFaninNum];
-  for (ymuint i = 0; i < mFaninNum; ++ i) {
+  mFanins = new int[mFaninNum];
+  for ( int i = 0; i < mFaninNum; ++ i ) {
     mFanins[i] = kBnNullId;
   }
 }
@@ -49,7 +49,7 @@ BnLogicNode::is_logic() const
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 BnLogicNode::fanin_num() const
 {
   return mFaninNum;
@@ -57,8 +57,8 @@ BnLogicNode::fanin_num() const
 
 // @brief ファンインを求める．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-ymuint
-BnLogicNode::fanin(ymuint pos) const
+int
+BnLogicNode::fanin(int pos) const
 {
   ASSERT_COND( pos < fanin_num() );
   return mFanins[pos];
@@ -78,8 +78,8 @@ BnLogicNode::cell() const
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
 void
-BnLogicNode::set_fanin(ymuint ipos,
-		       ymuint fanin_id)
+BnLogicNode::set_fanin(int ipos,
+		       int fanin_id)
 {
   ASSERT_COND( ipos < fanin_num() );
   mFanins[ipos] = fanin_id;
@@ -96,9 +96,9 @@ BnLogicNode::set_fanin(ymuint ipos,
 // @param[in] ni 入力数
 // @param[in] logic_type 論理タイプ
 // @param[in] cell セル (nullptr の場合もあり)
-BnPrimNode::BnPrimNode(ymuint id,
+BnPrimNode::BnPrimNode(int id,
 		       const string& name,
-		       ymuint ni,
+		       int ni,
 		       BnNodeType logic_type,
 		       const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
@@ -130,11 +130,11 @@ BnPrimNode::type() const
 // @param[in] expr 論理式
 // @param[in] expr_id 論理式番号
 // @param[in] cell セル (nullptr の場合もあり)
-BnExprNode::BnExprNode(ymuint id,
+BnExprNode::BnExprNode(int id,
 		       const string& name,
-		       ymuint ni,
+		       int ni,
 		       const Expr& expr,
-		       ymuint expr_id,
+		       int expr_id,
 		       const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
   mExpr(expr),
@@ -158,7 +158,7 @@ BnExprNode::type() const
 //
 // logic_type() == kBnLogic_EXPR の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
+int
 BnExprNode::expr_id() const
 {
   return mExprId;
@@ -185,11 +185,11 @@ BnExprNode::expr() const
 // @param[in] tv 真理値表
 // @param[in] func_id 関数番号
 // @param[in] cell セル (nullptr の場合もあり)
-BnTvNode::BnTvNode(ymuint id,
+BnTvNode::BnTvNode(int id,
 		   const string& name,
-		   ymuint ni,
+		   int ni,
 		   const TvFunc& func,
-		   ymuint func_id,
+		   int func_id,
 		   const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
   mFunc(func),
@@ -213,7 +213,7 @@ BnTvNode::type() const
 //
 // type() == kBnLogic_TV の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
-ymuint
+int
 BnTvNode::func_id() const
 {
   return mFuncId;

@@ -93,7 +93,7 @@ str_to_01(const StrBuff& str)
 
 // カバーのシグネチャ文字列を作る．
 string
-make_signature(ymuint ni,
+make_signature(int ni,
 	       const StrBuff& ipat_str,
 	       char opat_char)
 {
@@ -122,9 +122,7 @@ BlifParserImpl::BlifParserImpl()
 BlifParserImpl::~BlifParserImpl()
 {
   // 登録してあるハンドラを削除する．
-  for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    BlifHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     delete handler;
   }
   delete mScanner;
@@ -156,14 +154,12 @@ BlifParserImpl::read(const string& filename,
   mOidArray.clear();
 
   // 一つの .inputs/.outputs 文中のトークンの数
-  ymuint n_token = 0;
+  int n_token = 0;
 
   FileRegion error_loc;
 
   bool stat = true;
-  for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    BlifHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {
       stat = false;
     }
@@ -174,9 +170,7 @@ BlifParserImpl::read(const string& filename,
 
   if ( mCellLibrary != nullptr && mCellLibrary->cell_num() > 0 ) {
     // セルライブラリの設定
-    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      BlifHandler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       handler->set_cell_library(*mCellLibrary);
     }
   }
@@ -218,9 +212,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_ERROR_EXIT;
     }
     const char* name = mScanner->cur_string();
-    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      BlifHandler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       if ( !handler->model(mLoc1, loc, name) ) {
 	stat = false;
       }
@@ -359,9 +351,7 @@ BlifParserImpl::read(const string& filename,
       cell->set_loc(loc);
       cell->set_defined();
       cell->set_input();
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->inputs_elem(cell->id(), cell->str()) ) {
 	  stat = false;
 	}
@@ -442,7 +432,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_NAMES;
     }
     if ( tk == kTokenNL ) {
-      ymuint n = mNameArray.size();
+      int n = mNameArray.size();
       if ( n == 0 ) {
 	// 名前が1つもない場合
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -525,9 +515,9 @@ BlifParserImpl::read(const string& filename,
 			"with the number of fanins.");
 	goto ST_ERROR_EXIT;
       }
-      ymuint n = mName1.size();
+      int n = mName1.size();
       mCoverPat.reserve(mCoverPat.size() + n);
-      for (ymuint i = 0; i < n; ++ i) {
+      for ( int i = 0; i < n; ++ i ) {
 	char c = mName1[i];
 	if ( c == '1' ) {
 	  mCoverPat.put_char('1');
@@ -595,8 +585,8 @@ BlifParserImpl::read(const string& filename,
 
  ST_NAMES_END:
   {
-    ymuint n = mNameArray.size();
-    ymuint ni = n - 1;
+    int n = mNameArray.size();
+    int ni = n - 1;
     BlifIdCell* cell = mNameArray[ni];
     if ( cell->is_defined() ) {
       // 二重定義
@@ -609,19 +599,17 @@ BlifParserImpl::read(const string& filename,
       goto ST_ERROR_EXIT;
     }
     cell->set_defined();
-    ymuint oid = cell->id();
+    int oid = cell->id();
     mIdArray.clear();
-    for (ymuint i = 0; i < ni ; ++ i) {
+    for ( int i = 0; i < ni ; ++ i ) {
       mIdArray.push_back(mNameArray[i]->id());
     }
     string ipat_str = mCoverPat.c_str();
     const BlifCover* cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
-    ymuint cover_id = cover->id();
+    int cover_id = cover->id();
 
     // ハンドラを呼び出す．
-    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      BlifHandler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       if ( !handler->names(oid, cell->str(), mIdArray, cover_id) ) {
 	stat = false;
       }
@@ -747,17 +735,15 @@ BlifParserImpl::read(const string& filename,
       }
       const ClibCellPin* opin = mCell->output(0);
       BlifIdCell* oid = mNameArray[opin->pin_id()];
-      ymuint onode_id = oid->id();
-      ymuint ni = mCell->input_num();
+      int onode_id = oid->id();
+      int ni = mCell->input_num();
       mIdArray.clear();
-      for (ymuint i = 0; i < ni; ++ i) {
+      for ( int i = 0; i < ni; ++ i ) {
 	const ClibCellPin* ipin = mCell->input(i);
-	ymuint inode_id = mNameArray[ipin->pin_id()]->id();
+	int inode_id = mNameArray[ipin->pin_id()]->id();
 	mIdArray.push_back(inode_id);
       }
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->gate(onode_id, oid->str(), mIdArray, mCell) ) {
 	  stat = false;
 	}
@@ -825,9 +811,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_LATCH_SYNERROR;
       }
 
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->latch(cell2->id(), cell2->str(), cell1->id(),
 			     loc4, rval) ) {
 	  stat = false;
@@ -892,9 +876,7 @@ BlifParserImpl::read(const string& filename,
 		    kMsgWarning,
 		    "SYN05",
 		    "unexpected EOF. '.end' is assumed.");
-    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      BlifHandler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       if ( !handler->end(mLoc1) ) {
 	stat = false;
       }
@@ -907,8 +889,8 @@ BlifParserImpl::read(const string& filename,
 
  ST_NORMAL_EXIT:
   {
-    ymuint n = mIdHash.num();
-    for (ymuint i = 0; i < n; ++ i) {
+    int n = mIdHash.num();
+    for ( int i = 0; i < n; ++ i ) {
       BlifIdCell* cell = mIdHash.cell(i);
       if ( !cell->is_defined() ) {
 	ostringstream buf;
@@ -920,12 +902,9 @@ BlifParserImpl::read(const string& filename,
       }
     }
 
-    for (ymuint i = 0; i < mOidArray.size(); ++ i) {
-      ymuint oid = mOidArray[i];
+    for ( auto oid: mOidArray ) {
       BlifIdCell* cell = mIdHash.cell(oid);
-      for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	BlifHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->outputs_elem(cell->id(), cell->str()) ) {
 	  stat = false;
 	}
@@ -935,9 +914,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_ERROR_EXIT;
     }
 
-    for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-	 p != mHandlerList.end(); ++ p) {
-      BlifHandler* handler = *p;
+    for ( auto handler: mHandlerList ) {
       if ( !handler->end(mLoc1) ) {
 	stat = false;
       }
@@ -947,9 +924,7 @@ BlifParserImpl::read(const string& filename,
     }
   }
 
-  for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    BlifHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     handler->normal_exit();
   }
   delete mScanner;
@@ -966,9 +941,7 @@ BlifParserImpl::read(const string& filename,
   // goto ST_ERROR_EXIT;
 
  ST_ERROR_EXIT:
-  for (list<BlifHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    BlifHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     handler->error_exit();
   }
   delete mScanner;

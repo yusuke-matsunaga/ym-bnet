@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-Iscas89IdCell::Iscas89IdCell(ymuint32 id,
+Iscas89IdCell::Iscas89IdCell(int id,
 			     const char* str) :
   mId(id),
   mFlags(0U),
@@ -57,7 +57,7 @@ Iscas89IdHash::~Iscas89IdHash()
 void
 Iscas89IdHash::clear()
 {
-  for (ymuint i = 0; i < mTableSize; ++ i) {
+  for ( int i = 0; i < mTableSize; ++ i ) {
     mTable[i] = nullptr;
   }
   mCellArray.clear();
@@ -68,12 +68,12 @@ Iscas89IdHash::clear()
 BEGIN_NONAMESPACE
 
 inline
-ymuint
+int
 hash_func(const char* str)
 {
-  ymuint h = 0;
-  for (char c; (c = *str); ++ str) {
-    h = h * 33 + static_cast<ymuint>(c);
+  int h = 0;
+  for ( char c; (c = *str); ++ str ) {
+    h = h * 33 + static_cast<int>(c);
   }
   return h;
 }
@@ -89,9 +89,9 @@ Iscas89IdHash::find(const char* str,
 		    bool create)
 {
   ASSERT_COND(str );
-  ymuint pos0 = hash_func(str);
-  ymuint pos = pos0 % mTableSize;
-  for (Iscas89IdCell* cell = mTable[pos]; cell; cell = cell->mLink) {
+  int pos0 = hash_func(str);
+  int pos = pos0 % mTableSize;
+  for ( Iscas89IdCell* cell = mTable[pos]; cell; cell = cell->mLink ) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
     }
@@ -104,12 +104,12 @@ Iscas89IdHash::find(const char* str,
   if ( mCellArray.size() >= mNextLimit ) {
     // テーブルを拡張する．
     Iscas89IdCell** old_table = mTable;
-    ymuint old_size = mTableSize;
+    int old_size = mTableSize;
     alloc_table(old_size * 2);
-    for (ymuint i = 0; i < old_size; ++ i) {
-      for (Iscas89IdCell* cell = old_table[i]; cell; ) {
+    for ( int i = 0; i < old_size; ++ i ) {
+      for ( Iscas89IdCell* cell = old_table[i]; cell; ) {
 	Iscas89IdCell* next = cell->mLink;
-	ymuint pos1 = hash_func(cell->mStr) % mTableSize;
+	int pos1 = hash_func(cell->mStr) % mTableSize;
 	cell->mLink = mTable[pos1];
 	mTable[pos1] = cell;
 	cell = next;
@@ -119,8 +119,8 @@ Iscas89IdHash::find(const char* str,
   }
 
   // 新しいセルを確保する．
-  ymuint l = strlen(str);
-  ymuint reqsize = sizeof(Iscas89IdCell) + l;
+  int l = strlen(str);
+  int reqsize = sizeof(Iscas89IdCell) + l;
   void* p = mAlloc.get_memory(reqsize);
   Iscas89IdCell* cell = new (p) Iscas89IdCell(mCellArray.size(), str);
   mCellArray.push_back(cell);
@@ -134,12 +134,12 @@ Iscas89IdHash::find(const char* str,
 
 // ハッシュ表を拡大する．
 void
-Iscas89IdHash::alloc_table(ymuint new_size)
+Iscas89IdHash::alloc_table(int new_size)
 {
   mTable = new Iscas89IdCell*[new_size];
   mTableSize = new_size;
-  mNextLimit = static_cast<ymuint>(mTableSize * 1.8);
-  for (ymuint i = 0; i < new_size; ++ i) {
+  mNextLimit = static_cast<int>(mTableSize * 1.8);
+  for ( int i = 0; i < new_size; ++ i ) {
     mTable[i] = nullptr;
   }
 }

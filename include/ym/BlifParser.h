@@ -5,7 +5,7 @@
 /// @brief ym/BlifParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,6 +21,7 @@ class BlifParserImpl;
 /// @class BlifParser BlifParser.h "ym/BlifParser.h"
 /// @ingroup BlifGroup
 /// @brief blif形式のファイルを読み込むパーサークラス
+///
 /// 適切なハンドラクラスを生成して add_handler() で登録して使う．
 /// @sa BlifHandler MsgHandler
 //////////////////////////////////////////////////////////////////////

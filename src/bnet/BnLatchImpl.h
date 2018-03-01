@@ -32,13 +32,13 @@ public:
   /// @param[in] clear クリア端子のノード番号
   /// @param[in] preset プリセット端子のノード番号
   /// @param[in] cell セル
-  BnLatchImpl(ymuint id,
+  BnLatchImpl(int id,
 	      const string& name,
-	      ymuint input,
-	      ymuint output,
-	      ymuint enable,
-	      ymuint clear,
-	      ymuint preset,
+	      int input,
+	      int output,
+	      int enable,
+	      int clear,
+	      int preset,
 	      const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
@@ -54,7 +54,7 @@ public:
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
   virtual
-  ymuint
+  int
   id() const;
 
   /// @brief 名前を返す．
@@ -64,31 +64,31 @@ public:
 
   /// @brief データ出力のノード番号を返す．
   virtual
-  ymuint
+  int
   output() const;
 
   /// @brief データ入力のノード番号を返す．
   virtual
-  ymuint
+  int
   input() const;
 
   /// @brief イネーブルのノード番号を返す．
   virtual
-  ymuint
+  int
   enable() const;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   clear() const;
 
   /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   preset() const;
 
   /// @brief セルを返す．
@@ -102,21 +102,21 @@ public:
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   output_pin_id() const;
 
   /// @brief データ入力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   input_pin_id() const;
 
   /// @brief イネーブル端子のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   enable_pin_id() const;
 
   /// @brief クリア信号のピン番号を返す．
@@ -124,7 +124,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clear_pin_id() const;
 
   /// @brief プリセット信号のピン番号を返す．
@@ -132,7 +132,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   preset_pin_id() const;
 
 
@@ -142,25 +142,25 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint32 mId;
+  int mId;
 
   // 名前
   string mName;
 
   // データ出力ノード
-  ymuint mOutput;
+  int mOutput;
 
   // データ入力ノード
-  ymuint mInput;
+  int mInput;
 
   // イネーブルノード
-  ymuint mEnable;
+  int mEnable;
 
   // クリア信号ノード
-  ymuint mClear;
+  int mClear;
 
   // プリセット信号ノード
-  ymuint mPreset;
+  int mPreset;
 
   // セル
   const ClibCell* mCell;

@@ -38,7 +38,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 登録されているカバー数を返す．
-  ymuint
+  int
   cover_num() const;
 
   /// @brief パタン文字列からカバーを返す．
@@ -47,15 +47,15 @@ public:
   /// @param[in] ipat_str 入力パタン文字列
   /// @param[in] opat 出力パタン
   const BlifCover*
-  pat2cover(ymuint input_num,
-	    ymuint cube_num,
+  pat2cover(int input_num,
+	    int cube_num,
 	    const string& ipat_str,
 	    char opat_char);
 
   /// @brief ID番号から BlifCover を返す．
   /// @param[in] id ID番号
   const BlifCover*
-  cover(ymuint id) const;
+  cover(int id) const;
 
 
 private:
@@ -69,8 +69,8 @@ private:
   /// @param[in] ipat_str 入力パタン文字列
   /// @param[in] opat 出力パタン
   BlifCover*
-  new_cover(ymuint input_num,
-	    ymuint cube_num,
+  new_cover(int input_num,
+	    int cube_num,
 	    const string& ipat_str,
 	    char opat_char);
 
@@ -81,7 +81,7 @@ private:
   /// @brief ハッシュ表のメモリを確保する．
   /// @param[in] req_size 要求サイズ
   void
-  alloc_table(ymuint req_size);
+  alloc_table(int req_size);
 
 
 private:
@@ -93,13 +93,13 @@ private:
   SimpleAlloc mAlloc;
 
   // 登録されているカバー数
-  ymuint mCoverNum;
+  int mCoverNum;
 
   // ハッシュテーブルのサイズ
-  ymuint mHashSize;
+  int mHashSize;
 
   // ハッシュテーブルを拡大する目安
-  ymuint mNextLimit;
+  int mNextLimit;
 
   // ハッシュテーブル
   BlifCover** mHashTable;
@@ -116,7 +116,7 @@ private:
 
 // @brief 登録されているカバー数を返す．
 inline
-ymuint
+int
 BlifCoverMgr::cover_num() const
 {
   return mCoverNum;
@@ -126,9 +126,9 @@ BlifCoverMgr::cover_num() const
 // @param[in] id ID番号
 inline
 const BlifCover*
-BlifCoverMgr::cover(ymuint id) const
+BlifCoverMgr::cover(int id) const
 {
-  ASSERT_COND( id < cover_num() );
+  ASSERT_COND( id >= 0 && id < cover_num() );
   return mCoverArray[id];
 }
 

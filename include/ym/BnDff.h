@@ -5,7 +5,7 @@
 /// @brief BnDff のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -51,7 +51,7 @@ public:
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
   virtual
-  ymuint
+  int
   id() const = 0;
 
   /// @brief 名前を返す．
@@ -61,38 +61,38 @@ public:
 
   /// @brief データ出力のノード番号を返す．
   virtual
-  ymuint
+  int
   output() const = 0;
 
   /// @brief 反転データ出力のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   xoutput() const = 0;
 
   /// @brief データ入力のノード番号を返す．
   virtual
-  ymuint
+  int
   input() const = 0;
 
   /// @brief クロックのノード番号を返す．
   virtual
-  ymuint
+  int
   clock() const = 0;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   clear() const = 0;
 
   /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
   virtual
-  ymuint
+  int
   preset() const = 0;
 
   /// @brief セルを返す．
@@ -106,28 +106,28 @@ public:
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   output_pin_id() const = 0;
 
   /// @brief 反転データ出力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   xoutput_pin_id() const = 0;
 
   /// @brief データ入力のピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   input_pin_id() const = 0;
 
   /// @brief クロックのピン番号を返す．
   ///
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clock_pin_id() const = 0;
 
   /// @brief クリア信号のピン番号を返す．
@@ -135,7 +135,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   clear_pin_id() const = 0;
 
   /// @brief プリセット信号のピン番号を返す．
@@ -143,7 +143,7 @@ public:
   /// kBnNullId の場合もある．
   /// cell() == nullptr の場合の値は不定
   virtual
-  ymuint
+  int
   preset_pin_id() const = 0;
 
 };

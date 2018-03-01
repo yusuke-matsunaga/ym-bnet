@@ -5,7 +5,7 @@
 /// @brief BnPort のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -40,7 +40,7 @@ public:
 
   /// @brief ポート番号を返す．
   virtual
-  ymuint
+  int
   id() const = 0;
 
   /// @brief 名前を得る．
@@ -50,15 +50,15 @@ public:
 
   /// @brief ビット数を得る．
   virtual
-  ymuint
+  int
   bit_width() const = 0;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
   virtual
-  ymuint
-  bit(ymuint pos) const = 0;
+  int
+  bit(int pos) const = 0;
 
 };
 

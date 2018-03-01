@@ -59,7 +59,7 @@ TestBlifHandler::model(const FileRegion& loc1,
 
 // @brief .inputs 文中の文字列の処理
 bool
-TestBlifHandler::inputs_elem(ymuint name_id,
+TestBlifHandler::inputs_elem(int name_id,
 			     const char* name)
 {
   (*mStreamPtr) << "  inputs elem: " << name << endl
@@ -69,7 +69,7 @@ TestBlifHandler::inputs_elem(ymuint name_id,
 
 // @brief .outputs 文中の文字列の処理
 bool
-TestBlifHandler::outputs_elem(ymuint name_id,
+TestBlifHandler::outputs_elem(int name_id,
 			      const char* name)
 {
   (*mStreamPtr) << "  outputs elem: " << name_id << endl
@@ -87,15 +87,13 @@ TestBlifHandler::outputs_elem(ymuint name_id,
 // 各要素のとりうる値は '0', '1', '-' を表す．
 // @note opat は '0' か '1' のどちらか
 bool
-TestBlifHandler::names(ymuint onode_id,
+TestBlifHandler::names(int onode_id,
 		       const char* oname,
-		       const vector<ymuint>& inode_id_array,
-		       ymuint cover_id)
+		       const vector<int>& inode_id_array,
+		       int cover_id)
 {
   (*mStreamPtr) << ".names" << endl;
-  ymuint ni = inode_id_array.size();
-  for (ymuint i = 0; i < ni; ++ i) {
-    ymuint id = inode_id_array[i];
+  for ( auto id: inode_id_array ) {
     (*mStreamPtr) << id2str(id) << endl
 		  << "\t[" << id2loc(id) << "]" << endl;
   }
@@ -103,9 +101,10 @@ TestBlifHandler::names(ymuint onode_id,
 		<< "\t[" << id2loc(onode_id) << "]" << endl;
   (*mStreamPtr) << "Cover#" << cover_id << endl;
   const BlifCover* cover = id2cover(cover_id);
-  ymuint pos = 0;
-  for (ymuint c = 0; c < cover->cube_num(); ++ c) {
-    for (ymuint i = 0; i < ni; ++ i, ++ pos) {
+  int nc = cover->cube_num();
+  int ni = inode_id_array.size();
+  for ( int c = 0; c < nc; ++ c ) {
+    for ( int i = 0; i < ni; ++ i ) {
       (*mStreamPtr) << cover->input_pat(i, c);
     }
     if ( ni > 0 ) {
@@ -123,16 +122,16 @@ TestBlifHandler::names(ymuint onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestBlifHandler::gate(ymuint onode_id,
+TestBlifHandler::gate(int onode_id,
 		      const char* oname,
-		      const vector<ymuint>& inode_id_array,
+		      const vector<int>& inode_id_array,
 		      const ClibCell* cell)
 {
   (*mStreamPtr) << ".gate " << cell->name() << " " << oname
 		<< "\t[" << id2loc(onode_id) << "]" << endl;
-  ymuint ni = inode_id_array.size();
-  for (ymuint i = 0; i < ni; ++ i) {
-    ymuint id = inode_id_array[i];
+  int ni = inode_id_array.size();
+  for ( int i = 0; i < ni; ++ i ) {
+    int id = inode_id_array[i];
     (*mStreamPtr) << "  " << cell->input(i)->name() << " " << id2str(id)
 		  << "\t[" << id2loc(id) << "]" << endl;
   }
@@ -147,9 +146,9 @@ TestBlifHandler::gate(ymuint onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestBlifHandler::latch(ymuint onode_id,
+TestBlifHandler::latch(int onode_id,
 		       const char* oname,
-		       ymuint inode_id,
+		       int inode_id,
 		       const FileRegion& loc4,
 		       char rval)
 {

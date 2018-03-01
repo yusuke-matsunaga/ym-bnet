@@ -29,27 +29,27 @@ BlifHandler::~BlifHandler()
 
 // @brief ID番号から文字列を得る．
 const char*
-BlifHandler::id2str(ymuint32 id)
+BlifHandler::id2str(int id)
 {
   return mParser->id2str(id);
 }
 
 // @brief ID番号からそれに関連した位置情報を得る．
 const FileRegion&
-BlifHandler::id2loc(ymuint32 id)
+BlifHandler::id2loc(int id)
 {
   return mParser->id2loc(id);
 }
 
 // @brief ID番号からそれに関連した位置情報を得る．
 const FileRegion&
-BlifHandler::id2def_loc(ymuint32 id)
+BlifHandler::id2def_loc(int id)
 {
   return mParser->id2def_loc(id);
 }
 
 // @brief カバーの数を得る．
-ymuint
+int
 BlifHandler::cover_num()
 {
   return mParser->cover_num();
@@ -57,7 +57,7 @@ BlifHandler::cover_num()
 
 // @brief カバーIDからカバーを得る．
 const BlifCover*
-BlifHandler::id2cover(ymuint id)
+BlifHandler::id2cover(int id)
 {
   return mParser->id2cover(id);
 }

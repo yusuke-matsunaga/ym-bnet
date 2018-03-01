@@ -28,13 +28,13 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] clear クリア端子のノード番号
 // @param[in] preset プリセット端子のノード番号
 // @param[in] cell セル
-BnLatchImpl::BnLatchImpl(ymuint id,
+BnLatchImpl::BnLatchImpl(int id,
 			 const string& name,
-			 ymuint input,
-			 ymuint output,
-			 ymuint enable,
-			 ymuint clear,
-			 ymuint preset,
+			 int input,
+			 int output,
+			 int enable,
+			 int clear,
+			 int preset,
 			 const ClibCell* cell) :
   mId(id),
   mName(name),
@@ -57,7 +57,7 @@ BnLatchImpl::~BnLatchImpl()
 
 // @brief ID 番号の取得
 // @return ID 番号を返す．
-ymuint
+int
 BnLatchImpl::id() const
 {
   return mId;
@@ -71,21 +71,21 @@ BnLatchImpl::name() const
 }
 
 // @brief データ出力のノード番号を返す．
-ymuint
+int
 BnLatchImpl::output() const
 {
   return mOutput;
 }
 
 // @brief データ入力のノード番号を返す．
-ymuint
+int
 BnLatchImpl::input() const
 {
   return mInput;
 }
 
 // @brief イネーブルのノード番号を返す．
-ymuint
+int
 BnLatchImpl::enable() const
 {
   return mEnable;
@@ -94,7 +94,7 @@ BnLatchImpl::enable() const
 // @brief クリア信号のノード番号を返す．
 //
 // kBnNullId の場合もある．
-ymuint
+int
 BnLatchImpl::clear() const
 {
   return mClear;
@@ -103,7 +103,7 @@ BnLatchImpl::clear() const
 // @brief プリセット信号のノード番号を返す．
 //
 // kBnNullId の場合もある．
-ymuint
+int
 BnLatchImpl::preset() const
 {
   return mPreset;
@@ -121,7 +121,7 @@ BnLatchImpl::cell() const
 // @brief データ出力のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnLatchImpl::output_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -135,7 +135,7 @@ BnLatchImpl::output_pin_id() const
 // @brief データ入力のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnLatchImpl::input_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -149,7 +149,7 @@ BnLatchImpl::input_pin_id() const
 // @brief イネーブル端子のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnLatchImpl::enable_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -164,7 +164,7 @@ BnLatchImpl::enable_pin_id() const
 //
 // kBnNullId の場合もある．
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnLatchImpl::clear_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -179,7 +179,7 @@ BnLatchImpl::clear_pin_id() const
 //
 // kBnNullId の場合もある．
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnLatchImpl::preset_pin_id() const
 {
   if ( cell() == nullptr ) {

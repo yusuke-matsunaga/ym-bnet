@@ -60,7 +60,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  inputs_elem(ymuint32 name_id);
+  inputs_elem(int name_id);
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name_id 文字列のID番号
@@ -68,7 +68,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  outputs_elem(ymuint32 name_id);
+  outputs_elem(int name_id);
 
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号
@@ -83,9 +83,9 @@ public:
   /// @note opat は '0' か '1' のどちらか
   virtual
   bool
-  names(ymuint32 onode_id,
-	const vector<ymuint32>& inode_id_array,
-	ymuint32 nc,
+  names(int onode_id,
+	const vector<int>& inode_id_array,
+	int nc,
 	const char* cover_pat,
 	char opat);
 
@@ -97,8 +97,8 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  gate(ymuint32 onode_id,
-       const vector<ymuint32>& inode_id_array,
+  gate(int onode_id,
+       const vector<int>& inode_id_array,
        const Cell* cell);
 
   /// @brief .latch 文の処理
@@ -110,8 +110,8 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  latch(ymuint32 onode_id,
-	ymuint32 inode_id,
+  latch(int onode_id,
+	int inode_id,
 	const FileRegion& loc4,
 	char rval);
 
@@ -195,7 +195,7 @@ ExprTestHandler::model(const FileRegion& loc1,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-ExprTestHandler::inputs_elem(ymuint32 name_id)
+ExprTestHandler::inputs_elem(int name_id)
 {
   return true;
 }
@@ -205,7 +205,7 @@ ExprTestHandler::inputs_elem(ymuint32 name_id)
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-ExprTestHandler::outputs_elem(ymuint32 name_id)
+ExprTestHandler::outputs_elem(int name_id)
 {
   return true;
 }
@@ -222,19 +222,19 @@ ExprTestHandler::outputs_elem(ymuint32 name_id)
 // 各要素のとりうる値は '0', '1', '-' を表す．
 // @note opat は '0' か '1' のどちらか
 bool
-ExprTestHandler::names(ymuint32 onode_id,
-		       const vector<ymuint32>& inode_id_array,
-		       ymuint32 nc,
+ExprTestHandler::names(int onode_id,
+		       const vector<int>& inode_id_array,
+		       int nc,
 		       const char* cover_pat,
 		       char opat)
 {
-  ymuint32 ni = inode_id_array.size();
+  int ni = inode_id_array.size();
   Expr expr;
   if ( opat == '1' ) {
     vector<Expr> or_expr;
-    for (ymuint32 c = 0; c < nc; ++ c) {
+    for (int c = 0; c < nc; ++ c) {
       vector<Expr> and_expr;
-      for (ymuint32 i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	char v = cover_pat[c * ni + i];
 	if ( v == '0' ) {
 	  and_expr.push_back(Expr::make_negaliteral(VarId(i)));
@@ -254,9 +254,9 @@ ExprTestHandler::names(ymuint32 onode_id,
   }
   else {
     vector<Expr> and_expr;
-    for (ymuint32 c = 0; c < nc; ++ c) {
+    for (int c = 0; c < nc; ++ c) {
       vector<Expr> or_expr;
-      for (ymuint32 i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	char v = cover_pat[c * ni + i];
 	if ( v == '0' ) {
 	  or_expr.push_back(Expr::make_posiliteral(VarId(i)));
@@ -293,8 +293,8 @@ ExprTestHandler::names(ymuint32 onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-ExprTestHandler::gate(ymuint32 onode_id,
-		      const vector<ymuint32>& inode_id_array,
+ExprTestHandler::gate(int onode_id,
+		      const vector<int>& inode_id_array,
 		      const Cell* cell)
 {
   return true;
@@ -308,8 +308,8 @@ ExprTestHandler::gate(ymuint32 onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-ExprTestHandler::latch(ymuint32 onode_id,
-		       ymuint32 inode_id,
+ExprTestHandler::latch(int onode_id,
+		       int inode_id,
 		       const FileRegion& loc4,
 		       char rval)
 {

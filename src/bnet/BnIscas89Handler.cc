@@ -57,11 +57,11 @@ BnIscas89Handler::init()
 // @retval false エラーが起こった．
 bool
 BnIscas89Handler::read_input(const FileRegion& loc,
-			     ymuint name_id,
+			     int name_id,
 			     const char* name)
 {
   BnPort* port = mNetwork->new_input_port(name);
-  ymuint id = port->bit(0);
+  int id = port->bit(0);
   mIdMap.add(name_id, id);
 
   return true;
@@ -74,13 +74,13 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 BnIscas89Handler::read_output(const FileRegion& loc,
-			      ymuint name_id,
+			      int name_id,
 			      const char* name)
 {
   BnPort* port = mNetwork->new_output_port(name);
-  ymuint id = port->bit(0);
+  int id = port->bit(0);
 
-  add_fanin_info(id, vector<ymuint>(1, name_id));
+  add_fanin_info(id, vector<int>(1, name_id));
 
   return true;
 }
@@ -96,12 +96,12 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 bool
 BnIscas89Handler::read_gate(const FileRegion& loc,
 			    BnNodeType logic_type,
-			    ymuint oname_id,
+			    int oname_id,
 			    const char* oname,
-			    const vector<ymuint>& iname_list)
+			    const vector<int>& iname_list)
 {
-  ymuint ni = iname_list.size();
-  ymuint id = mNetwork->new_primitive(oname, ni, logic_type);
+  int ni = iname_list.size();
+  int id = mNetwork->new_primitive(oname, ni, logic_type);
   mIdMap.add(oname_id, id);
 
   add_fanin_info(id, iname_list);
@@ -118,20 +118,20 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 BnIscas89Handler::read_dff(const FileRegion& loc,
-			   ymuint oname_id,
+			   int oname_id,
 			   const char* oname,
-			   ymuint iname_id)
+			   int iname_id)
 {
   // この形式ではクロック以外の制御端子はない．
 
   BnDff* dff = mNetwork->new_dff(oname);
 
-  ymuint output_id = dff->output();
+  int output_id = dff->output();
   mIdMap.add(oname_id, output_id);
 
-  ymuint input_id = dff->input();
+  int input_id = dff->input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  add_fanin_info(input_id, vector<ymuint>(1, iname_id));
+  add_fanin_info(input_id, vector<int>(1, iname_id));
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
@@ -141,7 +141,7 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  ymuint clock_id = dff->clock();
+  int clock_id = dff->clock();
   mNetwork->connect(mClockId, clock_id, 0);
 
   return true;
@@ -154,7 +154,7 @@ bool
 BnIscas89Handler::end()
 {
   // ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mNetwork->node_num(); ++ node_id) {
+  for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
     if ( !mFaninInfoMap.check(node_id) ) {
       continue;
     }
@@ -162,17 +162,17 @@ BnIscas89Handler::end()
 
     const BnNode* node = mNetwork->node(node_id);
     if ( node->is_logic() ) {
-      ymuint ni = fanin_info.fanin_num();
-      for (ymuint i = 0; i < ni; ++ i) {
-	ymuint inode_id;
+      int ni = fanin_info.fanin_num();
+      for ( int i = 0; i < ni; ++ i ) {
+	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	ASSERT_COND( stat1 );
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
     else if ( node->is_output() ) {
-      ymuint iname_id = fanin_info.fanin(0);
-      ymuint inode_id;
+      int iname_id = fanin_info.fanin(0);
+      int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
       mNetwork->connect(inode_id, node_id, 0);
@@ -199,8 +199,8 @@ BnIscas89Handler::error_exit()
 // @param[in] id ID番号
 // @param[in] fanin_list ファンイン番号のリスト
 void
-BnIscas89Handler::add_fanin_info(ymuint id,
-				 const vector<ymuint>& fanin_list)
+BnIscas89Handler::add_fanin_info(int id,
+				 const vector<int>& fanin_list)
 {
   mFaninInfoMap.add(id, FaninInfo(fanin_list));
 }

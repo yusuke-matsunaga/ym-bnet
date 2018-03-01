@@ -42,7 +42,7 @@ Iscas89Handler::init()
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_input(const FileRegion& loc,
-			   ymuint name_id,
+			   int name_id,
 			   const char* name)
 {
   return true;
@@ -56,7 +56,7 @@ Iscas89Handler::read_input(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_output(const FileRegion& loc,
-			    ymuint name_id,
+			    int name_id,
 			    const char* name)
 {
   return true;
@@ -73,9 +73,9 @@ Iscas89Handler::read_output(const FileRegion& loc,
 bool
 Iscas89Handler::read_gate(const FileRegion& loc,
 			  BnNodeType logic_type,
-			  ymuint oname_id,
+			  int oname_id,
 			  const char* oname,
-			  const vector<ymuint>& iname_list)
+			  const vector<int>& iname_list)
 {
   return true;
 }
@@ -89,9 +89,9 @@ Iscas89Handler::read_gate(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 Iscas89Handler::read_dff(const FileRegion& loc,
-			 ymuint oname_id,
+			 int oname_id,
 			 const char* oname,
-			 ymuint iname_id)
+			 int iname_id)
 {
   return true;
 }
@@ -119,14 +119,14 @@ Iscas89Handler::error_exit()
 
 // @brief ID 番号から文字列を得る．
 const char*
-Iscas89Handler::id2str(ymuint id) const
+Iscas89Handler::id2str(int id) const
 {
   return mParser->id2str(id);
 }
 
 // @brief ID 番号から位置情報を得る．
 FileRegion
-Iscas89Handler::id2loc(ymuint id) const
+Iscas89Handler::id2loc(int id) const
 {
   return mParser->id2loc(id);
 }

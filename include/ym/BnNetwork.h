@@ -5,7 +5,7 @@
 /// @brief BnNetwork のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -107,7 +107,7 @@ public:
   /// @return 生成したポートを返す．
   BnPort*
   new_input_port(const string& port_name,
-		 ymuint bit_width);
+		 int bit_width);
 
   /// @brief 1ビットの出力ポートを作る．
   /// @param[in] port_name ポート名
@@ -121,7 +121,7 @@ public:
   /// @return 生成したポートを返す．
   BnPort*
   new_output_port(const string& port_name,
-		  ymuint bit_width);
+		  int bit_width);
 
   /// @brief 入出力混合のポートを作る．
   /// @param[in] port_name ポート名
@@ -189,9 +189,9 @@ public:
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
-  ymuint
+  int
   new_primitive(const string& node_name,
-		ymuint ni,
+		int ni,
 		BnNodeType logic_type);
 
   /// @brief 論理式型の論理ノードを追加する．
@@ -201,9 +201,9 @@ public:
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  ymuint
+  int
   new_expr(const string& node_name,
-	   ymuint ni,
+	   int ni,
 	   const Expr& expr);
 
   /// @brief 真理値表型の論理ノードを追加する．
@@ -213,9 +213,9 @@ public:
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  ymuint
+  int
   new_tv(const string& node_name,
-	 ymuint ni,
+	 int ni,
 	 const TvFunc& tv);
 
   /// @brief 論理セルを追加する．
@@ -225,7 +225,7 @@ public:
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
-  ymuint
+  int
   new_logic_cell(const string& node_name,
 		 const string& cell_name);
 
@@ -234,9 +234,9 @@ public:
   /// @param[in] dst_node ファンイン先のノード番号
   /// @param[in] ipos ファンインの位置
   void
-  connect(ymuint src_node,
-	  ymuint dst_node,
-	  ymuint ipos);
+  connect(int src_node,
+	  int dst_node,
+	  int ipos);
 
   /// @brief 整合性のチェックを行う．
   /// @return チェック結果を返す．
@@ -277,34 +277,34 @@ public:
   name() const;
 
   /// @brief ポート数を得る．
-  ymuint
+  int
   port_num() const;
 
   /// @brief ポートの情報を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
   const BnPort*
-  port(ymuint pos) const;
+  port(int pos) const;
 
   /// @brief DFF数を得る．
-  ymuint
+  int
   dff_num() const;
 
   /// @brief DFFを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
   const BnDff*
-  dff(ymuint pos) const;
+  dff(int pos) const;
 
   /// @brief ラッチ数を得る．
-  ymuint
+  int
   latch_num() const;
 
   /// @brief ラッチを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
   const BnLatch*
-  latch(ymuint pos) const;
+  latch(int pos) const;
 
   /// @brief ノード数を得る．
-  ymuint
+  int
   node_num() const;
 
   /// @brief ノードを得る．
@@ -313,52 +313,52 @@ public:
   /// BnNode* node = BnNetwork::node(id);
   /// node->id() == id が成り立つ．
   const BnNode*
-  node(ymuint id) const;
+  node(int id) const;
 
   /// @brief 入力数を得る．
-  ymuint
+  int
   input_num() const;
 
   /// @brief 入力ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
   const BnNode*
-  input(ymuint pos) const;
+  input(int pos) const;
 
   /// @brief 出力数を得る．
-  ymuint
+  int
   output_num() const;
 
   /// @brief 出力ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
   const BnNode*
-  output(ymuint pos) const;
+  output(int pos) const;
 
   /// @brief 論理ノード数を得る．
-  ymuint
+  int
   logic_num() const;
 
   /// @brief 論理ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
   const BnNode*
-  logic(ymuint pos) const;
+  logic(int pos) const;
 
   /// @brief 関数の数を得る．
-  ymuint
+  int
   func_num() const;
 
   /// @brief 関数番号から関数を得る．
   /// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
   const TvFunc&
-  func(ymuint func_id) const;
+  func(int func_id) const;
 
   /// @brief 論理式の数を得る．
-  ymuint
+  int
   expr_num() const;
 
   /// @brief 論理式番号から論理式を得る．
   /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
   Expr
-  expr(ymuint expr_id) const;
+  expr(int expr_id) const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
@@ -414,9 +414,9 @@ private:
   /// @param[in] logic_type 論理型
   /// @param[in] cell 対応するセル
   /// @return 生成した論理ノードの番号を返す．
-  ymuint
+  int
   _new_primitive(const string& node_name,
-		 ymuint ni,
+		 int ni,
 		 BnNodeType logic_type,
 		 const ClibCell* cell);
 
@@ -426,9 +426,9 @@ private:
   /// @param[in] expr 論理式
   /// @param[in] cell 対応するセル
   /// @return 生成した論理ノードの番号を返す．
-  ymuint
+  int
   _new_expr(const string& node_name,
-	    ymuint ni,
+	    int ni,
 	    const Expr& expr,
 	    const ClibCell* cell);
 
@@ -438,22 +438,22 @@ private:
   /// @param[in] tv 真理値表
   /// @param[in] cell 対応するセル
   /// @return 生成した論理ノードの番号を返す．
-  ymuint
+  int
   _new_tv(const string& node_name,
-	  ymuint ni,
+	  int ni,
 	  const TvFunc& tv,
 	  const ClibCell* cell);
 
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式
   /// @return 関数番号を返す．
-  ymuint
+  int
   _add_expr(const Expr& expr);
 
   /// @brief 真理値表を登録する．
   /// @param[in] tv 真理値表
   /// @return 関数番号を返す．
-  ymuint
+  int
   _add_tv(const TvFunc& tv);
 
 
@@ -493,13 +493,13 @@ private:
   vector<TvFunc> mFuncList;
 
   // TvFunc をキーにして関数番号を入れるハッシュ表
-  HashMap<TvFunc, ymuint> mFuncMap;
+  HashMap<TvFunc, int> mFuncMap;
 
   // 論理式のリスト
   vector<Expr> mExprList;
 
   // TvFunc をキーにして論理式番号を入れるハッシュ表
-  HashMap<TvFunc, ymuint> mExprMap;
+  HashMap<TvFunc, int> mExprMap;
 
   // wrap_up() が実行後の時に true となるフラグ
   bool mSane;

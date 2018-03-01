@@ -107,7 +107,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ハッシュ表のサイズ
-  ymuint32 mTableSize;
+  int mTableSize;
 
   // ハッシュ表
   Cell** mHashTable;

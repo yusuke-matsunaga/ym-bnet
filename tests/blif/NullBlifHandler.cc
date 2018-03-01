@@ -60,7 +60,7 @@ NullBlifHandler::model(const FileRegion& loc1,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::inputs_elem(ymuint name_id,
+NullBlifHandler::inputs_elem(int name_id,
 			     const char* name)
 {
   return true;
@@ -72,7 +72,7 @@ NullBlifHandler::inputs_elem(ymuint name_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::outputs_elem(ymuint name_id,
+NullBlifHandler::outputs_elem(int name_id,
 			      const char* name)
 {
   return true;
@@ -89,10 +89,10 @@ NullBlifHandler::outputs_elem(ymuint name_id,
 // 各要素のとりうる値は '0', '1', '-' を表す．
 // @note opat は '0' か '1' のどちらか
 bool
-NullBlifHandler::names(ymuint onode_id,
+NullBlifHandler::names(int onode_id,
 		       const char* oname,
-		       const vector<ymuint>& inode_id_array,
-		       ymuint cover_id)
+		       const vector<int>& inode_id_array,
+		       int cover_id)
 {
   return true;
 }
@@ -105,9 +105,9 @@ NullBlifHandler::names(ymuint onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::gate(ymuint onode_id,
+NullBlifHandler::gate(int onode_id,
 		      const char* oname,
-		      const vector<ymuint>& inode_id_array,
+		      const vector<int>& inode_id_array,
 		      const ClibCell* cell)
 {
   return true;
@@ -122,9 +122,9 @@ NullBlifHandler::gate(ymuint onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::latch(ymuint onode_id,
+NullBlifHandler::latch(int onode_id,
 		       const char* oname,
-		       ymuint inode_id,
+		       int inode_id,
 		       const FileRegion& loc4,
 		       char rval)
 {

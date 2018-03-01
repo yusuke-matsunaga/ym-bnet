@@ -79,11 +79,11 @@ BnBlifHandler::model(const FileRegion& loc1,
 // @param[in] name_id 文字列のID番号
 // @param[in] name 入力ピン名
 bool
-BnBlifHandler::inputs_elem(ymuint name_id,
+BnBlifHandler::inputs_elem(int name_id,
 			   const char* name)
 {
   BnPort* port = mNetwork->new_input_port(name);
-  ymuint id = port->bit(0);
+  int id = port->bit(0);
   mIdMap.add(name_id, id);
 
   return true;
@@ -93,13 +93,13 @@ BnBlifHandler::inputs_elem(ymuint name_id,
 // @param[in] name_id 文字列のID番号
 // @param[in] name 出力ピン名
 bool
-BnBlifHandler::outputs_elem(ymuint name_id,
+BnBlifHandler::outputs_elem(int name_id,
 			    const char* name)
 {
   BnPort* port = mNetwork->new_output_port(name);
-  ymuint id = port->bit(0);
+  int id = port->bit(0);
 
-  mFaninInfoMap.add(id, vector<ymuint>(1, name_id));
+  mFaninInfoMap.add(id, vector<int>(1, name_id));
 
   return true;
 }
@@ -112,17 +112,17 @@ BnBlifHandler::outputs_elem(ymuint name_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-BnBlifHandler::names(ymuint oname_id,
+BnBlifHandler::names(int oname_id,
 		     const char* oname,
-		     const vector<ymuint>& inode_id_array,
-		     ymuint cover_id)
+		     const vector<int>& inode_id_array,
+		     int cover_id)
 {
   const BlifCover* cover = id2cover(cover_id);
   const Expr& expr = cover->expr();
 
-  ymuint ni = inode_id_array.size();
+  int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
-  ymuint node_id = mNetwork->new_expr(oname, ni, expr);
+  int node_id = mNetwork->new_expr(oname, ni, expr);
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);
@@ -138,14 +138,14 @@ BnBlifHandler::names(ymuint oname_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-BnBlifHandler::gate(ymuint oname_id,
+BnBlifHandler::gate(int oname_id,
 		    const char* oname,
-		    const vector<ymuint>& inode_id_array,
+		    const vector<int>& inode_id_array,
 		    const ClibCell* cell)
 {
-  ymuint ni = inode_id_array.size();
+  int ni = inode_id_array.size();
   ASSERT_COND( ni == cell->input_num() );
-  ymuint node_id = mNetwork->new_logic_cell(oname, cell->name());
+  int node_id = mNetwork->new_logic_cell(oname, cell->name());
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);
@@ -162,9 +162,9 @@ BnBlifHandler::gate(ymuint oname_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-BnBlifHandler::latch(ymuint oname_id,
+BnBlifHandler::latch(int oname_id,
 		     const char* oname,
-		     ymuint iname_id,
+		     int iname_id,
 		     const FileRegion& loc4,
 		     char rval)
 {
@@ -178,12 +178,12 @@ BnBlifHandler::latch(ymuint oname_id,
   }
   BnDff* dff = mNetwork->new_dff(oname, has_clear, has_preset);
 
-  ymuint output_id = dff->output();
+  int output_id = dff->output();
   mIdMap.add(oname_id, output_id);
 
-  ymuint input_id = dff->input();
+  int input_id = dff->input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  mFaninInfoMap.add(input_id, vector<ymuint>(1, iname_id));
+  mFaninInfoMap.add(input_id, vector<int>(1, iname_id));
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
@@ -193,7 +193,7 @@ BnBlifHandler::latch(ymuint oname_id,
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  ymuint clock_id = dff->clock();
+  int clock_id = dff->clock();
   mNetwork->connect(mClockId, clock_id, 0);
 
   if ( has_clear || has_preset ) {
@@ -206,12 +206,12 @@ BnBlifHandler::latch(ymuint oname_id,
   }
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
-    ymuint clear_id = dff->clear();
+    int clear_id = dff->clear();
     mNetwork->connect(mResetId, clear_id, 0);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
-    ymuint preset_id = dff->preset();
+    int preset_id = dff->preset();
     mNetwork->connect(mResetId, preset_id, 0);
   }
 
@@ -224,8 +224,8 @@ bool
 BnBlifHandler::end(const FileRegion& loc)
 {
   // ノードのファンインを設定する．
-  for (ymuint node_id = 1; node_id <= mNetwork->node_num(); ++ node_id) {
-    vector<ymuint> fanin_info;
+  for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
+    vector<int> fanin_info;
     bool stat = mFaninInfoMap.find(node_id, fanin_info);
     if ( !stat ) {
       continue;
@@ -233,17 +233,17 @@ BnBlifHandler::end(const FileRegion& loc)
 
     const BnNode* node = mNetwork->node(node_id);
     if ( node->is_logic() ) {
-      ymuint ni = fanin_info.size();
-      for (ymuint i = 0; i < ni; ++ i) {
-	ymuint inode_id;
+      int ni = fanin_info.size();
+      for ( int i = 0; i < ni; ++ i ) {
+	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
     else if ( node->is_output() ) {
-      ymuint iname_id = fanin_info[0];
-      ymuint inode_id;
+      int iname_id = fanin_info[0];
+      int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       ASSERT_COND( stat1 );
       mNetwork->connect(inode_id, node_id, 0);

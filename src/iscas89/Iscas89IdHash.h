@@ -27,7 +27,7 @@ class Iscas89IdCell
 private:
 
   /// @brief コンストラクタ
-  Iscas89IdCell(ymuint id,
+  Iscas89IdCell(int id,
 		const char* str);
 
   /// @brief デストラクタ
@@ -37,7 +37,7 @@ private:
 public:
 
   /// @brief ID番号を得る．
-  ymuint
+  int
   id() const;
 
   /// @brief 文字列を返す．
@@ -94,7 +94,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint mId;
+  int mId;
 
   // 位置情報
   FileRegion mLoc;
@@ -103,7 +103,7 @@ private:
   FileRegion mLoc2;
 
   // いくつかのフラグ
-  ymuint mFlags;
+  ymuint8 mFlags;
 
   // 次の要素を指すポインタ
   Iscas89IdCell* mLink;
@@ -162,24 +162,24 @@ public:
        bool create);
 
   /// @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
-  ymuint
+  int
   num() const;
 
   /// @brief ID 番号に対応する Iscas89IdCell を得る．
   Iscas89IdCell*
-  cell(ymuint id) const;
+  cell(int id) const;
 
   /// @brief ID 番号から文字列を得る．
   const char*
-  str(ymuint id) const;
+  str(int id) const;
 
   /// @brief ID番号から位置情報を得る．
   const FileRegion&
-  loc(ymuint id) const;
+  loc(int id) const;
 
   /// @brief ID番号からその識別子を定義している位置情報を得る．
   const FileRegion&
-  def_loc(ymuint id) const;
+  def_loc(int id) const;
 
 
 private:
@@ -189,7 +189,7 @@ private:
 
   // ハッシュ表を拡大する．
   void
-  alloc_table(ymuint new_size);
+  alloc_table(int new_size);
 
 
 private:
@@ -201,7 +201,7 @@ private:
   SimpleAlloc mAlloc;
 
   // テーブルサイズ
-  ymuint mTableSize;
+  int mTableSize;
 
   // ハッシュ表
   Iscas89IdCell** mTable;
@@ -210,7 +210,7 @@ private:
   vector<Iscas89IdCell*> mCellArray;
 
   // ハッシュ表を拡張する目安
-  ymuint mNextLimit;
+  int mNextLimit;
 
 };
 
@@ -221,7 +221,7 @@ private:
 
 // @brief ID番号を得る．
 inline
-ymuint
+int
 Iscas89IdCell::id() const
 {
   return mId;
@@ -314,7 +314,7 @@ Iscas89IdCell::set_output()
 
 // @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
 inline
-ymuint
+int
 Iscas89IdHash::num() const
 {
   return mCellArray.size();
@@ -323,7 +323,7 @@ Iscas89IdHash::num() const
 // @brief ID 番号に対応する Iscas89IdCell を得る．
 inline
 Iscas89IdCell*
-Iscas89IdHash::cell(ymuint id) const
+Iscas89IdHash::cell(int id) const
 {
   return mCellArray[id];
 }
@@ -331,7 +331,7 @@ Iscas89IdHash::cell(ymuint id) const
 // @brief ID 番号から文字列を得る．
 inline
 const char*
-Iscas89IdHash::str(ymuint id) const
+Iscas89IdHash::str(int id) const
 {
   return cell(id)->str();
 }
@@ -339,7 +339,7 @@ Iscas89IdHash::str(ymuint id) const
 // @brief ID番号から位置情報を得る．
 inline
 const FileRegion&
-Iscas89IdHash::loc(ymuint id) const
+Iscas89IdHash::loc(int id) const
 {
   return cell(id)->loc();
 }
@@ -347,7 +347,7 @@ Iscas89IdHash::loc(ymuint id) const
 // @brief ID番号からその識別子を定義している位置情報を得る．
 inline
 const FileRegion&
-Iscas89IdHash::def_loc(ymuint id) const
+Iscas89IdHash::def_loc(int id) const
 {
   return cell(id)->def_loc();
 }

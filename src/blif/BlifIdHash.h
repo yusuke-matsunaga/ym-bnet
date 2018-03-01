@@ -58,24 +58,24 @@ public:
        bool create);
 
   /// @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
-  ymuint32
+  int
   num() const;
 
   /// @brief ID 番号に対応する BlifIdCell を得る．
   BlifIdCell*
-  cell(ymuint32 id) const;
+  cell(int id) const;
 
   /// @brief ID 番号から文字列を得る．
   const char*
-  str(ymuint32 id) const;
+  str(int id) const;
 
   /// @brief ID番号から位置情報を得る．
   const FileRegion&
-  loc(ymuint32 id) const;
+  loc(int id) const;
 
   /// @brief ID番号からその識別子を定義している位置情報を返す．
   const FileRegion&
-  def_loc(ymuint32 id) const;
+  def_loc(int id) const;
 
 
 private:
@@ -85,7 +85,7 @@ private:
 
   // ハッシュ表を拡大する．
   void
-  alloc_table(ymuint32 new_size);
+  alloc_table(int new_size);
 
 
 private:
@@ -97,7 +97,7 @@ private:
   SimpleAlloc mAlloc;
 
   // テーブルサイズ
-  ymuint32 mTableSize;
+  int mTableSize;
 
   // ハッシュ表
   BlifIdCell** mTable;
@@ -106,7 +106,7 @@ private:
   vector<BlifIdCell*> mCellArray;
 
   // ハッシュ表を拡張する目安
-  ymuint32 mNextLimit;
+  int mNextLimit;
 
 };
 
@@ -117,7 +117,7 @@ private:
 
 // @brief 登録されている要素数を返す．(= ID番号の最大値 + 1)
 inline
-ymuint32
+int
 BlifIdHash::num() const
 {
   return mCellArray.size();
@@ -126,7 +126,7 @@ BlifIdHash::num() const
 // @brief ID 番号に対応する BlifIdCell を得る．
 inline
 BlifIdCell*
-BlifIdHash::cell(ymuint32 id) const
+BlifIdHash::cell(int id) const
 {
   return mCellArray[id];
 }

@@ -52,7 +52,8 @@ END_NAMESPACE_YM_BNET
 BEGIN_NAMESPACE_YM
 
 /// @brief 不正なノード番号を表す定数
-const ymuint kBnNullId = static_cast<ymuint>(-1);
+const int kBnNullId = -1;
+
 
 //////////////////////////////////////////////////////////////////////
 /// @brief BnNode のタイプ

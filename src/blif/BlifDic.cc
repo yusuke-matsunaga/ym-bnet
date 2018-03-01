@@ -14,12 +14,12 @@ BEGIN_NAMESPACE_YM_BNET
 
 BEGIN_NONAMESPACE
 
-ymuint
+int
 hash_func(const char* str)
 {
-  ymuint h = 0;
-  ymuint c;
-  for ( ; (c = static_cast<ymuint>(*str)); ++ str) {
+  int h = 0;
+  int c;
+  for ( ; (c = static_cast<int>(*str)); ++ str) {
     h = h * 37 + c;
   }
   return h;
@@ -76,18 +76,18 @@ BlifDic::BlifDic()
     {"default_output_load", kTokenDEFAULT_OUTPUT_LOAD}
   };
 
-  ymuint n = sizeof(init_data) / sizeof(Cell);
+  int n = sizeof(init_data) / sizeof(Cell);
   mTableSize = n;
   mHashTable = new Cell*[mTableSize];
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     mHashTable[i] = nullptr;
   }
   mCellBlock = new Cell[n];
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     Cell* cell = &mCellBlock[i];
     cell->mStr = init_data[i].mKey;
     cell->mToken = init_data[i].mVal;
-    ymuint pos = hash_func(cell->mStr) % mTableSize;
+    int pos = hash_func(cell->mStr) % mTableSize;
     cell->mLink = mHashTable[pos];
     mHashTable[pos] = cell;
   }
@@ -104,8 +104,8 @@ BlifDic::~BlifDic()
 Token
 BlifDic::get_token(const char* str)
 {
-  ymuint pos = hash_func(str) % mTableSize;
-  for (Cell* cell = mHashTable[pos]; cell; cell = cell->mLink) {
+  int pos = hash_func(str) % mTableSize;
+  for ( Cell* cell = mHashTable[pos]; cell; cell = cell->mLink ) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell->mToken;
     }

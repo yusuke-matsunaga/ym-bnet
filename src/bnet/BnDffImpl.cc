@@ -28,14 +28,14 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] clear クリア端子のノード番号
 // @param[in] preset プリセット端子のノード番号
 // @param[in] cell セル
-BnDffImpl::BnDffImpl(ymuint id,
+BnDffImpl::BnDffImpl(int id,
 		     const string& name,
-		     ymuint input,
-		     ymuint output,
-		     ymuint xoutput,
-		     ymuint clock,
-		     ymuint clear,
-		     ymuint preset,
+		     int input,
+		     int output,
+		     int xoutput,
+		     int clock,
+		     int clear,
+		     int preset,
 		     const ClibCell* cell) :
   mId(id),
   mName(name),
@@ -59,7 +59,7 @@ BnDffImpl::~BnDffImpl()
 
 // @brief ID 番号の取得
 // @return ID 番号を返す．
-ymuint
+int
 BnDffImpl::id() const
 {
   return mId;
@@ -73,28 +73,28 @@ BnDffImpl::name() const
 }
 
 // @brief データ出力のノード番号を返す．
-ymuint
+int
 BnDffImpl::output() const
 {
   return mOutput;
 }
 
 // @brief データ出力のノード番号を返す．
-ymuint
+int
 BnDffImpl::xoutput() const
 {
   return mXOutput;
 }
 
 // @brief データ入力のノード番号を返す．
-ymuint
+int
 BnDffImpl::input() const
 {
   return mInput;
 }
 
 // @brief クロックのノード番号を返す．
-ymuint
+int
 BnDffImpl::clock() const
 {
   return mClock;
@@ -103,7 +103,7 @@ BnDffImpl::clock() const
 // @brief クリア信号のノード番号を返す．
 //
 // kBnNullId の場合もある．
-ymuint
+int
 BnDffImpl::clear() const
 {
   return mClear;
@@ -112,7 +112,7 @@ BnDffImpl::clear() const
 // @brief プリセット信号のノードを返す．
 //
 // kBnNullId の場合もある．
-ymuint
+int
 BnDffImpl::preset() const
 {
   return mPreset;
@@ -130,7 +130,7 @@ BnDffImpl::cell() const
 // @brief データ出力のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::output_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -144,7 +144,7 @@ BnDffImpl::output_pin_id() const
 // @brief 反転データ出力のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::xoutput_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -158,7 +158,7 @@ BnDffImpl::xoutput_pin_id() const
 // @brief データ入力のピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::input_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -172,7 +172,7 @@ BnDffImpl::input_pin_id() const
 // @brief クロックのピン番号を返す．
 //
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::clock_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -187,7 +187,7 @@ BnDffImpl::clock_pin_id() const
 //
 // kBnNullId の場合もある．
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::clear_pin_id() const
 {
   if ( cell() == nullptr ) {
@@ -202,7 +202,7 @@ BnDffImpl::clear_pin_id() const
 //
 // kBnNullId の場合もある．
 // cell() == nullptr の場合の値は不定
-ymuint
+int
 BnDffImpl::preset_pin_id() const
 {
   if ( cell() == nullptr ) {

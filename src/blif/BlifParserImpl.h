@@ -65,23 +65,23 @@ public:
 
   /// @brief ID番号から文字列を得る．
   const char*
-  id2str(ymuint id);
+  id2str(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2loc(ymuint id);
+  id2loc(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2def_loc(ymuint id);
+  id2def_loc(int id);
 
   /// @brief カバーの数を得る．
-  ymuint
+  int
   cover_num();
 
   /// @brief カバーIDから BlifCover を得る．
   const BlifCover*
-  id2cover(ymuint id);
+  id2cover(int id);
 
 
 private:
@@ -130,16 +130,16 @@ private:
   vector<BlifIdCell*> mNameArray;
 
   // ID 番号の配列
-  vector<ymuint> mIdArray;
+  vector<int> mIdArray;
 
   // 出力の ID 番号のリスト
-  vector<ymuint> mOidArray;
+  vector<int> mOidArray;
 
   // BlifCover を管理するオブジェクト
   BlifCoverMgr mCoverMgr;
 
   // キューブ数
-  ymuint mNc;
+  int mNc;
 
   // パタンのバッファ
   StrBuff mCoverPat;
@@ -169,7 +169,7 @@ private:
 // @brief ID番号から文字列を得る．
 inline
 const char*
-BlifParserImpl::id2str(ymuint id)
+BlifParserImpl::id2str(int id)
 {
   return mIdHash.str(id);
 }
@@ -177,7 +177,7 @@ BlifParserImpl::id2str(ymuint id)
 // @brief ID番号からそれに関連した位置情報を得る．
 inline
 const FileRegion&
-BlifParserImpl::id2loc(ymuint id)
+BlifParserImpl::id2loc(int id)
 {
   return mIdHash.loc(id);
 }
@@ -185,14 +185,14 @@ BlifParserImpl::id2loc(ymuint id)
 // @brief ID番号からそれに関連した位置情報を得る．
 inline
 const FileRegion&
-BlifParserImpl::id2def_loc(ymuint id)
+BlifParserImpl::id2def_loc(int id)
 {
   return mIdHash.def_loc(id);
 }
 
 // @brief カバーの数を得る．
 inline
-ymuint
+int
 BlifParserImpl::cover_num()
 {
   return mCoverMgr.cover_num();
@@ -201,7 +201,7 @@ BlifParserImpl::cover_num()
 // @brief カバーIDから BlifCover を得る．
 inline
 const BlifCover*
-BlifParserImpl::id2cover(ymuint id)
+BlifParserImpl::id2cover(int id)
 {
   return mCoverMgr.cover(id);
 }

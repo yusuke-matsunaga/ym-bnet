@@ -32,7 +32,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  BlifIdCell(ymuint32 id,
+  BlifIdCell(int id,
 	     const char* str);
 
   /// @brief デストラクタ
@@ -45,7 +45,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を得る．
-  ymuint32
+  int
   id() const;
 
   /// @brief 文字列を返す．
@@ -77,7 +77,7 @@ public:
   is_output() const;
 
   /// @brief ファンインの識別子の配列を得る．
-  const vector<ymuint32>&
+  const vector<int>&
   inode_id_array() const;
 
 
@@ -110,7 +110,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint32 mId;
+  int mId;
 
   // 位置情報
   FileRegion mLoc;
@@ -119,7 +119,7 @@ private:
   FileRegion mLoc2;
 
   // いくつかのフラグ
-  ymuint32 mFlags;
+  ymuint8 mFlags;
 
   // ハッシュ表中の次の要素を指すポインタ
   BlifIdCell* mLink;
@@ -155,7 +155,7 @@ private:
 
 // @brief ID番号を得る．
 inline
-ymuint32
+int
 BlifIdCell::id() const
 {
   return mId;
