@@ -38,7 +38,7 @@ BnOutputNode::~BnOutputNode()
 BnNodeType
 BnOutputNode::type() const
 {
-  return kBnOutput;
+  return BnNodeType::Output;
 }
 
 // @brief 外部出力ノードの時 true を返す．

@@ -30,7 +30,7 @@ BlifCover::~BlifCover()
 // @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
 // @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
 // @return パタンを返す．
-BlifCover::Pat
+BlifPat
 BlifCover::input_pat(int ipos,
 		     int cpos) const
 {
@@ -42,14 +42,14 @@ BlifCover::input_pat(int ipos,
 
   int blk = (ipos * 2) / 64;
   int sft = (ipos * 2) % 64;
-  ymuint64 tmp = (mPatArray[nb1 * cpos + blk] >> sft) & 3U;
+  PatVectType tmp = (mPatArray[nb1 * cpos + blk] >> sft) & 3U;
   switch ( tmp ) {
-  case 0: return kPat_0;
-  case 1: return kPat_1;
-  case 2: return kPat_d;
+  case 0U: return BlifPat::_0;
+  case 1U: return BlifPat::_1;
+  case 2U: return BlifPat::_D;
   }
   ASSERT_NOT_REACHED;
-  return kPat_d;
+  return BlifPat::_D;
 }
 
 // @brief 内容を出力する．

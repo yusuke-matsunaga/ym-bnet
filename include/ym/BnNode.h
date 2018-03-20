@@ -12,6 +12,7 @@
 #include "ym/bnet.h"
 #include "ym/logic.h"
 #include "ym/clib.h"
+#include "ym/BnNodeType.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

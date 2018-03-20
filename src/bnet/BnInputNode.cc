@@ -37,7 +37,7 @@ BnInputNode::~BnInputNode()
 BnNodeType
 BnInputNode::type() const
 {
-  return kBnInput;
+  return BnNodeType::Input;
 }
 
 // @brief 外部入力の時 true を返す．

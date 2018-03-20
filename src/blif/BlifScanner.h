@@ -41,7 +41,7 @@ public:
 
   /// @brief トークンを一つ読み出す．
   /// @param[out] loc トークンの位置を格納する変数
-  Token
+  BlifToken
   read_token(FileRegion& loc);
 
   /// @brief 最後の get_token() で読み出した字句の文字列を返す．
@@ -56,13 +56,13 @@ private:
 
   /// @brief read_token() の下請け関数
   /// @return トークンを返す．
-  Token
+  BlifToken
   scan();
 
   /// @brief 予約後の検査をする．
   /// @param[in] start_with_dot '.' で始まっている時に true を渡す．
   /// @return トークンを返す．
-  Token
+  BlifToken
   check_word(bool start_with_dot);
 
 

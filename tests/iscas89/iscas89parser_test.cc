@@ -47,7 +47,7 @@ public:
   virtual
   bool
   read_input(const FileRegion& loc,
-	     ymuint32 name_id);
+	     int name_id);
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
@@ -57,7 +57,7 @@ public:
   virtual
   bool
   read_output(const FileRegion& loc,
-	      ymuint32 name_id);
+	      int name_id);
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -70,9 +70,9 @@ public:
   bool
   read_gate(const FileRegion& loc,
 	    BnNodeType type,
-	    ymuint32 oname_id,
+	    int oname_id,
 	    const char* oname,
-	    const vector<ymuint32>& iname_list);
+	    const vector<int>& iname_list);
 
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -84,9 +84,9 @@ public:
   virtual
   bool
   read_dff(const FileRegion& loc,
-	   ymuint32 oname_id,
+	   int oname_id,
 	   const char* oname,
-	   ymuint32 iname_id);
+	   int iname_id);
 
   /// @brief 通常終了時の処理
   virtual
@@ -132,7 +132,7 @@ TestIscas89Handler::init()
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_input(const FileRegion& loc,
-			       ymuint32 name_id)
+			       int name_id)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_input()" << endl
 		<< "    " << loc << endl;
@@ -148,7 +148,7 @@ TestIscas89Handler::read_input(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_output(const FileRegion& loc,
-				ymuint32 name_id)
+				int name_id)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_output()" << endl
 		<< "    " << loc << endl;
@@ -167,9 +167,9 @@ TestIscas89Handler::read_output(const FileRegion& loc,
 bool
 TestIscas89Handler::read_gate(const FileRegion& loc,
 			      BnNodeType type,
-			      ymuint32 oname_id,
+			      int oname_id,
 			      const char* oname,
-			      const vector<ymuint32>& iname_list)
+			      const vector<int>& iname_list)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_gate()" << endl
 		<< "    " << loc << endl;
@@ -177,21 +177,21 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 		<< "  loc(oname_id) = " << id2loc(oname_id) << endl;
   (*mStreamPtr) << "  type = ";
   switch ( type ) {
-  case kBnLogic_BUFF: (*mStreamPtr) << "BUFF"; break;
-  case kBnLogic_NOT:  (*mStreamPtr) << "NOT"; break;
-  case kBnLogic_AND:  (*mStreamPtr) << "AND"; break;
-  case kBnLogic_NAND: (*mStreamPtr) << "NAND"; break;
-  case kBnLogic_OR:   (*mStreamPtr) << "OR"; break;
-  case kBnLogic_NOR:  (*mStreamPtr) << "NOR"; break;
-  case kBnLogic_XOR:  (*mStreamPtr) << "XOR"; break;
-  case kBnLogic_XNOR: (*mStreamPtr) << "XNOR"; break;
+  case BnNodeType::Logic_BUFF: (*mStreamPtr) << "BUFF"; break;
+  case BnNodeType::Logic_NOT:  (*mStreamPtr) << "NOT"; break;
+  case BnNodeType::Logic_AND:  (*mStreamPtr) << "AND"; break;
+  case BnNodeType::Logic_NAND: (*mStreamPtr) << "NAND"; break;
+  case BnNodeType::Logic_OR:   (*mStreamPtr) << "OR"; break;
+  case BnNodeType::Logic_NOR:  (*mStreamPtr) << "NOR"; break;
+  case BnNodeType::Logic_XOR:  (*mStreamPtr) << "XOR"; break;
+  case BnNodeType::Logic_XNOR: (*mStreamPtr) << "XNOR"; break;
   default: ASSERT_NOT_REACHED; break;
   }
   (*mStreamPtr) << endl;
   size_t i = 0;
-  for (vector<ymuint32>::const_iterator p = iname_list.begin();
+  for (vector<int>::const_iterator p = iname_list.begin();
        p != iname_list.end(); ++ p, ++ i) {
-    ymuint32 id = *p;
+    int id = *p;
     (*mStreamPtr) << "  str(iname_list[" << i << "]) = " << id2str(id) << endl
 		  << "  loc(iname_list[" << i << "]) = " << id2loc(id) << endl;
   }
@@ -206,9 +206,9 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_dff(const FileRegion& loc,
-			     ymuint32 oname_id,
+			     int oname_id,
 			     const char* oname,
-			     ymuint32 iname_id)
+			     int iname_id)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_dff()" << endl
 		<< "    " << loc << endl;

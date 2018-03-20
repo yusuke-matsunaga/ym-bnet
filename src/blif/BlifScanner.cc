@@ -38,17 +38,17 @@ BlifScanner::~BlifScanner()
 
 // @brief トークンを一つ読み出す．
 // @param[out] loc トークンの位置を格納する変数
-Token
+BlifToken
 BlifScanner::read_token(FileRegion& loc)
 {
-  Token token = scan();
+  BlifToken token = scan();
   loc = cur_loc();
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
 	 << loc << ": "
 	 << token;
-    if ( token == kTokenSTRING ) {
+    if ( token == BlifToken::STRING ) {
       cerr << "(\'" << cur_string() << "\')";
     }
     cerr<< endl;
@@ -59,7 +59,7 @@ BlifScanner::read_token(FileRegion& loc)
 
 // @brief read_token() の下請け関数
 // @return トークンを返す．
-Token
+BlifToken
 BlifScanner::scan()
 {
   mCurString = "";
@@ -75,7 +75,7 @@ BlifScanner::scan()
 
   switch ( c ) {
   case EOF:
-    return kTokenEOF;
+    return BlifToken::_EOF;
 
   case ' ':
   case '\t':
@@ -83,10 +83,10 @@ BlifScanner::scan()
     goto ST_INIT;
 
   case '\n':
-    return kTokenNL;
+    return BlifToken::NL;
 
   case '=':
-    return kTokenEQ;
+    return BlifToken::EQ;
 
   case '.':
     StartWithDot = true;
@@ -115,10 +115,10 @@ BlifScanner::scan()
  ST_SHARP:
   c = get();
   if ( c == '\n' ) {
-    return kTokenNL;
+    return BlifToken::NL;
   }
   if ( c == EOF ) {
-    return kTokenEOF;
+    return BlifToken::_EOF;
   }
   // 改行までは読み飛ばす．
   goto ST_SHARP;
@@ -129,7 +129,7 @@ BlifScanner::scan()
     goto ST_CM2;
   }
   if ( c == EOF ) {
-    return kTokenEOF;
+    return BlifToken::_EOF;
   }
   // '*' までは読み飛ばす．
   goto ST_CM1;
@@ -141,7 +141,7 @@ BlifScanner::scan()
     goto ST_INIT;
   }
   if ( c == EOF ) {
-    return kTokenEOF;
+    return BlifToken::_EOF;
   }
   goto ST_CM1;
 
@@ -182,17 +182,17 @@ BlifScanner::scan()
 // @brief 予約後の検査をする．
 // @param[in] start_with_dot '.' で始まっている時に true を渡す．
 // @return トークンを返す．
-Token
+BlifToken
 BlifScanner::check_word(bool start_with_dot)
 {
   if ( start_with_dot ) {
     // 予約後の検索
-    Token token = mDic.get_token(cur_string());
-    if ( token != kTokenEOF ) {
+    BlifToken token = mDic.get_token(cur_string());
+    if ( token != BlifToken::_EOF ) {
       return token;
     }
   }
-  return kTokenSTRING;
+  return BlifToken::STRING;
 }
 
 END_NAMESPACE_YM_BNET

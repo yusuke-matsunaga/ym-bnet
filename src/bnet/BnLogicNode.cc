@@ -151,7 +151,7 @@ BnExprNode::~BnExprNode()
 BnNodeType
 BnExprNode::type() const
 {
-  return kBnLogic_EXPR;
+  return BnNodeType::Logic_EXPR;
 }
 
 // @brief 論理式番号を返す．
@@ -206,7 +206,7 @@ BnTvNode::~BnTvNode()
 BnNodeType
 BnTvNode::type() const
 {
-  return kBnLogic_TV;
+  return BnNodeType::Logic_TV;
 }
 
 // @brief 関数番号を返す．

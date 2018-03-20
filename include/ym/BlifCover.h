@@ -16,6 +16,16 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
+// パタンを表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum class BlifPat {
+  _0,
+  _1,
+  _D
+};
+
+
+//////////////////////////////////////////////////////////////////////
 /// @class BlifCover BlifCover.h "ym/BlifCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
 ///
@@ -27,15 +37,7 @@ class BlifCover
 {
   friend class BlifCoverMgr;
 
-public:
-  //////////////////////////////////////////////////////////////////////
-  // パタンを表す列挙型
-  //////////////////////////////////////////////////////////////////////
-  enum Pat {
-    kPat_0,
-    kPat_1,
-    kPat_d
-  };
+  using PatVectType = ymuint64;
 
 private:
 
@@ -67,7 +69,7 @@ public:
   /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
   /// @return パタンを返す．
-  Pat
+  BlifPat
   input_pat(int ipos,
 	    int cpos) const;
 
@@ -75,7 +77,7 @@ public:
   ///
   /// - すべてのキューブに対して同一のパタンとなる．
   /// - ドントケアはない．
-  Pat
+  BlifPat
   output_pat() const;
 
   /// @brief 対応する論理式を返す．
@@ -103,7 +105,7 @@ private:
   int mInputNum;
 
   // 出力パタン
-  int mOutputPat;
+  BlifPat mOutputPat;
 
   // キューブ数
   int mCubeNum;
@@ -119,14 +121,14 @@ private:
 
   // パタンを表すビット配列
   // 一つのパタンを2ビットで表す．
-  ymuint64 mPatArray[1];
+  PatVectType mPatArray[1];
 
 };
 
 /// @brief BlifCover::Pat のストリーム出力
 ostream&
 operator<<(ostream& s,
-	   BlifCover::Pat pat);
+	   BlifPat pat);
 
 
 //////////////////////////////////////////////////////////////////////
@@ -162,15 +164,10 @@ BlifCover::cube_num() const
 // - すべてのキューブに対して同一のパタンとなる．
 // - ドントケアはない．
 inline
-BlifCover::Pat
+BlifPat
 BlifCover::output_pat() const
 {
-  switch ( mOutputPat ) {
-  case 0: return kPat_0;
-  case 1: return kPat_1;
-  }
-  ASSERT_NOT_REACHED;
-  return kPat_d;
+  return mOutputPat;
 }
 
 // @brief 対応する論理式を返す．
@@ -185,12 +182,12 @@ BlifCover::expr() const
 inline
 ostream&
 operator<<(ostream& s,
-	   BlifCover::Pat pat)
+	   BlifPat pat)
 {
   switch ( pat ) {
-  case BlifCover::kPat_0: s << '0'; break;
-  case BlifCover::kPat_1: s << '1'; break;
-  case BlifCover::kPat_d: s << '-'; break;
+  case BlifPat::_0: s << '0'; break;
+  case BlifPat::_1: s << '1'; break;
+  case BlifPat::_D: s << '-'; break;
   default: ASSERT_NOT_REACHED;
   }
   return s;

@@ -16,30 +16,30 @@
 BEGIN_NAMESPACE_YM
 
 void
-blif_loop_test(ymuint loop_count,
+blif_loop_test(int loop_count,
 	       const string& filename)
 {
-  for (ymuint i = 0; i < loop_count; ++ i) {
+  for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network;
     BnBlifReader::read(network, filename);
   }
 }
 
 void
-iscas89_loop_test(ymuint loop_count,
+iscas89_loop_test(int loop_count,
 		  const string& filename)
 {
-  for (ymuint i = 0; i < loop_count; ++ i) {
+  for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network;
     BnIscas89Reader::read(network, filename);
   }
 }
 
 void
-iscas89parser_loop_test(ymuint loop_count,
+iscas89parser_loop_test(int loop_count,
 		  const string& filename)
 {
-  for (ymuint i = 0; i < loop_count; ++ i) {
+  for (int i = 0; i < loop_count; ++ i) {
     Iscas89Parser parser;
     parser.read(filename);
   }

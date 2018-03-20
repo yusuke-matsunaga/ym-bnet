@@ -91,12 +91,12 @@ private:
 
   /// @brief トークンを一つ読み出す．
   /// @param[out] loc トークンの位置を格納する変数
-  Token
+  BlifToken
   get_token(FileRegion& loc);
 
   /// @brief トークンを戻す．
   void
-  unget_token(Token token,
+  unget_token(BlifToken token,
 	      const FileRegion& loc);
 
 
@@ -112,7 +112,7 @@ private:
   BlifScanner* mScanner;
 
   // 読み戻されたトークン
-  Token mUngetToken;
+  BlifToken mUngetToken;
 
   // mUngetToken に対応する位置情報
   FileRegion mUngetTokenLoc;
@@ -209,7 +209,7 @@ BlifParserImpl::id2cover(int id)
 // @brief トークンを戻す．
 inline
 void
-BlifParserImpl::unget_token(Token token,
+BlifParserImpl::unget_token(BlifToken token,
 			    const FileRegion& loc)
 {
   mUngetToken = token;

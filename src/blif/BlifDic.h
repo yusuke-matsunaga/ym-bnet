@@ -15,45 +15,45 @@
 BEGIN_NAMESPACE_YM_BNET
 
 /// @brief blif 形式のトークン
-enum Token {
-  kTokenEOF,
-  kTokenNL,
-  kTokenSTRING,
-  kTokenEQ,
-  kTokenMODEL,
-  kTokenINPUTS,
-  kTokenOUTPUTS,
-  kTokenCLOCK,
-  kTokenEND,
-  kTokenNAMES,
-  kTokenEXDC,
-  kTokenLATCH,
-  kTokenGATE,
-  kTokenMLATCH,
-  kTokenSUBCKT,
-  kTokenSEARCH,
-  kTokenSTART_KISS,
-  kTokenI,
-  kTokenO,
-  kTokenP,
-  kTokenR,
-  kTokenEND_KISS,
-  kTokenLATCH_ORDER,
-  kTokenCODE,
-  kTokenCYCLE,
-  kTokenCLOCK_EVENT,
-  kTokenAREA,
-  kTokenDELAY,
-  kTokenWIRE_LOAD_SLOPE,
-  kTokenWIRE,
-  kTokenINPUT_ARRIVAL,
-  kTokenDEFAULT_INPUT_ARRIVAL,
-  kTokenOUTPUT_REQUIRED,
-  kTokenDEFAULT_OUTPUT_REQUIRED,
-  kTokenINPUT_DRIVE,
-  kTokenDEFAULT_INPUT_DRIVE,
-  kTokenOUTPUT_LOAD,
-  kTokenDEFAULT_OUTPUT_LOAD
+enum class BlifToken {
+  _EOF,
+  NL,
+  STRING,
+  EQ,
+  MODEL,
+  INPUTS,
+  OUTPUTS,
+  CLOCK,
+  END,
+  NAMES,
+  EXDC,
+  LATCH,
+  GATE,
+  MLATCH,
+  SUBCKT,
+  SEARCH,
+  START_KISS,
+  I,
+  O,
+  P,
+  R,
+  END_KISS,
+  LATCH_ORDER,
+  CODE,
+  CYCLE,
+  CLOCK_EVENT,
+  AREA,
+  DELAY,
+  WIRE_LOAD_SLOPE,
+  WIRE,
+  INPUT_ARRIVAL,
+  DEFAULT_INPUT_ARRIVAL,
+  OUTPUT_REQUIRED,
+  DEFAULT_OUTPUT_REQUIRED,
+  INPUT_DRIVE,
+  DEFAULT_INPUT_DRIVE,
+  OUTPUT_LOAD,
+  DEFAULT_OUTPUT_LOAD
 };
 
 
@@ -75,14 +75,14 @@ public:
 public:
 
   /// @brief str に対応したトークンを返す．
-  Token
+  BlifToken
   get_token(const char* str);
 
   /// @brief トークンの内容を出力する．
   static
   void
   dump_token(ostream& s,
-	     Token token);
+	     BlifToken token);
 
 
 private:
@@ -93,7 +93,7 @@ private:
     const char* mStr;
 
     // 予約語のトークン
-    Token mToken;
+    BlifToken mToken;
 
     // ハッシュ表の次の要素を指すポインタ
     Cell* mLink;
@@ -123,7 +123,7 @@ private:
 /// @param[in] token トークン
 ostream&
 operator<<(ostream& s,
-	   Token token);
+	   BlifToken token);
 
 
 END_NAMESPACE_YM_BNET

@@ -16,10 +16,10 @@ BEGIN_NAMESPACE_YM_BNET
 BEGIN_NONAMESPACE
 
 // 文字列からのハッシュ関数
-int
+SizeType
 hash_func(const string& str)
 {
-  int h = 0;
+  SizeType h = 0;
   for ( int i = 0; i < str.size(); ++ i ) {
     h = h * 33 + str[i];
   }
@@ -27,7 +27,7 @@ hash_func(const string& str)
 }
 
 // ハッシュ関数その1
-int
+SizeType
 hash_func(int input_num,
 	  int cube_num,
 	  const string& ipat_str,
@@ -41,7 +41,7 @@ hash_func(int input_num,
 }
 
 // ハッシュ関数その2
-int
+SizeType
 hash_func(BlifCover* cover)
 {
   ostringstream buf;
@@ -58,17 +58,17 @@ hash_func(BlifCover* cover)
 }
 
 // char -> Pat
-BlifCover::Pat
+BlifPat
 char2pat(char ch)
 {
   switch ( ch ) {
-  case '0': return BlifCover::kPat_0;
-  case '1': return BlifCover::kPat_1;
-  case '-': return BlifCover::kPat_d;
+  case '0': return BlifPat::_0;
+  case '1': return BlifPat::_1;
+  case '-': return BlifPat::_D;
   }
   cout << "ERROR: ch = " << ch << endl;
   ASSERT_NOT_REACHED;
-  return BlifCover::kPat_d;
+  return BlifPat::_D;
 }
 
 // 等価チェック
@@ -91,8 +91,8 @@ check_equal(BlifCover* cover,
   int j = 0;
   for ( int c = 0; c < cube_num; ++ c ) {
     for ( int i = 0; i < input_num; ++ i, ++ j ) {
-      BlifCover::Pat ipat = cover->input_pat(i, c);
-      BlifCover::Pat ipat2 = char2pat(ipat_str[j]);
+      BlifPat ipat = cover->input_pat(i, c);
+      BlifPat ipat2 = char2pat(ipat_str[j]);
       if ( ipat != ipat2 ) {
 	return false;
       }
@@ -145,7 +145,7 @@ BlifCoverMgr::pat2cover(int input_num,
 			char opat_char)
 {
   // すでに登録されているか調べる．
-  int h = hash_func(input_num, cube_num, ipat_str, opat_char) % mHashSize;
+  SizeType h = hash_func(input_num, cube_num, ipat_str, opat_char) % mHashSize;
   for ( BlifCover* cover = mHashTable[h];
 	cover != nullptr; cover = cover->mLink ) {
     if ( check_equal(cover, input_num, cube_num, ipat_str, opat_char) ) {
@@ -179,14 +179,14 @@ BlifCoverMgr::new_cover(int input_num,
   // 全ブロック数
   int nb = nb1 * cube_num;
 
-  void* p = mAlloc.get_memory(sizeof(BlifCover) + sizeof(ymuint64) * (nb - 1));
+  void* p = mAlloc.get_memory(sizeof(BlifCover) + sizeof(BlifCover::PatVectType) * (nb - 1));
   BlifCover* cover = new (p) BlifCover;
   cover->mInputNum = input_num;
   if ( opat_char == '0' ) {
-    cover->mOutputPat = BlifCover::kPat_0;
+    cover->mOutputPat = BlifPat::_0;
   }
   else if ( opat_char == '1' ) {
-    cover->mOutputPat = BlifCover::kPat_1;
+    cover->mOutputPat = BlifPat::_1;
   }
   else {
     ASSERT_NOT_REACHED;
@@ -198,25 +198,25 @@ BlifCoverMgr::new_cover(int input_num,
   int k = 0;
   vector<Expr> prod_list(cube_num);
   for ( int c = 0; c < cube_num; ++ c ) {
-    ymuint64 tmp = 0UL;
+    BlifCover::PatVectType tmp = 0ULL;
     int shift = 0;
     vector<Expr> lit_list;
     lit_list.reserve(input_num);
     for ( int i = 0; i < input_num; ++ i, ++ k ) {
-      ymuint64 pat;
+      BlifCover::PatVectType pat;
       switch ( ipat_str[k] ) {
       case '0':
-	pat = 0UL;
+	pat = 0ULL;
 	lit_list.push_back(Expr::nega_literal(VarId(i)));
 	break;
 
       case '1':
-	pat = 1UL;
+	pat = 1ULL;
 	lit_list.push_back(Expr::posi_literal(VarId(i)));
 	break;
 
       case '-':
-	pat = 2UL;
+	pat = 2ULL;
 	break;
 
       default:
@@ -239,7 +239,7 @@ BlifCoverMgr::new_cover(int input_num,
   }
   Expr expr = Expr::make_or(prod_list);
 
-  if ( cover->mOutputPat == BlifCover::kPat_0 ) {
+  if ( cover->mOutputPat == BlifPat::_0 ) {
     expr = ~expr;
   }
 
@@ -254,7 +254,7 @@ BlifCoverMgr::new_cover(int input_num,
 void
 BlifCoverMgr::reg_cover(BlifCover* cover)
 {
-  int h = hash_func(cover) % mHashSize;
+  SizeType h = hash_func(cover) % mHashSize;
   cover->mLink = mHashTable[h];
   mHashTable[h] = cover;
 }

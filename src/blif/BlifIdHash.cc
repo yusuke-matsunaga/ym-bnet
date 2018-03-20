@@ -70,10 +70,10 @@ BlifIdHash::clear()
 BEGIN_NONAMESPACE
 
 inline
-int
+SizeType
 hash_func(const char* str)
 {
-  int h = 0;
+  SizeType h = 0;
   for ( char c; (c = *str); ++ str ) {
     h = h * 33 + static_cast<int>(c);
   }
@@ -92,8 +92,8 @@ BlifIdHash::find(const char* str,
 {
   ASSERT_COND( str != nullptr);
 
-  int pos0 = hash_func(str);
-  int pos = pos0 % mTableSize;
+  SizeType pos0 = hash_func(str);
+  SizeType pos = pos0 % mTableSize;
   for ( BlifIdCell* cell = mTable[pos]; cell; cell = cell->mLink ) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;

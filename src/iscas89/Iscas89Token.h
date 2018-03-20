@@ -5,7 +5,7 @@
 /// @brief Token のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -17,25 +17,25 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @brief トークン
 //////////////////////////////////////////////////////////////////////
-enum Iscas89Token {
-  kIscas89_LPAR,
-  kIscas89_RPAR,
-  kIscas89_COMMA,
-  kIscas89_EQ,
-  kIscas89_INPUT,
-  kIscas89_OUTPUT,
-  kIscas89_BUFF,
-  kIscas89_NOT,
-  kIscas89_AND,
-  kIscas89_NAND,
-  kIscas89_OR,
-  kIscas89_NOR,
-  kIscas89_XOR,
-  kIscas89_XNOR,
-  kIscas89_DFF,
-  kIscas89_NAME,
-  kIscas89_EOF,
-  kIscas89_ERROR
+enum class Iscas89Token {
+  LPAR,
+  RPAR,
+  COMMA,
+  EQ,
+  INPUT,
+  OUTPUT,
+  BUFF,
+  NOT,
+  AND,
+  NAND,
+  OR,
+  NOR,
+  XOR,
+  XNOR,
+  DFF,
+  NAME,
+  _EOF,
+  ERROR
 };
 
 END_NAMESPACE_YM_BNET
