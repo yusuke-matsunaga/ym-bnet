@@ -31,10 +31,6 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_BNET
 
 // クラスの前方宣言
-class BlifCover;
-class BlifHandler;
-class BlifParser;
-enum class BlifPat;
 
 class BnBlifReader;
 class BnIscas89Reader;
@@ -46,6 +42,10 @@ class BnLatch;
 class BnNode;
 enum class BnNodeType;
 
+class BlifCover;
+class BlifHandler;
+class BlifParser;
+
 class Iscas89Handler;
 class Iscas89Parser;
 
@@ -56,11 +56,6 @@ BEGIN_NAMESPACE_YM
 /// @brief 不正なノード番号を表す定数
 const int kBnNullId = -1;
 
-using nsBnet::BlifCover;
-using nsBnet::BlifHandler;
-using nsBnet::BlifParser;
-using nsBnet::BlifPat;
-
 using nsBnet::BnBlifReader;
 using nsBnet::BnIscas89Reader;
 using nsBnet::BnNetwork;
@@ -69,9 +64,6 @@ using nsBnet::BnDff;
 using nsBnet::BnLatch;
 using nsBnet::BnNode;
 using nsBnet::BnNodeType;
-
-using nsBnet::Iscas89Parser;
-using nsBnet::Iscas89Handler;
 
 END_NAMESPACE_YM
 

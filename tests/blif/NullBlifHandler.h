@@ -12,7 +12,7 @@
 #include "ym/BlifHandler.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class NullBlifHandler NullBlifHandler.h
@@ -147,6 +147,6 @@ public:
 
 };
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_BNET
 
 #endif // NULLBLIFHANDLER_H

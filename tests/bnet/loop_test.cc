@@ -40,7 +40,7 @@ iscas89parser_loop_test(int loop_count,
 		  const string& filename)
 {
   for (int i = 0; i < loop_count; ++ i) {
-    Iscas89Parser parser;
+    nsBnet::Iscas89Parser parser;
     parser.read(filename);
   }
 }

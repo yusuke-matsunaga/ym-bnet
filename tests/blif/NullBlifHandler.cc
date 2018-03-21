@@ -10,7 +10,7 @@
 #include "NullBlifHandler.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 NullBlifHandler::NullBlifHandler()
@@ -153,4 +153,4 @@ NullBlifHandler::error_exit()
 {
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_BNET

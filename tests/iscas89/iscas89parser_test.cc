@@ -13,7 +13,7 @@
 #include "ym/MsgHandler.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class TestIscas89Handler parsertest.cc
@@ -235,7 +235,7 @@ TestIscas89Handler::error_exit()
   (*mStreamPtr) << "TestIscas89Handler::error_exit()" << endl;
 }
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_BNET
 
 
 int
@@ -244,6 +244,7 @@ main(int argc,
 {
   using namespace std;
   using namespace nsYm;
+  using namespace nsYm::nsBnet;
 
   if ( argc != 2 ) {
     cerr << "USAGE : " << argv[0] << " iscas89-file" << endl;

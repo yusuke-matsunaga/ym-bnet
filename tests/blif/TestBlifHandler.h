@@ -12,7 +12,7 @@
 #include "ym/BlifHandler.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
 /// @class TestBlifHandler TestBlifHandler.h
@@ -153,6 +153,6 @@ private:
 
 };
 
-END_NAMESPACE_YM
+END_NAMESPACE_YM_BNET
 
 #endif // TESTBLIFHANLDER_H

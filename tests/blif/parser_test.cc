@@ -28,6 +28,7 @@ main(int argc,
 {
   using namespace std;
   using namespace nsYm;
+  using namespace nsYm::nsBnet;
 
   bool null = false;
 
