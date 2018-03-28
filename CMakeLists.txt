@@ -61,10 +61,8 @@ set ( blif_SOURCES
 
 set ( bnet_SOURCES
   src/bnet/BnBlifHandler.cc
-  src/bnet/BnBlifReader.cc
   src/bnet/BnDffImpl.cc
   src/bnet/BnIscas89Handler.cc
-  src/bnet/BnIscas89Reader.cc
   src/bnet/BnLatchImpl.cc
   src/bnet/BnNetwork.cc
   src/bnet/BnNodeImpl.cc
@@ -73,6 +71,8 @@ set ( bnet_SOURCES
   src/bnet/BnLogicNode.cc
   src/bnet/BnPortImpl.cc
   src/bnet/FuncAnalyzer.cc
+  src/bnet/read_blif.cc
+  src/bnet/read_iscas89.cc
   )
 
 set ( iscas89_SOURCES

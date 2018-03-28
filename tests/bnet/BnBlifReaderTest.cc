@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 
-#include "ym/BnBlifReader.h"
 #include "ym/BnNetwork.h"
 
 
@@ -25,7 +24,7 @@ BnBlifReaderTest(int argc,
   BnNetwork network;
 
   string filename = argv[1];
-  bool stat = BnBlifReader::read(network, filename);
+  bool stat = read_blif(network, filename);
   if ( !stat ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;

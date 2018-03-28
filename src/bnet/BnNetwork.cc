@@ -258,10 +258,10 @@ BnNetwork::copy(const BnNetwork& src)
     int func_id = src_node->func_id();
     const ClibCell* cell = src_node->cell();
     int dst_id = kBnNullId;
-    if ( logic_type == BnNodeType::Logic_EXPR ) {
+    if ( logic_type == BnNodeType::Expr ) {
       dst_id = _new_expr(name, nfi, src.expr(expr_id), cell);
     }
-    else if ( logic_type == BnNodeType::Logic_TV ) {
+    else if ( logic_type == BnNodeType::TvFunc ) {
       dst_id = _new_tv(name, nfi, src.func(func_id), cell);
     }
     else {
@@ -519,43 +519,43 @@ BnNetwork::write(ostream& s) const
     s << endl;
     s << "    ";
     switch ( node->type() ) {
-    case BnNodeType::Logic_NONE:
+    case BnNodeType::None:
       s << "NONE";
       break;
-    case BnNodeType::Logic_C0:
+    case BnNodeType::C0:
       s << "C0";
       break;
-    case BnNodeType::Logic_C1:
+    case BnNodeType::C1:
       s << "C1";
       break;
-    case BnNodeType::Logic_BUFF:
+    case BnNodeType::Buff:
       s << "BUFF";
       break;
-    case BnNodeType::Logic_NOT:
+    case BnNodeType::Not:
       s << "NOT";
       break;
-    case BnNodeType::Logic_AND:
+    case BnNodeType::And:
       s << "AND";
       break;
-    case BnNodeType::Logic_NAND:
+    case BnNodeType::Nand:
       s << "NAND";
       break;
-    case BnNodeType::Logic_OR:
+    case BnNodeType::Or:
       s << "OR";
       break;
-    case BnNodeType::Logic_NOR:
+    case BnNodeType::Nor:
       s << "NOR";
       break;
-    case BnNodeType::Logic_XOR:
+    case BnNodeType::Xor:
       s << "XOR";
       break;
-    case BnNodeType::Logic_XNOR:
+    case BnNodeType::Xnor:
       s << "XNOR";
       break;
-    case BnNodeType::Logic_EXPR:
+    case BnNodeType::Expr:
       s << "expr#" << node->expr_id() << ": " << node->expr();
       break;
-    case BnNodeType::Logic_TV:
+    case BnNodeType::TvFunc:
       s << "func#" << node->func_id() << ": " << node->func();
       break;
     default:
@@ -959,7 +959,7 @@ BnNetwork::new_expr(const string& node_name,
 		    const Expr& expr)
 {
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
-  if ( logic_type != BnNodeType::Logic_EXPR ) {
+  if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
     return _new_primitive(node_name, ni, logic_type, nullptr);
   }
@@ -979,7 +979,7 @@ BnNetwork::new_tv(const string& node_name,
 		  const TvFunc& tv)
 {
   BnNodeType logic_type = FuncAnalyzer::analyze(tv);
-  if ( logic_type != BnNodeType::Logic_TV ) {
+  if ( logic_type != BnNodeType::TvFunc ) {
     // 組み込み型だった．
     return _new_primitive(node_name, ni, logic_type, nullptr);
   }
@@ -1007,7 +1007,7 @@ BnNetwork::new_logic_cell(const string& node_name,
   int ni = cell->input_num();
   Expr expr = cell->logic_expr(0);
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
-  if ( logic_type != BnNodeType::Logic_EXPR ) {
+  if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
     return _new_primitive(node_name, ni, logic_type, cell);
   }

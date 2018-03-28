@@ -235,7 +235,7 @@ public:
 
   /// @brief 論理式番号を返す．
   ///
-  /// type() == kBnLogic_EXPR の時のみ意味を持つ．
+  /// type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
@@ -243,7 +243,7 @@ public:
 
   /// @brief 論理式を返す．
   ///
-  /// type() != kBnLogic_EXPR の時の動作は不定
+  /// type() != BnNodeType::Expr の時の動作は不定
   ///
   /// 親のネットワークの expr(node->expr_id()) と同一
   virtual
@@ -252,7 +252,7 @@ public:
 
   /// @brief 関数番号を返す．
   ///
-  /// type() == kBnLogic_TV の時のみ意味を持つ．
+  /// type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
@@ -260,7 +260,7 @@ public:
 
   /// @brief 真理値表を返す．
   ///
-  /// type() != kBnLogic_TV の時の動作は不定
+  /// type() != BnNodeType::TvFunc の時の動作は不定
   /// 親のネットワークの func(node->func_id()) と同一
   virtual
   TvFunc

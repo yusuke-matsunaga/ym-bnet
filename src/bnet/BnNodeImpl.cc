@@ -269,7 +269,7 @@ BnNodeImpl::fanin(int pos) const
 
 // @brief 論理式番号を返す．
 //
-// logic_type() == kBnLogic_EXPR の時のみ意味を持つ．
+// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
 int
 BnNodeImpl::expr_id() const
@@ -280,7 +280,7 @@ BnNodeImpl::expr_id() const
 
 // @brief 論理式を返す．
 //
-// type() != kBnLogic_EXPR の時の動作は不定
+// type() != BnNodeType::Expr の時の動作は不定
 //
 // 親のネットワークの expr(node->expr_id()) と同一
 Expr
@@ -292,7 +292,7 @@ BnNodeImpl::expr() const
 
 // @brief 関数番号を返す．
 //
-// type() == kBnLogic_TV の時のみ意味を持つ．
+// type() == BnNodeType::TvFunc の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
 int
 BnNodeImpl::func_id() const
@@ -303,7 +303,7 @@ BnNodeImpl::func_id() const
 
 // @brief 真理値表を返す．
 //
-// type() != kBnLogic_TV の時の動作は不定
+// type() != BnNodeType::TvFunc の時の動作は不定
 // 親のネットワークの func(node->func_id()) と同一
 TvFunc
 BnNodeImpl::func() const

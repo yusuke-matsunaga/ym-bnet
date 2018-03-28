@@ -552,6 +552,42 @@ void
 write_blif(ostream& s,
 	   const BnNetwork& network);
 
+// @brief blif ファイルを読み込む．
+// @param[in] network 設定対象のネットワーク
+// @param[in] filename ファイル名
+// @param[in] clock_name クロック端子名
+// @param[in] reset_name リセット端子名
+// @return 読み込みが成功したら true を返す．
+bool
+read_blif(BnNetwork& network,
+	  const string& filename,
+	  const string& clock_name = "clock",
+	  const string& reset_name = "reset");
+
+// @brief blif ファイルを読み込む(セルライブラリ付き)．
+// @param[in] network 設定対象のネットワーク
+// @param[in] filename ファイル名
+// @param[in] cell_library セルライブラリ
+// @param[in] clock_name クロック端子名
+// @param[in] reset_name リセット端子名
+// @return 読み込みが成功したら true を返す．
+bool
+read_blif(BnNetwork& network,
+	  const string& filename,
+	  const ClibCellLibrary& cell_library,
+	  const string& clock_name = "clock",
+	  const string& reset_name = "reset");
+
+// @brief iscas89 ファイルを読み込む．
+// @param[in] network 設定対象のネットワーク
+// @param[in] filename ファイル名
+// @param[in] clock_name クロック端子名
+// @return 読み込みが成功したら true を返す．
+bool
+read_iscas89(BnNetwork& network,
+	     const string& filename,
+	     const string& clock_name = "clock");
+
 
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義

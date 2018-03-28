@@ -19,21 +19,21 @@ BEGIN_NONAMESPACE
 
 // @brief 真理値表から論理型を得る．
 //
-// プリミティブ型でなかった場合は BnNodeType::Logic_NONE を返す．
+// プリミティブ型でなかった場合は BnNodeType::None を返す．
 BnNodeType
 tv2logic_type(const TvFunc& tv)
 {
   if ( tv == TvFunc::const_zero(0) ) {
-    return BnNodeType::Logic_C0;
+    return BnNodeType::C0;
   }
   else if ( tv == TvFunc::const_one(0) ) {
-    return BnNodeType::Logic_C1;
+    return BnNodeType::C1;
   }
   else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
-    return BnNodeType::Logic_BUFF;
+    return BnNodeType::Buff;
   }
   else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
-    return BnNodeType::Logic_NOT;
+    return BnNodeType::Not;
   }
   else {
     int input_num = tv.input_num();
@@ -92,32 +92,32 @@ tv2logic_type(const TvFunc& tv)
     if ( val_0 == 0 && val_1 == 1 ) {
       if ( !has_0 ) {
 	// 00...00 だけ 0 で残りが 1
-	return BnNodeType::Logic_OR;
+	return BnNodeType::Or;
       }
       else if ( !has_1 ) {
 	// 11...11 だけ 1 で残りが 0
-	return BnNodeType::Logic_AND;
+	return BnNodeType::And;
       }
     }
     if ( val_0 == 1 && val_1 == 0 ) {
       if ( !has_0 ) {
 	// 11...11 だけ 0 で残りが 1
-	return BnNodeType::Logic_NAND;
+	return BnNodeType::Nand;
       }
       else if ( !has_1 ) {
 	// 00...00 だけ 1 で残りが 0
-	return BnNodeType::Logic_NOR;
+	return BnNodeType::Nor;
       }
     }
     if ( xor_match ) {
-      return BnNodeType::Logic_XOR;
+      return BnNodeType::Xor;
     }
     else if ( xnor_match ) {
-      return BnNodeType::Logic_XNOR;
+      return BnNodeType::Xnor;
     }
   }
 
-  return BnNodeType::Logic_NONE;
+  return BnNodeType::None;
 }
 
 END_NONAMESPACE
@@ -129,7 +129,7 @@ END_NONAMESPACE
 
 // @brief 与えられた論理式が組み込み型かどうか判定する．
 //
-// 組み込み型でない場合には BnNodeType::Logic_EXPR が返される．
+// 組み込み型でない場合には BnNodeType::Expr が返される．
 BnNodeType
 FuncAnalyzer::analyze(const Expr& expr)
 {
@@ -138,24 +138,24 @@ FuncAnalyzer::analyze(const Expr& expr)
     // 10入力以下の場合は一旦 TvFunc に変換する．
     TvFunc tv = expr.make_tv(input_num);
     BnNodeType logic_type = tv2logic_type(tv);
-    if ( logic_type != BnNodeType::Logic_NONE ) {
+    if ( logic_type != BnNodeType::None ) {
       return logic_type;
     }
   }
-  return BnNodeType::Logic_EXPR;
+  return BnNodeType::Expr;
 }
 
 // @brief 与えられた真理値表が組み込み型かどうか判定する．
 //
-// 組み込み型でない場合には BnNodeType::Logic_TV が返される．
+// 組み込み型でない場合には BnNodeType::TvFunc が返される．
 BnNodeType
 FuncAnalyzer::analyze(const TvFunc& func)
 {
   BnNodeType logic_type = tv2logic_type(func);
-  if ( logic_type != BnNodeType::Logic_NONE ) {
+  if ( logic_type != BnNodeType::None ) {
     return logic_type;
   }
-  return BnNodeType::Logic_TV;
+  return BnNodeType::TvFunc;
 }
 
 END_NAMESPACE_YM_BNET

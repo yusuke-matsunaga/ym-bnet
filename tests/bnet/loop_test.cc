@@ -8,8 +8,6 @@
 
 
 #include "ym/BnNetwork.h"
-#include "ym/BnBlifReader.h"
-#include "ym/BnIscas89Reader.h"
 #include "ym/Iscas89Parser.h"
 
 
@@ -21,7 +19,7 @@ blif_loop_test(int loop_count,
 {
   for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network;
-    BnBlifReader::read(network, filename);
+    read_blif(network, filename);
   }
 }
 
@@ -31,7 +29,7 @@ iscas89_loop_test(int loop_count,
 {
   for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network;
-    BnIscas89Reader::read(network, filename);
+    read_iscas89(network, filename);
   }
 }
 

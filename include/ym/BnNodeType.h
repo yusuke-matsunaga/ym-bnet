@@ -23,31 +23,31 @@ enum class BnNodeType {
   /// @brief 外部出力ノード
   Output,
   /// @brief 論理ノード(定数0)
-  Logic_C0,
+  C0,
   /// @brief 論理ノード(定数1)
-  Logic_C1,
+  C1,
   /// @brief 論理ノード(バッファ)
-  Logic_BUFF,
+  Buff,
   /// @brief 論理ノード(NOT)
-  Logic_NOT,
+  Not,
   /// @brief 論理ノード(AND)
-  Logic_AND,
+  And,
   /// @brief 論理ノード(NAND)
-  Logic_NAND,
+  Nand,
   /// @brief 論理ノード(OR)
-  Logic_OR,
+  Or,
   /// @brief 論理ノード(NOR)
-  Logic_NOR,
+  Nor,
   /// @brief 論理ノード(XOR)
-  Logic_XOR,
+  Xor,
   /// @brief 論理ノード(XNOR)
-  Logic_XNOR,
+  Xnor,
   /// @brief 論理ノード(論理式:Expr)
-  Logic_EXPR,
+  Expr,
   /// @brief 論理ノード(真理値表:TvFunc)
-  Logic_TV,
+  TvFunc,
   /// @brief 論理ノード(不正値)
-  Logic_NONE,
+  None,
 };
 
 END_NAMESPACE_YM_BNET

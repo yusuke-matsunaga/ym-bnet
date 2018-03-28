@@ -177,14 +177,14 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 		<< "  loc(oname_id) = " << id2loc(oname_id) << endl;
   (*mStreamPtr) << "  type = ";
   switch ( type ) {
-  case BnNodeType::Logic_BUFF: (*mStreamPtr) << "BUFF"; break;
-  case BnNodeType::Logic_NOT:  (*mStreamPtr) << "NOT"; break;
-  case BnNodeType::Logic_AND:  (*mStreamPtr) << "AND"; break;
-  case BnNodeType::Logic_NAND: (*mStreamPtr) << "NAND"; break;
-  case BnNodeType::Logic_OR:   (*mStreamPtr) << "OR"; break;
-  case BnNodeType::Logic_NOR:  (*mStreamPtr) << "NOR"; break;
-  case BnNodeType::Logic_XOR:  (*mStreamPtr) << "XOR"; break;
-  case BnNodeType::Logic_XNOR: (*mStreamPtr) << "XNOR"; break;
+  case BnNodeType::Buff: (*mStreamPtr) << "BUFF"; break;
+  case BnNodeType::Not:  (*mStreamPtr) << "NOT"; break;
+  case BnNodeType::And:  (*mStreamPtr) << "AND"; break;
+  case BnNodeType::Nand: (*mStreamPtr) << "NAND"; break;
+  case BnNodeType::Or:   (*mStreamPtr) << "OR"; break;
+  case BnNodeType::Nor:  (*mStreamPtr) << "NOR"; break;
+  case BnNodeType::Xor:  (*mStreamPtr) << "XOR"; break;
+  case BnNodeType::Xnor: (*mStreamPtr) << "XNOR"; break;
   default: ASSERT_NOT_REACHED; break;
   }
   (*mStreamPtr) << endl;

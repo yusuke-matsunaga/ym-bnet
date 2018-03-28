@@ -135,14 +135,14 @@ Iscas89ParserImpl::read(const string& filename)
 	else {
 	  BnNodeType type;
 	  switch ( gate_type ) {
-	  case Iscas89Token::BUFF: type = BnNodeType::Logic_BUFF; break;
-	  case Iscas89Token::NOT:  type = BnNodeType::Logic_NOT;  break;
-	  case Iscas89Token::AND:  type = BnNodeType::Logic_AND;  break;
-	  case Iscas89Token::NAND: type = BnNodeType::Logic_NAND; break;
-	  case Iscas89Token::OR:   type = BnNodeType::Logic_OR;   break;
-	  case Iscas89Token::NOR:  type = BnNodeType::Logic_NOR;  break;
-	  case Iscas89Token::XOR:  type = BnNodeType::Logic_XOR;  break;
-	  case Iscas89Token::XNOR: type = BnNodeType::Logic_XNOR; break;
+	  case Iscas89Token::BUFF: type = BnNodeType::Buff; break;
+	  case Iscas89Token::NOT:  type = BnNodeType::Not;  break;
+	  case Iscas89Token::AND:  type = BnNodeType::And;  break;
+	  case Iscas89Token::NAND: type = BnNodeType::Nand; break;
+	  case Iscas89Token::OR:   type = BnNodeType::Or;   break;
+	  case Iscas89Token::NOR:  type = BnNodeType::Nor;  break;
+	  case Iscas89Token::XOR:  type = BnNodeType::Xor;  break;
+	  case Iscas89Token::XNOR: type = BnNodeType::Xnor; break;
 	  default: ASSERT_NOT_REACHED;
 	  }
 	  if ( !read_gate(FileRegion(first_loc, last_loc),

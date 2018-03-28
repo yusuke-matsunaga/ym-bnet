@@ -219,7 +219,7 @@ public:
 
   /// @brief 論理式番号を返す．
   ///
-  /// logic_type() == kBnLt_EXPR の時のみ意味を持つ．
+  /// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
@@ -228,7 +228,7 @@ public:
   /// @brief 論理式を返す．
   ///
   /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_EXPR の時の動作は不定
+  /// logic_type() != BnNodeType::Expr の時の動作は不定
   virtual
   Expr
   expr() const;
@@ -299,7 +299,7 @@ public:
 
   /// @brief 関数番号を返す．
   ///
-  /// logic_type() == kBnLt_TV の時のみ意味を持つ．
+  /// logic_type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
@@ -308,7 +308,7 @@ public:
   /// @brief 真理値表を返す．
   ///
   /// is_logic() == false の時の動作は不定
-  /// logic_type() != kBnLt_TV の時の動作は不定
+  /// logic_type() != BnNodeType::TvFunc の時の動作は不定
   TvFunc
   func() const;
 

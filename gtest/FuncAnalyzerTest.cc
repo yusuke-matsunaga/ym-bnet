@@ -46,25 +46,25 @@ FuncAnalyzerTest::do_test(const Expr& expr,
 TEST_F(FuncAnalyzerTest, const0)
 {
   Expr expr = Expr::const_zero();
-  do_test(expr, BnNodeType::Logic_C0);
+  do_test(expr, BnNodeType::C0);
 }
 
 TEST_F(FuncAnalyzerTest, const1)
 {
   Expr expr = Expr::const_one();
-  do_test(expr, BnNodeType::Logic_C1);
+  do_test(expr, BnNodeType::C1);
 }
 
 TEST_F(FuncAnalyzerTest, plit)
 {
   Expr expr = Expr::posi_literal(VarId(0));
-  do_test(expr, BnNodeType::Logic_BUFF);
+  do_test(expr, BnNodeType::Buff);
 }
 
 TEST_F(FuncAnalyzerTest, nlit)
 {
   Expr expr = Expr::nega_literal(VarId(0));
-  do_test(expr, BnNodeType::Logic_NOT);
+  do_test(expr, BnNodeType::Not);
 }
 
 TEST_F(FuncAnalyzerTest, and2)
@@ -72,7 +72,7 @@ TEST_F(FuncAnalyzerTest, and2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = lit0 & lit1;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and3)
@@ -81,7 +81,7 @@ TEST_F(FuncAnalyzerTest, and3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = lit0 & lit1 & lit2;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and4)
@@ -91,7 +91,7 @@ TEST_F(FuncAnalyzerTest, and4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = lit0 & lit1 & lit2 & lit3;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and5)
@@ -102,7 +102,7 @@ TEST_F(FuncAnalyzerTest, and5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and6)
@@ -114,7 +114,7 @@ TEST_F(FuncAnalyzerTest, and6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and7)
@@ -127,7 +127,7 @@ TEST_F(FuncAnalyzerTest, and7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and8)
@@ -141,7 +141,7 @@ TEST_F(FuncAnalyzerTest, and8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and9)
@@ -156,7 +156,7 @@ TEST_F(FuncAnalyzerTest, and9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and10)
@@ -172,7 +172,7 @@ TEST_F(FuncAnalyzerTest, and10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8 & lit9;
-  do_test(expr, BnNodeType::Logic_AND);
+  do_test(expr, BnNodeType::And);
 }
 
 TEST_F(FuncAnalyzerTest, and11)
@@ -189,8 +189,8 @@ TEST_F(FuncAnalyzerTest, and11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8 & lit9 & lit10;
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, nand2)
@@ -198,7 +198,7 @@ TEST_F(FuncAnalyzerTest, nand2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = ~(lit0 & lit1);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand3)
@@ -207,7 +207,7 @@ TEST_F(FuncAnalyzerTest, nand3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = ~(lit0 & lit1 & lit2);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand4)
@@ -217,7 +217,7 @@ TEST_F(FuncAnalyzerTest, nand4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand5)
@@ -228,7 +228,7 @@ TEST_F(FuncAnalyzerTest, nand5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand6)
@@ -240,7 +240,7 @@ TEST_F(FuncAnalyzerTest, nand6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand7)
@@ -253,7 +253,7 @@ TEST_F(FuncAnalyzerTest, nand7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand8)
@@ -267,7 +267,7 @@ TEST_F(FuncAnalyzerTest, nand8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand9)
@@ -282,7 +282,7 @@ TEST_F(FuncAnalyzerTest, nand9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand10)
@@ -298,7 +298,7 @@ TEST_F(FuncAnalyzerTest, nand10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8 & lit9);
-  do_test(expr, BnNodeType::Logic_NAND);
+  do_test(expr, BnNodeType::Nand);
 }
 
 TEST_F(FuncAnalyzerTest, nand11)
@@ -315,8 +315,8 @@ TEST_F(FuncAnalyzerTest, nand11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = ~(lit0 & lit1 & lit2 & lit3 & lit4 & lit5 & lit6 & lit7 & lit8 & lit9 & lit10);
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, or2)
@@ -324,7 +324,7 @@ TEST_F(FuncAnalyzerTest, or2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = lit0 | lit1;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or3)
@@ -333,7 +333,7 @@ TEST_F(FuncAnalyzerTest, or3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = lit0 | lit1 | lit2;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or4)
@@ -343,7 +343,7 @@ TEST_F(FuncAnalyzerTest, or4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = lit0 | lit1 | lit2 | lit3;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or5)
@@ -354,7 +354,7 @@ TEST_F(FuncAnalyzerTest, or5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or6)
@@ -366,7 +366,7 @@ TEST_F(FuncAnalyzerTest, or6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or7)
@@ -379,7 +379,7 @@ TEST_F(FuncAnalyzerTest, or7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or8)
@@ -393,7 +393,7 @@ TEST_F(FuncAnalyzerTest, or8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or9)
@@ -408,7 +408,7 @@ TEST_F(FuncAnalyzerTest, or9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or10)
@@ -424,7 +424,7 @@ TEST_F(FuncAnalyzerTest, or10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8 | lit9;
-  do_test(expr, BnNodeType::Logic_OR);
+  do_test(expr, BnNodeType::Or);
 }
 
 TEST_F(FuncAnalyzerTest, or11)
@@ -441,8 +441,8 @@ TEST_F(FuncAnalyzerTest, or11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8 | lit9 | lit10;
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, nor2)
@@ -450,7 +450,7 @@ TEST_F(FuncAnalyzerTest, nor2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = ~(lit0 | lit1);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor3)
@@ -459,7 +459,7 @@ TEST_F(FuncAnalyzerTest, nor3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = ~(lit0 | lit1 | lit2);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor4)
@@ -469,7 +469,7 @@ TEST_F(FuncAnalyzerTest, nor4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor5)
@@ -480,7 +480,7 @@ TEST_F(FuncAnalyzerTest, nor5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor6)
@@ -492,7 +492,7 @@ TEST_F(FuncAnalyzerTest, nor6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor7)
@@ -505,7 +505,7 @@ TEST_F(FuncAnalyzerTest, nor7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor8)
@@ -519,7 +519,7 @@ TEST_F(FuncAnalyzerTest, nor8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor9)
@@ -534,7 +534,7 @@ TEST_F(FuncAnalyzerTest, nor9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor10)
@@ -550,7 +550,7 @@ TEST_F(FuncAnalyzerTest, nor10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8 | lit9);
-  do_test(expr, BnNodeType::Logic_NOR);
+  do_test(expr, BnNodeType::Nor);
 }
 
 TEST_F(FuncAnalyzerTest, nor11)
@@ -567,8 +567,8 @@ TEST_F(FuncAnalyzerTest, nor11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = ~(lit0 | lit1 | lit2 | lit3 | lit4 | lit5 | lit6 | lit7 | lit8 | lit9 | lit10);
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, xor2)
@@ -576,7 +576,7 @@ TEST_F(FuncAnalyzerTest, xor2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = lit0 ^ lit1;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor3)
@@ -585,7 +585,7 @@ TEST_F(FuncAnalyzerTest, xor3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = lit0 ^ lit1 ^ lit2;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor4)
@@ -595,7 +595,7 @@ TEST_F(FuncAnalyzerTest, xor4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor5)
@@ -606,7 +606,7 @@ TEST_F(FuncAnalyzerTest, xor5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor6)
@@ -618,7 +618,7 @@ TEST_F(FuncAnalyzerTest, xor6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor7)
@@ -631,7 +631,7 @@ TEST_F(FuncAnalyzerTest, xor7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor8)
@@ -645,7 +645,7 @@ TEST_F(FuncAnalyzerTest, xor8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor9)
@@ -660,7 +660,7 @@ TEST_F(FuncAnalyzerTest, xor9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor10)
@@ -676,7 +676,7 @@ TEST_F(FuncAnalyzerTest, xor10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8 ^ lit9;
-  do_test(expr, BnNodeType::Logic_XOR);
+  do_test(expr, BnNodeType::Xor);
 }
 
 TEST_F(FuncAnalyzerTest, xor11)
@@ -693,8 +693,8 @@ TEST_F(FuncAnalyzerTest, xor11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8 ^ lit9 ^ lit10;
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, xnor2)
@@ -702,7 +702,7 @@ TEST_F(FuncAnalyzerTest, xnor2)
   Expr lit0 = Expr::posi_literal(VarId(0));
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr expr = ~(lit0 ^ lit1);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor3)
@@ -711,7 +711,7 @@ TEST_F(FuncAnalyzerTest, xnor3)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = ~(lit0 ^ lit1 ^ lit2);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor4)
@@ -721,7 +721,7 @@ TEST_F(FuncAnalyzerTest, xnor4)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor5)
@@ -732,7 +732,7 @@ TEST_F(FuncAnalyzerTest, xnor5)
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor6)
@@ -744,7 +744,7 @@ TEST_F(FuncAnalyzerTest, xnor6)
   Expr lit4 = Expr::posi_literal(VarId(4));
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor7)
@@ -757,7 +757,7 @@ TEST_F(FuncAnalyzerTest, xnor7)
   Expr lit5 = Expr::posi_literal(VarId(5));
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor8)
@@ -771,7 +771,7 @@ TEST_F(FuncAnalyzerTest, xnor8)
   Expr lit6 = Expr::posi_literal(VarId(6));
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor9)
@@ -786,7 +786,7 @@ TEST_F(FuncAnalyzerTest, xnor9)
   Expr lit7 = Expr::posi_literal(VarId(7));
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor10)
@@ -802,7 +802,7 @@ TEST_F(FuncAnalyzerTest, xnor10)
   Expr lit8 = Expr::posi_literal(VarId(8));
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8 ^ lit9);
-  do_test(expr, BnNodeType::Logic_XNOR);
+  do_test(expr, BnNodeType::Xnor);
 }
 
 TEST_F(FuncAnalyzerTest, xnor11)
@@ -819,8 +819,8 @@ TEST_F(FuncAnalyzerTest, xnor11)
   Expr lit9 = Expr::posi_literal(VarId(9));
   Expr lit10 = Expr::posi_literal(VarId(10));
   Expr expr = ~(lit0 ^ lit1 ^ lit2 ^ lit3 ^ lit4 ^ lit5 ^ lit6 ^ lit7 ^ lit8 ^ lit9 ^ lit10);
-  // 11入力は調べずに BnNodeType::Logic_EXPR を返す．
-  do_test(expr, BnNodeType::Logic_EXPR);
+  // 11入力は調べずに BnNodeType::Expr を返す．
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, expr1)
@@ -829,7 +829,7 @@ TEST_F(FuncAnalyzerTest, expr1)
   Expr lit1 = Expr::posi_literal(VarId(1));
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr expr = (~lit0 & ~lit1 & ~lit2) | (lit0 & lit1 & lit2);
-  do_test(expr, BnNodeType::Logic_EXPR);
+  do_test(expr, BnNodeType::Expr);
 }
 
 TEST_F(FuncAnalyzerTest, expr2)
@@ -839,7 +839,7 @@ TEST_F(FuncAnalyzerTest, expr2)
   Expr lit2 = Expr::posi_literal(VarId(2));
   Expr lit3 = Expr::posi_literal(VarId(3));
   Expr expr = (lit0 & lit1) | (lit2 & lit3);
-  do_test(expr, BnNodeType::Logic_EXPR);
+  do_test(expr, BnNodeType::Expr);
 }
 
 END_NAMESPACE_YM_BNET

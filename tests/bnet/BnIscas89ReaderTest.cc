@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 
-#include "ym/BnIscas89Reader.h"
 #include "ym/BnNetwork.h"
 
 
@@ -25,7 +24,7 @@ BnIscas89ReaderTest(int argc,
   BnNetwork network;
 
   string filename = argv[1];
-  bool stat = BnIscas89Reader::read(network, filename);
+  bool stat = read_iscas89(network, filename);
   if ( !stat ) {
     cerr << "read_iscas89(" << filename << ") failed" << endl;
     return -1;

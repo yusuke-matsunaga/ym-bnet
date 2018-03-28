@@ -151,12 +151,12 @@ BnExprNode::~BnExprNode()
 BnNodeType
 BnExprNode::type() const
 {
-  return BnNodeType::Logic_EXPR;
+  return BnNodeType::Expr;
 }
 
 // @brief 論理式番号を返す．
 //
-// logic_type() == kBnLogic_EXPR の時のみ意味を持つ．
+// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
 int
 BnExprNode::expr_id() const
@@ -166,7 +166,7 @@ BnExprNode::expr_id() const
 
 // @brief 論理式を返す．
 //
-// type() != kBnLogic_EXPR の時の動作は不定
+// type() != BnNodeType::Expr の時の動作は不定
 Expr
 BnExprNode::expr() const
 {
@@ -206,12 +206,12 @@ BnTvNode::~BnTvNode()
 BnNodeType
 BnTvNode::type() const
 {
-  return BnNodeType::Logic_TV;
+  return BnNodeType::TvFunc;
 }
 
 // @brief 関数番号を返す．
 //
-// type() == kBnLogic_TV の時のみ意味を持つ．
+// type() == BnNodeType::TvFunc の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
 int
 BnTvNode::func_id() const
@@ -222,7 +222,7 @@ BnTvNode::func_id() const
 // @brief 真理値表を返す．
 //
 // is_logic() == false の時の動作は不定
-// logic_type() != kBnLogic_TV の時の動作は不定
+// logic_type() != BnNodeType::TvFunc の時の動作は不定
 TvFunc
 BnTvNode::func() const
 {

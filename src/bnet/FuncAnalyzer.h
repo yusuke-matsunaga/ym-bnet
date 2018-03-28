@@ -32,14 +32,14 @@ public:
 
   /// @brief 与えられた論理式が組み込み型かどうか判定する．
   ///
-  /// 組み込み型でない場合には kBnLogic_EXPR が返される．
+  /// 組み込み型でない場合には kBnExpr が返される．
   static
   BnNodeType
   analyze(const Expr& expr);
 
   /// @brief 与えられた真理値表が組み込み型かどうか判定する．
   ///
-  /// 組み込み型でない場合には kBnLogic_TV が返される．
+  /// 組み込み型でない場合には kBnTvFunc が返される．
   static
   BnNodeType
   analyze(const TvFunc& func);
