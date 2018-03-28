@@ -3,7 +3,7 @@
 /// @brief Iscas89IdHash の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -68,10 +68,10 @@ Iscas89IdHash::clear()
 BEGIN_NONAMESPACE
 
 inline
-int
+SizeType
 hash_func(const char* str)
 {
-  int h = 0;
+  SizeType h = 0;
   for ( char c; (c = *str); ++ str ) {
     h = h * 33 + static_cast<int>(c);
   }
@@ -89,8 +89,8 @@ Iscas89IdHash::find(const char* str,
 		    bool create)
 {
   ASSERT_COND(str );
-  int pos0 = hash_func(str);
-  int pos = pos0 % mTableSize;
+  SizeType pos0 = hash_func(str);
+  SizeType pos = pos0 % mTableSize;
   for ( Iscas89IdCell* cell = mTable[pos]; cell; cell = cell->mLink ) {
     if ( strcmp(cell->mStr, str) == 0 ) {
       return cell;
@@ -109,7 +109,7 @@ Iscas89IdHash::find(const char* str,
     for ( int i = 0; i < old_size; ++ i ) {
       for ( Iscas89IdCell* cell = old_table[i]; cell; ) {
 	Iscas89IdCell* next = cell->mLink;
-	int pos1 = hash_func(cell->mStr) % mTableSize;
+	SizeType pos1 = hash_func(cell->mStr) % mTableSize;
 	cell->mLink = mTable[pos1];
 	mTable[pos1] = cell;
 	cell = next;
