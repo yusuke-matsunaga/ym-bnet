@@ -140,7 +140,7 @@ BlifParserImpl::read(const string& filename,
     ostringstream buf;
     buf << filename << " : No such file.";
     MsgMgr::put_msg(__FILE__, __LINE__, FileRegion(),
-		    kMsgFailure, "BLIF_PARSER", buf.str());
+		    MsgType::Failure, "BLIF_PARSER", buf.str());
     return false;
   }
 
@@ -192,7 +192,7 @@ BlifParserImpl::read(const string& filename,
     // それ以外はエラー
     MsgMgr::put_msg(__FILE__, __LINE__,
 		    mLoc1,
-		    kMsgError,
+		    MsgType::Error,
 		    "SYN01",
 		    "No '.model' statement.");
     goto ST_ERROR_EXIT;
@@ -206,7 +206,7 @@ BlifParserImpl::read(const string& filename,
     if ( tk != BlifToken::STRING ) {
       MsgMgr::put_msg(__FILE__, __LINE__,
 		      loc,
-		      kMsgError,
+		      MsgType::Error,
 		      "SYN02",
 		      "String expected after '.model'.");
       goto ST_ERROR_EXIT;
@@ -224,7 +224,7 @@ BlifParserImpl::read(const string& filename,
     if ( get_token(loc) != BlifToken::NL ) {
       MsgMgr::put_msg(__FILE__, __LINE__,
 		      loc,
-		      kMsgError,
+		      MsgType::Error,
 		      "SYN03",
 		      "Newline expected.");
       goto ST_ERROR_EXIT;
@@ -247,7 +247,7 @@ BlifParserImpl::read(const string& filename,
     case BlifToken::MODEL:
       MsgMgr::put_msg(__FILE__, __LINE__,
 		      mLoc1,
-		      kMsgError,
+		      MsgType::Error,
 		      "SYN04",
 		      "Multiple '.model' statements.");
       goto ST_ERROR_EXIT;
@@ -271,7 +271,7 @@ BlifParserImpl::read(const string& filename,
       if ( mCellLibrary == nullptr || mCellLibrary->cell_num() == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__,
 			mLoc1,
-			kMsgError,
+			MsgType::Error,
 			"NOCELL01",
 			"No cell-library is specified.");
 	goto ST_ERROR_EXIT;
@@ -336,7 +336,7 @@ BlifParserImpl::read(const string& filename,
 	buf << name << ": Defined more than once. Previous definition is "
 	    << cell->def_loc() << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgError,
+			MsgType::Error,
 			"MLTDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
@@ -345,7 +345,7 @@ BlifParserImpl::read(const string& filename,
 	buf << name << ": Defined as both input and output."
 	    << " Previous difinition is " << cell->loc() << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgWarning,
+			MsgType::Warning,
 			"MLTDEF02", buf.str().c_str());
       }
       cell->set_loc(loc);
@@ -365,7 +365,7 @@ BlifParserImpl::read(const string& filename,
     if ( tk == BlifToken::NL ) {
       if ( n_token == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgWarning,
+			MsgType::Warning,
 			"SYN07", "Empty '.inputs' statement. Ignored.");
       }
       goto ST_NEUTRAL;
@@ -386,7 +386,7 @@ BlifParserImpl::read(const string& filename,
 	buf << name << ": Defined more than once. Previous definition is "
 	    << cell->loc();
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgError,
+			MsgType::Error,
 			"MLTDEF03", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
@@ -396,7 +396,7 @@ BlifParserImpl::read(const string& filename,
 	    << "Previous definition is "
 	    << cell->loc() << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgWarning,
+			MsgType::Warning,
 			"MLTDEF02", buf.str().c_str());
       }
       cell->set_loc(loc);
@@ -411,7 +411,7 @@ BlifParserImpl::read(const string& filename,
     if ( tk == BlifToken::NL ) {
       if ( n_token == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgWarning,
+			MsgType::Warning,
 			"SYN08", "Empty '.outputs' statement. Ignored.");
       }
       goto ST_NEUTRAL;
@@ -436,7 +436,7 @@ BlifParserImpl::read(const string& filename,
       if ( n == 0 ) {
 	// 名前が1つもない場合
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			kMsgError,
+			MsgType::Error,
 			"SYN09",
 			"Empty '.names' statement.");
 	goto ST_ERROR_EXIT;
@@ -466,7 +466,7 @@ BlifParserImpl::read(const string& filename,
       case '1': break;
       default:
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			kMsgError,
+			MsgType::Error,
 			"SYN15",
 			"Illegal character in output cube.");
 	goto ST_ERROR_EXIT;
@@ -476,7 +476,7 @@ BlifParserImpl::read(const string& filename,
       }
       else if ( mOpatChar != ochar ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			kMsgError,
+			MsgType::Error,
 			"SYN10",
 			"Outpat pattern mismatch.");
 	goto ST_ERROR_EXIT;
@@ -486,7 +486,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_NAMES0;
       }
       MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-		      kMsgError,
+		      MsgType::Error,
 		      "SYN14",
 		      "Newline is expected.");
       goto ST_ERROR_EXIT;
@@ -509,7 +509,7 @@ BlifParserImpl::read(const string& filename,
       mName1 = mScanner->cur_string();
       if ( mName1.size() != mNameArray.size() - 1 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			kMsgError,
+			MsgType::Error,
 			"SYN12",
 			"Input pattern does not fit "
 			"with the number of fanins.");
@@ -530,7 +530,7 @@ BlifParserImpl::read(const string& filename,
 	}
 	else {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			  kMsgError,
+			  MsgType::Error,
 			  "SYN11",
 			  "Illegal character in input cube.");
 	  goto ST_ERROR_EXIT;
@@ -545,7 +545,7 @@ BlifParserImpl::read(const string& filename,
 	case '1': break;
 	default:
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			  kMsgError,
+			  MsgType::Error,
 			  "SYN15",
 			  "Illegal character in output cube.");
 	  goto ST_ERROR_EXIT;
@@ -555,13 +555,13 @@ BlifParserImpl::read(const string& filename,
 	}
 	else if ( mOpatChar != ochar ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			  kMsgError, "SYN10",
+			  MsgType::Error, "SYN10",
 			  "Outpat pattern mismatch.");
 	  goto ST_ERROR_EXIT;
 	}
 	if ( get_token(loc2) != BlifToken::NL ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			  kMsgError, "SYN14",
+			  MsgType::Error, "SYN14",
 			  "Newline is expected.");
 	  goto ST_ERROR_EXIT;
 	}
@@ -569,7 +569,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_NAMES1;
       }
       MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-		      kMsgError, "SYN13",
+		      MsgType::Error, "SYN13",
 		      "No output cube.");
       goto ST_ERROR_EXIT;
     }
@@ -594,7 +594,7 @@ BlifParserImpl::read(const string& filename,
       buf << cell->str() << ": Defined more than once. "
 	  << "Previsous Definition is " << cell->def_loc() << ".";
       MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-		      kMsgError,
+		      MsgType::Error,
 		      "MLTDEF01", buf.str());
       goto ST_ERROR_EXIT;
     }
@@ -634,7 +634,7 @@ BlifParserImpl::read(const string& filename,
       ostringstream buf;
       buf << name << ": No such cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgError,
+		      MsgType::Error,
 		      "NOCELL02", buf.str());
       goto ST_ERROR_EXIT;
     }
@@ -642,28 +642,28 @@ BlifParserImpl::read(const string& filename,
       ostringstream buf;
       buf << name << " : Not a logic cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgError, "BNetBlifReader", buf.str());
+		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
     if ( mCell->output_num() != 1 ) {
       ostringstream buf;
       buf << name << " : Not a single output cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgError, "BNetBlifReader", buf.str());
+		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
     if ( mCell->has_tristate(0) ) {
       ostringstream buf;
       buf << name << " : Is a tri-state cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgError, "BNetBlifReader", buf.str());
+		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
     if ( mCell->inout_num() > 0 ) {
       ostringstream buf;
       buf << name << " : Has inout pins.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgError, "BNetBlifReader", buf.str());
+		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
     mNameArray.clear();
@@ -684,7 +684,7 @@ BlifParserImpl::read(const string& filename,
 	ostringstream buf;
 	buf << name1 << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			kMsgError,
+			MsgType::Error,
 			"NOPIN01", buf.str());
 	goto ST_ERROR_EXIT;
       }
@@ -710,7 +710,7 @@ BlifParserImpl::read(const string& filename,
 	  buf << cell->str() << ": Defined more than once. "
 	      << "Previous definition is " << cell->def_loc() << ".";
 	  MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-			  kMsgError,
+			  MsgType::Error,
 			  "MLTDEF01", buf.str());
 	  goto ST_ERROR_EXIT;
 	}
@@ -720,7 +720,7 @@ BlifParserImpl::read(const string& filename,
 	ostringstream buf;
 	buf << name2 << ": Appears more than once.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			kMsgError,
+			MsgType::Error,
 			"MLTDEF02", buf.str());
 	goto ST_ERROR_EXIT;
       }
@@ -757,7 +757,7 @@ BlifParserImpl::read(const string& filename,
 
  ST_GATE_SYNERROR:
   MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
-		  kMsgError,
+		  MsgType::Error,
 		  "SYN16", "Syntax error in '.gate' statement.");
   goto ST_ERROR_EXIT;
 
@@ -786,7 +786,7 @@ BlifParserImpl::read(const string& filename,
 	buf << cell2->str() << ": Defined more than once. "
 	    << "Previsous Definition is " << cell2->def_loc() << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, cell2->loc(),
-			kMsgError,
+			MsgType::Error,
 			"MLTDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
@@ -799,7 +799,7 @@ BlifParserImpl::read(const string& filename,
 	rval = mScanner->cur_string()[0];
 	if ( rval != '0' && rval != '1' ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc4,
-			  kMsgError,
+			  MsgType::Error,
 			  "SYN18",
 			  "Illegal character for reset value.");
 	  goto ST_ERROR_EXIT;
@@ -830,7 +830,7 @@ BlifParserImpl::read(const string& filename,
 
  ST_LATCH_SYNERROR:
   MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
-		  kMsgError,
+		  MsgType::Error,
 		  "SYN17", "Syntax error in '.latch' statement.");
   goto ST_ERROR_EXIT;
 
@@ -843,7 +843,7 @@ BlifParserImpl::read(const string& filename,
     }
     if ( tk != BlifToken::NL ) {
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      kMsgWarning,
+		      MsgType::Warning,
 		      "SYN06",
 		      "Statement after '.end' is ignored.");
     }
@@ -873,7 +873,7 @@ BlifParserImpl::read(const string& filename,
  ST_AFTER_EOF:
   {
     MsgMgr::put_msg(__FILE__, __LINE__, mLoc1,
-		    kMsgWarning,
+		    MsgType::Warning,
 		    "SYN05",
 		    "unexpected EOF. '.end' is assumed.");
     for ( auto handler: mHandlerList ) {
@@ -896,7 +896,7 @@ BlifParserImpl::read(const string& filename,
 	ostringstream buf;
 	buf << cell->str() << ": Undefined.";
 	MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-			kMsgError,
+			MsgType::Error,
 			"UNDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
@@ -934,7 +934,7 @@ BlifParserImpl::read(const string& filename,
 
  ST_SYNTAX_ERROR:
   MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
-		  kMsgError,
+		  MsgType::Error,
 		  "SYN00",
 		  "Syntax error.");
   // わざと次の行につづく

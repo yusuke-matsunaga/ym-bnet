@@ -63,7 +63,7 @@ Iscas89ParserImpl::read(const string& filename)
     ostringstream buf;
     buf << filename << " : No such file.";
     MsgMgr::put_msg(__FILE__, __LINE__, FileRegion(),
-		    kMsgFailure, "BLIF_PARSER", buf.str());
+		    MsgType::Failure, "BLIF_PARSER", buf.str());
     return false;
   }
 
@@ -245,7 +245,7 @@ Iscas89ParserImpl::parse_gate_type()
     ostringstream buf;
     buf << "Syntax error: gate-type is expected.";
     MsgMgr::put_msg(__FILE__, __LINE__, cur_loc,
-		    kMsgError,
+		    MsgType::Error,
 		    "ER_SYNTAX02",
 		    buf.str());
   }
@@ -318,7 +318,7 @@ Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
       ostringstream buf;
       buf << "Syntax error: ')' or ',' are expected.";
       MsgMgr::put_msg(__FILE__, __LINE__, cur_loc,
-		      kMsgError,
+		      MsgType::Error,
 		      "ER_SYNTAX03",
 		      buf.str());
       return false;
@@ -342,7 +342,7 @@ Iscas89ParserImpl::read_input(const FileRegion& loc,
     buf << cell->str() << ": Defined more than once. Previous definition is "
 	<< cell->def_loc();
     MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-		    kMsgError,
+		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
@@ -372,7 +372,7 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 	<< "Previous definition is "
 	<< cell->def_loc();
     MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-		    kMsgWarning,
+		    MsgType::Warning,
 		    "WR_MLTDEF02",
 		    buf.str());
   }
@@ -401,7 +401,7 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
     buf << cell->str() << ": Defined more than once. "
 	<< "Previsous Definition is " << cell->def_loc();
     MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-		    kMsgError,
+		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
@@ -435,7 +435,7 @@ Iscas89ParserImpl::read_dff(const FileRegion& loc,
     buf << cell->str() << ": Defined more than once. "
 	<< "Previsous Definition is " << cell->def_loc();
     MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
-		    kMsgError,
+		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
@@ -499,7 +499,7 @@ Iscas89ParserImpl::expect(Iscas89Token exp_token,
     ostringstream buf;
     buf << "Syntax error: '" << token_str(exp_token) << "' is expected.";
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		    kMsgError,
+		    MsgType::Error,
 		    "ER_SYNTAX01",
 		    buf.str());
     return false;
