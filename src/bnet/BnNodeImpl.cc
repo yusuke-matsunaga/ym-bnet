@@ -278,7 +278,6 @@ BnNodeImpl::fanin(int pos) const
 Array<int>
 BnNodeImpl::fanin_list() const
 {
-  ASSERT_NOT_REACHED;
   return Array<int>(nullptr, 0, 0);
 }
 
