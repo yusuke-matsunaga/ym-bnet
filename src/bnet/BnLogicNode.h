@@ -51,7 +51,7 @@ public:
   /// @brief 外部入力の時 true を返す．
   virtual
   bool
-  is_logic() const;
+  is_logic() const override;
 
 
 public:
@@ -62,13 +62,18 @@ public:
   /// @brief ファンイン数を得る．
   virtual
   int
-  fanin_num() const;
+  fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
   int
-  fanin(int pos) const;
+  fanin(int pos) const override;
+
+  /// @brief ファンインのノード番号のリストを返す．
+  virtual
+  Array<int>
+  fanin_list() const override;
 
   /// @brief セルを返す．
   ///
@@ -76,7 +81,7 @@ public:
   /// 場合によっては nullptr を返す．
   virtual
   const ClibCell*
-  cell() const;
+  cell() const override;
 
 
 public:
@@ -90,7 +95,7 @@ public:
   virtual
   void
   set_fanin(int ipos,
-	    int fanin_id);
+	    int fanin_id) override;
 
 
 private:

@@ -3,7 +3,7 @@
 /// @brief BnNodeImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -84,6 +84,13 @@ BnNodeImpl::fanout(int pos) const
 {
   ASSERT_COND( pos < fanout_num() );
   return mFanoutList[pos];
+}
+
+// @brief ファンアウトのノード番号のリストを返す．
+const vector<int>&
+BnNodeImpl::fanout_list() const
+{
+  return mFanoutList;
 }
 
 // @brief 入力番号を返す．
@@ -265,6 +272,14 @@ BnNodeImpl::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
   return kBnNullId;
+}
+
+// @brief ファンインのノード番号のリストを返す．
+Array<int>
+BnNodeImpl::fanin_list() const
+{
+  ASSERT_NOT_REACHED;
+  return Array<int>(nullptr, 0, 0);
 }
 
 // @brief 論理式番号を返す．

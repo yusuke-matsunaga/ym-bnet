@@ -47,38 +47,43 @@ public:
   /// @brief ノードID を返す．
   virtual
   int
-  id() const;
+  id() const override;
 
   /// @brief 名前を返す．
   virtual
   string
-  name() const;
+  name() const override;
 
   /// @brief 外部入力の時 true を返す．
   virtual
   bool
-  is_input() const;
+  is_input() const override;
 
   /// @brief 外部出力の時 true を返す．
   virtual
   bool
-  is_output() const;
+  is_output() const override;
 
   /// @brief 論理ノードの時 true を返す．
   virtual
   bool
-  is_logic() const;
+  is_logic() const override;
 
   /// @brief ファンアウト数を得る．
   virtual
   int
-  fanout_num() const;
+  fanout_num() const override;
 
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
   int
-  fanout(int pos) const;
+  fanout(int pos) const override;
+
+  /// @brief ファンアウトのノード番号のリストを返す．
+  virtual
+  const vector<int>&
+  fanout_list() const override;
 
 
 public:
@@ -92,27 +97,27 @@ public:
   /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
   virtual
   int
-  input_id() const;
+  input_id() const override;
 
   /// @brief 外部入力端子の時 true を返す．
   virtual
   bool
-  is_port_input() const;
+  is_port_input() const override;
 
   /// @brief DFFの出力端子の時 true を返す．
   virtual
   bool
-  is_dff_output() const;
+  is_dff_output() const override;
 
   /// @brief DFFの反転出力端子の時 true を返す．
   virtual
   bool
-  is_dff_xoutput() const;
+  is_dff_xoutput() const override;
 
   /// @brief ラッチの出力端子の時 true を返す．
   virtual
   bool
-  is_latch_output() const;
+  is_latch_output() const override;
 
 
 public:
@@ -126,59 +131,59 @@ public:
   /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
   virtual
   int
-  output_id() const;
+  output_id() const override;
 
   /// @brief 外部出力端子の時に true を返す．
   virtual
   bool
-  is_port_output() const;
+  is_port_output() const override;
 
   /// @brie DFFの入力端子の時に true を返す．
   virtual
   bool
-  is_dff_input() const;
+  is_dff_input() const override;
 
   /// @brief DFFのクロック端子の時に true を返す．
   virtual
   bool
-  is_dff_clock() const;
+  is_dff_clock() const override;
 
   /// @brief DFFのクリア端子の時に true を返す．
   virtual
   bool
-  is_dff_clear() const;
+  is_dff_clear() const override;
 
   /// @brief DFFのプリセット端子の時に true を返す．
   virtual
   bool
-  is_dff_preset() const;
+  is_dff_preset() const override;
 
   /// @brief ラッチの入力端子の時に true を返す．
   virtual
   bool
-  is_latch_input() const;
+  is_latch_input() const override;
 
   /// @brief ラッチのイネーブル端子の時に true を返す．
   virtual
   bool
-  is_latch_enable() const;
+  is_latch_enable() const override;
 
   /// @brief ラッチのクリア端子の時に true を返す．
   virtual
   bool
-  is_latch_clear() const;
+  is_latch_clear() const override;
 
   /// @brief ラッチのプリセット端子の時に true を返す．
   virtual
   bool
-  is_latch_preset() const;
+  is_latch_preset() const override;
 
   /// @brief ファンインのノード番号を返す．
   ///
   /// is_output() == false の時の動作は不定
   virtual
   int
-  fanin() const;
+  fanin() const override;
 
 
 public:
@@ -191,14 +196,14 @@ public:
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
   virtual
   int
-  port_id() const;
+  port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
   virtual
   int
-  port_bit() const;
+  port_bit() const override;
 
   /// @brief 接続しているDFFの番号を返す．
   ///
@@ -206,7 +211,7 @@ public:
   /// の時のみ意味を持つ．
   virtual
   int
-  dff_id() const;
+  dff_id() const override;
 
   /// @brief 接続しているラッチの番号を返す．
   ///
@@ -214,7 +219,7 @@ public:
   /// の時のみ意味を持つ．
   virtual
   int
-  latch_id() const;
+  latch_id() const override;
 
 
 public:
@@ -225,13 +230,17 @@ public:
   /// @brief ファンイン数を得る．
   virtual
   int
-  fanin_num() const;
+  fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   virtual
   int
-  fanin(int pos) const;
+  fanin(int pos) const override;
+
+  /// @brief ファンインのノード番号のリストを返す．
+  Array<int>
+  fanin_list() const override;
 
   /// @brief 論理式番号を返す．
   ///
@@ -239,7 +248,7 @@ public:
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
-  expr_id() const;
+  expr_id() const override;
 
   /// @brief 論理式を返す．
   ///
@@ -248,7 +257,7 @@ public:
   /// 親のネットワークの expr(node->expr_id()) と同一
   virtual
   Expr
-  expr() const;
+  expr() const override;
 
   /// @brief 関数番号を返す．
   ///
@@ -256,7 +265,7 @@ public:
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   virtual
   int
-  func_id() const;
+  func_id() const override;
 
   /// @brief 真理値表を返す．
   ///
@@ -264,7 +273,7 @@ public:
   /// 親のネットワークの func(node->func_id()) と同一
   virtual
   TvFunc
-  func() const;
+  func() const override;
 
   /// @brief セルを返す．
   ///
@@ -272,7 +281,7 @@ public:
   /// 場合によっては nullptr の場合もある．
   virtual
   const ClibCell*
-  cell() const;
+  cell() const override;
 
 
 public:
@@ -290,7 +299,6 @@ public:
 
   /// @brief ファンアウトを追加する．
   /// @param[in] onode_id ファンアウトのノード番号
-  virtual
   void
   add_fanout(int onode_id);
 

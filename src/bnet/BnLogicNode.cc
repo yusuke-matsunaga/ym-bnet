@@ -3,7 +3,7 @@
 /// @brief BnLogicNode の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -62,6 +62,13 @@ BnLogicNode::fanin(int pos) const
 {
   ASSERT_COND( pos < fanin_num() );
   return mFanins[pos];
+}
+
+// @brief ファンインのノード番号のリストを返す．
+Array<int>
+BnLogicNode::fanin_list() const
+{
+  return Array<int>(mFanins, 0, fanin_num());
 }
 
 // @brief セルを返す．

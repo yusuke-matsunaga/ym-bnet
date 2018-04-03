@@ -3,7 +3,7 @@
 /// @brief BnNetwork の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -513,8 +513,8 @@ BnNetwork::write(ostream& s) const
     s << "logic: " << node->id()
       << "(" << node->name() << ")" << endl
       << "    fanins: ";
-    for ( auto i: Range(node->fanin_num()) ) {
-      s << " " << node->fanin(i);
+    for ( auto fanin_id: node->fanin_list() ) {
+    s << " " << fanin_id;
     }
     s << endl;
     s << "    ";
@@ -1221,8 +1221,8 @@ BnNetwork::wrap_up()
 
   // ノードのチェック
   for ( auto node: mNodeList ) {
-    for ( auto i: Range(node->fanin_num()) ) {
-      int id = node->fanin(i);
+    int i = 0;
+    for ( auto id: node->fanin_list() ) {
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
 	     << i << "] is not set" << endl;
@@ -1233,6 +1233,7 @@ BnNetwork::wrap_up()
 	     << i << "] is not valid" << endl;
 	error = true;
       }
+      ++ i;
     }
   }
 
@@ -1266,15 +1267,14 @@ BnNetwork::wrap_up()
     if ( node->is_logic() ) {
       mLogicList.push_back(node);
     }
-    for ( auto i: Range(node->fanout_num()) ) {
-      int oid = node->fanout(i);
+    for ( auto oid: node->fanout_list() ) {
       if ( mark[oid] ) {
 	continue;
       }
       const BnNode* onode = mNodeList[oid];
       bool ready = true;
-      for ( auto j: Range(onode->fanin_num()) ) {
-	if ( !mark[onode->fanin(j)] ) {
+      for ( auto iid: onode->fanin_list() ) {
+	if ( !mark[iid] ) {
 	  ready = false;
 	  break;
 	}
