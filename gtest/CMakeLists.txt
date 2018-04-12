@@ -30,8 +30,6 @@ ym_add_gtest ( FuncAnalyzerTest
   $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_bnet_d>
   )
 
@@ -40,8 +38,6 @@ add_executable ( ReadBlifTest
   $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_bnet_d>
   )
 

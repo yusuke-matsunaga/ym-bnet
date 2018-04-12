@@ -26,8 +26,6 @@ add_executable ( blifparser_test
   ${blifparser_test_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_base_d>
   )
@@ -53,8 +51,6 @@ add_executable ( iscas89parser_test
   ${iscas89parser_test_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_base_d>
   )
@@ -80,8 +76,6 @@ add_executable ( BnBlifReaderTest
   ${BnBlifReaderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_base_d>
   )
@@ -107,8 +101,6 @@ add_executable ( BnIscas89ReaderTest
   ${BnIscas89ReaderTest_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_base_d>
   )
@@ -134,8 +126,6 @@ add_executable ( loop_test
   ${loop_test_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_d>
   $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_cell_mislib_d>
-  $<TARGET_OBJECTS:ym_cell_dotlib_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_base_d>
   )
