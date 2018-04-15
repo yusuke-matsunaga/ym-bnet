@@ -101,17 +101,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // ID番号
+  int mId;
+
   // 入力数
   int mInputNum;
-
-  // 出力パタン
-  BlifPat mOutputPat;
 
   // キューブ数
   int mCubeNum;
 
-  // ID番号
-  int mId;
+  // 出力パタン
+  BlifPat mOutputPat;
 
   // 論理式
   Expr mExpr;
