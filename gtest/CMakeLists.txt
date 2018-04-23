@@ -27,18 +27,18 @@ include_directories(
 
 ym_add_gtest ( FuncAnalyzerTest
   FuncAnalyzerTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_logic_d>
-  $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_bnet_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_cell_ad>
+  $<TARGET_OBJECTS:ym_bnet_ad>
   )
 
 add_executable ( ReadBlifTest
   ReadBlifTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_logic_d>
-  $<TARGET_OBJECTS:ym_cell_d>
-  $<TARGET_OBJECTS:ym_bnet_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_cell_ad>
+  $<TARGET_OBJECTS:ym_bnet_ad>
   )
 
 target_compile_options ( ReadBlifTest
