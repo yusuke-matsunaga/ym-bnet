@@ -254,14 +254,14 @@ BnNetwork::copy(const BnNetwork& src)
     int nfi = src_node->fanin_num();
     string name = src_node->name();
     BnNodeType logic_type = src_node->type();
-    int expr_id = src_node->expr_id();
-    int func_id = src_node->func_id();
     const ClibCell* cell = src_node->cell();
     int dst_id = kBnNullId;
     if ( logic_type == BnNodeType::Expr ) {
+      int expr_id = src_node->expr_id();
       dst_id = _new_expr(name, nfi, src.expr(expr_id), cell);
     }
     else if ( logic_type == BnNodeType::TvFunc ) {
+      int func_id = src_node->func_id();
       dst_id = _new_tv(name, nfi, src.func(func_id), cell);
     }
     else {
