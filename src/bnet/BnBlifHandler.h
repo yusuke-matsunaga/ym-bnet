@@ -25,10 +25,12 @@ class BnBlifHandler :
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] parser パーサー
   /// @param[in] network ネットワーク
   /// @param[in] clock_name クロック端子名
   /// @param[in] reset_name リセット端子名
-  BnBlifHandler(BnNetwork* network,
+  BnBlifHandler(BlifParser& parser,
+		BnNetwork* network,
 		const string& clock_name = "clock",
 		const string& reset_name = "reset");
 

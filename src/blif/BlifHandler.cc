@@ -8,6 +8,7 @@
 
 
 #include "ym/BlifHandler.h"
+#include "ym/BlifParser.h"
 #include "BlifParserImpl.h"
 
 
@@ -18,8 +19,13 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BlifHandler::BlifHandler()
+// @param[in] parser blif パーサー
+//
+// 生成されたハンドラは自動的に parser に登録される．
+BlifHandler::BlifHandler(BlifParser& parser) :
+  mParser(*parser.mImpl.get())
 {
+  mParser.add_handler(this);
 }
 
 // @brief デストラクタ
@@ -31,35 +37,35 @@ BlifHandler::~BlifHandler()
 const char*
 BlifHandler::id2str(int id)
 {
-  return mParser->id2str(id);
+  return mParser.id2str(id);
 }
 
 // @brief ID番号からそれに関連した位置情報を得る．
 const FileRegion&
 BlifHandler::id2loc(int id)
 {
-  return mParser->id2loc(id);
+  return mParser.id2loc(id);
 }
 
 // @brief ID番号からそれに関連した位置情報を得る．
 const FileRegion&
 BlifHandler::id2def_loc(int id)
 {
-  return mParser->id2def_loc(id);
+  return mParser.id2def_loc(id);
 }
 
 // @brief カバーの数を得る．
 int
 BlifHandler::cover_num()
 {
-  return mParser->cover_num();
+  return mParser.cover_num();
 }
 
 // @brief カバーIDからカバーを得る．
-const BlifCover*
+const BlifCover&
 BlifHandler::id2cover(int id)
 {
-  return mParser->id2cover(id);
+  return mParser.id2cover(id);
 }
 
 END_NAMESPACE_YM_BNET

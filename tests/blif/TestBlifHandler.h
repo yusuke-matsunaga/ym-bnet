@@ -24,7 +24,9 @@ class TestBlifHandler :
 public:
 
   /// @brief コンストラクタ
-  TestBlifHandler(ostream* stream);
+  /// @param[in] parser
+  TestBlifHandler(BlifParser& parser,
+		  ostream* stream);
 
   /// @brief デストラクタ
   virtual

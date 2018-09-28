@@ -46,7 +46,7 @@ public:
   /// @param[in] cube_num キューブ数
   /// @param[in] ipat_str 入力パタン文字列
   /// @param[in] opat 出力パタン
-  const BlifCover*
+  const BlifCover&
   pat2cover(int input_num,
 	    int cube_num,
 	    const string& ipat_str,
@@ -54,7 +54,7 @@ public:
 
   /// @brief ID番号から BlifCover を返す．
   /// @param[in] id ID番号
-  const BlifCover*
+  const BlifCover&
   cover(int id) const;
 
 
@@ -125,11 +125,12 @@ BlifCoverMgr::cover_num() const
 // @brief ID番号から BlifCover を返す．
 // @param[in] id ID番号
 inline
-const BlifCover*
+const BlifCover&
 BlifCoverMgr::cover(int id) const
 {
   ASSERT_COND( id >= 0 && id < cover_num() );
-  return mCoverArray[id];
+
+  return *mCoverArray[id];
 }
 
 END_NAMESPACE_YM_BNET

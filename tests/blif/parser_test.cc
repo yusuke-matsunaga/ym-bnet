@@ -48,19 +48,25 @@ main(int argc,
 #if !defined(YM_DEBUG)
   try {
 #endif
-    BlifParser parser;
-    BlifHandler* handler = nullptr;
-    if ( null ) {
-      handler = new NullBlifHandler;
-    }
-    else {
-      handler = new TestBlifHandler(&cout);
-    }
-    parser.add_handler(handler);
+
     StreamMsgHandler* msg_handler = new StreamMsgHandler(&cerr);
     MsgMgr::reg_handler(msg_handler);
 
-    if ( !parser.read(filename) ) {
+    BlifParser parser;
+    bool stat = false;
+
+    if ( null ) {
+      NullBlifHandler __dummy(parser);
+
+      stat = parser.read(filename);
+    }
+    else {
+      TestBlifHandler __dummy(parser, &cout);
+
+      stat = parser.read(filename);
+    }
+
+    if ( !stat ) {
       cerr << "Error in reading " << filename << endl;
       return 4;
     }

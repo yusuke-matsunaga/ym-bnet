@@ -138,7 +138,7 @@ BlifCoverMgr::~BlifCoverMgr()
 // @param[in] cube_num キューブ数
 // @param[in] ipat_str 入力パタン文字列
 // @param[in] opat 出力パタン
-const BlifCover*
+const BlifCover&
 BlifCoverMgr::pat2cover(int input_num,
 			int cube_num,
 			const string& ipat_str,
@@ -149,7 +149,7 @@ BlifCoverMgr::pat2cover(int input_num,
   for ( BlifCover* cover = mHashTable[h];
 	cover != nullptr; cover = cover->mLink ) {
     if ( check_equal(cover, input_num, cube_num, ipat_str, opat_char) ) {
-      return cover;
+      return *cover;
     }
   }
   // 新しいカバーを登録する．
@@ -160,7 +160,7 @@ BlifCoverMgr::pat2cover(int input_num,
   BlifCover* cover = new_cover(input_num, cube_num, ipat_str, opat_char);
   reg_cover(cover);
   ++ mCoverNum;
-  return cover;
+  return *cover;
 }
 
 // @brief BlifCover を作る．

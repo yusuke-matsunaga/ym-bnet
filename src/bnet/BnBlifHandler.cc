@@ -19,12 +19,15 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
+// @param[in] parser パーサー
 // @param[in] network ネットワーク
 // @param[in] clock_name クロック端子名
 // @param[in] reset_name リセット端子名
-BnBlifHandler::BnBlifHandler(BnNetwork* network,
+BnBlifHandler::BnBlifHandler(BlifParser& parser,
+			     BnNetwork* network,
 			     const string& clock_name,
 			     const string& reset_name) :
+  BlifHandler(parser),
   mNetwork(network),
   mClockName(clock_name),
   mResetName(reset_name)
@@ -117,8 +120,8 @@ BnBlifHandler::names(int oname_id,
 		     const vector<int>& inode_id_array,
 		     int cover_id)
 {
-  const BlifCover* cover = id2cover(cover_id);
-  const Expr& expr = cover->expr();
+  const BlifCover& cover = id2cover(cover_id);
+  const Expr& expr = cover.expr();
 
   int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );

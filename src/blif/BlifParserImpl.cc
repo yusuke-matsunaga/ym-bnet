@@ -26,15 +26,14 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BlifParser::BlifParser()
+BlifParser::BlifParser() :
+  mImpl(new BlifParserImpl())
 {
-  mImpl = new BlifParserImpl();
 }
 
 // @brief デストラクタ
 BlifParser::~BlifParser()
 {
-  delete mImpl;
 }
 
 // @brief 読み込みを行う．
@@ -59,15 +58,6 @@ BlifParser::read(const string& filename,
 {
   bool stat = mImpl->read(filename, &cell_library);
   return stat;
-}
-
-// @brief イベントハンドラの登録
-// @param[in] handler 登録するハンドラ
-// @note handler はこのインスタンスが破壊される時に同時に破壊される．
-void
-BlifParser::add_handler(BlifHandler* handler)
-{
-  mImpl->add_handler(handler);
 }
 
 
@@ -121,10 +111,6 @@ BlifParserImpl::BlifParserImpl()
 // @brief デストラクタ
 BlifParserImpl::~BlifParserImpl()
 {
-  // 登録してあるハンドラを削除する．
-  for ( auto handler: mHandlerList ) {
-    delete handler;
-  }
   delete mScanner;
 }
 
@@ -605,8 +591,8 @@ BlifParserImpl::read(const string& filename,
       mIdArray.push_back(mNameArray[i]->id());
     }
     string ipat_str = mCoverPat.c_str();
-    const BlifCover* cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
-    int cover_id = cover->id();
+    const BlifCover& cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
+    int cover_id = cover.id();
 
     // ハンドラを呼び出す．
     for ( auto handler: mHandlerList ) {
@@ -955,7 +941,6 @@ void
 BlifParserImpl::add_handler(BlifHandler* handler)
 {
   mHandlerList.push_back(handler);
-  handler->mParser = this;
 }
 
 // @brief トークンを一つ読み出す．

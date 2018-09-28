@@ -27,6 +27,8 @@ class BlifParserImpl;
 //////////////////////////////////////////////////////////////////////
 class BlifParser
 {
+  friend class BlifHandler;
+
 public:
 
   /// @brief コンストラクタ
@@ -57,12 +59,6 @@ public:
   read(const string& filename,
        const ClibCellLibrary& cell_library);
 
-  /// @brief イベントハンドラの登録
-  /// @param[in] handler 登録するハンドラ
-  /// @note handler はこのインスタンスが破壊される時に同時に破壊される．
-  void
-  add_handler(BlifHandler* handler);
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -70,7 +66,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実体
-  BlifParserImpl* mImpl;
+  std::unique_ptr<BlifParserImpl> mImpl;
 
 };
 

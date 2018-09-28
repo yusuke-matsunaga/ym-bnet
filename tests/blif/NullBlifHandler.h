@@ -24,7 +24,8 @@ class NullBlifHandler :
 public:
 
   /// @brief コンストラクタ
-  NullBlifHandler();
+  /// @param[in] parser パーサー
+  NullBlifHandler(BlifParser& parser);
 
   /// @brief デストラクタ
   virtual

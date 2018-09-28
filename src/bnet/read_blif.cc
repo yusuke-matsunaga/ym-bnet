@@ -26,10 +26,8 @@ read_blif(BnNetwork& network,
 	  const string& clock_name,
 	  const string& reset_name)
 {
-  BnBlifHandler* handler = new BnBlifHandler(&network, clock_name, reset_name);
-
   BlifParser parser;
-  parser.add_handler(handler);
+  BnBlifHandler handler(parser, &network, clock_name, reset_name);
 
   bool stat = parser.read(filename);
 
@@ -50,10 +48,8 @@ read_blif(BnNetwork& network,
 	  const string& clock_name,
 	  const string& reset_name)
 {
-  BnBlifHandler* handler = new BnBlifHandler(&network, clock_name, reset_name);
-
   BlifParser parser;
-  parser.add_handler(handler);
+  BnBlifHandler handler(parser, &network, clock_name, reset_name);
 
   bool stat = parser.read(filename, cell_library);
 

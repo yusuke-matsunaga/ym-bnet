@@ -80,7 +80,7 @@ public:
   cover_num();
 
   /// @brief カバーIDから BlifCover を得る．
-  const BlifCover*
+  const BlifCover&
   id2cover(int id);
 
 
@@ -200,7 +200,7 @@ BlifParserImpl::cover_num()
 
 // @brief カバーIDから BlifCover を得る．
 inline
-const BlifCover*
+const BlifCover&
 BlifParserImpl::id2cover(int id)
 {
   return mCoverMgr.cover(id);

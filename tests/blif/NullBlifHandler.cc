@@ -13,7 +13,9 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-NullBlifHandler::NullBlifHandler()
+// @param[in] parser
+NullBlifHandler::NullBlifHandler(BlifParser& parser) :
+  BlifHandler(parser)
 {
 }
 

@@ -34,7 +34,10 @@ class BlifHandler
 protected:
 
   /// @brief コンストラクタ
-  BlifHandler();
+  /// @param[in] parser blif パーサー
+  ///
+  /// 生成されたハンドラは自動的に parser に登録される．
+  BlifHandler(BlifParser& parser);
 
   /// @brief デストラクタ
   virtual
@@ -182,7 +185,7 @@ protected:
   cover_num();
 
   /// @brief カバーIDからカバーを得る．
-  const BlifCover*
+  const BlifCover&
   id2cover(int id);
 
 
@@ -192,7 +195,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーサー本体
-  BlifParserImpl* mParser;
+  BlifParserImpl& mParser;
 
 };
 

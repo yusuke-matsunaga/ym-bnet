@@ -18,7 +18,10 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-TestBlifHandler::TestBlifHandler(ostream* streamptr) :
+// @param[in] parser パーサー
+TestBlifHandler::TestBlifHandler(BlifParser& parser,
+				 ostream* streamptr) :
+  BlifHandler(parser),
   mStreamPtr(streamptr)
 {
 }
@@ -100,17 +103,17 @@ TestBlifHandler::names(int onode_id,
   (*mStreamPtr) << oname << endl
 		<< "\t[" << id2loc(onode_id) << "]" << endl;
   (*mStreamPtr) << "Cover#" << cover_id << endl;
-  const BlifCover* cover = id2cover(cover_id);
-  int nc = cover->cube_num();
+  const BlifCover& cover = id2cover(cover_id);
+  int nc = cover.cube_num();
   int ni = inode_id_array.size();
   for ( int c = 0; c < nc; ++ c ) {
     for ( int i = 0; i < ni; ++ i ) {
-      (*mStreamPtr) << cover->input_pat(i, c);
+      (*mStreamPtr) << cover.input_pat(i, c);
     }
     if ( ni > 0 ) {
       (*mStreamPtr) << ' ';
     }
-    (*mStreamPtr) << cover->output_pat() << endl;
+    (*mStreamPtr) << cover.output_pat() << endl;
   }
   return true;
 }
