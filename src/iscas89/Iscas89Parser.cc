@@ -14,15 +14,14 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-Iscas89Parser::Iscas89Parser()
+Iscas89Parser::Iscas89Parser() :
+  mRep(new Iscas89ParserImpl)
 {
-  mRep = new Iscas89ParserImpl;
 }
 
 // @brief デストラクタ
 Iscas89Parser::~Iscas89Parser()
 {
-  delete mRep;
 }
 
 // @brief 読み込みを行う．
@@ -30,13 +29,6 @@ bool
 Iscas89Parser::read(const string& filename)
 {
   return mRep->read(filename);
-}
-
-// @brief イベントハンドラの登録
-void
-Iscas89Parser::add_handler(Iscas89Handler* handler)
-{
-  mRep->add_handler(handler);
 }
 
 END_NAMESPACE_YM_BNET

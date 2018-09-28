@@ -31,7 +31,8 @@ class Iscas89Handler
 protected:
 
   /// @brief コンストラクタ
-  Iscas89Handler();
+  /// @param[in] parser ISCAS89 パーサー
+  Iscas89Handler(Iscas89Parser& parser);
 
   /// @brief デストラクタ
   virtual

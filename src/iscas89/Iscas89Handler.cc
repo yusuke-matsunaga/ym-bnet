@@ -8,6 +8,7 @@
 
 
 #include "ym/Iscas89Handler.h"
+#include "ym/Iscas89Parser.h"
 #include "Iscas89ParserImpl.h"
 
 
@@ -18,8 +19,11 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-Iscas89Handler::Iscas89Handler()
+// @param[in] parser パーサー
+Iscas89Handler::Iscas89Handler(Iscas89Parser& parser) :
+  mParser(parser.mRep.get())
 {
+  mParser->add_handler(this);
 }
 
 // @brief デストラクタ

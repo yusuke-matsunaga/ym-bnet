@@ -12,7 +12,7 @@
 #include "TestBlifHandler.h"
 #include "NullBlifHandler.h"
 #include "ym/MsgMgr.h"
-#include "ym/MsgHandler.h"
+#include "ym/StreamMsgHandler.h"
 
 void
 usage(const char* argv0)
@@ -49,8 +49,8 @@ main(int argc,
   try {
 #endif
 
-    StreamMsgHandler* msg_handler = new StreamMsgHandler(&cerr);
-    MsgMgr::reg_handler(msg_handler);
+    StreamMsgHandler msg_handler(&cerr);
+    MsgMgr::attach_handler(&msg_handler);
 
     BlifParser parser;
     bool stat = false;

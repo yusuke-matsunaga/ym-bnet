@@ -17,10 +17,13 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
+// @param[in] parser パーサー
 // @param[in] network 設定対象のネットワーク
 // @param[in] clock_name クロック端子名
-BnIscas89Handler::BnIscas89Handler(BnNetwork* network,
+BnIscas89Handler::BnIscas89Handler(Iscas89Parser& parser,
+				   BnNetwork* network,
 				   const string& clock_name) :
+  Iscas89Handler(parser),
   mNetwork(network),
   mClockName(clock_name)
 {

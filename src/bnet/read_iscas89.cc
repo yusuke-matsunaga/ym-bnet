@@ -23,10 +23,8 @@ read_iscas89(BnNetwork& network,
 	     const string& filename,
 	     const string& clock_name)
 {
-  BnIscas89Handler* handler = new BnIscas89Handler(&network, clock_name);
-
   Iscas89Parser parser;
-  parser.add_handler(handler);
+  BnIscas89Handler handler(parser, &network, clock_name);
 
   bool stat = parser.read(filename);
 

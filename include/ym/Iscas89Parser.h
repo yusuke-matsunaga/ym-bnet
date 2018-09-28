@@ -24,6 +24,8 @@ class Iscas89ParserImpl;
 //////////////////////////////////////////////////////////////////////
 class Iscas89Parser
 {
+  friend class Iscas89Handler;
+
 public:
 
   /// @brief コンストラクタ
@@ -42,12 +44,6 @@ public:
   bool
   read(const string& filename);
 
-  /// @brief イベントハンドラの登録
-  /// @param[in] handler 登録する対象のハンドラ
-  /// @note handler はこのインスタンスが破壊される時に同時に破壊される．
-  void
-  add_handler(Iscas89Handler* handler);
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -55,7 +51,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーサーの実体
-  Iscas89ParserImpl* mRep;
+  unique_ptr<Iscas89ParserImpl> mRep;
 
 };
 

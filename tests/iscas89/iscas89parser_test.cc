@@ -10,7 +10,7 @@
 #include "ym/Iscas89Parser.h"
 #include "ym/Iscas89Handler.h"
 #include "ym/MsgMgr.h"
-#include "ym/MsgHandler.h"
+#include "ym/StreamMsgHandler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -25,39 +25,41 @@ class TestIscas89Handler :
 public:
 
   /// @brief コンストラクタ
-  TestIscas89Handler(ostream* stream);
+  /// @param[in] parser パーサー
+  TestIscas89Handler(Iscas89Parser& parser,
+		     ostream* stream);
 
   /// @brief デストラクタ
-  virtual
   ~TestIscas89Handler();
 
 
 public:
 
   /// @brief 初期化
-  virtual
   bool
-  init();
+  init() override;
 
   /// @brief INPUT 文を読み込む．
   /// @param[in] loc ファイル位置
   /// @param[in] name_id 入力ピン名の ID 番号
+  /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   read_input(const FileRegion& loc,
-	     int name_id);
+	     int name_id,
+	     const char* name) override;
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
   /// @param[in] name_id 出力ピン名の ID 番号
+  /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   read_output(const FileRegion& loc,
-	      int name_id);
+	      int name_id,
+	      const char* name) override;
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -66,13 +68,12 @@ public:
   /// @param[in] iname_list 入力名のリスト
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   read_gate(const FileRegion& loc,
 	    BnNodeType type,
 	    int oname_id,
 	    const char* oname,
-	    const vector<int>& iname_list);
+	    const vector<int>& iname_list) override;
 
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -81,22 +82,19 @@ public:
   /// @param[in] iname_id 入力名の ID 番号
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   read_dff(const FileRegion& loc,
 	   int oname_id,
 	   const char* oname,
-	   int iname_id);
+	   int iname_id) override;
 
   /// @brief 通常終了時の処理
-  virtual
   void
-  normal_exit();
+  normal_exit() override;
 
   /// @brief エラー終了時の処理
-  virtual
   void
-  error_exit();
+  error_exit() override;
 
 
 private:
@@ -107,7 +105,9 @@ private:
 
 
 // @brief コンストラクタ
-TestIscas89Handler::TestIscas89Handler(ostream* streamptr) :
+TestIscas89Handler::TestIscas89Handler(Iscas89Parser& parser,
+				       ostream* streamptr) :
+  Iscas89Handler(parser),
   mStreamPtr(streamptr)
 {
 }
@@ -128,11 +128,13 @@ TestIscas89Handler::init()
 // @brief INPUT 文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] name_id 入力ピン名の ID 番号
+// @param[in] name 出力ピン名
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_input(const FileRegion& loc,
-			       int name_id)
+			       int name_id,
+			       const char* name)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_input()" << endl
 		<< "    " << loc << endl;
@@ -144,11 +146,13 @@ TestIscas89Handler::read_input(const FileRegion& loc,
 // @brief OUTPUT 文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] name_id 出力ピン名の ID 番号
+// @param[in] name 出力ピン名
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 TestIscas89Handler::read_output(const FileRegion& loc,
-				int name_id)
+				int name_id,
+				const char* name)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_output()" << endl
 		<< "    " << loc << endl;
@@ -254,11 +258,10 @@ main(int argc,
 
   try {
     Iscas89Parser parser;
-    TestIscas89Handler* handler = new TestIscas89Handler(&cout);
-    parser.add_handler(handler);
+    TestIscas89Handler handler(parser, &cout);
 
-    MsgHandler* msg_handler = new StreamMsgHandler(&cerr);
-    MsgMgr::reg_handler(msg_handler);
+    StreamMsgHandler msg_handler(&cerr);
+    MsgMgr::attach_handler(&msg_handler);
 
     if ( !parser.read(filename) ) {
       cerr << "Error in reading " << filename << endl;
