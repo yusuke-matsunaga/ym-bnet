@@ -4,9 +4,9 @@
 # ===================================================================
 include_directories(
   ${GTEST_INCLUDE_DIR}
-  ../src/bnet
-  ../src/blif
-  ../src/iscas89
+  ../c++-src/bnet
+  ../c++-src/blif
+  ../c++-src/iscas89
   )
 
 

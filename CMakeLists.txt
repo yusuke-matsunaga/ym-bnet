@@ -50,37 +50,37 @@ add_subdirectory ( gtest )
 # ===================================================================
 
 set ( blif_SOURCES
-  src/blif/BlifCover.cc
-  src/blif/BlifCoverMgr.cc
-  src/blif/BlifDic.cc
-  src/blif/BlifHandler.cc
-  src/blif/BlifIdHash.cc
-  src/blif/BlifParserImpl.cc
-  src/blif/BlifScanner.cc
+  c++-src/blif/BlifCover.cc
+  c++-src/blif/BlifCoverMgr.cc
+  c++-src/blif/BlifDic.cc
+  c++-src/blif/BlifHandler.cc
+  c++-src/blif/BlifIdHash.cc
+  c++-src/blif/BlifParserImpl.cc
+  c++-src/blif/BlifScanner.cc
   )
 
 set ( bnet_SOURCES
-  src/bnet/BnBlifHandler.cc
-  src/bnet/BnDffImpl.cc
-  src/bnet/BnIscas89Handler.cc
-  src/bnet/BnLatchImpl.cc
-  src/bnet/BnNetwork.cc
-  src/bnet/BnNodeImpl.cc
-  src/bnet/BnInputNode.cc
-  src/bnet/BnOutputNode.cc
-  src/bnet/BnLogicNode.cc
-  src/bnet/BnPortImpl.cc
-  src/bnet/FuncAnalyzer.cc
-  src/bnet/read_blif.cc
-  src/bnet/read_iscas89.cc
+  c++-src/bnet/BnBlifHandler.cc
+  c++-src/bnet/BnDffImpl.cc
+  c++-src/bnet/BnIscas89Handler.cc
+  c++-src/bnet/BnLatchImpl.cc
+  c++-src/bnet/BnNetwork.cc
+  c++-src/bnet/BnNodeImpl.cc
+  c++-src/bnet/BnInputNode.cc
+  c++-src/bnet/BnOutputNode.cc
+  c++-src/bnet/BnLogicNode.cc
+  c++-src/bnet/BnPortImpl.cc
+  c++-src/bnet/FuncAnalyzer.cc
+  c++-src/bnet/read_blif.cc
+  c++-src/bnet/read_iscas89.cc
   )
 
 set ( iscas89_SOURCES
-  src/iscas89/Iscas89Handler.cc
-  src/iscas89/Iscas89IdHash.cc
-  src/iscas89/Iscas89Parser.cc
-  src/iscas89/Iscas89ParserImpl.cc
-  src/iscas89/Iscas89Scanner.cc
+  c++-src/iscas89/Iscas89Handler.cc
+  c++-src/iscas89/Iscas89IdHash.cc
+  c++-src/iscas89/Iscas89Parser.cc
+  c++-src/iscas89/Iscas89ParserImpl.cc
+  c++-src/iscas89/Iscas89Scanner.cc
   )
 
 set ( ym_bnet_SOURCES
