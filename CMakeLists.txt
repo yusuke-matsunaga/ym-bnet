@@ -73,6 +73,7 @@ set ( bnet_SOURCES
   c++-src/bnet/FuncAnalyzer.cc
   c++-src/bnet/read_blif.cc
   c++-src/bnet/read_iscas89.cc
+  c++-src/bnet/write_blif.cc
   )
 
 set ( iscas89_SOURCES

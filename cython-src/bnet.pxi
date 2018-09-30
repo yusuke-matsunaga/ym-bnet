@@ -9,6 +9,7 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_BnNetwork cimport BnNetwork as CXX_BnNetwork
+from CXX_BnNetwork cimport write_blif as cxx_write_blif
 from CXX_BnNetwork cimport read_blif as cxx_read_blif
 from CXX_BnNetwork cimport read_iscas89 as cxx_read_iscas89
 from CXX_ClibCellLibrary cimport ClibCellLibrary as CXX_ClibCellLibrary
@@ -20,7 +21,12 @@ cdef class BnNetwork :
     # C++ レベルのオブジェクト本体
     cdef CXX_BnNetwork _this
 
-    ### @blif blif ファイルの読み込み
+    ### @brief blif ファイルの書き出し
+    def write_blif(self, str filename) :
+        cdef string c_filename = filename.encode('UTF-8')
+        cxx_write_blif(self._this, c_filename)
+
+    ### @blief blif ファイルの読み込み
     @staticmethod
     def read_blif(str filename, CellLibrary cell_library = None, clock_name = None, reset_name = None) :
         cdef string c_filename = filename.encode('UTF-8')

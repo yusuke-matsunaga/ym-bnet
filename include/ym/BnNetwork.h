@@ -549,8 +549,19 @@ private:
 ///
 /// ポートの情報は無視される．
 void
-write_blif(ostream& s,
-	   const BnNetwork& network);
+write_blif(const BnNetwork& network,
+	   ostream& s);
+
+/// @relates BnNetwork
+/// @brief 内容を blif 形式で出力する．
+/// @param[in] filename 出力先のファイル名
+/// @param[in] network ネットワーク
+///
+/// ポートの情報は無視される．
+void
+write_blif(const BnNetwork& network,
+	   const string& filename);
+
 
 // @brief blif ファイルを読み込む．
 // @param[in] network 設定対象のネットワーク

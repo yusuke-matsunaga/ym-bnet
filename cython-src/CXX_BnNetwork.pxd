@@ -18,6 +18,7 @@ cdef extern from "ym/BnNetwork.h" namespace "nsYm::nsBnet" :
 
         BnNetwork()
 
+    void write_blif(const BnNetwork&, const string&)
     bool read_blif(BnNetwork&, const string&, const string&, const string&)
     bool read_blif(BnNetwork&, const string&, const ClibCellLibrary&, const string&, const string&)
     bool read_iscas89(BnNetwork&, const string&, const string&)
