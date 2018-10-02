@@ -346,6 +346,13 @@ BnNodeImpl::set_fanin(int ipos,
   ASSERT_NOT_REACHED;
 }
 
+// @brief ファンアウトリストをクリアする．
+void
+BnNodeImpl::clear_fanout()
+{
+  mFanoutList.clear();
+}
+
 // @brief ファンアウトを追加する．
 // @param[in] node_id ノード番号
 void

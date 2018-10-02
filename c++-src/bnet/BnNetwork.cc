@@ -1089,10 +1089,8 @@ BnNetwork::connect(int src_id,
 {
   ASSERT_COND( src_id != kBnNullId );
   ASSERT_COND( dst_id != kBnNullId );
-  BnNodeImpl* src_node = mNodeList[src_id];
   BnNodeImpl* dst_node = mNodeList[dst_id];
   dst_node->set_fanin(ipos, src_id);
-  src_node->add_fanout(dst_id);
 
   mSane = false;
 }
@@ -1221,8 +1219,8 @@ BnNetwork::wrap_up()
 
   // ノードのチェック
   for ( auto node: mNodeList ) {
-    int i = 0;
-    for ( auto id: node->fanin_list() ) {
+    for ( auto i: Range(node->fanin_num()) ) {
+      auto id = node->fanin(i);
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
 	     << i << "] is not set" << endl;
@@ -1233,12 +1231,22 @@ BnNetwork::wrap_up()
 	     << i << "] is not valid" << endl;
 	error = true;
       }
-      ++ i;
     }
   }
 
   if ( error ) {
     return false;
+  }
+
+  // 各ノードのファンアウトリストの作成
+  for ( auto node: mNodeList ) {
+    node->clear_fanout();
+  }
+  for ( auto node: mNodeList ) {
+    for ( auto id: node->fanin_list() ) {
+      auto src_node = mNodeList[id];
+      src_node->add_fanout(node->id());
+    }
   }
 
   // 論理ノードをトポロジカル順にソートする．

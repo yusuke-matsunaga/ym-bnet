@@ -21,8 +21,6 @@ BEGIN_NAMESPACE_YM_BNET
 class BnNodeImpl :
   public BnNode
 {
-  friend class BnNetworkImpl;
-
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -296,6 +294,10 @@ public:
   void
   set_fanin(int ipos,
 	    int fanin_id);
+
+  /// @brief ファンアウトリストをクリアする．
+  void
+  clear_fanout();
 
   /// @brief ファンアウトを追加する．
   /// @param[in] onode_id ファンアウトのノード番号
