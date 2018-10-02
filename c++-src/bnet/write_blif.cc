@@ -185,64 +185,95 @@ write_blif(const BnNetwork& network,
       {
 	const Expr& expr = network.expr(node->expr_id());
 	if ( expr.is_sop() ) {
-	  // simple_and, simple_or タイプなら上で処理しているはず．
-	  ASSERT_COND( expr.is_or() );
 	  int nc = expr.child_num();
-	  for ( auto i: Range(expr.child_num()) ) {
-	    Expr expr1 = expr.child(i);
-	    if ( expr1.is_posiliteral() ) {
-	      VarId var = expr1.varid();
-	      int pos = var.val();
-	      for ( auto j: Range(ni) ) {
-		if ( j == pos ) {
-		  s << "1";
-		}
-		else {
-		  s << "-";
-		}
-	      }
-	      s << " 1" << endl;
-	    }
-	    else if ( expr1.is_negaliteral() ) {
-	      VarId var = expr1.varid();
-	      int pos = var.val();
-	      for ( auto j: Range(ni) ) {
-		if ( j == pos ) {
-		  s << "0";
-		}
-		else {
-		  s << "-";
-		}
-	      }
-	      s << " 1" << endl;
-	    }
-	    else if ( expr1.is_and() ) {
-	      vector<int> lit_map(ni, 0);
-	      for ( auto j: Range(expr1.child_num()) ) {
-		Expr expr2 = expr1.child(j);
-		ASSERT_COND( expr2.is_literal() );
-		VarId var = expr2.varid();
+	  if ( expr.is_and() ) {
+	    // 個々の子供はリテラルのはず．
+	    vector<int> pol_array(ni, 0);
+	    for ( auto i: Range(expr.child_num()) ) {
+	      Expr expr1 = expr.child(i);
+	      if ( expr1.is_posiliteral() ) {
+		VarId var = expr1.varid();
 		int pos = var.val();
-		if ( expr2.is_posiliteral() ) {
-		  lit_map[pos] = 1;
-		}
-		else {
-		  lit_map[pos] = 2;
-		}
+		pol_array[pos] = 1;
 	      }
-	      for ( auto j: Range(ni) ) {
-		if ( lit_map[j] == 1 ) {
-		  s << "1";
-		}
-		else if ( lit_map[j] == 2 ) {
-		  s << "0";
-		}
-		else {
-		  s << "-";
-		}
+	      else if ( expr1.is_negaliteral() ) {
+		VarId var = expr1.varid();
+		int pos = var.val();
+		pol_array[pos] = 2;
 	      }
-	      s << " 1" << endl;
+	      else {
+		ASSERT_NOT_REACHED;
+	      }
 	    }
+	    for ( auto i: Range(ni) ) {
+	      switch ( pol_array[i] ) {
+	      case 0: s << "-"; break;
+	      case 1: s << "1"; break;
+	      case 2: s << "0"; break;
+	      }
+	    }
+	    s << " 1" << endl;
+	  }
+	  else if ( expr.is_or() ) {
+	    for ( auto i: Range(expr.child_num()) ) {
+	      Expr expr1 = expr.child(i);
+	      if ( expr1.is_posiliteral() ) {
+		VarId var = expr1.varid();
+		int pos = var.val();
+		for ( auto j: Range(ni) ) {
+		  if ( j == pos ) {
+		    s << "1";
+		  }
+		  else {
+		    s << "-";
+		  }
+		}
+		s << " 1" << endl;
+	      }
+	      else if ( expr1.is_negaliteral() ) {
+		VarId var = expr1.varid();
+		int pos = var.val();
+		for ( auto j: Range(ni) ) {
+		  if ( j == pos ) {
+		    s << "0";
+		  }
+		  else {
+		    s << "-";
+		  }
+		}
+		s << " 1" << endl;
+	      }
+	      else if ( expr1.is_and() ) {
+		vector<int> lit_map(ni, 0);
+		for ( auto j: Range(expr1.child_num()) ) {
+		  Expr expr2 = expr1.child(j);
+		  ASSERT_COND( expr2.is_literal() );
+		  VarId var = expr2.varid();
+		  int pos = var.val();
+		  if ( expr2.is_posiliteral() ) {
+		    lit_map[pos] = 1;
+		  }
+		  else {
+		    lit_map[pos] = 2;
+		  }
+		}
+		for ( auto j: Range(ni) ) {
+		  if ( lit_map[j] == 1 ) {
+		    s << "1";
+		  }
+		  else if ( lit_map[j] == 2 ) {
+		    s << "0";
+		  }
+		  else {
+		    s << "-";
+		  }
+		}
+		s << " 1" << endl;
+	      }
+	    }
+	  }
+	  else {
+	    ASSERT_NOT_REACHED;
 	  }
 	}
 	else {
