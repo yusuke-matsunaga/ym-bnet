@@ -15,8 +15,22 @@ cdef extern from "ym/BnNetwork.h" namespace "nsYm::nsBnet" :
 
     ### @brief BnNetwork の cython バージョン
     cdef cppclass BnNetwork :
-
         BnNetwork()
+        void clear()
+        void copy(const BnNetwork& src)
+        void set_library(const ClibCellLibrary*)
+        void set_name(const string& name)
+        string name()
+        const ClibCellLibrary* library()
+        int port_num()
+        int dff_num()
+        int latch_num()
+        int node_num()
+        int input_num()
+        int output_num()
+        int logic_num()
+        int func_num()
+        int expr_num()
 
     void write_blif(const BnNetwork&, const string&)
     bool read_blif(BnNetwork&, const string&, const string&, const string&)

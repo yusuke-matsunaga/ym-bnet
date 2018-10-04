@@ -21,6 +21,70 @@ cdef class BnNetwork :
     # C++ レベルのオブジェクト本体
     cdef CXX_BnNetwork _this
 
+    ### @brief 内容をクリアする．
+    def clear(self) :
+        self._this.clear()
+
+    ### @brief コピーする．
+    def copy(self, BnNetwork src) :
+        self._this.copy(src._this)
+
+    ### @brief 名前をつける．
+    def set_name(self, str name) :
+        cdef string c_name = name.encode('UTF-8')
+        self._this.set_name(c_name)
+
+    ### @brief 名前を返す．
+    @property
+    def name(self) :
+        cdef string c_name = self._this.name()
+        return c_name.decode('UTF-8')
+
+    ### @brief ポート数を返す．
+    @property
+    def port_num(self) :
+        return self._this.port_num()
+
+    ### @brief DFF数を返す．
+    @property
+    def dff_num(self) :
+        return self._this.dff_num()
+
+    ### @brief ラッチ数を返す．
+    @property
+    def latch_num(self) :
+        return self._this.latch_num()
+
+    ### @brief ノード数を返す．
+    @property
+    def node_num(self) :
+        return self._this.node_num()
+
+    ### @brief 入力数を返す．
+    @property
+    def input_num(self) :
+        return self._this.input_num()
+
+    ### @brief 出力数を返す．
+    @property
+    def output_num(self) :
+        return self._this.output_num()
+
+    ### @brief 論理ゲート数を返す．
+    @property
+    def logic_num(self) :
+        return self._this.logic_num()
+
+    ### @brief 論理ゲート中で用いられている関数の種類を返す．
+    @property
+    def func_num(self) :
+        return self._this.func_num()
+
+    ### @brief 論理ゲート数で用いられrている論理式の種類を返す．
+    @property
+    def expr_num(self) :
+        return self._this.expr_num()
+
     ### @brief blif ファイルの書き出し
     def write_blif(self, str filename) :
         cdef string c_filename = filename.encode('UTF-8')
