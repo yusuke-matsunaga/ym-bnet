@@ -46,11 +46,11 @@ write_blif(const BnNetwork& network,
 
   // .inputs 文の出力
   int count = 0;
-  for ( auto node: network.input_list() ) {
+  for ( auto id: network.input_id_list() ) {
     if ( count == 0 ) {
       s << ".inputs";
     }
-    s << " " << node->name();
+    s << " " << network.node(id)->name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -63,11 +63,11 @@ write_blif(const BnNetwork& network,
 
   // .outputs 文の出力
   count = 0;
-  for ( auto node: network.output_list() ) {
+  for ( auto id: network.output_id_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
-    s << " " << node->name();
+    s << " " << network.node(id)->name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -79,8 +79,9 @@ write_blif(const BnNetwork& network,
   }
 
   // .names 文の出力
-  for ( auto node: network.logic_list() ) {
+  for ( auto id: network.logic_id_list() ) {
     s << ".names";
+    auto node = network.node(id);
     for ( auto iid: node->fanin_list() ) {
       auto inode = network.node(iid);
       s << " " << inode->name();
