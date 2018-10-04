@@ -65,6 +65,11 @@ cdef class BnNetwork :
     def input_num(self) :
         return self._this.input_num()
 
+    ### @brief 入力のノード番号のリストを返す．
+    @property
+    def input_id_list(self) :
+        return [ self._this.input_id_list()[i] for i in range(self._this.input_id_list().size()) ]
+
     ### @brief 出力数を返す．
     @property
     def output_num(self) :
