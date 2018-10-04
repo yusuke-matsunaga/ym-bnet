@@ -250,7 +250,8 @@ BnNetwork::copy(const BnNetwork& src)
   }
 
   // 論理ノードの生成
-  for ( auto src_node: src.logic_list() ) {
+  for ( auto src_id: src.logic_id_list() ) {
+    auto src_node = src.node(src_id);
     int nfi = src_node->fanin_num();
     string name = src_node->name();
     BnNodeType logic_type = src_node->type();
@@ -276,8 +277,8 @@ BnNetwork::copy(const BnNetwork& src)
   }
 
   // 出力端子のファンインの接続
-  for ( auto src_node: src.output_list() ) {
-    int src_id = src_node->id();
+  for ( auto src_id: src.output_id_list() ) {
+    auto src_node = src.node(src_id);
     int src_fanin_id = src_node->fanin();
 
     int dst_id = conv_id(src_id, id_map);
@@ -290,61 +291,6 @@ BnNetwork::copy(const BnNetwork& src)
   ASSERT_COND( stat );
 }
 
-// @brief ポート数を得る．
-int
-BnNetwork::port_num() const
-{
-  return mPortList.size();
-}
-
-// @brief ポートの情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-const BnPort*
-BnNetwork::port(int pos) const
-{
-  ASSERT_COND( pos < port_num() );
-  return mPortList[pos];
-}
-
-// @brief DFF数を得る．
-int
-BnNetwork::dff_num() const
-{
-  return mDffList.size();
-}
-
-// @brief DFFを返す．
-// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-const BnDff*
-BnNetwork::dff(int pos) const
-{
-  ASSERT_COND( pos < dff_num() );
-  return mDffList[pos];
-}
-
-// @brief ラッチ数を得る．
-int
-BnNetwork::latch_num() const
-{
-  return mLatchList.size();
-}
-
-// @brief ラッチを得る．
-// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-const BnLatch*
-BnNetwork::latch(int pos) const
-{
-  ASSERT_COND( pos < latch_num() );
-  return mLatchList[pos];
-}
-
-// @brief ノード数を得る．
-int
-BnNetwork::node_num() const
-{
-  return mNodeList.size();
-}
-
 // @brief ノードを得る．
 // @param[in] id ノード番号 ( 0 <= id < node_num() )
 //
@@ -355,86 +301,6 @@ BnNetwork::node(int id) const
 {
   ASSERT_COND( id < node_num() );
   return mNodeList[id];
-}
-
-// @brief 入力数を得る．
-int
-BnNetwork::input_num() const
-{
-  return mInputList.size();
-}
-
-// @brief 入力ノードのノード番号を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
-const BnNode*
-BnNetwork::input(int pos) const
-{
-  ASSERT_COND( pos < input_num() );
-  return mInputList[pos];
-}
-
-// @brief 出力数を得る．
-int
-BnNetwork::output_num() const
-{
-  return mOutputList.size();
-}
-
-// @brief 出力ノードを得る．
-// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
-const BnNode*
-BnNetwork::output(int pos) const
-{
-  ASSERT_COND( pos < output_num() );
-  return mOutputList[pos];
-}
-
-// @brief 論理ノード数を得る．
-int
-BnNetwork::logic_num() const
-{
-  return mLogicList.size();
-}
-
-// @brief 論理ノードのノード番号を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-const BnNode*
-BnNetwork::logic(int pos) const
-{
-  ASSERT_COND( pos < logic_num() );
-  return mLogicList[pos];
-}
-
-// @brief 関数の数を得る．
-int
-BnNetwork::func_num() const
-{
-  return mFuncList.size();
-}
-
-// @brief 関数番号から関数を得る．
-// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-const TvFunc&
-BnNetwork::func(int func_id) const
-{
-  ASSERT_COND( func_id < func_num() );
-  return mFuncList[func_id];
-}
-
-// @brief 論理式の数を得る．
-int
-BnNetwork::expr_num() const
-{
-  return mExprList.size();
-}
-
-// @brief 論理式番号から論理式を得る．
-// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
-Expr
-BnNetwork::expr(int expr_id) const
-{
-  ASSERT_COND( expr_id < expr_num() );
-  return mExprList[expr_id];
 }
 
 // @brief 内容を出力する．
@@ -457,7 +323,8 @@ BnNetwork::write(ostream& s) const
   }
   s << endl;
 
-  for ( auto node: input_list() ) {
+  for ( auto id: input_id_list() ) {
+    auto node = this->node(id);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == BnNodeType::Input );
     s << "input: " << node->id()
@@ -465,7 +332,8 @@ BnNetwork::write(ostream& s) const
   }
   s << endl;
 
-  for ( auto node: output_list() ) {
+  for ( auto id: output_id_list() ) {
+    auto node = this->node(id);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->type() == BnNodeType::Output );
     s << "output: " << node->id()
@@ -507,10 +375,11 @@ BnNetwork::write(ostream& s) const
   }
   s << endl;
 
-  for ( auto node: logic_list() ) {
+  for ( auto id: logic_id_list() ) {
+    auto node = this->node(id);
     ASSERT_COND( node != nullptr );
     ASSERT_COND( node->is_logic() );
-    s << "logic: " << node->id()
+    s << "logic: " << id
       << "(" << node->name() << ")" << endl
       << "    fanins: ";
     for ( auto fanin_id: node->fanin_list() ) {
@@ -656,13 +525,13 @@ BnNetwork::new_port(const string& port_name,
       int input_id = mInputList.size();
       BnNodeImpl* node = new BnPortInput(node_id, node_name, input_id, port_id, i);
       mNodeList.push_back(node);
-      mInputList.push_back(node);
+      mInputList.push_back(node_id);
     }
     else {
       int output_id = mOutputList.size();
       BnNodeImpl* node = new BnPortOutput(node_id, node_name, output_id, port_id, i);
       mNodeList.push_back(node);
-      mOutputList.push_back(node);
+      mOutputList.push_back(node_id);
     }
   }
 
@@ -745,7 +614,7 @@ BnNetwork::_new_dff(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnDffInput(input_id, name, oid, dff_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(input_id);
   }
 
   int output_id = mNodeList.size();
@@ -756,7 +625,7 @@ BnNetwork::_new_dff(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
     mNodeList.push_back(node);
-    mInputList.push_back(node);
+    mInputList.push_back(output_id);
   }
 
   int xoutput_id = kBnNullId;
@@ -766,9 +635,9 @@ BnNetwork::_new_dff(const string& name,
     ostringstream buf;
     buf << name << ".xoutput";
     string name = buf.str();
-    BnNodeImpl* node = new BnDffXOutput(output_id, name, iid, dff_id);
+    BnNodeImpl* node = new BnDffXOutput(xoutput_id, name, iid, dff_id);
     mNodeList.push_back(node);
-    mInputList.push_back(node);
+    mInputList.push_back(xoutput_id);
   }
 
   int clock_id = mNodeList.size();
@@ -779,7 +648,7 @@ BnNetwork::_new_dff(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnDffClock(clock_id, name, oid, dff_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(clock_id);
   }
 
   int clear_id = kBnNullId;
@@ -791,7 +660,7 @@ BnNetwork::_new_dff(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnDffClear(clear_id, name, oid, dff_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(clear_id);
   }
 
   int preset_id = kBnNullId;
@@ -802,7 +671,7 @@ BnNetwork::_new_dff(const string& name,
     buf << name << ".preset";
     BnNodeImpl* node = new BnDffPreset(preset_id, name, oid, dff_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(preset_id);
   }
 
   BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id, xoutput_id,
@@ -875,7 +744,7 @@ BnNetwork::_new_latch(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnLatchInput(input_id, name, oid, latch_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(input_id);
   }
 
   int output_id = mNodeList.size();
@@ -886,7 +755,7 @@ BnNetwork::_new_latch(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
     mNodeList.push_back(node);
-    mInputList.push_back(node);
+    mInputList.push_back(output_id);
   }
 
   int enable_id = mNodeList.size();
@@ -897,7 +766,7 @@ BnNetwork::_new_latch(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnLatchEnable(enable_id, name, oid, latch_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(enable_id);
   }
 
   int clear_id = kBnNullId;
@@ -909,7 +778,7 @@ BnNetwork::_new_latch(const string& name,
     string name = buf.str();
     BnNodeImpl* node = new BnLatchClear(clear_id, name, oid, latch_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(clear_id);
   }
 
   int preset_id = kBnNullId;
@@ -920,7 +789,7 @@ BnNetwork::_new_latch(const string& name,
     buf << name << ".preset";
     BnNodeImpl* node = new BnLatchPreset(preset_id, name, oid, latch_id);
     mNodeList.push_back(node);
-    mOutputList.push_back(node);
+    mOutputList.push_back(preset_id);
   }
 
   BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
@@ -1031,7 +900,7 @@ BnNetwork::_new_primitive(const string& node_name,
   int id = mNodeList.size();
   BnNodeImpl* node = new BnPrimNode(id, node_name, ni, logic_type, cell);
   mNodeList.push_back(node);
-  mLogicList.push_back(node);
+  mLogicList.push_back(id);
 
   return node->id();
 }
@@ -1052,7 +921,7 @@ BnNetwork::_new_expr(const string& node_name,
   int id = mNodeList.size();
   BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr, expr_id, cell);
   mNodeList.push_back(node);
-  mLogicList.push_back(node);
+  mLogicList.push_back(id);
 
   return node->id();
 }
@@ -1073,7 +942,7 @@ BnNetwork::_new_tv(const string& node_name,
   int id = mNodeList.size();
   BnNodeImpl* node = new BnTvNode(id, node_name, ni, tv, func_id, cell);
   mNodeList.push_back(node);
-  mLogicList.push_back(node);
+  mLogicList.push_back(id);
 
   return node->id();
 }
@@ -1089,10 +958,8 @@ BnNetwork::connect(int src_id,
 {
   ASSERT_COND( src_id != kBnNullId );
   ASSERT_COND( dst_id != kBnNullId );
-  BnNodeImpl* src_node = mNodeList[src_id];
   BnNodeImpl* dst_node = mNodeList[dst_id];
   dst_node->set_fanin(ipos, src_id);
-  src_node->add_fanout(dst_id);
 
   mSane = false;
 }
@@ -1221,8 +1088,8 @@ BnNetwork::wrap_up()
 
   // ノードのチェック
   for ( auto node: mNodeList ) {
-    int i = 0;
-    for ( auto id: node->fanin_list() ) {
+    for ( auto i: Range(node->fanin_num()) ) {
+      auto id = node->fanin(i);
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
 	     << i << "] is not set" << endl;
@@ -1233,12 +1100,22 @@ BnNetwork::wrap_up()
 	     << i << "] is not valid" << endl;
 	error = true;
       }
-      ++ i;
     }
   }
 
   if ( error ) {
     return false;
+  }
+
+  // 各ノードのファンアウトリストの作成
+  for ( auto node: mNodeList ) {
+    node->clear_fanout();
+  }
+  for ( auto node: mNodeList ) {
+    for ( auto id: node->fanin_list() ) {
+      auto src_node = mNodeList[id];
+      src_node->add_fanout(node->id());
+    }
   }
 
   // 論理ノードをトポロジカル順にソートする．
@@ -1251,8 +1128,7 @@ BnNetwork::wrap_up()
   vector<bool> mark(node_num() + 1, false);
 
   // 入力ノードをキューに積む．
-  for ( auto node: input_list() ) {
-    int id = node->id();
+  for ( auto id: input_id_list() ) {
     queue.push_back(id);
     mark[id] = true;
   }
@@ -1263,9 +1139,9 @@ BnNetwork::wrap_up()
   // キューからノードを取り出してファンアウト先のノードをキューに積む．
   for ( int rpos = 0; rpos < queue.size(); ++ rpos ) {
     int id = queue[rpos];
-    BnNode* node = mNodeList[id];
+    auto node = mNodeList[id];
     if ( node->is_logic() ) {
-      mLogicList.push_back(node);
+      mLogicList.push_back(id);
     }
     for ( auto oid: node->fanout_list() ) {
       if ( mark[oid] ) {

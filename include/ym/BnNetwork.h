@@ -10,7 +10,8 @@
 
 
 #include "ym/bnet.h"
-#include "ym/logic.h"
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/HashMap.h"
 
@@ -338,40 +339,40 @@ public:
   int
   input_num() const;
 
-  /// @brief 入力ノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < input_num() )
-  const BnNode*
-  input(int pos) const;
+  /// @brief 入力ノードのノード番号を得る．
+  /// @param[in] pos 入力番号 ( 0 <= pos < input_num() )
+  int
+  input_id(int pos) const;
 
-  /// @brief 入力ノードのリストを得る．
-  const vector<const BnNode*>&
-  input_list() const;
+  /// @brief 入力ノードのノード番号のリストを得る．
+  const vector<int>&
+  input_id_list() const;
 
   /// @brief 出力数を得る．
   int
   output_num() const;
 
-  /// @brief 出力ノードを得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
-  const BnNode*
-  output(int pos) const;
+  /// @brief 出力ノードのノード番号を得る．
+  /// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
+  int
+  output_id(int pos) const;
 
-  /// @brief 出力ノードのリストを得る．
-  const vector<const BnNode*>&
-  output_list() const;
+  /// @brief 出力ノードのノード番号のリストを得る．
+  const vector<int>&
+  output_id_list() const;
 
   /// @brief 論理ノード数を得る．
   int
   logic_num() const;
 
-  /// @brief 論理ノードを得る．
+  /// @brief 論理ノードのノード番号を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-  const BnNode*
-  logic(int pos) const;
+  int
+  logic_id(int pos) const;
 
-  /// @brief 論理ノードのリストを得る．
-  const vector<const BnNode*>&
-  logic_list() const;
+  /// @brief 論理ノードのノード番号のリストを得る．
+  const vector<int>&
+  logic_id_list() const;
 
   /// @brief 関数の数を得る．
   int
@@ -516,14 +517,14 @@ private:
   // ラッチのリスト
   vector<const BnLatch*> mLatchList;
 
-  // 入力ノードのリスト
-  vector<const BnNode*> mInputList;
+  // 入力ノード番号のリスト
+  vector<int> mInputList;
 
-  // 出力ノードのリスト
-  vector<const BnNode*> mOutputList;
+  // 出力ノード番号のリスト
+  vector<int> mOutputList;
 
-  // 論理ノードのリスト
-  vector<const BnNode*> mLogicList;
+  // 論理ノード番号のリスト
+  vector<int> mLogicList;
 
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNodeImpl*> mNodeList;
@@ -552,8 +553,19 @@ private:
 ///
 /// ポートの情報は無視される．
 void
-write_blif(ostream& s,
-	   const BnNetwork& network);
+write_blif(const BnNetwork& network,
+	   ostream& s);
+
+/// @relates BnNetwork
+/// @brief 内容を blif 形式で出力する．
+/// @param[in] filename 出力先のファイル名
+/// @param[in] network ネットワーク
+///
+/// ポートの情報は無視される．
+void
+write_blif(const BnNetwork& network,
+	   const string& filename);
+
 
 // @brief blif ファイルを読み込む．
 // @param[in] network 設定対象のネットワーク
@@ -614,12 +626,48 @@ BnNetwork::library() const
   return mCellLibrary;
 }
 
+// @brief ポート数を得る．
+inline
+int
+BnNetwork::port_num() const
+{
+  return mPortList.size();
+}
+
+// @brief ポートの情報を得る．
+// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
+inline
+const BnPort*
+BnNetwork::port(int pos) const
+{
+  ASSERT_COND( pos < port_num() );
+  return mPortList[pos];
+}
+
 // @brief ポートのリストを得る．
 inline
 const vector<const BnPort*>&
 BnNetwork::port_list() const
 {
   return mPortList;
+}
+
+// @brief DFF数を得る．
+inline
+int
+BnNetwork::dff_num() const
+{
+  return mDffList.size();
+}
+
+// @brief DFFを返す．
+// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
+inline
+const BnDff*
+BnNetwork::dff(int pos) const
+{
+  ASSERT_COND( pos < dff_num() );
+  return mDffList[pos];
 }
 
 // @brief DFFのリストを得る．
@@ -630,6 +678,24 @@ BnNetwork::dff_list() const
   return mDffList;
 }
 
+// @brief ラッチ数を得る．
+inline
+int
+BnNetwork::latch_num() const
+{
+  return mLatchList.size();
+}
+
+// @brief ラッチを得る．
+// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
+inline
+const BnLatch*
+BnNetwork::latch(int pos) const
+{
+  ASSERT_COND( pos < latch_num() );
+  return mLatchList[pos];
+}
+
 // @brief ラッチのリストを得る．
 inline
 const vector<const BnLatch*>&
@@ -638,28 +704,108 @@ BnNetwork::latch_list() const
   return mLatchList;
 }
 
-// @brief 入力ノードのリストを得る．
+// @brief ノード数を得る．
 inline
-const vector<const BnNode*>&
-BnNetwork::input_list() const
+int
+BnNetwork::node_num() const
+{
+  return mNodeList.size();
+}
+
+// @brief 入力数を得る．
+inline
+int
+BnNetwork::input_num() const
+{
+  return mInputList.size();
+}
+
+// @brief 入力ノードのノード番号を得る．
+// @param[in] pos 入力番号 ( 0 <= pos < input_num() )
+inline
+int
+BnNetwork::input_id(int pos) const
+{
+  ASSERT_COND( pos < input_num() );
+  return mInputList[pos];
+}
+
+// @brief 入力ノードのノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetwork::input_id_list() const
 {
   return mInputList;
 }
 
-// @brief 出力ノードのリストを得る．
+// @brief 出力数を得る．
 inline
-const vector<const BnNode*>&
-BnNetwork::output_list() const
+int
+BnNetwork::output_num() const
+{
+  return mOutputList.size();
+}
+
+// @brief 出力ノードのノード番号を得る．
+// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
+inline
+int
+BnNetwork::output_id(int pos) const
+{
+  ASSERT_COND( pos < output_num() );
+  return mOutputList[pos];
+}
+
+// @brief 出力ノードのノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetwork::output_id_list() const
 {
   return mOutputList;
 }
 
-// @brief 論理ノードのリストを得る．
+// @brief 論理ノード数を得る．
 inline
-const vector<const BnNode*>&
-BnNetwork::logic_list() const
+int
+BnNetwork::logic_num() const
+{
+  return mLogicList.size();
+}
+
+// @brief 論理ノードのノード番号を得る．
+// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
+inline
+int
+BnNetwork::logic_id(int pos) const
+{
+  ASSERT_COND( pos < logic_num() );
+  return mLogicList[pos];
+}
+
+// @brief 論理ノードのノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetwork::logic_id_list() const
 {
   return mLogicList;
+}
+
+// @brief 関数の数を得る．
+inline
+int
+BnNetwork::func_num() const
+{
+  return mFuncList.size();
+}
+
+// @brief 関数番号から関数を得る．
+// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+inline
+const TvFunc&
+BnNetwork::func(int func_id) const
+{
+  ASSERT_COND( func_id < func_num() );
+  return mFuncList[func_id];
 }
 
 // @brief 関数のリストを得る．
@@ -668,6 +814,24 @@ const vector<TvFunc>&
 BnNetwork::func_list() const
 {
   return mFuncList;
+}
+
+// @brief 論理式の数を得る．
+inline
+int
+BnNetwork::expr_num() const
+{
+  return mExprList.size();
+}
+
+// @brief 論理式番号から論理式を得る．
+// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
+inline
+Expr
+BnNetwork::expr(int expr_id) const
+{
+  ASSERT_COND( expr_id < expr_num() );
+  return mExprList[expr_id];
 }
 
 // @brief 論理式のリストを得る．
