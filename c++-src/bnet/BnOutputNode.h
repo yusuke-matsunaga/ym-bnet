@@ -35,7 +35,6 @@ public:
 	       int output_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnOutputNode();
 
 
@@ -45,14 +44,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief タイプを返す．
-  virtual
   BnNodeType
-  type() const;
+  type() const override;
 
   /// @brief 外部出力ノードの時 true を返す．
-  virtual
   bool
-  is_output() const;
+  is_output() const override;
 
 
 public:
@@ -64,16 +61,14 @@ public:
   ///
   /// is_output() == false の時の動作は不定<br>
   /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
-  virtual
   int
-  output_id() const;
+  output_id() const override;
 
   /// @brief 入力のノード番号を返す．
   ///
   /// is_output() == false の時の動作は不定
-  virtual
   int
-  fanin() const;
+  fanin() const override;
 
 
 public:
@@ -84,10 +79,9 @@ public:
   /// @brief ファンインを設定する．
   /// @param[in] ipos 入力位置
   /// @param[in] fanin_id ファンインのノード番号
-  virtual
   void
   set_fanin(int ipos,
-	    int fanin_id);
+	    int fanin_id) override;
 
 
 private:

@@ -12,6 +12,7 @@
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -84,7 +85,7 @@ BnIscas89Handler::read_output(const FileRegion& loc,
   auto port_id = mNetwork->new_output_port(name);
   auto port = mNetwork->port(port_id);
   int id = port->bit(0);
-  add_fanin_info(id, vector<int>({name_id}));
+  add_fanin_info(id, name_id);
   return true;
 }
 
@@ -127,14 +128,15 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 {
   // この形式ではクロック以外の制御端子はない．
 
-  BnDff* dff = mNetwork->new_dff(oname);
+  int dff_id = mNetwork->new_dff(oname);
+  const BnDff* dff = mNetwork->dff(dff_id);
 
   int output_id = dff->output();
   mIdMap.add(oname_id, output_id);
 
   int input_id = dff->input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  add_fanin_info(input_id, vector<int>(1, iname_id));
+  add_fanin_info(input_id, iname_id);
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
@@ -167,7 +169,7 @@ BnIscas89Handler::end()
     const BnNode* node = mNetwork->node(node_id);
     if ( node->is_logic() ) {
       int ni = fanin_info.fanin_num();
-      for ( int i = 0; i < ni; ++ i ) {
+      for ( int i: Range(ni) ) {
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	ASSERT_COND( stat1 );
@@ -197,6 +199,16 @@ void
 BnIscas89Handler::error_exit()
 {
   mNetwork->clear();
+}
+
+// @brief ファンイン情報を追加する．
+// @param[in] id ID番号
+// @param[in] fanin ファンイン番号
+void
+BnIscas89Handler::add_fanin_info(int id,
+				 int fanin)
+{
+  mFaninInfoMap.add(id, FaninInfo(fanin));
 }
 
 // @brief ファンイン情報を追加する．

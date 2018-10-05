@@ -53,7 +53,6 @@ public:
 
   /// @brief イベントハンドラの登録
   /// @param[in] handler 登録するハンドラ
-  /// @note handler はこのインスタンスが破壊される時に同時に破壊される．
   void
   add_handler(BlifHandler* handler);
 

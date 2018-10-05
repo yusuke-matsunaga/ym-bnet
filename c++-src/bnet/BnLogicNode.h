@@ -39,7 +39,6 @@ public:
 	      const ClibCell* cell);
 
   /// @brief デストラクタ
-  virtual
   ~BnLogicNode();
 
 
@@ -49,7 +48,6 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部入力の時 true を返す．
-  virtual
   bool
   is_logic() const override;
 
@@ -60,26 +58,27 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン数を得る．
-  virtual
   int
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-  virtual
   int
   fanin(int pos) const override;
 
+#if 0
   /// @brief ファンインのノード番号のリストを返す．
-  virtual
   Array<int>
   fanin_list() const override;
+#else
+  const vector<int>&
+  fanin_list() const override;
+#endif
 
   /// @brief セルを返す．
   ///
   /// is_logic() == false の時の動作は不定
   /// 場合によっては nullptr を返す．
-  virtual
   const ClibCell*
   cell() const override;
 
@@ -92,7 +91,6 @@ public:
   /// @brief ファンインを設定する．
   /// @param[in] ipos 入力位置
   /// @param[in] fanin_id ファンインのノード番号
-  virtual
   void
   set_fanin(int ipos,
 	    int fanin_id) override;
@@ -103,12 +101,16 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+#if 1
   // ファンイン数
   int mFaninNum;
 
   // ファンインのノード番号の配列
   // サイズは mFaninNum
   int* mFanins;
+#else
+  vector<int> mFanins;
+#endif
 
   // セル
   const ClibCell* mCell;
@@ -146,7 +148,6 @@ public:
 	     const ClibCell* cell = nullptr);
 
   /// @brief デストラクタ
-  virtual
   ~BnPrimNode();
 
 
@@ -156,7 +157,6 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief タイプを返す．
-  virtual
   BnNodeType
   type() const;
 
@@ -212,7 +212,6 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief タイプを返す．
-  virtual
   BnNodeType
   type() const;
 
@@ -226,7 +225,6 @@ public:
   ///
   /// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
-  virtual
   int
   expr_id() const;
 
@@ -234,7 +232,6 @@ public:
   ///
   /// is_logic() == false の時の動作は不定
   /// logic_type() != BnNodeType::Expr の時の動作は不定
-  virtual
   Expr
   expr() const;
 
@@ -292,7 +289,6 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief タイプを返す．
-  virtual
   BnNodeType
   type() const;
 
@@ -306,7 +302,6 @@ public:
   ///
   /// logic_type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
-  virtual
   int
   func_id() const;
 

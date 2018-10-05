@@ -35,7 +35,6 @@ public:
 	      int input_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnInputNode();
 
 
@@ -45,14 +44,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief タイプを返す．
-  virtual
   BnNodeType
-  type() const;
+  type() const override;
 
   /// @brief 外部入力の時 true を返す．
-  virtual
   bool
-  is_input() const;
+  is_input() const override;
 
 
 public:
@@ -64,9 +61,8 @@ public:
   ///
   /// is_input() == false の時の動作は不定<br>
   /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
-  virtual
   int
-  input_id() const;
+  input_id() const override;
 
 
 private:
@@ -102,7 +98,6 @@ public:
 	      int port_bit);
 
   /// @brief デストラクタ
-  virtual
   ~BnPortInput();
 
 
@@ -112,9 +107,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部入力端子の時 true を返す．
-  virtual
   bool
-  is_port_input() const;
+  is_port_input() const override;
 
 
 public:
@@ -125,16 +119,14 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-  virtual
   int
-  port_id() const;
+  port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
-  virtual
   int
-  port_bit() const;
+  port_bit() const override;
 
 
 private:
@@ -173,7 +165,6 @@ public:
 	      int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffOutput();
 
 
@@ -183,9 +174,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFの出力端子の時 true を返す．
-  virtual
   bool
-  is_dff_output() const;
+  is_dff_output() const override;
 
 
 public:
@@ -197,9 +187,8 @@ public:
   ///
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  virtual
   int
-  dff_id() const;
+  dff_id() const override;
 
 
 private:
@@ -235,7 +224,6 @@ public:
 	      int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffXOutput();
 
 
@@ -245,9 +233,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFの反転出力端子の時 true を返す．
-  virtual
   bool
-  is_dff_xoutput() const;
+  is_dff_xoutput() const override;
 
 
 public:
@@ -259,9 +246,8 @@ public:
   ///
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  virtual
   int
-  dff_id() const;
+  dff_id() const override;
 
 
 private:
@@ -297,8 +283,7 @@ public:
 		int latch_id);
 
   /// @brief デストラクタ
-  virtual
-  ~BnLatchOutput();
+  ~BnLatchOutput() override;
 
 
 public:
@@ -307,9 +292,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ラッチの出力端子の時 true を返す．
-  virtual
   bool
-  is_latch_output() const;
+  is_latch_output() const override;
 
 
 public:
@@ -321,9 +305,8 @@ public:
   ///
   /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  virtual
   int
-  latch_id() const;
+  latch_id() const override;
 
 
 private:

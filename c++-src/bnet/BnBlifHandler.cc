@@ -180,7 +180,9 @@ BnBlifHandler::latch(int oname_id,
   else if ( rval == '1' ) {
     has_preset = true;
   }
-  BnDff* dff = mNetwork->new_dff(oname, has_clear, has_preset);
+  bool has_xoutput = false;
+  int dff_id = mNetwork->new_dff(oname, has_xoutput, has_clear, has_preset);
+  const BnDff* dff = mNetwork->dff(dff_id);
 
   int output_id = dff->output();
   mIdMap.add(oname_id, output_id);

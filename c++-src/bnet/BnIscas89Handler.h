@@ -130,6 +130,15 @@ private:
     }
 
     /// @brief コンストラクタ
+    /// @param[in] fanin ファンイン番号
+    FaninInfo(int fanin) :
+      mNi(1)
+    {
+      mFaninArray = new int[mNi];
+      mFaninArray[0] = fanin;
+    }
+
+    /// @brief コンストラクタ
     /// @param[in] fanin_list ファンイン番号のリスト
     FaninInfo(const vector<int>& fanin_list) :
       mNi(fanin_list.size())
@@ -207,6 +216,13 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンイン情報を追加する．
+  /// @param[in] id ID番号
+  /// @param[in] fanin ファンイン番号
+  void
+  add_fanin_info(int id,
+		 int fanin);
 
   /// @brief ファンイン情報を追加する．
   /// @param[in] id ID番号

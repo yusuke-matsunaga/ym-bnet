@@ -142,10 +142,10 @@ public:
   /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @return 生成したDFFを返す．
+  /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  BnDff*
+  int
   new_dff(const string& name,
 	  bool has_xoutput = false,
 	  bool has_clear = false,
@@ -154,11 +154,11 @@ public:
   /// @brief セルの情報を持ったDFFを追加する．
   /// @param[in] name DFF名
   /// @param[in] cell_name 対応するセル名
-  /// @return 生成したDFFを返す．
+  /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合とFFセルでない場合には nullptr を返す．
-  BnDff*
+  int
   new_dff_cell(const string& name,
 	       const string& cell_name);
 
@@ -166,10 +166,10 @@ public:
   /// @param[in] name ラッチ名
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @return 生成したラッチを返す．
+  /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  BnLatch*
+  int
   new_latch(const string& name,
 	    bool has_clear = false,
 	    bool has_preset = false);
@@ -177,11 +177,11 @@ public:
   /// @brief セルの情報を持ったラッチを追加する．
   /// @param[in] name ラッチ名
   /// @param[in] cell_name 対応するセル名．
-  /// @return 生成したラッチを返す．
+  /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合とラッチセルでない場合には nullptr を返す．
-  BnLatch*
+  int
   new_latch_cell(const string& name,
 		 const string& cell_name);
 
@@ -423,10 +423,10 @@ private:
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
   /// @param[in] cell 対応するセル．
-  /// @return 生成したDFFを返す．
+  /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  BnDff*
+  int
   _new_dff(const string& name,
 	   bool has_xoutput,
 	   bool has_clear,
@@ -438,11 +438,11 @@ private:
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
   /// @param[in] cell 対応するセル．
-  /// @return 生成したラッチを返す．
+  /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   /// - cell はラッチのセルでなければならない．
-  BnLatch*
+  int
   _new_latch(const string& name,
 	     bool has_clear,
 	     bool has_preset,
@@ -640,7 +640,7 @@ inline
 const BnPort*
 BnNetwork::port(int pos) const
 {
-  ASSERT_COND( pos < port_num() );
+  ASSERT_COND( pos >= 0 && pos < port_num() );
   return mPortList[pos];
 }
 
@@ -666,7 +666,7 @@ inline
 const BnDff*
 BnNetwork::dff(int pos) const
 {
-  ASSERT_COND( pos < dff_num() );
+  ASSERT_COND( pos >= 0 && pos < dff_num() );
   return mDffList[pos];
 }
 
@@ -692,7 +692,7 @@ inline
 const BnLatch*
 BnNetwork::latch(int pos) const
 {
-  ASSERT_COND( pos < latch_num() );
+  ASSERT_COND( pos >= 0 && pos < latch_num() );
   return mLatchList[pos];
 }
 
@@ -726,7 +726,7 @@ inline
 int
 BnNetwork::input_id(int pos) const
 {
-  ASSERT_COND( pos < input_num() );
+  ASSERT_COND( pos >= 0 && pos < input_num() );
   return mInputList[pos];
 }
 
@@ -752,7 +752,7 @@ inline
 int
 BnNetwork::output_id(int pos) const
 {
-  ASSERT_COND( pos < output_num() );
+  ASSERT_COND( pos >= 0 && pos < output_num() );
   return mOutputList[pos];
 }
 
@@ -778,7 +778,7 @@ inline
 int
 BnNetwork::logic_id(int pos) const
 {
-  ASSERT_COND( pos < logic_num() );
+  ASSERT_COND( pos >= 0 && pos < logic_num() );
   return mLogicList[pos];
 }
 
@@ -804,7 +804,7 @@ inline
 const TvFunc&
 BnNetwork::func(int func_id) const
 {
-  ASSERT_COND( func_id < func_num() );
+  ASSERT_COND( func_id >= 0 && func_id < func_num() );
   return mFuncList[func_id];
 }
 
@@ -830,7 +830,7 @@ inline
 Expr
 BnNetwork::expr(int expr_id) const
 {
-  ASSERT_COND( expr_id < expr_num() );
+  ASSERT_COND( expr_id >= 0 && expr_id < expr_num() );
   return mExprList[expr_id];
 }
 

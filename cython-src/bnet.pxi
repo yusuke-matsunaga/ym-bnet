@@ -14,6 +14,8 @@ from CXX_BnNetwork cimport write_blif as cxx_write_blif
 from CXX_BnNetwork cimport read_blif as cxx_read_blif
 from CXX_BnNetwork cimport read_iscas89 as cxx_read_iscas89
 from CXX_BnPort cimport BnPort as CXX_BnPort
+from CXX_BnDff cimport BnDff as CXX_BnDff
+from CXX_BnLatch cimport BnLatch as CXX_BnLatch
 from CXX_BnNode cimport BnNode as CXX_BnNode
 from CXX_BnNodeType cimport BnNodeType as CXX_BnNodeType
 from CXX_BnNodeType cimport __bnnodetype_to_int
@@ -31,10 +33,8 @@ cdef class BnPort :
     cdef list __bit_list
 
     ### @brief 初期化
-    def __init__(self, c_port)
-        self.__id = c_port.id()
-        self.__name = c_port.name()
-        self.__bit_list = [ c_port.bit(i) for i in range(c_port.bit_width()) ]]
+    def __init__(self) :
+        pass
 
     ### @brief ID番号を返す．
     @property
@@ -65,15 +65,8 @@ cdef class BnDff :
     cdef int __clear
     cdef int __preset
 
-    def __init__(self, const CXX_BnDff* c_dff) :
-        self.__id = c_dff.id()
-        self.__name = c_dff.name().decode('UTF-8')
-        self.__input = c_dff.input()
-        self.__output = c_dff.output()
-        self.__xoutput = c_dff.xoutput()
-        self.__clock = c_dff.clock()
-        self.__cleaer = c_dff.clear()
-        self.__preset = c_dff.preset()
+    def __init__(self) :
+        pass
 
     @property
     def id(self) :
@@ -122,14 +115,8 @@ cdef class BnLatch :
     cdef int __clear
     cdef int __preset
 
-    def __init__(self, const CXX_BnLatch* c_latch) :
-        self.__id = c_latch.id()
-        self.__name = c_latch.name().decode('UTF-8')
-        self.__input = c_latch.input()
-        self.__output = c_latch.output()
-        self.__enable = c_latch.enable()
-        self.__cleaer = c_latch.clear()
-        self.__preset = c_latch.preset()
+    def __init__(self) :
+        pass
 
     @property
     def id(self) :
@@ -177,101 +164,8 @@ cdef class BnNode :
     cdef list __fanout_list
 
     ### @brief 初期化
-    def __init__(self, c_node) :
-        cdef CXX_BnNodeType c_type = c_node.type()
-        cdef int c_type_int = __bnnodetype_to_int(c_type)
-        self.__id = c_node.id()
-        self.__name = c_node.name().decode('UTF-8')
-        if c_type_int == 0 :
-            type_str = 'None'
-        elif c_type_int == 1 :
-            type_str = 'Input'
-        elif c_type_int == 2 :
-            type_str = 'Output'
-        elif c_type_int == 3 :
-            type_str = 'C0'
-        elif c_type_int == 4 :
-            type_str = 'C1'
-        elif c_type_int == 5 :
-            type_str = 'Buff'
-        elif c_type_int == 6 :
-            type_str = 'Not'
-        elif c_type_int == 7 :
-            type_str = 'And'
-        elif c_type_int == 8 :
-            type_str = 'Nand'
-        elif c_type_int == 9 :
-            type_str = 'Or'
-        elif c_type_int == 10 :
-            type_str = 'Nor'
-        elif c_type_int == 11 :
-            type_str = 'Xor'
-        elif c_type_int == 12 :
-            type_str = 'Xnor'
-        elif c_type_int == 13 :
-            type_str = 'Expr'
-        elif c_type_int == 14 :
-            type_str = 'TvFunc'
-        self.__type = type_str
-        self.__fanin_list = []
-        self.__fanout_list = [ c_node.fanout(i) for i in range(c_node.fanout_list().size()) ]
-        if type_str == 'Input' :
-            self.__subid = c_node.input_id()
-            if c_node.is_port_input() :
-                self.__subtype = 'primary_input'
-                self.__obj_id = c_node.port_id()
-                self.__bit = c_node.port_bit()
-            elif c_node.is_dff_output() :
-                self.__subtype = 'dff_output'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_dff_xoutput() :
-                self.__subtype = 'dff_xoutput'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_latch_output() :
-                self.__subtype = 'latch_output'
-                self.__obj_id = c_node.latch_id()
-            else :
-                assert False
-        elif type_str == 'Output' :
-            self.__subid = c_node.output_id()
-            self.__fanin_list = [ c_node.fanin() ]
-            if c_node.is_port_output() :
-                self.__subtype = 'primary_output'
-                self.__obj_id = c_node.port_id()
-                self.__bit = c_node.port_bit()
-            elif c_node.is_dff_input() :
-                self.__subtype = 'dff_input'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_dff_clock() :
-                self.__subtype = 'dff_clock'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_dff_clear() :
-                self.__subtype = 'dff_clear'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_dff_preset() :
-                self.__subtype = 'dff_preset'
-                self.__obj_id = c_node.dff_id()
-            elif c_node.is_latch_input() :
-                self.__subtype = 'latch_input'
-                self.__obj_id = c_node.latch_id()
-            elif c_node.is_latch_enable() :
-                self.__subtype = 'latch_enable'
-                self.__obj_id = c_node.latch_id()
-            elif c_node.is_latch_clear() :
-                self.__subtype = 'latch_clear'
-                self.__obj_id = c_node.latch_id()
-            elif c_node.is_latch_preset() :
-                self.__subtype = 'latch_preset'
-                self.__obj_id = c_node.latch_id()
-            else :
-                assert False
-        else :
-            ni = c_node.fanin_num()
-            self.__fanin_list = [ c_node.fanin(i) for i in range(ni) ]
-            if type_str == 'Expr' :
-                self.__obj_id = c_node.expr_id()
-            elif type_str == 'TvFunc' :
-                self.__obj_id = c_node.func_id()
+    def __init__(self) :
+        pass
 
     @property
     def id(self) :
@@ -394,7 +288,10 @@ cdef class BnNetwork :
     ### @param[in] port_id ( port_id >= 0 && port_id < port_num() )
     def port(self, int port_id) :
         cdef const CXX_BnPort* c_port = self._this.port(port_id)
-        ans = BnPort(c_port)
+        ans = BnPort()
+        ans.__id = c_port.id()
+        ans.__name = c_port.name().decode('UTF-8')
+        ans.__bit_list = [ c_port.bit(i) for i in range(c_port.bit_width()) ]
         return ans
 
     ### @brief DFF数を返す．
@@ -404,8 +301,16 @@ cdef class BnNetwork :
 
     ### @brief DFFを返す．
     def dff(self, int dff_id) :
-        cdef CXX_BnDff* c_dff = self._this.dff(dff_id)
-        ans = BnDff(c_dff)
+        cdef const CXX_BnDff* c_dff = self._this.dff(dff_id)
+        ans = BnDff()
+        ans.__id = c_dff.id()
+        ans.__name = c_dff.name().decode('UTF-8')
+        ans.__input = c_dff.input()
+        ans.__output = c_dff.output()
+        ans.__xoutput = c_dff.xoutput()
+        ans.__clock = c_dff.clock()
+        ans.__clear = c_dff.clear()
+        ans.__preset = c_dff.preset()
         return ans
 
     ### @brief ラッチ数を返す．
@@ -415,8 +320,15 @@ cdef class BnNetwork :
 
     ### @brief ラッチを返す．
     def latch(self, int latch_id) :
-        cdef CXX_BnLatch* c_latch = self._this.latch(latch_id)
-        ans = BnLatch(c_dff)
+        cdef const CXX_BnLatch* c_latch = self._this.latch(latch_id)
+        ans = BnLatch()
+        ans.__id = c_latch.id()
+        ans.__name = c_latch.name().decode('UTF-8')
+        ans.__input = c_latch.input()
+        ans.__output = c_latch.output()
+        ans.__enable = c_latch.enable()
+        ans.__clear = c_latch.clear()
+        ans.__preset = c_latch.preset()
         return ans
 
     ### @brief ノード数を返す．
@@ -427,7 +339,101 @@ cdef class BnNetwork :
     ### @brief ノードを返す．
     def node(self, int node_id) :
         cdef const CXX_BnNode* c_node = self._this.node(node_id)
-        node = BnNode(c_node)
+        cdef CXX_BnNodeType c_type = c_node.type()
+        cdef int c_type_int = __bnnodetype_to_int(c_type)
+        node = BnNode()
+        node.__id = c_node.id()
+        node.__name = c_node.name().decode('UTF-8')
+        if c_type_int == 0 :
+            type_str = 'None'
+        elif c_type_int == 1 :
+            type_str = 'Input'
+        elif c_type_int == 2 :
+            type_str = 'Output'
+        elif c_type_int == 3 :
+            type_str = 'C0'
+        elif c_type_int == 4 :
+            type_str = 'C1'
+        elif c_type_int == 5 :
+            type_str = 'Buff'
+        elif c_type_int == 6 :
+            type_str = 'Not'
+        elif c_type_int == 7 :
+            type_str = 'And'
+        elif c_type_int == 8 :
+            type_str = 'Nand'
+        elif c_type_int == 9 :
+            type_str = 'Or'
+        elif c_type_int == 10 :
+            type_str = 'Nor'
+        elif c_type_int == 11 :
+            type_str = 'Xor'
+        elif c_type_int == 12 :
+            type_str = 'Xnor'
+        elif c_type_int == 13 :
+            type_str = 'Expr'
+        elif c_type_int == 14 :
+            type_str = 'TvFunc'
+        node.__type = type_str
+        node.__fanin_list = []
+        node.__fanout_list = [ c_node.fanout(i) for i in range(c_node.fanout_list().size()) ]
+        if type_str == 'Input' :
+            node.__subid = c_node.input_id()
+            if c_node.is_port_input() :
+                node.__subtype = 'primary_input'
+                node.__obj_id = c_node.port_id()
+                node.__bit = c_node.port_bit()
+            elif c_node.is_dff_output() :
+                node.__subtype = 'dff_output'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_xoutput() :
+                node.__subtype = 'dff_xoutput'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_latch_output() :
+                node.__subtype = 'latch_output'
+                node.__obj_id = c_node.latch_id()
+            else :
+                assert False
+        elif type_str == 'Output' :
+            node.__subid = c_node.output_id()
+            node.__fanin_list = [ c_node.fanin() ]
+            if c_node.is_port_output() :
+                node.__subtype = 'primary_output'
+                node.__obj_id = c_node.port_id()
+                node.__bit = c_node.port_bit()
+            elif c_node.is_dff_input() :
+                node.__subtype = 'dff_input'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_clock() :
+                node.__subtype = 'dff_clock'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_clear() :
+                node.__subtype = 'dff_clear'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_preset() :
+                node.__subtype = 'dff_preset'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_latch_input() :
+                node.__subtype = 'latch_input'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_enable() :
+                node.__subtype = 'latch_enable'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_clear() :
+                node.__subtype = 'latch_clear'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_preset() :
+                node.__subtype = 'latch_preset'
+                node.__obj_id = c_node.latch_id()
+            else :
+                assert False
+        else :
+            ni = c_node.fanin_num()
+            node.__fanin_list = [ c_node.fanin(i) for i in range(ni) ]
+            if type_str == 'Expr' :
+                node.__obj_id = c_node.expr_id()
+            elif type_str == 'TvFunc' :
+                node.p__obj_id = c_node.func_id()
         return node
 
     ### @brief 入力数を返す．

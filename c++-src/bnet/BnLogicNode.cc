@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] name ノード名
-/// @param[in] ni 入力数
+// @param[in] ni 入力数
 // @param[in] cell セル (nullptr の場合もあり)
 BnLogicNode::BnLogicNode(int id,
 			 const string& name,
@@ -29,9 +29,14 @@ BnLogicNode::BnLogicNode(int id,
   mFaninNum(ni),
   mCell(cell)
 {
-  mFanins = new int[mFaninNum];
-  for ( int i = 0; i < mFaninNum; ++ i ) {
-    mFanins[i] = kBnNullId;
+  if ( mFaninNum > 0 ) {
+    mFanins = new int[mFaninNum];
+    for ( int i = 0; i < mFaninNum; ++ i ) {
+      mFanins[i] = kBnNullId;
+    }
+  }
+  else {
+    mFanins = nullptr;
   }
 }
 
@@ -60,16 +65,31 @@ BnLogicNode::fanin_num() const
 int
 BnLogicNode::fanin(int pos) const
 {
-  ASSERT_COND( pos < fanin_num() );
+  ASSERT_COND( pos >= 0 && pos < fanin_num() );
   return mFanins[pos];
 }
 
+#if 0
 // @brief ファンインのノード番号のリストを返す．
 Array<int>
 BnLogicNode::fanin_list() const
 {
   return Array<int>(mFanins, 0, fanin_num());
 }
+#else
+const vector<int>&
+BnLogicNode::fanin_list() const
+{
+  static vector<int> dummy;
+  dummy.clear();
+  dummy.resize(mFaninNum);
+  for ( int i = 0; i < mFaninNum; ++ i ) {
+    dummy[i] = mFanins[i];
+  }
+  return dummy;
+  //return mFanins;
+}
+#endif
 
 // @brief セルを返す．
 //
@@ -88,7 +108,7 @@ void
 BnLogicNode::set_fanin(int ipos,
 		       int fanin_id)
 {
-  ASSERT_COND( ipos < fanin_num() );
+  ASSERT_COND( ipos >= 0 && ipos < fanin_num() );
   mFanins[ipos] = fanin_id;
 }
 

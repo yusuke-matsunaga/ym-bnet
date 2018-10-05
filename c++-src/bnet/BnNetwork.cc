@@ -167,9 +167,10 @@ BnNetwork::copy(const BnNetwork& src)
     string dff_name = src_dff->name();
     bool has_clear = (src_dff->clear() != kBnNullId);
     bool has_preset = (src_dff->preset() != kBnNullId);
-    BnDff* dst_dff = new_dff(dff_name, has_clear, has_preset);
+    int dst_id = new_dff(dff_name, has_clear, has_preset);
+    auto dst_dff = dff(dst_id);
 
-    ASSERT_COND( src_dff->id() == dst_dff->id() );
+    ASSERT_COND( src_dff->id() == dst_id );
 
     // 各端子の対応関係を記録する．
     {
@@ -205,9 +206,10 @@ BnNetwork::copy(const BnNetwork& src)
 
     bool has_clear = (src_latch->clear() != kBnNullId);
     bool has_preset = (src_latch->preset() != kBnNullId);
-    BnLatch* dst_latch = new_latch(latch_name, has_clear, has_preset);
+    int dst_id = new_latch(latch_name, has_clear, has_preset);
+    auto dst_latch = latch(dst_id);
 
-    ASSERT_COND( dst_latch->id() == src_latch->id() );
+    ASSERT_COND( dst_id == src_latch->id() );
 
     // 各端子の対応関係を記録する．
     {
@@ -300,7 +302,7 @@ BnNetwork::copy(const BnNetwork& src)
 const BnNode*
 BnNetwork::node(int id) const
 {
-  ASSERT_COND( id < node_num() );
+  ASSERT_COND( id >= 0 && id < node_num() );
   return mNodeList[id];
 }
 
@@ -463,7 +465,7 @@ BnNetwork::set_name(const string& name)
 int
 BnNetwork::new_input_port(const string& port_name)
 {
-  return new_port(port_name, vector<int>(1, 0));
+  return new_port(port_name, vector<int>({0}));
 }
 
 // @brief 多ビットの入力ポートを作る．
@@ -483,7 +485,7 @@ BnNetwork::new_input_port(const string& port_name,
 int
 BnNetwork::new_output_port(const string& port_name)
 {
-  return new_port(port_name, vector<int>(1, 1));
+  return new_port(port_name, vector<int>({1}));
 }
 
 // @brief 多ビットの出力ポートを作る．
@@ -553,10 +555,10 @@ BnNetwork::new_port(const string& port_name,
 // @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @return 生成したDFFを返す．
+// @return 生成したDFF番号を返す．
 //
 // 名前の重複に関しては感知しない．
-BnDff*
+int
 BnNetwork::new_dff(const string& name,
 		   bool has_xoutput,
 		   bool has_clear,
@@ -568,17 +570,17 @@ BnNetwork::new_dff(const string& name,
 // @brief セルの情報を持ったDFFを追加する．
 // @param[in] name DFF名
 // @param[in] cell_name 対応するセル名
-// @return 生成したDFFを返す．
+// @return 生成したDFF番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルは FF のセルでなければならない．
-BnDff*
+int
 BnNetwork::new_dff_cell(const string& name,
 			const string& cell_name)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr || !cell->is_ff() ) {
-    return nullptr;
+    return -1;
   }
 
   ClibFFInfo ffinfo = cell->ff_info();
@@ -595,10 +597,10 @@ BnNetwork::new_dff_cell(const string& name,
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
 // @param[in] cell 対応するセル．
-// @return 生成したDFFを返す．
+// @return 生成したDFF番号を返す．
 //
 // 名前の重複に関しては感知しない．
-BnDff*
+int
 BnNetwork::_new_dff(const string& name,
 		    bool has_xoutput,
 		    bool has_clear,
@@ -679,17 +681,17 @@ BnNetwork::_new_dff(const string& name,
 			     clock_id, clear_id, preset_id, cell);
   mDffList.push_back(dff);
 
-  return dff;
+  return dff_id;
 }
 
 // @brief ラッチを追加する．
 // @param[in] name ラッチ名
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @return 生成したラッチを返す．
+// @return 生成したラッチ番号を返す．
 //
 // 名前の重複に関しては感知しない．
-BnLatch*
+int
 BnNetwork::new_latch(const string& name,
 		     bool has_clear,
 		     bool has_preset)
@@ -700,17 +702,17 @@ BnNetwork::new_latch(const string& name,
 // @brief セルの情報を持ったラッチを追加する．
 // @param[in] name ラッチ名
 // @param[in] cell_name 対応するセル名．
-// @return 生成したラッチを返す．
+// @return 生成したラッチ番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルはラッチのセルでなければならない．
-BnLatch*
+int
 BnNetwork::new_latch_cell(const string& name,
 			  const string& cell_name)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr || !cell->is_latch() ) {
-    return nullptr;
+    return -1;
   }
 
   ClibLatchInfo latchinfo = cell->latch_info();
@@ -725,11 +727,11 @@ BnNetwork::new_latch_cell(const string& name,
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
 // @param[in] cell 対応するセル．
-// @return 生成したラッチを返す．
+// @return 生成したラッチ番号を返す．
 //
 // 名前の重複に関しては感知しない．
 // cell はラッチのセルでなければならない．
-BnLatch*
+int
 BnNetwork::_new_latch(const string& name,
 		      bool has_clear,
 		      bool has_preset,
@@ -797,7 +799,7 @@ BnNetwork::_new_latch(const string& name,
 				   enable_id, clear_id, preset_id, cell);
   mLatchList.push_back(latch);
 
-  return latch;
+  return latch_id;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -903,7 +905,7 @@ BnNetwork::_new_primitive(const string& node_name,
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
-  return node->id();
+  return id;
 }
 
 // @brief 論理式型の論理ノードを追加する．
@@ -924,7 +926,7 @@ BnNetwork::_new_expr(const string& node_name,
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
-  return node->id();
+  return id;
 }
 
 // @brief 真理値表型の論理ノードを追加する．
@@ -945,7 +947,7 @@ BnNetwork::_new_tv(const string& node_name,
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
-  return node->id();
+  return id;
 }
 
 // @brief ノード間を接続する．
@@ -957,8 +959,8 @@ BnNetwork::connect(int src_id,
 		   int dst_id,
 		   int ipos)
 {
-  ASSERT_COND( src_id != kBnNullId );
-  ASSERT_COND( dst_id != kBnNullId );
+  ASSERT_COND( src_id >= 0 && src_id < mNodeList.size() );
+  ASSERT_COND( dst_id >= 0 && dst_id < mNodeList.size() );
   BnNodeImpl* dst_node = mNodeList[dst_id];
   dst_node->set_fanin(ipos, src_id);
 
@@ -1126,7 +1128,7 @@ BnNetwork::wrap_up()
   queue.reserve(node_num());
 
   // キューの印を表すマーク配列
-  vector<bool> mark(node_num() + 1, false);
+  vector<bool> mark(node_num(), false);
 
   // 入力ノードをキューに積む．
   for ( auto id: input_id_list() ) {

@@ -29,9 +29,6 @@ Iscas89ParserImpl::Iscas89ParserImpl()
 // デストラクタ
 Iscas89ParserImpl::~Iscas89ParserImpl()
 {
-  for ( auto handler: mHandlerList ) {
-    delete handler;
-  }
   delete mScanner;
 }
 
@@ -213,7 +210,6 @@ void
 Iscas89ParserImpl::add_handler(Iscas89Handler* handler)
 {
   mHandlerList.push_back(handler);
-  handler->mParser = this;
 }
 
 // @brief ゲート型を読み込む．

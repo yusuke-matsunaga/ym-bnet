@@ -21,9 +21,9 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] parser パーサー
 Iscas89Handler::Iscas89Handler(Iscas89Parser& parser) :
-  mParser(parser.mRep.get())
+  mParser(*parser.mRep.get())
 {
-  mParser->add_handler(this);
+  mParser.add_handler(this);
 }
 
 // @brief デストラクタ
@@ -125,14 +125,14 @@ Iscas89Handler::error_exit()
 const char*
 Iscas89Handler::id2str(int id) const
 {
-  return mParser->id2str(id);
+  return mParser.id2str(id);
 }
 
 // @brief ID 番号から位置情報を得る．
 FileRegion
 Iscas89Handler::id2loc(int id) const
 {
-  return mParser->id2loc(id);
+  return mParser.id2loc(id);
 }
 
 END_NAMESPACE_YM_BNET

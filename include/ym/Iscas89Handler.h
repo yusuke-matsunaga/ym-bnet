@@ -26,8 +26,6 @@ class Iscas89ParserImpl;
 //////////////////////////////////////////////////////////////////////
 class Iscas89Handler
 {
-  friend class Iscas89ParserImpl;
-
 protected:
 
   /// @brief コンストラクタ
@@ -144,7 +142,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーサー本体
-  Iscas89ParserImpl* mParser;
+  Iscas89ParserImpl& mParser;
 
 };
 

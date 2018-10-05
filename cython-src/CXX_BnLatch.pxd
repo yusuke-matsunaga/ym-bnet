@@ -7,7 +7,7 @@
 ### All rights reserved.
 
 from libcpp.string cimport string
-from CXX_ClibCell cimport ClibCell
+#from CXX_ClibCell cimport ClibCell
 
 cdef extern from "ym/BnLatch.h" namespace "nsYm::nsBnet" :
 
@@ -20,7 +20,7 @@ cdef extern from "ym/BnLatch.h" namespace "nsYm::nsBnet" :
         int enable()
         int clear()
         int preset()
-        const ClibCell* cell()
+        #const ClibCell* cell()
         int output_pin_id()
         int input_pin_id()
         int enable_pin_id()

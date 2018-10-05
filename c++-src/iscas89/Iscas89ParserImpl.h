@@ -46,6 +46,7 @@ public:
   read(const string& filename);
 
   /// @brief イベントハンドラの登録
+  /// @param[in] handler 登録するハンドラ
   void
   add_handler(Iscas89Handler* handler);
 
