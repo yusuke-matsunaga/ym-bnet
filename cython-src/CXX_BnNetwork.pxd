@@ -8,6 +8,8 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
+from libcpp.vector cimport vector
+from CXX_BnNode cimport BnNode
 from CXX_ClibCellLibrary cimport ClibCellLibrary
 
 
@@ -26,6 +28,7 @@ cdef extern from "ym/BnNetwork.h" namespace "nsYm::nsBnet" :
         int dff_num()
         int latch_num()
         int node_num()
+        const BnNode* node(int)
         int input_num()
         int input_id(int)
         const vector[int]& input_id_list()

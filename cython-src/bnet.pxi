@@ -8,11 +8,115 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from CXX_BnNetwork cimport BnNetwork as CXX_BnNetwork
 from CXX_BnNetwork cimport write_blif as cxx_write_blif
 from CXX_BnNetwork cimport read_blif as cxx_read_blif
 from CXX_BnNetwork cimport read_iscas89 as cxx_read_iscas89
+from CXX_BnNode cimport BnNode as CXX_BnNode
+from CXX_BnNodeType cimport BnNodeType as CXX_BnNodeType
+from CXX_BnNodeType cimport __bnnodetype_to_int
 from CXX_ClibCellLibrary cimport ClibCellLibrary as CXX_ClibCellLibrary
+
+
+### @brief BnNode クラスの Python バージョン
+###
+### 実際には本当の BnNode の情報をコピーした全くの別物
+cdef class BnNode :
+
+    # データメンバ
+    cdef int __id
+    cdef str __name
+    cdef str __type
+    cdef str __subtype
+    cdef int __subid
+    cdef int __obj_id
+    cdef int __bit
+    cdef list __fanin_list
+    cdef list __fanout_list
+
+    ### @brief 初期化
+    def __init__(self, id, name, type) :
+        self.__id = id
+        self.__name = name
+        self.__type = type
+        self.__fanin_list = []
+        self.__fanout_list = []
+
+    @property
+    def id(self) :
+        return self.__id
+
+    @property
+    def name(self) :
+        return self.__name
+
+    @property
+    def type(self) :
+        return self.__type
+
+    @property
+    def input_id(self) :
+        assert self.type == 'Input'
+        return self.__subid
+
+    @property
+    def input_type(self) :
+        assert self.type == 'Input'
+        return self.__subtype
+
+    @property
+    def port_id(self) :
+        assert self.type == 'Input' and self.input_type == 'primary_input'
+        return self.__obj_id
+
+    @property
+    def port_bit(self) :
+        assert self.type == 'Input' and self.input_type == 'primary_input'
+        return self.__bit
+
+    @property
+    def dff_id(self) :
+        if self.type == 'Input' :
+            if self.input_type == 'dff_output' or self.input_type == 'dff_xoutput' :
+                return self.__obj_id
+        elif self.type == 'Output' :
+            if self.output_type == 'dff_input' or self.output_type == 'dff_clock' or \
+               self.output_type == 'dff_clear' or self.output_type == 'dff_preset' :
+               return self.__obj_id
+        assert False
+        return -1
+
+    @property
+    def latch_id(self) :
+        if self.type == 'Input' and self.input_type == 'latch_output' :
+            return self.__obj_id
+        elif self.type == 'Output' :
+            if self.output_type == 'latch_input' or self.output_type == 'latch_enable' or \
+            self.output_type == 'latch_clear' or self.output_type == 'latch_preset' :
+                return self.__obj_id
+        assert False
+        return -1
+
+    @property
+    def expr_id(self) :
+        if self.type == 'Expr' :
+            return self.__obj_id
+        assert False
+        return -1
+
+    @property
+    def func_id(self) :
+        if self.type == 'TvFunc' :
+            return self.__obj_id
+
+    @property
+    def fanin_list(self) :
+        return self.__fanin_list
+
+    @property
+    def fanout_list(self) :
+        return self.__fanout_list
 
 
 ### @brief BnNetwork クラスの Python バージョン
@@ -71,6 +175,103 @@ cdef class BnNetwork :
     def node_num(self) :
         return self._this.node_num()
 
+    ### @brief ノードを返す．
+    def node(self, int node_id) :
+        cdef const CXX_BnNode* c_node = self._this.node(node_id)
+        cdef str name = c_node.name().decode('UTF-8')
+        cdef CXX_BnNodeType c_type = c_node.type()
+        cdef int c_type_int = __bnnodetype_to_int(c_type)
+        if c_type_int == 0 :
+            type_str = 'None'
+        elif c_type_int == 1 :
+            type_str = 'Input'
+        elif c_type_int == 2 :
+            type_str = 'Output'
+        elif c_type_int == 3 :
+            type_str = 'C0'
+        elif c_type_int == 4 :
+            type_str = 'C1'
+        elif c_type_int == 5 :
+            type_str = 'Buff'
+        elif c_type_int == 6 :
+            type_str = 'Not'
+        elif c_type_int == 7 :
+            type_str = 'And'
+        elif c_type_int == 8 :
+            type_str = 'Nand'
+        elif c_type_int == 9 :
+            type_str = 'Or'
+        elif c_type_int == 10 :
+            type_str = 'Nor'
+        elif c_type_int == 11 :
+            type_str = 'Xor'
+        elif c_type_int == 12 :
+            type_str = 'Xnor'
+        elif c_type_int == 13 :
+            type_str = 'Expr'
+        elif c_type_int == 14 :
+            type_str = 'TvFunc'
+        node = BnNode(c_node.id(), name, type_str)
+        node.__fanout_list = [ c_node.fanout(i) for i in range(c_node.fanout_list().size()) ]
+        if type_str == 'Input' :
+            node.__subid = c_node.input_id()
+            if c_node.is_port_input() :
+                node.__subtype = 'primary_input'
+                node.__obj_id = c_node.port_id()
+                node.__bit = c_node.port_bit()
+            elif c_node.is_dff_output() :
+                node.__subtype = 'dff_output'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_xoutput() :
+                node.__subtype = 'dff_xoutput'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_latch_output() :
+                node.__subtype = 'latch_output'
+                node.__obj_id = c_node.latch_id()
+            else :
+                assert False
+        elif type_str == 'Output' :
+            node.__subid = c_node.output_id()
+            if c_node.is_port_output() :
+                node.__subtype = 'primary_output'
+                node.__obj_id = c_node.port_id()
+                node.__bit = c_node.port_bit()
+            elif c_node.is_dff_input() :
+                node.__subtype = 'dff_input'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_clock() :
+                node.__subtype = 'dff_clock'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_clear() :
+                node.__subtype = 'dff_clear'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_dff_preset() :
+                node.__subtype = 'dff_preset'
+                node.__obj_id = c_node.dff_id()
+            elif c_node.is_latch_input() :
+                node.__subtype = 'latch_input'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_enable() :
+                node.__subtype = 'latch_enable'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_clear() :
+                node.__subtype = 'latch_clear'
+                node.__obj_id = c_node.latch_id()
+            elif c_node.is_latch_preset() :
+                node.__subtype = 'latch_preset'
+                node.__obj_id = c_node.latch_id()
+            else :
+                assert False
+        else :
+            ni = c_node.fanin_num()
+            node.__fanin_list = [ c_node.fanin(i) for i in range(ni) ]
+            if type_str == 'Expr' :
+                node.__obj_id = c_node.expr_id()
+            elif type_str == 'TvFunc' :
+                node.__obj_id = c_node.func_id()
+
+        return node
+
     ### @brief 入力数を返す．
     @property
     def input_num(self) :
@@ -79,17 +280,27 @@ cdef class BnNetwork :
     ### @brief 入力のノード番号のリストを返す．
     @property
     def input_id_list(self) :
-        return [ self._this.input_id_list()[i] for i in range(self._this.input_id_list().size()) ]
+        return [ self._this.input_id_list()[i] for i in range(self._this.input_num()) ]
 
     ### @brief 出力数を返す．
     @property
     def output_num(self) :
         return self._this.output_num()
 
+    ### @brief 出力のノード番号のリストを返す．
+    @property
+    def output_id_list(self) :
+        return [ self._this.output_id_list()[i] for i in range(self._this.output_num()) ]
+
     ### @brief 論理ゲート数を返す．
     @property
     def logic_num(self) :
         return self._this.logic_num()
+
+    ### @brief 論理ゲートのノード番号のリストを返す．
+    @property
+    def logic_id_list(self) :
+        return [ self._this.logic_id_list()[i] for i in range(self._this.logic_num()) ]
 
     ### @brief 論理ゲート中で用いられている関数の種類を返す．
     @property

@@ -1211,4 +1211,87 @@ BnNetwork::_add_tv(const TvFunc& tv)
   return func_id;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+// BnNodeType
+//////////////////////////////////////////////////////////////////////
+
+// @relates BnNodeType
+// @brief BnNodeType の内容をストリームに出力する．
+ostream&
+operator<<(ostream& s,
+	   BnNodeType type)
+{
+  switch ( type ) {
+  case BnNodeType::None:   s << "None"; break;
+  case BnNodeType::Input:  s << "Input"; break;
+  case BnNodeType::Output: s << "Output"; break;
+  case BnNodeType::C0:     s << "C0"; break;
+  case BnNodeType::C1:     s << "C1"; break;
+  case BnNodeType::Buff:   s << "Buff"; break;
+  case BnNodeType::Not:    s << "Not"; break;
+  case BnNodeType::And:    s << "And"; break;
+  case BnNodeType::Nand:   s << "Nand"; break;
+  case BnNodeType::Or:     s << "Or"; break;
+  case BnNodeType::Nor:    s << "Nor"; break;
+  case BnNodeType::Xor:    s << "Xor"; break;
+  case BnNodeType::Xnor:   s << "Xnor"; break;
+  case BnNodeType::Expr:   s << "Expr"; break;
+  case BnNodeType::TvFunc: s << "TvFunc"; break;
+  defult: ASSERT_NOT_REACHED; break;
+  }
+  return s;
+}
+
+// cython 用の変換関数
+int
+__bnnodetype_to_int(BnNodeType type)
+{
+  switch ( type ) {
+  case BnNodeType::None:   return 0;
+  case BnNodeType::Input:  return 1;
+  case BnNodeType::Output: return 2;
+  case BnNodeType::C0:     return 3;
+  case BnNodeType::C1:     return 4;
+  case BnNodeType::Buff:   return 5;
+  case BnNodeType::Not:    return 6;
+  case BnNodeType::And:    return 7;
+  case BnNodeType::Nand:   return 8;
+  case BnNodeType::Or:     return 9;
+  case BnNodeType::Nor:    return 10;
+  case BnNodeType::Xor:    return 11;
+  case BnNodeType::Xnor:   return 12;
+  case BnNodeType::Expr:   return 13;
+  case BnNodeType::TvFunc: return 14;
+  defult: ASSERT_NOT_REACHED; break;
+  }
+  return 0;
+}
+
+BnNodeType
+__int_to_bnnodetype(int val)
+{
+  static BnNodeType tbl[] {
+    BnNodeType::None,
+    BnNodeType::Input,
+    BnNodeType::Output,
+    BnNodeType::C0,
+    BnNodeType::C1,
+    BnNodeType::Buff,
+    BnNodeType::Not,
+    BnNodeType::And,
+    BnNodeType::Nand,
+    BnNodeType::Or,
+    BnNodeType::Nor,
+    BnNodeType::Xor,
+    BnNodeType::Xnor,
+    BnNodeType::Expr,
+    BnNodeType::TvFunc
+  };
+
+  ASSERT_COND( val >= 0 && val < 15 );
+  return tbl[val];
+}
+
+
 END_NAMESPACE_YM_BNET

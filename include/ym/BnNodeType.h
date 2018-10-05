@@ -18,6 +18,8 @@ BEGIN_NAMESPACE_YM_BNET
 /// @brief BnNode のタイプ
 //////////////////////////////////////////////////////////////////////
 enum class BnNodeType {
+  /// @brief 不正値
+  None,
   /// @brief 外部入力ノード
   Input,
   /// @brief 外部出力ノード
@@ -46,9 +48,20 @@ enum class BnNodeType {
   Expr,
   /// @brief 論理ノード(真理値表:TvFunc)
   TvFunc,
-  /// @brief 論理ノード(不正値)
-  None,
 };
+
+/// @relates BnNodeType
+/// @brief BnNodeType の内容をストリームに出力する．
+ostream&
+operator<<(ostream& s,
+	   BnNodeType type);
+
+// cython 用の変換関数
+extern
+int __bnnodetype_to_int(BnNodeType type);
+
+extern
+BnNodeType __int_to_bnnodetype(int val);
 
 END_NAMESPACE_YM_BNET
 
