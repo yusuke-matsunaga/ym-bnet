@@ -101,39 +101,39 @@ public:
 
   /// @brief 1ビットの入力ポートを作る．
   /// @param[in] port_name ポート名
-  /// @return 生成したポートを返す．
-  BnPort*
+  /// @return 生成したポート番号を返す．
+  int
   new_input_port(const string& port_name);
 
   /// @brief 多ビットの入力ポートを作る．
   /// @param[in] port_name ポート名
   /// @param[in] bit_width ビット幅
-  /// @return 生成したポートを返す．
-  BnPort*
+  /// @return 生成したポート番号を返す．
+  int
   new_input_port(const string& port_name,
 		 int bit_width);
 
   /// @brief 1ビットの出力ポートを作る．
   /// @param[in] port_name ポート名
-  /// @return 生成したポートを返す．
-  BnPort*
+  /// @return 生成したポート番号を返す．
+  int
   new_output_port(const string& port_name);
 
   /// @brief 多ビットの出力ポートを作る．
   /// @param[in] port_name ポート名
   /// @param[in] bit_width ビット幅
-  /// @return 生成したポートを返す．
-  BnPort*
+  /// @return 生成したポート番号を返す．
+  int
   new_output_port(const string& port_name,
 		  int bit_width);
 
   /// @brief 入出力混合のポートを作る．
   /// @param[in] port_name ポート名
   /// @param[in] dir_vect 向きを表すベクタ
-  /// @return 生成したポートを返す．
+  /// @return 生成したポート番号を返す．
   ///
   /// - dir_vect[i] == 0 の時，入力を表す．
-  BnPort*
+  int
   new_port(const string& port_name,
 	   const vector<int>& dir_vect);
 

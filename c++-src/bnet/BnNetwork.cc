@@ -149,9 +149,10 @@ BnNetwork::copy(const BnNetwork& src)
     }
 
     // ポートの生成
-    BnPort* dst_port = new_port(port_name, dirs);
+    auto dst_port_id = new_port(port_name, dirs);
+    auto dst_port = port(dst_port_id);
 
-    ASSERT_COND( src_port->id() == dst_port->id() );
+    ASSERT_COND( src_port->id() == dst_port_id );
 
     // 各ビットの対応関係を記録する．
     for ( auto i: Range(nb) ) {
@@ -458,8 +459,8 @@ BnNetwork::set_name(const string& name)
 
 // @brief 1ビットの入力ポートを作る．
 // @param[in] port_name ポート名
-// @return 生成したポートを返す．
-BnPort*
+// @return 生成したポート番号を返す．
+int
 BnNetwork::new_input_port(const string& port_name)
 {
   return new_port(port_name, vector<int>(1, 0));
@@ -468,8 +469,8 @@ BnNetwork::new_input_port(const string& port_name)
 // @brief 多ビットの入力ポートを作る．
 // @param[in] port_name ポート名
 // @param[in] bit_width ビット幅
-// @return 生成したポートを返す．
-BnPort*
+// @return 生成したポート番号を返す．
+int
 BnNetwork::new_input_port(const string& port_name,
 			  int bit_width)
 {
@@ -478,8 +479,8 @@ BnNetwork::new_input_port(const string& port_name,
 
 // @brief 1ビットの出力ポートを作る．
 // @param[in] port_name ポート名
-// @return 生成したポートを返す．
-BnPort*
+// @return 生成したポート番号を返す．
+int
 BnNetwork::new_output_port(const string& port_name)
 {
   return new_port(port_name, vector<int>(1, 1));
@@ -488,8 +489,8 @@ BnNetwork::new_output_port(const string& port_name)
 // @brief 多ビットの出力ポートを作る．
 // @param[in] port_name ポート名
 // @param[in] bit_width ビット幅
-// @return 生成したポートを返す．
-BnPort*
+// @return 生成したポート番号を返す．
+int
 BnNetwork::new_output_port(const string& port_name,
 			   int bit_width)
 {
@@ -499,10 +500,10 @@ BnNetwork::new_output_port(const string& port_name,
 // @brief 入出力混合のポートを作る．
 // @param[in] port_name ポート名
 // @param[in] dir_vect 向きを表すベクタ
-// @return 生成したポートを返す．
+// @return 生成したポート番号を返す．
 //
 // dir_vect[i] == 0 の時，入力を表す．
-BnPort*
+int
 BnNetwork::new_port(const string& port_name,
 		    const vector<int>& dir_vect)
 {
@@ -544,7 +545,7 @@ BnNetwork::new_port(const string& port_name,
   }
   mPortList.push_back(port);
 
-  return port;
+  return port_id;
 }
 
 // @brief DFFを追加する．

@@ -63,7 +63,8 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 			     int name_id,
 			     const char* name)
 {
-  BnPort* port = mNetwork->new_input_port(name);
+  auto port_id = mNetwork->new_input_port(name);
+  auto port = mNetwork->port(port_id);
   int id = port->bit(0);
   mIdMap.add(name_id, id);
 
@@ -80,11 +81,10 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 			      int name_id,
 			      const char* name)
 {
-  BnPort* port = mNetwork->new_output_port(name);
+  auto port_id = mNetwork->new_output_port(name);
+  auto port = mNetwork->port(port_id);
   int id = port->bit(0);
-
-  add_fanin_info(id, vector<int>(1, name_id));
-
+  add_fanin_info(id, vector<int>({name_id}));
   return true;
 }
 
@@ -138,7 +138,8 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
-    BnPort* clock_port = mNetwork->new_input_port(mClockName);
+    auto port_id = mNetwork->new_input_port(mClockName);
+    auto clock_port = mNetwork->port(port_id);
     // クロックの入力ノード番号を記録する．
     mClockId = clock_port->bit(0);
   }

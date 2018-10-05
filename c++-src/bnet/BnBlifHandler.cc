@@ -85,7 +85,8 @@ bool
 BnBlifHandler::inputs_elem(int name_id,
 			   const char* name)
 {
-  BnPort* port = mNetwork->new_input_port(name);
+  auto port_id = mNetwork->new_input_port(name);
+  auto port = mNetwork->port(port_id);
   int id = port->bit(0);
   mIdMap.add(name_id, id);
 
@@ -99,10 +100,10 @@ bool
 BnBlifHandler::outputs_elem(int name_id,
 			    const char* name)
 {
-  BnPort* port = mNetwork->new_output_port(name);
+  auto port_id = mNetwork->new_output_port(name);
+  auto port = mNetwork->port(port_id);
   int id = port->bit(0);
-
-  mFaninInfoMap.add(id, vector<int>(1, name_id));
+  mFaninInfoMap.add(id, vector<int>({name_id}));
 
   return true;
 }
@@ -190,7 +191,8 @@ BnBlifHandler::latch(int oname_id,
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
-    BnPort* clock_port = mNetwork->new_input_port(mClockName);
+    auto port_id = mNetwork->new_input_port(mClockName);
+    auto clock_port = mNetwork->port(port_id);
     // クロックの入力ノード番号を記録する．
     mClockId = clock_port->bit(0);
   }
@@ -202,7 +204,8 @@ BnBlifHandler::latch(int oname_id,
   if ( has_clear || has_preset ) {
     if ( mResetId == kBnNullId ) {
       // リセット端子のポートを作る．
-      BnPort* reset_port = mNetwork->new_input_port(mResetName);
+      auto port_id = mNetwork->new_input_port(mResetName);
+      auto reset_port = mNetwork->port(port_id);
       // リセット端子の入力ノードを記録する．
       mResetId = reset_port->bit(0);
     }
