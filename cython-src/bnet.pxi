@@ -476,6 +476,13 @@ cdef class BnNetwork :
     def expr_num(self) :
         return self._this.expr_num()
 
+    ### @brief 論理式を返す．
+    ### @param[in] expr_id 論理式番号( 0 <= expr_id < expr_num() )
+    def expr(self, int expr_id) :
+        ans = Expr()
+        ans._this = self._this.expr(expr_id)
+        return ans
+
     ### @brief blif ファイルの書き出し
     def write_blif(self, str filename) :
         cdef string c_filename = filename.encode('UTF-8')

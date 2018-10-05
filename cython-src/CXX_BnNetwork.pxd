@@ -9,6 +9,7 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
+from CXX_Expr cimport Expr
 from CXX_BnPort cimport BnPort
 from CXX_BnDff cimport BnDff
 from CXX_BnLatch cimport BnLatch
@@ -46,6 +47,7 @@ cdef extern from "ym/BnNetwork.h" namespace "nsYm::nsBnet" :
         const vector[int]& logic_id_list()
         int func_num()
         int expr_num()
+        const Expr& expr(int)
 
     void write_blif(const BnNetwork&, const string&)
     bool read_blif(BnNetwork&, const string&, const string&, const string&)

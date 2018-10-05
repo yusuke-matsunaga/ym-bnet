@@ -45,13 +45,13 @@ FuncAnalyzerTest::do_test(const Expr& expr,
 
 TEST_F(FuncAnalyzerTest, const0)
 {
-  Expr expr = Expr::const_zero();
+  Expr expr = Expr::zero();
   do_test(expr, BnNodeType::C0);
 }
 
 TEST_F(FuncAnalyzerTest, const1)
 {
-  Expr expr = Expr::const_one();
+  Expr expr = Expr::one();
   do_test(expr, BnNodeType::C1);
 }
 

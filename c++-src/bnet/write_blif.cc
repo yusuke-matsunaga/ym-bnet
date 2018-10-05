@@ -192,12 +192,12 @@ write_blif(const BnNetwork& network,
 	    vector<int> pol_array(ni, 0);
 	    for ( auto i: Range(expr.child_num()) ) {
 	      Expr expr1 = expr.child(i);
-	      if ( expr1.is_posiliteral() ) {
+	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
 		int pos = var.val();
 		pol_array[pos] = 1;
 	      }
-	      else if ( expr1.is_negaliteral() ) {
+	      else if ( expr1.is_nega_literal() ) {
 		VarId var = expr1.varid();
 		int pos = var.val();
 		pol_array[pos] = 2;
@@ -218,7 +218,7 @@ write_blif(const BnNetwork& network,
 	  else if ( expr.is_or() ) {
 	    for ( auto i: Range(expr.child_num()) ) {
 	      Expr expr1 = expr.child(i);
-	      if ( expr1.is_posiliteral() ) {
+	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
 		int pos = var.val();
 		for ( auto j: Range(ni) ) {
@@ -231,7 +231,7 @@ write_blif(const BnNetwork& network,
 		}
 		s << " 1" << endl;
 	      }
-	      else if ( expr1.is_negaliteral() ) {
+	      else if ( expr1.is_nega_literal() ) {
 		VarId var = expr1.varid();
 		int pos = var.val();
 		for ( auto j: Range(ni) ) {
@@ -251,7 +251,7 @@ write_blif(const BnNetwork& network,
 		  ASSERT_COND( expr2.is_literal() );
 		  VarId var = expr2.varid();
 		  int pos = var.val();
-		  if ( expr2.is_posiliteral() ) {
+		  if ( expr2.is_posi_literal() ) {
 		    lit_map[pos] = 1;
 		  }
 		  else {
