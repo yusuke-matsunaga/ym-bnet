@@ -10,8 +10,7 @@
 
 
 #include "ym/bnet.h"
-#include "ym/clib.h"
-#include "ym/HashMap.h"
+#include "ym/ClibCellLibrary.h"
 #include "BlifIdHash.h"
 #include "BlifScanner.h"
 #include "BlifCoverMgr.h"
@@ -44,12 +43,12 @@ public:
 
   /// @brief 読み込みを行う．
   /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリへのポインタ
+  /// @param[in] cell_library セルライブラリ
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
   read(const string& filename,
-       const ClibCellLibrary* cell_library);
+       const ClibCellLibrary& cell_library);
 
   /// @brief イベントハンドラの登録
   /// @param[in] handler 登録するハンドラ
@@ -104,8 +103,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // セルライブラリのポインタ
-  const ClibCellLibrary* mCellLibrary;
+  // セルライブラリ
+  ClibCellLibrary mCellLibrary;
 
   // 字句解析器
   BlifScanner* mScanner;

@@ -65,8 +65,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 実体
-  std::unique_ptr<BlifParserImpl> mImpl;
+  // パーサーの実体
+  unique_ptr<BlifParserImpl> mImpl;
 
 };
 

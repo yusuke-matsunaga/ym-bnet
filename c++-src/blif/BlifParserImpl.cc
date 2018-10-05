@@ -43,7 +43,7 @@ BlifParser::~BlifParser()
 bool
 BlifParser::read(const string& filename)
 {
-  bool stat = mImpl->read(filename, nullptr);
+  bool stat = mImpl->read(filename, ClibCellLibrary());
   return stat;
 }
 
@@ -56,7 +56,7 @@ bool
 BlifParser::read(const string& filename,
 		 const ClibCellLibrary& cell_library)
 {
-  bool stat = mImpl->read(filename, &cell_library);
+  bool stat = mImpl->read(filename, cell_library);
   return stat;
 }
 
@@ -117,7 +117,7 @@ BlifParserImpl::~BlifParserImpl()
 // @brief 読み込みを行う．
 bool
 BlifParserImpl::read(const string& filename,
-		     const ClibCellLibrary* cell_library)
+		     const ClibCellLibrary& cell_library)
 {
   // ファイルをオープンする．
   FileIDO ido;
@@ -154,10 +154,10 @@ BlifParserImpl::read(const string& filename,
     goto ST_ERROR_EXIT;
   }
 
-  if ( mCellLibrary != nullptr && mCellLibrary->cell_num() > 0 ) {
+  if ( mCellLibrary.cell_num() > 0 ) {
     // セルライブラリの設定
     for ( auto handler: mHandlerList ) {
-      handler->set_cell_library(*mCellLibrary);
+      handler->set_cell_library(mCellLibrary);
     }
   }
 
@@ -254,7 +254,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_NAMES;
 
     case BlifToken::GATE:
-      if ( mCellLibrary == nullptr || mCellLibrary->cell_num() == 0 ) {
+      if ( mCellLibrary.cell_num() == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__,
 			mLoc1,
 			MsgType::Error,
@@ -615,7 +615,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_GATE_SYNERROR;
     }
     const char* name = mScanner->cur_string();
-    mCell = mCellLibrary->cell(name);
+    mCell = mCellLibrary.cell(name);
     if ( mCell == nullptr ) {
       ostringstream buf;
       buf << name << ": No such cell.";
