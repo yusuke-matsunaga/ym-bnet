@@ -34,11 +34,22 @@ cdef class BnNetwork :
         cdef string c_name = name.encode('UTF-8')
         self._this.set_name(c_name)
 
+    ### @brief セルライブラリを設定する．
+    def set_library(self, CellLibrary library) :
+        self._this.set_library(library._this)
+
     ### @brief 名前を返す．
     @property
     def name(self) :
         cdef string c_name = self._this.name()
         return c_name.decode('UTF-8')
+
+    ### @brief セルライブラリを返す．
+    @property
+    def library(self) :
+        ans = CellLibrary()
+        ans._this = self._this.library()
+        return ans
 
     ### @brief ポート数を返す．
     @property
