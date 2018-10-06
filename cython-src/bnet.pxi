@@ -471,6 +471,13 @@ cdef class BnNetwork :
     def func_num(self) :
         return self._this.func_num()
 
+    ### @brief 関数を返す．
+    ### @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
+    def func(self, int func_id) :
+        ans = TvFunc()
+        ans._this = self._this.func(func_id)
+        return ans
+
     ### @brief 論理ゲート数で用いられrている論理式の種類を返す．
     @property
     def expr_num(self) :
