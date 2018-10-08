@@ -21,11 +21,15 @@ TEST(ReadIscas89Test, test)
   string path = DATAPATH + filename;
   bool stat = read_iscas89(network, path);
   EXPECT_TRUE( stat );
-  EXPECT_EQ( 11 + 17 + 1, network.input_num() );
-  EXPECT_EQ( 6 + 17 + 17, network.output_num() );
-  EXPECT_EQ( 172, network.logic_num() );
-  EXPECT_EQ( 11 + 6 + 1, network.port_num() );
-  EXPECT_EQ( 17, network.dff_num() );
+  int ni = 11;
+  int no = 6;
+  int nd = 17;
+  int ng = 172;
+  EXPECT_EQ( ni + nd + 1, network.input_num() );
+  EXPECT_EQ( no + nd + nd, network.output_num() );
+  EXPECT_EQ( ng, network.logic_num() );
+  EXPECT_EQ( ni + no + 1, network.port_num() );
+  EXPECT_EQ( nd, network.dff_num() );
 }
 
 END_NAMESPACE_YM
