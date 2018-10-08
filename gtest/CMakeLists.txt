@@ -33,28 +33,54 @@ ym_add_gtest ( FuncAnalyzerTest
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
 
-add_executable ( ReadBlifTest
-  ReadBlifTest.cc
+add_executable ( read_blif_test
+  read_blif_test.cc
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_logic_ad>
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
 
-target_compile_options ( ReadBlifTest
+target_compile_options ( read_blif_test
   PRIVATE "-g"
   )
 
-target_compile_definitions ( ReadBlifTest
-  PRIVATE "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\""
+target_compile_definitions ( read_blif_test
+  PRIVATE "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
   )
 
-target_link_libraries ( ReadBlifTest
+target_link_libraries ( read_blif_test
   ${YM_LIB_DEPENDS}
   pthread
   ${GTEST_BOTH_LIBRARIES}
   )
 
-add_test ( ReadBlifTest
-  ReadBlifTest
+add_test ( read_blif_test
+  read_blif_test
+  )
+
+add_executable ( read_iscas89_test
+  read_iscas89_test.cc
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_cell_ad>
+  $<TARGET_OBJECTS:ym_bnet_ad>
+  )
+
+target_compile_options ( read_iscas89_test
+  PRIVATE "-g"
+  )
+
+target_compile_definitions ( read_iscas89_test
+  PRIVATE "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  )
+
+target_link_libraries ( read_iscas89_test
+  ${YM_LIB_DEPENDS}
+  pthread
+  ${GTEST_BOTH_LIBRARIES}
+  )
+
+add_test ( read_iscas89_test
+  read_iscas89_test
   )

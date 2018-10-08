@@ -21,6 +21,11 @@ TEST(ReadBlifTest, test)
   string path = DATAPATH + filename;
   bool stat = read_blif(network, path);
   EXPECT_TRUE( stat );
+  EXPECT_EQ( 215, network.input_num() );
+  EXPECT_EQ( 407, network.output_num() );
+  EXPECT_EQ( 2779, network.logic_num() );
+  EXPECT_EQ( 35 + 49 + 1, network.port_num() );
+  EXPECT_EQ( 179, network.dff_num() );
 }
 
 END_NAMESPACE_YM

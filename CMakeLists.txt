@@ -40,9 +40,8 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-#add_subdirectory ( cython-src )
-add_subdirectory ( tests )
 add_subdirectory ( gtest )
+add_subdirectory ( test-programs )
 
 
 # ===================================================================
