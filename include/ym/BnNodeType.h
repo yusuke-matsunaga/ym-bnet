@@ -1,8 +1,8 @@
 ﻿#ifndef YM_BNNODETYPE_H
 #define YM_BNNODETYPE_H
 
-/// @file ym/bnet.h
-/// @brief ym-bnet の定義
+/// @file ym/BnNodeType.h
+/// @brief BnNodeType の定義
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2012, 2014, 2016, 2017, 2018 Yusuke Matsunaga

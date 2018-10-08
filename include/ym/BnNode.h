@@ -172,7 +172,7 @@ public:
   bool
   is_port_output() const = 0;
 
-  /// @brie DFFの入力端子の時に true を返す．
+  /// @brief DFFの入力端子の時に true を返す．
   virtual
   bool
   is_dff_input() const = 0;
