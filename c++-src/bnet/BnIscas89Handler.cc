@@ -105,7 +105,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 			    const vector<int>& iname_list)
 {
   int ni = iname_list.size();
-  int id = mNetwork->new_primitive(oname, ni, logic_type);
+  int id = mNetwork->new_logic(oname, logic_type, ni);
   mIdMap.add(oname_id, id);
 
   add_fanin_info(id, iname_list);

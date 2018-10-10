@@ -126,7 +126,7 @@ BnBlifHandler::names(int oname_id,
 
   int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
-  int node_id = mNetwork->new_expr(oname, expr);
+  int node_id = mNetwork->new_logic(oname, expr);
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);
@@ -149,7 +149,7 @@ BnBlifHandler::gate(int oname_id,
 {
   int ni = inode_id_array.size();
   ASSERT_COND( ni == cell->input_num() );
-  int node_id = mNetwork->new_logic_cell(oname, cell->name());
+  int node_id = mNetwork->new_logic(oname, cell->name());
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);

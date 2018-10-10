@@ -159,8 +159,8 @@ public:
   /// - 名前の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合とFFセルでない場合には nullptr を返す．
   int
-  new_dff_cell(const string& name,
-	       const string& cell_name);
+  new_dff(const string& name,
+	  const string& cell_name);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
@@ -184,21 +184,37 @@ public:
   /// - 名前の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合とラッチセルでない場合には nullptr を返す．
   int
-  new_latch_cell(const string& name,
-		 const string& cell_name);
+  new_latch(const string& name,
+	    const string& cell_name);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
   /// @param[in] logic_type 論理型
+  /// @param[in] ni 入力数
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   int
-  new_primitive(const string& node_name,
-		int ni,
-		BnNodeType logic_type);
+  new_logic(const string& node_name,
+	    BnNodeType logic_type,
+	    int ni);
+
+  /// @brief C0型(定数０)の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_c0(const string& node_name);
+
+  /// @brief C1型(定数1)の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_c1(const string& node_name);
 
   /// @brief Buff型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -284,8 +300,8 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は expr.input_num() を用いる．
   int
-  new_expr(const string& node_name,
-	   const Expr& expr);
+  new_logic(const string& node_name,
+	    const Expr& expr);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -295,8 +311,8 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は tv.input_num() を用いる．
   int
-  new_tv(const string& node_name,
-	 const TvFunc& tv);
+  new_logic(const string& node_name,
+	    const TvFunc& tv);
 
   /// @brief 論理セルを追加する．
   /// @param[in] node_name ノード名
@@ -306,8 +322,8 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
   int
-  new_logic_cell(const string& node_name,
-		 const string& cell_name);
+  new_logic(const string& node_name,
+	    const string& cell_name);
 
   /// @brief 部分回路を追加する．
   /// @param[in] src_network 部分回路

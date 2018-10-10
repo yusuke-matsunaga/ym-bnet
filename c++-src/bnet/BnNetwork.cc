@@ -226,143 +226,6 @@ BnNetwork::node(int id) const
   return mNodeList[id];
 }
 
-// @brief 内容を出力する．
-// @param[in] s 出力先のストリーム
-//
-// 形式は独自フォーマット
-void
-BnNetwork::write(ostream& s) const
-{
-  s << "network name : " << name() << endl
-    << endl;
-
-  for ( auto port: port_list() ) {
-    s << "port#" << port->id() << ": ";
-    s << "(" << port->name() << ") : ";
-    for ( auto i: Range(port->bit_width()) ) {
-      s << " " << port->bit(i);
-    }
-    s << endl;
-  }
-  s << endl;
-
-  for ( auto id: input_id_list() ) {
-    auto node = this->node(id);
-    ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->type() == BnNodeType::Input );
-    s << "input: " << node->id()
-      << "(" << node->name() << ")" << endl;
-  }
-  s << endl;
-
-  for ( auto id: output_id_list() ) {
-    auto node = this->node(id);
-    ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->type() == BnNodeType::Output );
-    s << "output: " << node->id()
-      << "(" << node->name() << ")" << endl
-      << "    input: " << node->fanin() << endl;
-  }
-  s << endl;
-
-  for ( auto dff: dff_list() ) {
-    ASSERT_COND( dff != nullptr );
-    s << "dff#" << dff->id()
-      << "(" << dff->name() << ")" << endl
-      << "    input:  " << dff->input() << endl
-      << "    output: " << dff->output() << endl
-      << "    clock:  " << dff->clock() << endl;
-    if ( dff->clear() != kBnNullId ) {
-      s << "    clear:  " << dff->clear() << endl;
-    }
-    if ( dff->preset() != kBnNullId ) {
-      s << "    preset: " << dff->preset() << endl;
-    }
-    s << endl;
-  }
-  s << endl;
-
-  for ( auto latch: latch_list() ) {
-    ASSERT_COND( latch != nullptr );
-    s << "latch#" << latch->id()
-      << "(" << latch->name() << ")" << endl
-      << "    input:  " << latch->input() << endl
-      << "    output: " << latch->output() << endl
-      << "    enable: " << latch->enable() << endl;
-    if ( latch->clear() != kBnNullId ) {
-      s << "    clear:  " << latch->clear() << endl;
-    }
-    if ( latch->preset() != kBnNullId ) {
-      s << "    preset: " << latch->preset() << endl;
-    }
-  }
-  s << endl;
-
-  for ( auto id: logic_id_list() ) {
-    auto node = this->node(id);
-    ASSERT_COND( node != nullptr );
-    ASSERT_COND( node->is_logic() );
-    s << "logic: " << id
-      << "(" << node->name() << ")" << endl
-      << "    fanins: ";
-    for ( auto fanin_id: node->fanin_list() ) {
-    s << " " << fanin_id;
-    }
-    s << endl;
-    s << "    ";
-    switch ( node->type() ) {
-    case BnNodeType::None:
-      s << "NONE";
-      break;
-    case BnNodeType::C0:
-      s << "C0";
-      break;
-    case BnNodeType::C1:
-      s << "C1";
-      break;
-    case BnNodeType::Buff:
-      s << "BUFF";
-      break;
-    case BnNodeType::Not:
-      s << "NOT";
-      break;
-    case BnNodeType::And:
-      s << "AND";
-      break;
-    case BnNodeType::Nand:
-      s << "NAND";
-      break;
-    case BnNodeType::Or:
-      s << "OR";
-      break;
-    case BnNodeType::Nor:
-      s << "NOR";
-      break;
-    case BnNodeType::Xor:
-      s << "XOR";
-      break;
-    case BnNodeType::Xnor:
-      s << "XNOR";
-      break;
-    case BnNodeType::Expr:
-      s << "expr#" << node->expr_id() << ": " << node->expr();
-      break;
-    case BnNodeType::TvFunc:
-      s << "func#" << node->func_id() << ": " << node->func();
-      break;
-    default:
-      ASSERT_NOT_REACHED;
-    }
-    s << endl;
-    if ( node->cell() ) {
-      s << "    cell: " << node->cell()->name() << endl;
-    }
-    s << endl;
-  }
-
-  s << endl;
-}
-
 // @brief セルライブラリをセットする．
 // @param[in] library ライブラリ
 void
@@ -495,8 +358,8 @@ BnNetwork::new_dff(const string& name,
 // - 名前の重複に関しては感知しない．
 // - セルは FF のセルでなければならない．
 int
-BnNetwork::new_dff_cell(const string& name,
-			const string& cell_name)
+BnNetwork::new_dff(const string& name,
+		   const string& cell_name)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr || !cell->is_ff() ) {
@@ -504,7 +367,6 @@ BnNetwork::new_dff_cell(const string& name,
   }
 
   ClibFFInfo ffinfo = cell->ff_info();
-
   bool has_xoutput = ffinfo.has_xq();
   bool has_clear = ffinfo.has_clear();
   bool has_preset = ffinfo.has_preset();
@@ -628,8 +490,8 @@ BnNetwork::new_latch(const string& name,
 // - 名前の重複に関しては感知しない．
 // - セルはラッチのセルでなければならない．
 int
-BnNetwork::new_latch_cell(const string& name,
-			  const string& cell_name)
+BnNetwork::new_latch(const string& name,
+		     const string& cell_name)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr || !cell->is_latch() ) {
@@ -637,7 +499,6 @@ BnNetwork::new_latch_cell(const string& name,
   }
 
   ClibLatchInfo latchinfo = cell->latch_info();
-
   bool has_xoutput = latchinfo.has_xq();
   bool has_clear = latchinfo.has_clear();
   bool has_preset = latchinfo.has_preset();
@@ -739,18 +600,40 @@ BnNetwork::_new_latch(const string& name,
 
 // @brief プリミティブ型の論理ノードを追加する．
 // @param[in] node_name ノード名
-// @param[in] ni 入力数
 // @param[in] logic_type 論理型
+// @param[in] ni 入力数
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 // - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
 int
-BnNetwork::new_primitive(const string& node_name,
-			 int ni,
-			 BnNodeType logic_type)
+BnNetwork::new_logic(const string& node_name,
+		     BnNodeType logic_type,
+		     int ni)
 {
   return _new_primitive(node_name, ni, logic_type, nullptr);
+}
+
+// @brief C0型(定数０)の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_c0(const string& node_name)
+{
+  return _new_primitive(node_name, 0, BnNodeType::C0, nullptr);
+}
+
+// @brief C1型(定数1)の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_c1(const string& node_name)
+{
+  return _new_primitive(node_name, 0, BnNodeType::C1, nullptr);
 }
 
 // @brief Buff型の論理ノードを追加する．
@@ -860,8 +743,8 @@ BnNetwork::new_xnor(const string& node_name,
 //
 // - ノード名の重複に関しては感知しない．
 int
-BnNetwork::new_expr(const string& node_name,
-		    const Expr& expr)
+BnNetwork::new_logic(const string& node_name,
+		     const Expr& expr)
 {
   int ni = expr.input_size();
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
@@ -881,8 +764,8 @@ BnNetwork::new_expr(const string& node_name,
 //
 // ノード名の重複に関しては感知しない．
 int
-BnNetwork::new_tv(const string& node_name,
-		  const TvFunc& tv)
+BnNetwork::new_logic(const string& node_name,
+		     const TvFunc& tv)
 {
   int ni = tv.input_num();
   BnNodeType logic_type = FuncAnalyzer::analyze(tv);
@@ -903,8 +786,8 @@ BnNetwork::new_tv(const string& node_name,
 // - ノード名の重複に関しては感知しない．
 // - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
 int
-BnNetwork::new_logic_cell(const string& node_name,
-			  const string& cell_name)
+BnNetwork::new_logic(const string& node_name,
+		     const string& cell_name)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr ||
@@ -1015,7 +898,7 @@ BnNetwork::import_subnetwork(const BnNetwork& src_network,
   for ( auto src_id: src_network.input_id_list() ) {
     auto src_node = src_network.node(src_id);
     string name = src_node->name();
-    int dst_id = new_primitive(name, 1, BnNodeType::Buff);
+    int dst_id = new_buff(name);
     id_map.add(src_id, dst_id);
     input_list.push_back(dst_id);
   }
@@ -1443,6 +1326,143 @@ BnNetwork::_add_tv(const TvFunc& tv)
     mFuncMap.add(tv, func_id);
   }
   return func_id;
+}
+
+// @brief 内容を出力する．
+// @param[in] s 出力先のストリーム
+//
+// 形式は独自フォーマット
+void
+BnNetwork::write(ostream& s) const
+{
+  s << "network name : " << name() << endl
+    << endl;
+
+  for ( auto port: port_list() ) {
+    s << "port#" << port->id() << ": ";
+    s << "(" << port->name() << ") : ";
+    for ( auto i: Range(port->bit_width()) ) {
+      s << " " << port->bit(i);
+    }
+    s << endl;
+  }
+  s << endl;
+
+  for ( auto id: input_id_list() ) {
+    auto node = this->node(id);
+    ASSERT_COND( node != nullptr );
+    ASSERT_COND( node->type() == BnNodeType::Input );
+    s << "input: " << node->id()
+      << "(" << node->name() << ")" << endl;
+  }
+  s << endl;
+
+  for ( auto id: output_id_list() ) {
+    auto node = this->node(id);
+    ASSERT_COND( node != nullptr );
+    ASSERT_COND( node->type() == BnNodeType::Output );
+    s << "output: " << node->id()
+      << "(" << node->name() << ")" << endl
+      << "    input: " << node->fanin() << endl;
+  }
+  s << endl;
+
+  for ( auto dff: dff_list() ) {
+    ASSERT_COND( dff != nullptr );
+    s << "dff#" << dff->id()
+      << "(" << dff->name() << ")" << endl
+      << "    input:  " << dff->input() << endl
+      << "    output: " << dff->output() << endl
+      << "    clock:  " << dff->clock() << endl;
+    if ( dff->clear() != kBnNullId ) {
+      s << "    clear:  " << dff->clear() << endl;
+    }
+    if ( dff->preset() != kBnNullId ) {
+      s << "    preset: " << dff->preset() << endl;
+    }
+    s << endl;
+  }
+  s << endl;
+
+  for ( auto latch: latch_list() ) {
+    ASSERT_COND( latch != nullptr );
+    s << "latch#" << latch->id()
+      << "(" << latch->name() << ")" << endl
+      << "    input:  " << latch->input() << endl
+      << "    output: " << latch->output() << endl
+      << "    enable: " << latch->enable() << endl;
+    if ( latch->clear() != kBnNullId ) {
+      s << "    clear:  " << latch->clear() << endl;
+    }
+    if ( latch->preset() != kBnNullId ) {
+      s << "    preset: " << latch->preset() << endl;
+    }
+  }
+  s << endl;
+
+  for ( auto id: logic_id_list() ) {
+    auto node = this->node(id);
+    ASSERT_COND( node != nullptr );
+    ASSERT_COND( node->is_logic() );
+    s << "logic: " << id
+      << "(" << node->name() << ")" << endl
+      << "    fanins: ";
+    for ( auto fanin_id: node->fanin_list() ) {
+    s << " " << fanin_id;
+    }
+    s << endl;
+    s << "    ";
+    switch ( node->type() ) {
+    case BnNodeType::None:
+      s << "NONE";
+      break;
+    case BnNodeType::C0:
+      s << "C0";
+      break;
+    case BnNodeType::C1:
+      s << "C1";
+      break;
+    case BnNodeType::Buff:
+      s << "BUFF";
+      break;
+    case BnNodeType::Not:
+      s << "NOT";
+      break;
+    case BnNodeType::And:
+      s << "AND";
+      break;
+    case BnNodeType::Nand:
+      s << "NAND";
+      break;
+    case BnNodeType::Or:
+      s << "OR";
+      break;
+    case BnNodeType::Nor:
+      s << "NOR";
+      break;
+    case BnNodeType::Xor:
+      s << "XOR";
+      break;
+    case BnNodeType::Xnor:
+      s << "XNOR";
+      break;
+    case BnNodeType::Expr:
+      s << "expr#" << node->expr_id() << ": " << node->expr();
+      break;
+    case BnNodeType::TvFunc:
+      s << "func#" << node->func_id() << ": " << node->func();
+      break;
+    default:
+      ASSERT_NOT_REACHED;
+    }
+    s << endl;
+    if ( node->cell() ) {
+      s << "    cell: " << node->cell()->name() << endl;
+    }
+    s << endl;
+  }
+
+  s << endl;
 }
 
 
