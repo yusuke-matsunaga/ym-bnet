@@ -164,79 +164,14 @@ BnNetwork::copy(const BnNetwork& src)
 
   // DFF の生成
   for ( auto src_dff: src.dff_list() ) {
-    string dff_name = src_dff->name();
-    bool has_clear = (src_dff->clear() != kBnNullId);
-    bool has_preset = (src_dff->preset() != kBnNullId);
-    int dst_id = new_dff(dff_name, has_clear, has_preset);
-    auto dst_dff = dff(dst_id);
-
-    ASSERT_COND( src_dff->id() == dst_id );
-
-    // 各端子の対応関係を記録する．
-    {
-      int src_id = src_dff->input();
-      int dst_id = dst_dff->input();
-      id_map.add(src_id, dst_id);
-    }
-    {
-      int src_id = src_dff->output();
-      int dst_id = dst_dff->output();
-      id_map.add(src_id, dst_id);
-    }
-    {
-      int src_id = src_dff->clock();
-      int dst_id = dst_dff->clock();
-      id_map.add(src_id, dst_id);
-    }
-    if ( has_clear ) {
-      int src_id = src_dff->clear();
-      int dst_id = dst_dff->clear();
-      id_map.add(src_id, dst_id);
-    }
-    if ( has_preset ) {
-      int src_id = src_dff->preset();
-      int dst_id = dst_dff->preset();
-      id_map.add(src_id, dst_id);
-    }
+    int dst_id = dup_dff(src_dff, id_map);
+    ASSERT_COND( dst_id = src_dff->id() );
   }
 
   // ラッチの生成
   for ( auto src_latch: src.latch_list() ) {
-    string latch_name = src_latch->name();
-
-    bool has_clear = (src_latch->clear() != kBnNullId);
-    bool has_preset = (src_latch->preset() != kBnNullId);
-    int dst_id = new_latch(latch_name, has_clear, has_preset);
-    auto dst_latch = latch(dst_id);
-
+    int dst_id = dup_latch(src_latch, id_map);
     ASSERT_COND( dst_id == src_latch->id() );
-
-    // 各端子の対応関係を記録する．
-    {
-      int src_id = src_latch->input();
-      int dst_id = dst_latch->input();
-      id_map.add(src_id, dst_id);
-    }
-    {
-      int src_id = src_latch->output();
-      int dst_id = dst_latch->output();
-      id_map.add(src_id, dst_id);
-    }
-    {
-      int src_id = src_latch->enable();
-      int dst_id = dst_latch->enable();
-      id_map.add(src_id, dst_id);
-    }
-    if ( has_clear ) {
-      int src_id = src_latch->clear();
-      int dst_id = dst_latch->clear();
-      id_map.add(src_id, dst_id);
-    }
-    if ( has_preset ) {
-      int src_id = src_latch->preset();
-      int dst_id = dst_latch->preset();
-      id_map.add(src_id, dst_id);
-    }
   }
 
   ASSERT_COND( src.input_num() == input_num() );
@@ -255,23 +190,8 @@ BnNetwork::copy(const BnNetwork& src)
   // 論理ノードの生成
   for ( auto src_id: src.logic_id_list() ) {
     auto src_node = src.node(src_id);
+    int dst_id = dup_logic(src_node, id_map);
     int nfi = src_node->fanin_num();
-    string name = src_node->name();
-    BnNodeType logic_type = src_node->type();
-    const ClibCell* cell = src_node->cell();
-    int dst_id = kBnNullId;
-    if ( logic_type == BnNodeType::Expr ) {
-      int expr_id = src_node->expr_id();
-      dst_id = _new_expr(name, nfi, src.expr(expr_id), cell);
-    }
-    else if ( logic_type == BnNodeType::TvFunc ) {
-      int func_id = src_node->func_id();
-      dst_id = _new_tv(name, nfi, src.func(func_id), cell);
-    }
-    else {
-      dst_id = _new_primitive(name, nfi, logic_type, cell);
-    }
-    id_map.add(src_node->id(), dst_id);
     for ( auto i: Range(nfi) ) {
       int src_iid = src_node->fanin(i);
       int iid = conv_id(src_iid, id_map);
@@ -963,6 +883,200 @@ BnNetwork::_new_tv(const string& node_name,
   mLogicList.push_back(id);
 
   return id;
+}
+
+// @brief 部分回路を追加する．
+// @param[in] src_network 部分回路
+// @param[out] input_list インポートした部分回路の入力ノード番号のリスト
+// @param[out] output_list インポートした部分回路の出力ノード番号のリスト
+//
+// src_network のポートの情報は失われる．
+// 矛盾しない限りセルライブラリの情報も引く継がれる．
+void
+BnNetwork::import_subnetwork(const BnNetwork& src_network,
+			     vector<int>& input_list,
+			     vector<int>& output_list)
+{
+  int input_num = src_network.input_num();
+  input_list.clear();
+  input_list.reserve(input_num);
+
+  int output_num = src_network.output_num();
+  output_list.clear();
+  output_list.reserve(output_num);
+
+  // src_network のノード番号をキーにして生成したノード番号を入れるハッシュ表
+  HashMap<int, int> id_map;
+
+  // src_network の入力に対応する BUFF ノードを作る．
+  // と同時に生成されたノード番号を input_list に入れる．
+  for ( auto src_id: src_network.input_id_list() ) {
+    auto src_node = src_network.node(src_id);
+    string name = src_node->name();
+    int dst_id = new_primitive(name, 1, BnNodeType::Buff);
+    id_map.add(src_id, dst_id);
+    input_list.push_back(dst_id);
+  }
+
+  // DFFを作る．
+  for ( auto src_dff: src_network.dff_list() ) {
+    dup_dff(src_dff, id_map);
+  }
+
+  // ラッチを作る．
+  for ( auto src_latch: src_network.latch_list() ) {
+    dup_latch(src_latch, id_map);
+  }
+
+  // 関数情報の生成
+  for ( auto func: src_network.func_list() ) {
+    int func_id = _add_tv(func);
+  }
+
+  // 論理式情報の生成
+  for ( auto expr: src_network.expr_list() ) {
+    int expr_id = _add_expr(expr);
+  }
+
+  // 論理ノードの生成
+  for ( auto src_id: src_network.logic_id_list() ) {
+    auto src_node = src_network.node(src_id);
+    int dst_id = dup_logic(src_node, id_map);
+  }
+
+  // src_network の外部出力のファンインに対応するノード番号を
+  // output_list に入れる．
+  for ( auto output_id: src_network.output_id_list() ) {
+    auto src_node = src_network.node(output_id);
+    auto src_id = src_node->fanin();
+    int dst_id = conv_id(src_id, id_map);
+    output_list.push_back(dst_id);
+  }
+}
+
+// @brief DFFを複製する．
+// @param[in] src_dff 元のDFF
+// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @return 生成した DFF を返す．
+int
+BnNetwork::dup_dff(const BnDff* src_dff,
+		   HashMap<int, int>& id_map)
+{
+  string dff_name = src_dff->name();
+  bool has_clear = (src_dff->clear() != kBnNullId);
+  bool has_preset = (src_dff->preset() != kBnNullId);
+  int dst_id = new_dff(dff_name, has_clear, has_preset);
+  auto dst_dff = dff(dst_id);
+
+  // 各端子の対応関係を記録する．
+  {
+    int src_id = src_dff->input();
+    int dst_id = dst_dff->input();
+    id_map.add(src_id, dst_id);
+  }
+  {
+    int src_id = src_dff->output();
+    int dst_id = dst_dff->output();
+    id_map.add(src_id, dst_id);
+  }
+  {
+    int src_id = src_dff->clock();
+    int dst_id = dst_dff->clock();
+    id_map.add(src_id, dst_id);
+  }
+  if ( has_clear ) {
+    int src_id = src_dff->clear();
+    int dst_id = dst_dff->clear();
+    id_map.add(src_id, dst_id);
+  }
+  if ( has_preset ) {
+    int src_id = src_dff->preset();
+    int dst_id = dst_dff->preset();
+    id_map.add(src_id, dst_id);
+  }
+
+  return dst_id;
+}
+
+// @brief ラッチを複製する．
+// @param[in] src_latch 元のラッチ
+// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @return 生成したラッチを返す．
+int
+BnNetwork::dup_latch(const BnLatch* src_latch,
+		     HashMap<int, int>& id_map)
+{
+  string latch_name = src_latch->name();
+  bool has_clear = (src_latch->clear() != kBnNullId);
+  bool has_preset = (src_latch->preset() != kBnNullId);
+  int dst_id = new_latch(latch_name, has_clear, has_preset);
+  auto dst_latch = latch(dst_id);
+
+  // 各端子の対応関係を記録する．
+  {
+    int src_id = src_latch->input();
+    int dst_id = dst_latch->input();
+    id_map.add(src_id, dst_id);
+  }
+  {
+    int src_id = src_latch->output();
+    int dst_id = dst_latch->output();
+    id_map.add(src_id, dst_id);
+  }
+  {
+    int src_id = src_latch->enable();
+    int dst_id = dst_latch->enable();
+    id_map.add(src_id, dst_id);
+  }
+  if ( has_clear ) {
+    int src_id = src_latch->clear();
+    int dst_id = dst_latch->clear();
+    id_map.add(src_id, dst_id);
+  }
+  if ( has_preset ) {
+    int src_id = src_latch->preset();
+    int dst_id = dst_latch->preset();
+    id_map.add(src_id, dst_id);
+  }
+
+  return dst_id;
+}
+
+// @brief 論理ノードを複製する．
+// @param[in] src_node 元のノード
+// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @return 生成したノードを返す．
+//
+// ノード間の接続は行わない．
+int
+BnNetwork::dup_logic(const BnNode* src_node,
+		     HashMap<int, int>& id_map)
+{
+  ASSERT_COND( src_node->is_logic() );
+
+  int nfi = src_node->fanin_num();
+  string name = src_node->name();
+  BnNodeType logic_type = src_node->type();
+  const ClibCell* cell = src_node->cell();
+  int dst_id = kBnNullId;
+  if ( logic_type == BnNodeType::Expr ) {
+    dst_id = _new_expr(name, nfi, src_node->expr(), cell);
+  }
+  else if ( logic_type == BnNodeType::TvFunc ) {
+    dst_id = _new_tv(name, nfi, src_node->func(), cell);
+  }
+  else {
+    dst_id = _new_primitive(name, nfi, logic_type, cell);
+  }
+  id_map.add(src_node->id(), dst_id);
+
+  for ( auto i: Range(nfi) ) {
+    int src_iid = src_node->fanin(i);
+    int iid = conv_id(src_iid, id_map);
+    connect(iid, dst_id, i);
+  }
+
+  return dst_id;
 }
 
 // @brief ノード間を接続する．
