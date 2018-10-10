@@ -693,10 +693,11 @@ BnNetwork::_new_dff(const string& name,
 // 名前の重複に関しては感知しない．
 int
 BnNetwork::new_latch(const string& name,
+		     bool has_xoutput,
 		     bool has_clear,
 		     bool has_preset)
 {
-  return _new_latch(name, has_clear, has_preset, nullptr);
+  return _new_latch(name, has_xoutput, has_clear, has_preset, nullptr);
 }
 
 // @brief セルの情報を持ったラッチを追加する．
@@ -717,13 +718,15 @@ BnNetwork::new_latch_cell(const string& name,
 
   ClibLatchInfo latchinfo = cell->latch_info();
 
+  bool has_xoutput = latchinfo.has_xq();
   bool has_clear = latchinfo.has_clear();
   bool has_preset = latchinfo.has_preset();
-  return _new_latch(name, has_clear, has_preset, cell);
+  return _new_latch(name, has_xoutput, has_clear, has_preset, cell);
 }
 
 // @brief ラッチを追加する共通の処理を行う関数
 // @param[in] name ラッチ名
+// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
 // @param[in] cell 対応するセル．
@@ -733,6 +736,7 @@ BnNetwork::new_latch_cell(const string& name,
 // cell はラッチのセルでなければならない．
 int
 BnNetwork::_new_latch(const string& name,
+		      bool has_xoutput,
 		      bool has_clear,
 		      bool has_preset,
 		      const ClibCell* cell)
@@ -759,6 +763,17 @@ BnNetwork::_new_latch(const string& name,
     BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
+  }
+
+  int xoutput_id = kBnNullId;
+  if ( has_xoutput ) {
+    int iid = mInputList.size();
+    ostringstream buf;
+    buf << name << ".xoutput";
+    string name = buf.str();
+    BnNodeImpl* node = new BnLatchXOutput(output_id, name, iid, latch_id);
+    mNodeList.push_back(node);
+    mInputList.push_back(xoutput_id);
   }
 
   int enable_id = mNodeList.size();
@@ -795,7 +810,7 @@ BnNetwork::_new_latch(const string& name,
     mOutputList.push_back(preset_id);
   }
 
-  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
+  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id, xoutput_id,
 				   enable_id, clear_id, preset_id, cell);
   mLatchList.push_back(latch);
 

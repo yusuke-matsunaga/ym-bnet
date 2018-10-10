@@ -24,6 +24,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] name 名前
 // @param[in] input 入力端子のノード番号
 // @param[in] output 出力端子のノード番号
+// @param[in] xoutput 反転出力端子のノード番号
 // @param[in] enable イネーブル端子のノード番号
 // @param[in] clear クリア端子のノード番号
 // @param[in] preset プリセット端子のノード番号
@@ -32,6 +33,7 @@ BnLatchImpl::BnLatchImpl(int id,
 			 const string& name,
 			 int input,
 			 int output,
+			 int xoutput,
 			 int enable,
 			 int clear,
 			 int preset,
@@ -40,6 +42,7 @@ BnLatchImpl::BnLatchImpl(int id,
   mName(name),
   mInput(input),
   mOutput(output),
+  mXoutput(xoutput),
   mEnable(enable),
   mClear(clear),
   mPreset(preset),
@@ -75,6 +78,13 @@ int
 BnLatchImpl::output() const
 {
   return mOutput;
+}
+
+// @brief データ反転出力のノード番号を返す．
+int
+BnLatchImpl::xoutput() const
+{
+  return mXoutput;
 }
 
 // @brief データ入力のノード番号を返す．
@@ -130,6 +140,20 @@ BnLatchImpl::output_pin_id() const
 
   ClibLatchInfo ffinfo = cell()->latch_info();
   return ffinfo.q_pos();
+}
+
+// @brief データ反転出力のピン番号を返す．
+//
+// cell() == nullptr の場合の値は不定
+int
+BnLatchImpl::xoutput_pin_id() const
+{
+  if ( cell() == nullptr ) {
+    return 0;
+  }
+
+  ClibLatchInfo ffinfo = cell()->latch_info();
+  return ffinfo.xq_pos();
 }
 
 // @brief データ入力のピン番号を返す．

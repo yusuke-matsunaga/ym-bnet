@@ -142,7 +142,8 @@ BnDffOutput::is_dff_output() const
 
 // @brief 接続しているDFFの番号を返す．
 //
-// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
+// is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
 int
 BnDffOutput::dff_id() const
@@ -183,7 +184,8 @@ BnDffXOutput::is_dff_xoutput() const
 
 // @brief 接続しているDFFの番号を返す．
 //
-// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
+// is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
 int
 BnDffXOutput::dff_id() const
@@ -224,10 +226,53 @@ BnLatchOutput::is_latch_output() const
 
 // @brief 接続しているラッチの番号を返す．
 //
-// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
+// is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
 int
 BnLatchOutput::latch_id() const
+{
+  return mLatchId;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnLatchXOutput
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID 番号
+// @param[in] name ノード名
+// @param[in] input_id 入力番号
+// @param[in] latch_id ラッチ番号
+BnLatchXOutput::BnLatchXOutput(int id,
+			       const string& name,
+			       int input_id,
+			       int latch_id) :
+  BnInputNode(id, name, input_id),
+  mLatchId(latch_id)
+{
+}
+
+// @brief デストラクタ
+BnLatchXOutput::~BnLatchXOutput()
+{
+}
+
+// @brief ラッチの出力端子の時 true を返す．
+bool
+BnLatchXOutput::is_latch_xoutput() const
+{
+  return true;
+}
+
+// @brief 接続しているラッチの番号を返す．
+//
+// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
+// is_latch_enable() || is_latch_clear() || is_latch_preset()
+// の時のみ意味を持つ．
+int
+BnLatchXOutput::latch_id() const
 {
   return mLatchId;
 }

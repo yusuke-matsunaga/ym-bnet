@@ -164,6 +164,7 @@ public:
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
+  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
   /// @return 生成したラッチ番号を返す．
@@ -171,6 +172,7 @@ public:
   /// - 名前の重複に関しては感知しない．
   int
   new_latch(const string& name,
+	    bool has_xoutput = false,
 	    bool has_clear = false,
 	    bool has_preset = false);
 
@@ -435,6 +437,7 @@ private:
 
   /// @brief ラッチを追加する共通の処理を行う関数
   /// @param[in] name ラッチ名
+  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
   /// @param[in] cell 対応するセル．
@@ -444,6 +447,7 @@ private:
   /// - cell はラッチのセルでなければならない．
   int
   _new_latch(const string& name,
+	     bool has_xoutput,
 	     bool has_clear,
 	     bool has_preset,
 	     const ClibCell* cell);

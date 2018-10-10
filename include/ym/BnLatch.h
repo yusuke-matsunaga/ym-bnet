@@ -25,11 +25,12 @@ BEGIN_NAMESPACE_YM_BNET
 /// 以下の情報を持つ．
 /// - ID番号: これは親の BnNetwork 内で唯一のもの．
 /// - 名前: 場合によっては空文字列となる．
-/// - 出力の BnNode:
-/// - 入力の BnNode:
-/// - イネーブル端子の BnNode:
-/// - クリア端子の BnNode: 場合によっては nullptr となる．
-/// - プリセット端子の BnNode: 場合によっては nullptr となる．
+/// - 出力のノード番号
+/// - 反転出力のノード番号: 場合によっては kBnNullId となる．
+/// - 入力のノード番号
+/// - イネーブル端子のノード番号
+/// - クリア端子のノード番号: 場合によっては kBnNullId となる．
+/// - プリセット端子のノード番号: 場合によっては kBnNullId となる．
 /// - セル: 場合によっては nullptr となる．
 /// - 各端子とセルのピン番号との対応表: セルと対応づいていなければ無効
 //////////////////////////////////////////////////////////////////////
@@ -62,6 +63,11 @@ public:
   virtual
   int
   output() const = 0;
+
+  /// @brief データ反転出力のノード番号を返す．
+  virtual
+  int
+  xoutput() const = 0;
 
   /// @brief データ入力のノード番号を返す．
   virtual
@@ -100,6 +106,13 @@ public:
   virtual
   int
   output_pin_id() const = 0;
+
+  /// @brief データ反転出力のピン番号を返す．
+  ///
+  /// cell() == nullptr の場合の値は不定
+  virtual
+  int
+  xoutput_pin_id() const = 0;
 
   /// @brief データ入力のピン番号を返す．
   ///

@@ -103,6 +103,10 @@ public:
   bool
   is_latch_output() const override;
 
+  /// @brief ラッチの出力端子の時 true を返す．
+  bool
+  is_latch_xoutput() const override;
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -178,14 +182,16 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
+  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   int
   dff_id() const override;
 
   /// @brief 接続しているラッチの番号を返す．
   ///
-  /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
+  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   int
   latch_id() const override;

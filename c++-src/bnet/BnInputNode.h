@@ -185,7 +185,8 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
+  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   int
   dff_id() const override;
@@ -244,7 +245,8 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
+  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   int
   dff_id() const override;
@@ -303,7 +305,68 @@ public:
 
   /// @brief 接続しているラッチの番号を返す．
   ///
-  /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
+  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// の時のみ意味を持つ．
+  int
+  latch_id() const override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ラッチ番号
+  int mLatchId;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnLatchXOutput BnLatchOutput.h "BnLatchOutput.h"
+/// @brief ラッチの反転出力端子を表すクラス
+///
+/// 名前が紛らわしいが入力ノードである．
+//////////////////////////////////////////////////////////////////////
+class BnLatchXOutput :
+  public BnInputNode
+{
+public:
+
+  /// @brief コンストラクタ
+  /// @param[in] id ID 番号
+  /// @param[in] name ノード名
+  /// @param[in] input_id 入力番号
+  /// @param[in] latch_id ラッチ番号
+  BnLatchXOutput(int id,
+		 const string& name,
+		 int input_id,
+		 int latch_id);
+
+  /// @brief デストラクタ
+  ~BnLatchXOutput() override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ラッチの反転出力端子の時 true を返す．
+  bool
+  is_latch_xoutput() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力タイプ/出力タイプに共通なインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 接続しているラッチの番号を返す．
+  ///
+  /// is_latch_input() || is_latch_output() || is_latch_xoutput ||
+  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   int
   latch_id() const override;
