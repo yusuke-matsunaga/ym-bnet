@@ -126,7 +126,7 @@ BnBlifHandler::names(int oname_id,
 
   int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
-  int node_id = mNetwork->new_expr(oname, ni, expr);
+  int node_id = mNetwork->new_expr(oname, expr);
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);

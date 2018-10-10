@@ -753,44 +753,146 @@ BnNetwork::new_primitive(const string& node_name,
   return _new_primitive(node_name, ni, logic_type, nullptr);
 }
 
-// @brief 論理式型の論理ノードを追加する．
+// @brief Buff型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_buff(const string& node_name)
+{
+  return _new_primitive(node_name, 1, BnNodeType::Buff, nullptr);
+}
+
+// @brief Not型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_not(const string& node_name)
+{
+  return _new_primitive(node_name, 1, BnNodeType::Not, nullptr);
+}
+
+// @brief And型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_and(const string& node_name,
+		   int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::And, nullptr);
+}
+
+// @brief Nand型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_nand(const string& node_name,
+		    int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::Nand, nullptr);
+}
+
+// @brief Or型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_or(const string& node_name,
+		  int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::Or, nullptr);
+}
+
+// @brief Nor型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_nor(const string& node_name,
+		   int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::Nor, nullptr);
+}
+
+// @brief Xor型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_xor(const string& node_name,
+		   int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::Xor, nullptr);
+}
+
+// @brief Xnor型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_xnor(const string& node_name,
+		    int ni)
+{
+  return _new_primitive(node_name, ni, BnNodeType::Xnor, nullptr);
+}
+
+// @brief 論理式型の論理ノードを追加する．
+// @param[in] node_name ノード名
 // @param[in] expr 論理式
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 int
 BnNetwork::new_expr(const string& node_name,
-		    int ni,
 		    const Expr& expr)
 {
+  int ni = expr.input_size();
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
   if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
     return _new_primitive(node_name, ni, logic_type, nullptr);
   }
-  return _new_expr(node_name, ni, expr, nullptr);
+  else {
+    return _new_expr(node_name, ni, expr, nullptr);
+  }
 }
 
 // @brief 真理値表型の論理ノードを追加する．
 // @param[in] node_name ノード名
-// @param[in] ni 入力数
 // @param[in] tv 真理値表
 // @return 生成した論理ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 int
 BnNetwork::new_tv(const string& node_name,
-		  int ni,
 		  const TvFunc& tv)
 {
+  int ni = tv.input_num();
   BnNodeType logic_type = FuncAnalyzer::analyze(tv);
   if ( logic_type != BnNodeType::TvFunc ) {
     // 組み込み型だった．
     return _new_primitive(node_name, ni, logic_type, nullptr);
   }
-  return _new_tv(node_name, ni, tv, nullptr);
+  else {
+    return _new_tv(node_name, ni, tv, nullptr);
+  }
 }
 
 // @brief 論理セルを追加する．

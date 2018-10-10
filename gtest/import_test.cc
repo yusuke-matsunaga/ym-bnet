@@ -10,7 +10,6 @@
 #include "gtest/gtest.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
-#include "ym/BnNodeType.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -31,7 +30,7 @@ TEST(ImportTest, test1)
     int input1 = port1->bit(0);
     int input2 = port2->bit(0);
 
-    int and1 = network1.new_primitive(string(), 2, BnNodeType::And);
+    int and1 = network1.new_and(string(), 2);
     network1.connect(input1, and1, 0);
     network1.connect(input2, and1, 1);
 
@@ -75,7 +74,7 @@ TEST(ImportTest, test1)
     network2.connect(input3, input_list2[0], 0);
     network2.connect(input4, input_list2[1], 0);
 
-    int or_id = network2.new_primitive(string(), 2, BnNodeType::Or);
+    int or_id = network2.new_or(string(), 2);
     network2.connect(output_list1[0], or_id, 0);
     network2.connect(output_list2[0], or_id, 1);
 

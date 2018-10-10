@@ -92,20 +92,3 @@ ym_add_gtest ( import_test
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
-
-
-add_executable ( import
-  import.cc
-  $<TARGET_OBJECTS:ym_base_ad>
-  $<TARGET_OBJECTS:ym_logic_ad>
-  $<TARGET_OBJECTS:ym_cell_ad>
-  $<TARGET_OBJECTS:ym_bnet_ad>
-  )
-
-target_compile_options ( import
-  PRIVATE "-g"
-  )
-
-target_link_libraries ( import
-  ${YM_LIB_DEPENDS}
-  )

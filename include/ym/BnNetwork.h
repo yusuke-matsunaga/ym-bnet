@@ -200,28 +200,102 @@ public:
 		int ni,
 		BnNodeType logic_type);
 
-  /// @brief 論理式型の論理ノードを追加する．
+  /// @brief Buff型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_buff(const string& node_name);
+
+  /// @brief Not型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_not(const string& node_name);
+
+  /// @brief And型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_and(const string& node_name,
+	  int ni);
+
+  /// @brief Nand型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_nand(const string& node_name,
+	   int ni);
+
+  /// @brief Or型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_or(const string& node_name,
+	 int ni);
+
+  /// @brief Nor型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_nor(const string& node_name,
+	  int ni);
+
+  /// @brief Xor型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_xor(const string& node_name,
+	  int ni);
+
+  /// @brief Xnor型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] ni 入力数
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  int
+  new_xnor(const string& node_name,
+	   int ni);
+
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
   /// @param[in] expr 論理式
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は expr.input_num() を用いる．
   int
   new_expr(const string& node_name,
-	   int ni,
 	   const Expr& expr);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
   /// @param[in] tv 真理値表
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は tv.input_num() を用いる．
   int
   new_tv(const string& node_name,
-	 int ni,
 	 const TvFunc& tv);
 
   /// @brief 論理セルを追加する．
