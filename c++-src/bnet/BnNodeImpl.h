@@ -68,11 +68,11 @@ public:
   /// @brief ファンアウトのノード番号を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   int
-  fanout(int pos) const override;
+  fanout_id(int pos) const override;
 
   /// @brief ファンアウトのノード番号のリストを返す．
   const vector<int>&
-  fanout_list() const override;
+  fanout_id_list() const override;
 
 
 public:
@@ -156,12 +156,6 @@ public:
   bool
   is_latch_preset() const override;
 
-  /// @brief ファンインのノード番号を返す．
-  ///
-  /// is_output() == false の時の動作は不定
-  int
-  fanin() const override;
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -209,15 +203,15 @@ public:
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   int
-  fanin(int pos) const override;
+  fanin_id(int pos) const override;
 
 #if 0
   /// @brief ファンインのノード番号のリストを返す．
   Array<int>
-  fanin_list() const override;
+  fanin_id_list() const override;
 #else
   const vector<int>&
-  fanin_list() const override;
+  fanin_id_list() const override;
 #endif
 
   /// @brief 論理式番号を返す．
@@ -227,27 +221,12 @@ public:
   int
   expr_id() const override;
 
-  /// @brief 論理式を返す．
-  ///
-  /// type() != BnNodeType::Expr の時の動作は不定
-  ///
-  /// 親のネットワークの expr(node->expr_id()) と同一
-  Expr
-  expr() const override;
-
   /// @brief 関数番号を返す．
   ///
   /// type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   int
   func_id() const override;
-
-  /// @brief 真理値表を返す．
-  ///
-  /// type() != BnNodeType::TvFunc の時の動作は不定
-  /// 親のネットワークの func(node->func_id()) と同一
-  TvFunc
-  func() const override;
 
   /// @brief セルを返す．
   ///

@@ -63,7 +63,7 @@ BnLogicNode::fanin_num() const
 // @brief ファンインを求める．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
 int
-BnLogicNode::fanin(int pos) const
+BnLogicNode::fanin_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < fanin_num() );
   return mFanins[pos];
@@ -72,13 +72,13 @@ BnLogicNode::fanin(int pos) const
 #if 0
 // @brief ファンインのノード番号のリストを返す．
 Array<int>
-BnLogicNode::fanin_list() const
+BnLogicNode::fanin_id_list() const
 {
   return Array<int>(mFanins, 0, fanin_num());
 }
 #else
 const vector<int>&
-BnLogicNode::fanin_list() const
+BnLogicNode::fanin_id_list() const
 {
   static vector<int> dummy;
   dummy.clear();
@@ -154,17 +154,14 @@ BnPrimNode::type() const
 // @param[in] id ID番号
 // @param[in] name ノード名
 // @param[in] ni 入力数
-// @param[in] expr 論理式
 // @param[in] expr_id 論理式番号
 // @param[in] cell セル (nullptr の場合もあり)
 BnExprNode::BnExprNode(int id,
 		       const string& name,
 		       int ni,
-		       const Expr& expr,
 		       int expr_id,
 		       const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
-  mExpr(expr),
   mExprId(expr_id)
 {
 }
@@ -191,15 +188,6 @@ BnExprNode::expr_id() const
   return mExprId;
 }
 
-// @brief 論理式を返す．
-//
-// type() != BnNodeType::Expr の時の動作は不定
-Expr
-BnExprNode::expr() const
-{
-  return mExpr;
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnTvNode
@@ -209,17 +197,14 @@ BnExprNode::expr() const
 // @param[in] id ID番号
 // @param[in] name ノード名
 // @param[in] ni 入力数
-// @param[in] tv 真理値表
 // @param[in] func_id 関数番号
 // @param[in] cell セル (nullptr の場合もあり)
 BnTvNode::BnTvNode(int id,
 		   const string& name,
 		   int ni,
-		   const TvFunc& func,
 		   int func_id,
 		   const ClibCell* cell) :
   BnLogicNode(id, name, ni, cell),
-  mFunc(func),
   mFuncId(func_id)
 {
 }
@@ -244,16 +229,6 @@ int
 BnTvNode::func_id() const
 {
   return mFuncId;
-}
-
-// @brief 真理値表を返す．
-//
-// is_logic() == false の時の動作は不定
-// logic_type() != BnNodeType::TvFunc の時の動作は不定
-TvFunc
-BnTvNode::func() const
-{
-  return mFunc;
 }
 
 END_NAMESPACE_YM_BNET

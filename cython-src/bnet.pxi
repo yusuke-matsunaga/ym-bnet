@@ -8,7 +8,6 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from libcpp.vector cimport vector
 from CXX_BnNetwork cimport BnNetwork as CXX_BnNetwork
 from CXX_BnNetwork cimport write_blif as cxx_write_blif
 from CXX_BnNetwork cimport read_blif as cxx_read_blif
@@ -235,11 +234,11 @@ cdef class BnNode :
             return self.__obj_id
 
     @property
-    def fanin_list(self) :
+    def fanin_id_list(self) :
         return self.__fanin_list
 
     @property
-    def fanout_list(self) :
+    def fanout_id_list(self) :
         return self.__fanout_list
 
 
@@ -376,7 +375,7 @@ cdef class BnNetwork :
             type_str = 'TvFunc'
         node.__type = type_str
         node.__fanin_list = []
-        node.__fanout_list = [ c_node.fanout(i) for i in range(c_node.fanout_list().size()) ]
+        node.__fanout_list = [ c_node.fanout_id(i) for i in range(c_node.fanout_num()) ]
         if type_str == 'Input' :
             node.__subid = c_node.input_id()
             if c_node.is_port_input() :
@@ -396,7 +395,7 @@ cdef class BnNetwork :
                 assert False
         elif type_str == 'Output' :
             node.__subid = c_node.output_id()
-            node.__fanin_list = [ c_node.fanin() ]
+            node.__fanin_list = [ c_node.fanin_id(0) ]
             if c_node.is_port_output() :
                 node.__subtype = 'primary_output'
                 node.__obj_id = c_node.port_id()
@@ -429,7 +428,7 @@ cdef class BnNetwork :
                 assert False
         else :
             ni = c_node.fanin_num()
-            node.__fanin_list = [ c_node.fanin(i) for i in range(ni) ]
+            node.__fanin_list = [ c_node.fanin_id(i) for i in range(ni) ]
             if type_str == 'Expr' :
                 node.__obj_id = c_node.expr_id()
             elif type_str == 'TvFunc' :
@@ -444,7 +443,7 @@ cdef class BnNetwork :
     ### @brief 入力のノード番号のリストを返す．
     @property
     def input_id_list(self) :
-        return [ self._this.input_id_list()[i] for i in range(self._this.input_num()) ]
+        return [ self._this.input_id(i) for i in range(self._this.input_num()) ]
 
     ### @brief 出力数を返す．
     @property
@@ -454,7 +453,12 @@ cdef class BnNetwork :
     ### @brief 出力のノード番号のリストを返す．
     @property
     def output_id_list(self) :
-        return [ self._this.output_id_list()[i] for i in range(self._this.output_num()) ]
+        return [ self._this.output_id(i) for i in range(self._this.output_num()) ]
+
+    ### @brief 出力のソースノード番号のリストを返す．
+    @property
+    def output_src_id_list(self) :
+        return [ self._this.output_src_id(i) for i in range(self._this.output_num()) ]
 
     ### @brief 論理ゲート数を返す．
     @property
@@ -464,7 +468,7 @@ cdef class BnNetwork :
     ### @brief 論理ゲートのノード番号のリストを返す．
     @property
     def logic_id_list(self) :
-        return [ self._this.logic_id_list()[i] for i in range(self._this.logic_num()) ]
+        return [ self._this.logic_id(i) for i in range(self._this.logic_num()) ]
 
     ### @brief 論理ゲート中で用いられている関数の種類を返す．
     @property

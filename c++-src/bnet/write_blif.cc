@@ -82,7 +82,7 @@ write_blif(const BnNetwork& network,
   for ( auto id: network.logic_id_list() ) {
     s << ".names";
     auto node = network.node(id);
-    for ( auto iid: node->fanin_list() ) {
+    for ( auto iid: node->fanin_id_list() ) {
       auto inode = network.node(iid);
       s << " " << inode->name();
     }

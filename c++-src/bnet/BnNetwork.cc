@@ -77,6 +77,7 @@ BnNetwork::clear()
   mLatchList.clear();
   mInputList.clear();
   mOutputList.clear();
+  mOutputSrcList.clear();
   mLogicList.clear();
   mNodeList.clear();
 
@@ -190,19 +191,19 @@ BnNetwork::copy(const BnNetwork& src)
   // 論理ノードの生成
   for ( auto src_id: src.logic_id_list() ) {
     auto src_node = src.node(src_id);
-    int dst_id = dup_logic(src_node, id_map);
+    int dst_id = dup_logic(src_node, src, id_map);
     int nfi = src_node->fanin_num();
     for ( auto i: Range(nfi) ) {
-      int src_iid = src_node->fanin(i);
+      int src_iid = src_node->fanin_id(i);
       int iid = conv_id(src_iid, id_map);
       connect(iid, dst_id, i);
     }
   }
 
   // 出力端子のファンインの接続
-  for ( auto src_id: src.output_id_list() ) {
-    auto src_node = src.node(src_id);
-    int src_fanin_id = src_node->fanin();
+  for ( auto i: Range(src.output_num()) ) {
+    auto src_id = src.output_id(i);
+    auto src_fanin_id = src.output_src_id(i);
 
     int dst_id = conv_id(src_id, id_map);
     int dst_fanin_id = conv_id(src_fanin_id, id_map);
@@ -842,7 +843,7 @@ BnNetwork::_new_expr(const string& node_name,
 {
   int expr_id = _add_expr(expr);
   int id = mNodeList.size();
-  BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr, expr_id, cell);
+  BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr_id, cell);
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
@@ -863,7 +864,7 @@ BnNetwork::_new_tv(const string& node_name,
 {
   int func_id = _add_tv(tv);
   int id = mNodeList.size();
-  BnNodeImpl* node = new BnTvNode(id, node_name, ni, tv, func_id, cell);
+  BnNodeImpl* node = new BnTvNode(id, node_name, ni, func_id, cell);
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
@@ -875,13 +876,16 @@ BnNetwork::_new_tv(const string& node_name,
 // @param[out] input_list インポートした部分回路の入力ノード番号のリスト
 // @param[out] output_list インポートした部分回路の出力ノード番号のリスト
 //
-// src_network のポートの情報は失われる．
-// 矛盾しない限りセルライブラリの情報も引く継がれる．
+// * src_network は wrap_up() されている必要がある．
+// * src_network のポートの情報は失われる．
+// * 矛盾しない限りセルライブラリの情報も引く継がれる．
 void
 BnNetwork::import_subnetwork(const BnNetwork& src_network,
 			     vector<int>& input_list,
 			     vector<int>& output_list)
 {
+  ASSERT_COND( src_network.mSane );
+
   int input_num = src_network.input_num();
   input_list.clear();
   input_list.reserve(input_num);
@@ -926,14 +930,12 @@ BnNetwork::import_subnetwork(const BnNetwork& src_network,
   // 論理ノードの生成
   for ( auto src_id: src_network.logic_id_list() ) {
     auto src_node = src_network.node(src_id);
-    int dst_id = dup_logic(src_node, id_map);
+    int dst_id = dup_logic(src_node, src_network, id_map);
   }
 
   // src_network の外部出力のファンインに対応するノード番号を
   // output_list に入れる．
-  for ( auto output_id: src_network.output_id_list() ) {
-    auto src_node = src_network.node(output_id);
-    auto src_id = src_node->fanin();
+  for ( auto src_id: src_network.output_src_id_list() ) {
     int dst_id = conv_id(src_id, id_map);
     output_list.push_back(dst_id);
   }
@@ -1035,6 +1037,7 @@ BnNetwork::dup_latch(const BnLatch* src_latch,
 // ノード間の接続は行わない．
 int
 BnNetwork::dup_logic(const BnNode* src_node,
+		     const BnNetwork& src_network,
 		     HashMap<int, int>& id_map)
 {
   ASSERT_COND( src_node->is_logic() );
@@ -1045,10 +1048,10 @@ BnNetwork::dup_logic(const BnNode* src_node,
   const ClibCell* cell = src_node->cell();
   int dst_id = kBnNullId;
   if ( logic_type == BnNodeType::Expr ) {
-    dst_id = _new_expr(name, nfi, src_node->expr(), cell);
+    dst_id = _new_expr(name, nfi, src_network.expr(src_node->expr_id()), cell);
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
-    dst_id = _new_tv(name, nfi, src_node->func(), cell);
+    dst_id = _new_tv(name, nfi, src_network.func(src_node->func_id()), cell);
   }
   else {
     dst_id = _new_primitive(name, nfi, logic_type, cell);
@@ -1056,7 +1059,7 @@ BnNetwork::dup_logic(const BnNode* src_node,
   id_map.add(src_node->id(), dst_id);
 
   for ( auto i: Range(nfi) ) {
-    int src_iid = src_node->fanin(i);
+    int src_iid = src_node->fanin_id(i);
     int iid = conv_id(src_iid, id_map);
     connect(iid, dst_id, i);
   }
@@ -1075,6 +1078,7 @@ BnNetwork::connect(int src_id,
 {
   ASSERT_COND( src_id >= 0 && src_id < mNodeList.size() );
   ASSERT_COND( dst_id >= 0 && dst_id < mNodeList.size() );
+
   BnNodeImpl* dst_node = mNodeList[dst_id];
   dst_node->set_fanin(ipos, src_id);
 
@@ -1206,7 +1210,7 @@ BnNetwork::wrap_up()
   // ノードのチェック
   for ( auto node: mNodeList ) {
     for ( auto i: Range(node->fanin_num()) ) {
-      auto id = node->fanin(i);
+      auto id = node->fanin_id(i);
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node->id() << "(" << node->name() << ").fanin["
 	     << i << "] is not set" << endl;
@@ -1229,7 +1233,7 @@ BnNetwork::wrap_up()
     node->clear_fanout();
   }
   for ( auto node: mNodeList ) {
-    for ( auto id: node->fanin_list() ) {
+    for ( auto id: node->fanin_id_list() ) {
       auto src_node = mNodeList[id];
       src_node->add_fanout(node->id());
     }
@@ -1260,13 +1264,13 @@ BnNetwork::wrap_up()
     if ( node->is_logic() ) {
       mLogicList.push_back(id);
     }
-    for ( auto oid: node->fanout_list() ) {
+    for ( auto oid: node->fanout_id_list() ) {
       if ( mark[oid] ) {
 	continue;
       }
       const BnNode* onode = mNodeList[oid];
       bool ready = true;
-      for ( auto iid: onode->fanin_list() ) {
+      for ( auto iid: onode->fanin_id_list() ) {
 	if ( !mark[iid] ) {
 	  ready = false;
 	  break;
@@ -1277,6 +1281,16 @@ BnNetwork::wrap_up()
 	mark[oid] = true;
       }
     }
+  }
+
+  // mOutputSrcList を作る．
+  mOutputSrcList.clear();
+  mOutputSrcList.resize(mOutputList.size());
+  for ( int i: Range(mOutputList.size()) ) {
+    auto oid = mOutputList[i];
+    auto node = mNodeList[oid];
+    auto iid = node->fanin_id(0);
+    mOutputSrcList[i] = iid;
   }
 
   mSane = true;
@@ -1363,7 +1377,7 @@ BnNetwork::write(ostream& s) const
     ASSERT_COND( node->type() == BnNodeType::Output );
     s << "output: " << node->id()
       << "(" << node->name() << ")" << endl
-      << "    input: " << node->fanin() << endl;
+      << "    input: " << node->fanin_id(0) << endl;
   }
   s << endl;
 
@@ -1407,7 +1421,7 @@ BnNetwork::write(ostream& s) const
     s << "logic: " << id
       << "(" << node->name() << ")" << endl
       << "    fanins: ";
-    for ( auto fanin_id: node->fanin_list() ) {
+    for ( auto fanin_id: node->fanin_id_list() ) {
     s << " " << fanin_id;
     }
     s << endl;
@@ -1447,10 +1461,10 @@ BnNetwork::write(ostream& s) const
       s << "XNOR";
       break;
     case BnNodeType::Expr:
-      s << "expr#" << node->expr_id() << ": " << node->expr();
+      s << "expr#" << node->expr_id() << ": " << expr(node->expr_id());
       break;
     case BnNodeType::TvFunc:
-      s << "func#" << node->func_id() << ": " << node->func();
+      s << "func#" << node->func_id() << ": " << func(node->func_id());
       break;
     default:
       ASSERT_NOT_REACHED;

@@ -330,8 +330,9 @@ public:
   /// @param[out] input_list インポートした部分回路の入力ノード番号のリスト
   /// @param[out] output_list インポートした部分回路の出力ノード番号のリスト
   ///
-  /// src_network のポートの情報は失われる．
-  /// 矛盾しない限りセルライブラリの情報も引く継がれる．
+  /// * src_network は wrap_up() されている必要がある．
+  /// * src_network のポートの情報は失われる．
+  /// * 矛盾しない限りセルライブラリの情報も引く継がれる．
   void
   import_subnetwork(const BnNetwork& src_network,
 		    vector<int>& input_list,
@@ -465,6 +466,19 @@ public:
   const vector<int>&
   output_id_list() const;
 
+  /// @brief 出力ノードのソースノード番号を得る．
+  /// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
+  ///
+  /// ソースノードとは出力ノードのファンインのノード
+  int
+  output_src_id(int pos) const;
+
+  /// @brief 出力ノードのソースノード番号のリストを得る．
+  ///
+  /// ソースノードとは出力ノードのファンインのノード
+  const vector<int>&
+  output_src_id_list() const;
+
   /// @brief 論理ノード数を得る．
   int
   logic_num() const;
@@ -539,12 +553,14 @@ private:
 
   /// @brief 論理ノードを複製する．
   /// @param[in] src_node 元のノード
+  /// @param[in] src_network 元のネットワーク
   /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
   /// @return 生成したノード番号を返す．
   ///
   /// id_map の内容の基づいてファンイン間の接続を行う．
   int
   dup_logic(const BnNode* src_node,
+	    const BnNetwork& src_network,
 	    HashMap<int, int>& id_map);
 
   /// @brief DFFを追加する共通の処理を行う関数
@@ -654,6 +670,9 @@ private:
 
   // 出力ノード番号のリスト
   vector<int> mOutputList;
+
+  // 出力ソースノード番号のリスト
+  vector<int> mOutputSrcList;
 
   // 論理ノード番号のリスト
   vector<int> mLogicList;
@@ -894,6 +913,24 @@ const vector<int>&
 BnNetwork::output_id_list() const
 {
   return mOutputList;
+}
+
+// @brief 出力ノードのソースノード番号を得る．
+// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
+inline
+int
+BnNetwork::output_src_id(int pos) const
+{
+  ASSERT_COND( pos >= 0 && pos < output_num() );
+  return mOutputSrcList[pos];
+}
+
+// @brief 出力ノードのソースノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetwork::output_src_id_list() const
+{
+  return mOutputSrcList;
 }
 
 // @brief 論理ノード数を得る．

@@ -64,11 +64,23 @@ public:
   int
   output_id() const override;
 
-  /// @brief 入力のノード番号を返す．
-  ///
-  /// is_output() == false の時の動作は不定
+  /// @brief ファンイン数を得る．
   int
-  fanin() const override;
+  fanin_num() const override;
+
+  /// @brief ファンインのノード番号を返す．
+  /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
+  int
+  fanin_id(int pos) const override;
+
+#if 0
+  /// @brief ファンインのノード番号のリストを返す．
+  Array<int>
+  fanin_id_list() const override;
+#else
+  const vector<int>&
+  fanin_id_list() const override;
+#endif
 
 
 public:

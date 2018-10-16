@@ -8,7 +8,6 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from libcpp.vector cimport vector
 from CXX_BnNodeType cimport BnNodeType
 
 cdef extern from "ym/BnNode.h" namespace "nsYm::nsBnet" :
@@ -19,8 +18,7 @@ cdef extern from "ym/BnNode.h" namespace "nsYm::nsBnet" :
         string name()
         BnNodeType type()
         int fanout_num()
-        int fanout(int)
-        const vector[int]& fanout_list()
+        int fanout_id(int)
         int input_id()
         bool is_port_input()
         bool is_dff_output()
@@ -36,12 +34,11 @@ cdef extern from "ym/BnNode.h" namespace "nsYm::nsBnet" :
         bool is_latch_enable()
         bool is_latch_clear()
         bool is_latch_preset()
-        int fanin()
         int port_id()
         int port_bit()
         int dff_id()
         int latch_id()
         int fanin_num()
-        int fanin(int)
+        int fanin_id(int)
         int expr_id()
         int func_id()

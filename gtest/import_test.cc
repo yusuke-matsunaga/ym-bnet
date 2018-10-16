@@ -36,6 +36,8 @@ TEST(ImportTest, test1)
 
     int output1 = port3->bit(0);
     network1.connect(and1, output1, 0);
+
+    network1.wrap_up();
   }
 
   BnNetwork network2;

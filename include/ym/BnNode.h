@@ -110,12 +110,12 @@ public:
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
   int
-  fanout(int pos) const = 0;
+  fanout_id(int pos) const = 0;
 
   /// @brief ファンアウトのノード番号のリストを返す．
   virtual
   const vector<int>&
-  fanout_list() const = 0;
+  fanout_id_list() const = 0;
 
 
 public:
@@ -217,13 +217,6 @@ public:
   bool
   is_latch_preset() const = 0;
 
-  /// @brief ファンインのノード番号を返す．
-  ///
-  /// is_output() == false の時の動作は不定
-  virtual
-  int
-  fanin() const = 0;
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -281,17 +274,17 @@ public:
   /// - is_logic() == false の時の動作は不定
   virtual
   int
-  fanin(int pos) const = 0;
+  fanin_id(int pos) const = 0;
 
 #if 0
   /// @brief ファンインのノード番号のリストを返す．
   virtual
   Array<int>
-  fanin_list() const = 0;
+  fanin_id_list() const = 0;
 #else
   virtual
   const vector<int>&
-  fanin_list() const = 0;
+  fanin_id_list() const = 0;
 #endif
 
   /// @brief 論理式番号を返す．
@@ -303,15 +296,6 @@ public:
   int
   expr_id() const = 0;
 
-  /// @brief 論理式を返す．
-  ///
-  /// - type() != Expr の時の動作は不定
-  /// - 親のネットワークの BnNetwork::expr(node->expr_id()) と同一
-  /// @sa BnNetwork::expr()
-  virtual
-  Expr
-  expr() const = 0;
-
   /// @brief 関数番号を返す．
   ///
   /// - type() == TvFunc の時のみ意味を持つ．
@@ -320,15 +304,6 @@ public:
   virtual
   int
   func_id() const = 0;
-
-  /// @brief 真理値表を返す．
-  ///
-  /// - type() != TvFunc の時の動作は不定
-  /// - 親のネットワークの BnNetwork::func(node->func_id()) と同一
-  /// @sa BnNetwork::func()
-  virtual
-  TvFunc
-  func() const = 0;
 
   /// @brief セルを返す．
   ///

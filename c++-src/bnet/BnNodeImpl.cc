@@ -9,9 +9,6 @@
 
 #include "BnNodeImpl.h"
 
-#include "ym/Expr.h"
-#include "ym/TvFunc.h"
-
 
 BEGIN_NAMESPACE_YM_BNET
 
@@ -80,15 +77,16 @@ BnNodeImpl::fanout_num() const
 // @brief ファンアウトのノード番号を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
 int
-BnNodeImpl::fanout(int pos) const
+BnNodeImpl::fanout_id(int pos) const
 {
-  ASSERT_COND( pos < fanout_num() );
+  ASSERT_COND( pos >= 0 && pos < fanout_num() );
+
   return mFanoutList[pos];
 }
 
 // @brief ファンアウトのノード番号のリストを返す．
 const vector<int>&
-BnNodeImpl::fanout_list() const
+BnNodeImpl::fanout_id_list() const
 {
   return mFanoutList;
 }
@@ -213,16 +211,6 @@ BnNodeImpl::is_latch_preset() const
   return false;
 }
 
-// @brief ファンインのノード番号を返す．
-//
-// is_output() == false の時の動作は不定
-int
-BnNodeImpl::fanin() const
-{
-  ASSERT_NOT_REACHED;
-  return kBnNullId;
-}
-
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
@@ -277,7 +265,7 @@ BnNodeImpl::fanin_num() const
 // @brief ファンインのノード番号を返す．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
 int
-BnNodeImpl::fanin(int pos) const
+BnNodeImpl::fanin_id(int pos) const
 {
   ASSERT_NOT_REACHED;
   return kBnNullId;
@@ -286,13 +274,13 @@ BnNodeImpl::fanin(int pos) const
 #if 0
 // @brief ファンインのノード番号のリストを返す．
 Array<int>
-BnNodeImpl::fanin_list() const
+BnNodeImpl::fanin_id_list() const
 {
   return Array<int>(nullptr, 0, 0);
 }
 #else
 const vector<int>&
-BnNodeImpl::fanin_list() const
+BnNodeImpl::fanin_id_list() const
 {
   static vector<int> dummy;
   return dummy;
@@ -310,18 +298,6 @@ BnNodeImpl::expr_id() const
   return 0;
 }
 
-// @brief 論理式を返す．
-//
-// type() != BnNodeType::Expr の時の動作は不定
-//
-// 親のネットワークの expr(node->expr_id()) と同一
-Expr
-BnNodeImpl::expr() const
-{
-  ASSERT_NOT_REACHED;
-  return Expr();
-}
-
 // @brief 関数番号を返す．
 //
 // type() == BnNodeType::TvFunc の時のみ意味を持つ．
@@ -331,17 +307,6 @@ BnNodeImpl::func_id() const
 {
   ASSERT_NOT_REACHED;
   return 0;
-}
-
-// @brief 真理値表を返す．
-//
-// type() != BnNodeType::TvFunc の時の動作は不定
-// 親のネットワークの func(node->func_id()) と同一
-TvFunc
-BnNodeImpl::func() const
-{
-  ASSERT_NOT_REACHED;
-  return TvFunc();
 }
 
 // @brief セルを返す．

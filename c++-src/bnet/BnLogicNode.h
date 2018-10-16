@@ -10,8 +10,6 @@
 
 
 #include "BnNodeImpl.h"
-#include "ym/Expr.h"
-#include "ym/TvFunc.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -64,15 +62,15 @@ public:
   /// @brief ファンインのノード番号を返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   int
-  fanin(int pos) const override;
+  fanin_id(int pos) const override;
 
 #if 0
   /// @brief ファンインのノード番号のリストを返す．
   Array<int>
-  fanin_list() const override;
+  fanin_id_list() const override;
 #else
   const vector<int>&
-  fanin_list() const override;
+  fanin_id_list() const override;
 #endif
 
   /// @brief セルを返す．
@@ -192,13 +190,11 @@ public:
   /// @param[in] id ID番号
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
-  /// @param[in] expr 論理式
   /// @param[in] expr_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnExprNode(int id,
 	     const string& name,
 	     int ni,
-	     const Expr& expr,
 	     int expr_id,
 	     const ClibCell* cell = nullptr);
 
@@ -228,13 +224,6 @@ public:
   int
   expr_id() const;
 
-  /// @brief 論理式を返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != BnNodeType::Expr の時の動作は不定
-  Expr
-  expr() const;
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -246,9 +235,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 論理式
-  Expr mExpr;
 
   // 論理式番号
   int mExprId;
@@ -269,13 +255,11 @@ public:
   /// @param[in] id ID番号
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
-  /// @param[in] func 真理値表
   /// @param[in] func_id 関数番号
   /// @param[in] cell セル (nullptr の場合もあり)
   BnTvNode(int id,
 	   const string& name,
 	   int ni,
-	   const TvFunc& func,
 	   int func_id,
 	   const ClibCell* cell = nullptr);
 
@@ -305,13 +289,6 @@ public:
   int
   func_id() const;
 
-  /// @brief 真理値表を返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// logic_type() != BnNodeType::TvFunc の時の動作は不定
-  TvFunc
-  func() const;
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -323,9 +300,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 真理値表
-  TvFunc mFunc;
 
   // 関数番号
   int mFuncId;

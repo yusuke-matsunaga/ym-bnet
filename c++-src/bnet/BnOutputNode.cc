@@ -58,14 +58,39 @@ BnOutputNode::output_id() const
   return mOutputId;
 }
 
-// @brief 入力のノード番号を返す．
-//
-// is_output() == false の時の動作は不定
+// @brief ファンイン数を得る．
 int
-BnOutputNode::fanin() const
+BnOutputNode::fanin_num() const
 {
+  return 1;
+}
+
+// @brief ファンインのノード番号を返す．
+// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
+int
+BnOutputNode::fanin_id(int pos) const
+{
+  ASSERT_COND( pos == 0 );
+
   return mFanin;
 }
+
+#if 0
+// @brief ファンインのノード番号のリストを返す．
+Array<int>
+BnOutputNode::fanin_id_list() const
+{
+  return Array<int>(&mFanin, 0, 1);
+}
+#else
+const vector<int>&
+BnOutputNode::fanin_id_list() const
+{
+  static vector<int> dummy_fanin(1);
+  dummy_fanin[0] = mFanin;
+  return dummy_fanin;
+}
+#endif
 
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
