@@ -288,7 +288,6 @@ BnNodeEnc::make_xor(SatLiteral olit,
     break;
 
   default:
-    cout << "make_xor(5)" << endl;
     mSolver.add_xorgate_rel( olit, ilit_array);
     break;
   }

@@ -175,8 +175,6 @@ BnNodeEncTest::check(int node_id,
 
     mEnc.make_cnf(node);
 
-    mSolver.write_DIMACS(cout);
-
     int np = 1 << ni;
     EXPECT_EQ( np, vals.size() );
     SatLiteral olit(mVarMap[ni]);
@@ -193,17 +191,9 @@ BnNodeEncTest::check(int node_id,
 	else {
 	  assumptions.push_back(~olit);
 	}
-	{
-	  cout << "assumptions = ";
-	  for ( auto lit: assumptions ) {
-	    cout << " " << lit;
-	  }
-	  cout << endl;
-	}
 	vector<SatBool3> model;
 	SatBool3 stat = mSolver.solve(assumptions, model);
 	SatBool3 exp_stat = ( vals[p] == b ) ? SatBool3::True : SatBool3::False;
-	cout << "stat = " << stat << ", val = " << vals[p] << endl;
 	EXPECT_EQ( exp_stat, stat );
       }
     }
@@ -394,6 +384,48 @@ BnNodeEncTest::check_xnor(int ni)
   check(oid, vals);
 }
 
+// @brief 論理式のチェックを行う．
+void
+BnNodeEncTest::check_expr(const Expr& expr)
+{
+  int ni = expr.input_size();
+  make_inputs(ni);
+
+  int id = mNetwork.new_logic("", expr);
+  for ( int i: Range(ni) ) {
+    mNetwork.connect(i, id, i);
+  }
+
+  make_node_variable(id);
+
+  auto node = mNetwork.node(id);
+
+  mEnc.make_cnf(node);
+
+  int np = 1 << ni;
+  vector<int> vals(np);
+  for ( int p: Range(np) ) {
+    vector<Expr::BitVectType> ipat(ni);
+    for ( int i: Range(ni) ) {
+      if ( p & (1 << i) ) {
+	ipat[i] = 1;
+      }
+      else {
+	ipat[i] = 0;
+      }
+    }
+    Expr::BitVectType opat = expr.eval(ipat, 1UL);
+    if ( opat ) {
+      vals[p] = 1;
+    }
+    else {
+      vals[p] = 0;
+    }
+  }
+
+  check(id, vals);
+}
+
 TEST_P(BnNodeEncTest, zero)
 {
   int id = mNetwork.new_logic("", BnNodeType::C0, 0);
@@ -564,6 +596,14 @@ TEST_P(BnNodeEncTest, xnor4)
 TEST_P(BnNodeEncTest, xnor5)
 {
   check_xnor(5);
+}
+
+TEST_P(BnNodeEncTest, expr1)
+{
+  string err_msg;
+  Expr expr = Expr::from_string("0 + 1", err_msg);
+
+  check_expr(expr);
 }
 
 #if 0
