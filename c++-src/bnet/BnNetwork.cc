@@ -615,6 +615,28 @@ BnNetwork::new_logic(const string& node_name,
   return _new_primitive(node_name, ni, logic_type, nullptr);
 }
 
+// @brief プリミティブ型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] logic_type 論理型
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
+int
+BnNetwork::new_logic(const string& node_name,
+		     BnNodeType logic_type,
+		     const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, logic_type, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
+}
+
 // @brief C0型(定数０)の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @return 生成した論理ノードの番号を返す．
@@ -639,24 +661,36 @@ BnNetwork::new_c1(const string& node_name)
 
 // @brief Buff型の論理ノードを追加する．
 // @param[in] node_name ノード名
+// @param[in] fanin_id ファンインのノード番号
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 int
-BnNetwork::new_buff(const string& node_name)
+BnNetwork::new_buff(const string& node_name,
+		    int fanin_id)
 {
-  return _new_primitive(node_name, 1, BnNodeType::Buff, nullptr);
+  int id = _new_primitive(node_name, 1, BnNodeType::Buff, nullptr);
+  if ( fanin_id != kBnNullId ) {
+    connect(fanin_id, id, 0);
+  }
+  return id;
 }
 
 // @brief Not型の論理ノードを追加する．
 // @param[in] node_name ノード名
+// @param[in] fanin_id ファンインのノード番号
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 int
-BnNetwork::new_not(const string& node_name)
+BnNetwork::new_not(const string& node_name,
+		   int fanin_id)
 {
-  return _new_primitive(node_name, 1, BnNodeType::Not, nullptr);
+  int id = _new_primitive(node_name, 1, BnNodeType::Not, nullptr);
+  if ( fanin_id != kBnNullId ) {
+    connect(fanin_id, id, 0);
+  }
+  return id;
 }
 
 // @brief And型の論理ノードを追加する．
@@ -672,6 +706,25 @@ BnNetwork::new_and(const string& node_name,
   return _new_primitive(node_name, ni, BnNodeType::And, nullptr);
 }
 
+// @brief AND型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_and(const string& node_name,
+		   const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::And, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
+}
+
 // @brief Nand型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
@@ -683,6 +736,25 @@ BnNetwork::new_nand(const string& node_name,
 		    int ni)
 {
   return _new_primitive(node_name, ni, BnNodeType::Nand, nullptr);
+}
+
+// @brief NAND型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_nand(const string& node_name,
+		    const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::Nand, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
 }
 
 // @brief Or型の論理ノードを追加する．
@@ -698,6 +770,25 @@ BnNetwork::new_or(const string& node_name,
   return _new_primitive(node_name, ni, BnNodeType::Or, nullptr);
 }
 
+// @brief OR型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_or(const string& node_name,
+		  const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::Or, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
+}
+
 // @brief Nor型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
@@ -709,6 +800,25 @@ BnNetwork::new_nor(const string& node_name,
 		   int ni)
 {
   return _new_primitive(node_name, ni, BnNodeType::Nor, nullptr);
+}
+
+// @brief NOR型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_nor(const string& node_name,
+		   const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::Nor, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
 }
 
 // @brief Xor型の論理ノードを追加する．
@@ -724,6 +834,25 @@ BnNetwork::new_xor(const string& node_name,
   return _new_primitive(node_name, ni, BnNodeType::Xor, nullptr);
 }
 
+// @brief XOR型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_xor(const string& node_name,
+		   const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::Xor, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
+}
+
 // @brief Xnor型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
@@ -737,58 +866,101 @@ BnNetwork::new_xnor(const string& node_name,
   return _new_primitive(node_name, ni, BnNodeType::Xnor, nullptr);
 }
 
+// @brief XNOR型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_xnor(const string& node_name,
+		    const vector<int>& fanin_id_list)
+{
+  int ni = fanin_id_list.size();
+  int id = _new_primitive(node_name, ni, BnNodeType::Xnor, nullptr);
+  for ( int i: Range(ni) ) {
+    int iid = fanin_id_list[i];
+    connect(iid, id, i);
+  }
+  return id;
+}
+
 // @brief 論理式型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] expr 論理式
+// @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 int
 BnNetwork::new_logic(const string& node_name,
-		     const Expr& expr)
+		     const Expr& expr,
+		     const vector<int>& fanin_id_list)
 {
   int ni = expr.input_size();
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
+  int id;
   if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, nullptr);
+    id = _new_primitive(node_name, ni, logic_type, nullptr);
   }
   else {
-    return _new_expr(node_name, ni, expr, nullptr);
+    id = _new_expr(node_name, ni, expr, nullptr);
   }
+  if ( !fanin_id_list.empty() ) {
+    ASSERT_COND( fanin_id_list.size() == ni );
+    for ( int i: Range(ni) ) {
+      int iid = fanin_id_list[i];
+      connect(iid, id, i);
+    }
+  }
+  return id;
 }
 
 // @brief 真理値表型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] tv 真理値表
+// @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 int
 BnNetwork::new_logic(const string& node_name,
-		     const TvFunc& tv)
+		     const TvFunc& tv,
+		     const vector<int>& fanin_id_list)
 {
   int ni = tv.input_num();
   BnNodeType logic_type = FuncAnalyzer::analyze(tv);
+  int id;
   if ( logic_type != BnNodeType::TvFunc ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, nullptr);
+    id = _new_primitive(node_name, ni, logic_type, nullptr);
   }
   else {
-    return _new_tv(node_name, ni, tv, nullptr);
+    id = _new_tv(node_name, ni, tv, nullptr);
   }
+  if ( !fanin_id_list.empty() ) {
+    ASSERT_COND( fanin_id_list.size() == ni );
+    for ( int i: Range(ni) ) {
+      int iid = fanin_id_list[i];
+      connect(iid, id, i);
+    }
+  }
+  return id;
 }
 
 // @brief 論理セルを追加する．
 // @param[in] node_name ノード名
 // @param[in] cell_name セル名
+// @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 // - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
 int
 BnNetwork::new_logic(const string& node_name,
-		     const string& cell_name)
+		     const string& cell_name,
+		     const vector<int>& fanin_id_list)
 {
   const ClibCell* cell = mCellLibrary.cell(cell_name);
   if ( cell == nullptr ||
@@ -800,13 +972,22 @@ BnNetwork::new_logic(const string& node_name,
   int ni = cell->input_num();
   Expr expr = cell->logic_expr(0);
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
+  int id;
   if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, cell);
+    id = _new_primitive(node_name, ni, logic_type, cell);
   }
   else {
-    return _new_expr(node_name, ni, expr, cell);
+    id = _new_expr(node_name, ni, expr, cell);
   }
+  if ( !fanin_id_list.empty() ) {
+    ASSERT_COND( fanin_id_list.size() == ni );
+    for ( int i: Range(ni) ) {
+      int iid = fanin_id_list[i];
+      connect(iid, id, i);
+    }
+  }
+  return id;
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
