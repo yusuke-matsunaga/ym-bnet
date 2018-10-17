@@ -606,6 +606,22 @@ TEST_P(BnNodeEncTest, expr1)
   check_expr(expr);
 }
 
+TEST_P(BnNodeEncTest, expr2)
+{
+  string err_msg;
+  Expr expr = Expr::from_string("0 + (1 & 2)", err_msg);
+
+  check_expr(expr);
+}
+
+TEST_P(BnNodeEncTest, expr3)
+{
+  string err_msg;
+  Expr expr = Expr::from_string("~0 + (1 & 2)", err_msg);
+
+  check_expr(expr);
+}
+
 #if 0
 INSTANTIATE_TEST_CASE_P(SatSolverTest,
 			BnNodeEncTest,
