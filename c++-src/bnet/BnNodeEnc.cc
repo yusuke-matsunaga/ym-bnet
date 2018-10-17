@@ -134,6 +134,29 @@ BnNodeEnc::make_cnf(const BnNode* node)
     break;
 
   case BnNodeType::TvFunc:
+    {
+      const TvFunc& func = mNetwork.func(node->func_id());
+      int np = 1 << ni;
+      for ( int p: Range(np) ) {
+	vector<SatLiteral> tmp_lits(ni + 1);
+	for ( int i: Range(ni) ) {
+	  SatLiteral ilit = ilit_array[i];
+	  if ( p & (1 << i) ) {
+	    tmp_lits[i] = ~ilit;
+	  }
+	  else {
+	    tmp_lits[i] =  ilit;
+	  }
+	}
+	if ( func.value(p) ) {
+	  tmp_lits[ni] =  olit;
+	}
+	else {
+	  tmp_lits[ni] = ~olit;
+	}
+	mSolver.add_clause(tmp_lits);
+      }
+    }
     // 未完
     break;
 

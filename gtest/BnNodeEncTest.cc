@@ -88,6 +88,10 @@ public:
   void
   check_expr(const Expr& expr);
 
+  /// @brief 真理値表のチェックを行う．
+  void
+  check_tvfunc(const TvFunc& func);
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -426,6 +430,33 @@ BnNodeEncTest::check_expr(const Expr& expr)
   check(id, vals);
 }
 
+// @brief 真理値表のチェックを行う．
+void
+BnNodeEncTest::check_tvfunc(const TvFunc& func)
+{
+  int ni = func.input_num();
+  make_inputs(ni);
+
+  int id = mNetwork.new_logic("", func);
+  for ( int i: Range(ni) ) {
+    mNetwork.connect(i, id, i);
+  }
+
+  make_node_variable(id);
+
+  auto node = mNetwork.node(id);
+
+  mEnc.make_cnf(node);
+
+  int np = 1 << ni;
+  vector<int> vals(np);
+  for ( int p: Range(np) ) {
+    vals[p] = func.value(p);
+  }
+
+  check(id, vals);
+}
+
 TEST_P(BnNodeEncTest, zero)
 {
   int id = mNetwork.new_logic("", BnNodeType::C0, 0);
@@ -620,6 +651,22 @@ TEST_P(BnNodeEncTest, expr3)
   Expr expr = Expr::from_string("~0 + (1 & 2)", err_msg);
 
   check_expr(expr);
+}
+
+TEST_P(BnNodeEncTest, tvfunc1)
+{
+  vector<int> values({0, 0, 0, 1, 0, 1, 1, 1});
+  TvFunc func(3, values);
+
+  check_tvfunc(func);
+}
+
+TEST_P(BnNodeEncTest, tvfunc2)
+{
+  vector<int> values({0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1});
+  TvFunc func(4, values);
+
+  check_tvfunc(func);
 }
 
 #if 0
