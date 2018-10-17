@@ -29,6 +29,16 @@ ym_add_gtest ( FuncAnalyzerTest
   FuncAnalyzerTest.cc
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
+  $<TARGET_OBJECTS:ym_cell_ad>
+  $<TARGET_OBJECTS:ym_bnet_ad>
+  )
+
+ym_add_gtest ( BnNodeEncTest
+  BnNodeEncTest.cc
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
@@ -37,6 +47,7 @@ add_executable ( read_blif_test
   read_blif_test.cc
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
@@ -63,6 +74,7 @@ add_executable ( read_iscas89_test
   read_iscas89_test.cc
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_logic_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )
@@ -90,5 +102,6 @@ ym_add_gtest ( import_test
   $<TARGET_OBJECTS:ym_base_ad>
   $<TARGET_OBJECTS:ym_logic_ad>
   $<TARGET_OBJECTS:ym_cell_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   )

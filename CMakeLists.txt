@@ -74,6 +74,7 @@ set ( bnet_SOURCES
   c++-src/bnet/read_blif.cc
   c++-src/bnet/read_iscas89.cc
   c++-src/bnet/write_blif.cc
+  c++-src/bnet/BnNodeEnc.cc
   )
 
 set ( iscas89_SOURCES
