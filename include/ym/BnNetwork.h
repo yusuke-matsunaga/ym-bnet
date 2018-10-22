@@ -410,7 +410,7 @@ public:
 
   /// @brief 部分回路を追加する．
   /// @param[in] src_network 部分回路
-  /// @param[out] input_list インポートした部分回路の入力ノード番号のリスト
+  /// @param[in] input_list インポートした部分回路の入力に接続するノード番号のリスト
   /// @param[out] output_list インポートした部分回路の出力ノード番号のリスト
   ///
   /// * src_network は wrap_up() されている必要がある．
@@ -418,7 +418,7 @@ public:
   /// * 矛盾しない限りセルライブラリの情報も引く継がれる．
   void
   import_subnetwork(const BnNetwork& src_network,
-		    vector<int>& input_list,
+		    const vector<int>& input_list,
 		    vector<int>& output_list);
 
   /// @brief ノード間を接続する．
@@ -624,7 +624,7 @@ private:
   /// @return 生成した DFF 番号を返す．
   int
   dup_dff(const BnDff* src_dff,
-	  HashMap<int, int>& id_map);
+	  vector<int>& id_map);
 
   /// @brief ラッチを複製する．
   /// @param[in] src_latch 元のラッチ
@@ -632,7 +632,7 @@ private:
   /// @return 生成したラッチ番号を返す．
   int
   dup_latch(const BnLatch* src_latch,
-	    HashMap<int, int>& id_map);
+	    vector<int>& id_map);
 
   /// @brief 論理ノードを複製する．
   /// @param[in] src_node 元のノード
@@ -644,7 +644,7 @@ private:
   int
   dup_logic(const BnNode* src_node,
 	    const BnNetwork& src_network,
-	    HashMap<int, int>& id_map);
+	    vector<int>& id_map);
 
   /// @brief DFFを追加する共通の処理を行う関数
   /// @param[in] name DFF名

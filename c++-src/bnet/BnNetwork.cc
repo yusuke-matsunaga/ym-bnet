@@ -84,27 +84,6 @@ BnNetwork::clear()
   mSane = false;
 }
 
-BEGIN_NONAMESPACE
-
-// @brief id_map を使ってID番号を変換する．
-// @param[in] id ID番号
-// @param[in] id_map ID番号のハッシュ表
-// @return 変換先のID番号を返す．
-// 登録されていない場合には abort する．
-int
-conv_id(int id,
-	const HashMap<int, int>& id_map)
-{
-  if ( id == kBnNullId ) {
-    return kBnNullId;
-  }
-  int dst_id;
-  bool stat = id_map.find(id, dst_id);
-  ASSERT_COND( stat );
-  return dst_id;
-}
-
-END_NONAMESPACE
 
 // @brief 内容をコピーする．
 // @param[in] src コピー元のオブジェクト
@@ -124,8 +103,8 @@ BnNetwork::copy(const BnNetwork& src)
   // ネットワーク名の設定
   set_name(src.name());
 
-  // srcのノード番号をキーにしてノード番号を格納するハッシュ表
-  HashMap<int, int> id_map;
+  // srcのノード番号をキーにしてノード番号を格納する配列
+  vector<int> id_map(src.node_num());
 
   // ポートの生成
   int np = src.port_num();
@@ -159,54 +138,31 @@ BnNetwork::copy(const BnNetwork& src)
     for ( auto i: Range(nb) ) {
       int src_id = src_port->bit(i);
       int dst_id = dst_port->bit(i);
-      id_map.add(src_id, dst_id);
+      id_map[src_id] = dst_id;
     }
   }
 
-  // DFF の生成
-  for ( auto src_dff: src.dff_list() ) {
-    int dst_id = dup_dff(src_dff, id_map);
-    ASSERT_COND( dst_id = src_dff->id() );
+  // src の入力の対応するノードを input_list に入れる．
+  int input_num = src.input_num();
+  vector<int> input_list(input_num);
+  for ( int i: Range(input_num) ) {
+    int src_id = src.input_id(i);
+    int dst_id = id_map[src_id];
+    input_list[i] = dst_id;
   }
 
-  // ラッチの生成
-  for ( auto src_latch: src.latch_list() ) {
-    int dst_id = dup_latch(src_latch, id_map);
-    ASSERT_COND( dst_id == src_latch->id() );
-  }
-
-  ASSERT_COND( src.input_num() == input_num() );
-  ASSERT_COND( src.output_num() == output_num() );
-
-  // 関数情報の生成
-  for ( auto func: src.func_list() ) {
-    int func_id = _add_tv(func);
-  }
-
-  // 論理式情報の生成
-  for ( auto expr: src.expr_list() ) {
-    int expr_id = _add_expr(expr);
-  }
-
-  // 論理ノードの生成
-  for ( auto src_id: src.logic_id_list() ) {
-    auto src_node = src.node(src_id);
-    int dst_id = dup_logic(src_node, src, id_map);
-    int nfi = src_node->fanin_num();
-    for ( auto i: Range(nfi) ) {
-      int src_iid = src_node->fanin_id(i);
-      int iid = conv_id(src_iid, id_map);
-      connect(iid, dst_id, i);
-    }
-  }
+  // src 本体をインポートする．
+  vector<int> output_list;
+  import_subnetwork(src, input_list, output_list);
 
   // 出力端子のファンインの接続
-  for ( auto i: Range(src.output_num()) ) {
+  int output_num = src.output_num();
+  for ( int i: Range(src.output_num()) ) {
     auto src_id = src.output_id(i);
     auto src_fanin_id = src.output_src_id(i);
 
-    int dst_id = conv_id(src_id, id_map);
-    int dst_fanin_id = conv_id(src_fanin_id, id_map);
+    int dst_id = id_map[src_id];
+    int dst_fanin_id = output_list[i];
     connect(dst_fanin_id, dst_id, 0);
   }
 
@@ -1054,7 +1010,7 @@ BnNetwork::_new_tv(const string& node_name,
 
 // @brief 部分回路を追加する．
 // @param[in] src_network 部分回路
-// @param[out] input_list インポートした部分回路の入力ノード番号のリスト
+// @param[in] input_list インポートした部分回路の入力に接続するノード番号のリスト
 // @param[out] output_list インポートした部分回路の出力ノード番号のリスト
 //
 // * src_network は wrap_up() されている必要がある．
@@ -1062,30 +1018,27 @@ BnNetwork::_new_tv(const string& node_name,
 // * 矛盾しない限りセルライブラリの情報も引く継がれる．
 void
 BnNetwork::import_subnetwork(const BnNetwork& src_network,
-			     vector<int>& input_list,
+			     const vector<int>& input_list,
 			     vector<int>& output_list)
 {
   ASSERT_COND( src_network.mSane );
 
   int input_num = src_network.input_num();
-  input_list.clear();
-  input_list.reserve(input_num);
+  ASSERT_COND( input_list.size() == input_num );
 
   int output_num = src_network.output_num();
   output_list.clear();
   output_list.reserve(output_num);
 
-  // src_network のノード番号をキーにして生成したノード番号を入れるハッシュ表
-  HashMap<int, int> id_map;
+  // src_network のノード番号をキーにして生成したノード番号を入れる配列
+  vector<int> id_map(src_network.node_num());
 
-  // src_network の入力に対応する BUFF ノードを作る．
-  // と同時に生成されたノード番号を input_list に入れる．
-  for ( auto src_id: src_network.input_id_list() ) {
+  // src_network の入力と input_list の対応関係を id_map に入れる．
+  for ( int i: Range(input_num) ) {
+    auto src_id = src_network.input_id(i);
     auto src_node = src_network.node(src_id);
-    string name = src_node->name();
-    int dst_id = new_buff(name);
-    id_map.add(src_id, dst_id);
-    input_list.push_back(dst_id);
+    int dst_id = input_list[i];
+    id_map[src_id] = dst_id;
   }
 
   // DFFを作る．
@@ -1117,18 +1070,18 @@ BnNetwork::import_subnetwork(const BnNetwork& src_network,
   // src_network の外部出力のファンインに対応するノード番号を
   // output_list に入れる．
   for ( auto src_id: src_network.output_src_id_list() ) {
-    int dst_id = conv_id(src_id, id_map);
+    int dst_id = id_map[src_id];
     output_list.push_back(dst_id);
   }
 }
 
 // @brief DFFを複製する．
 // @param[in] src_dff 元のDFF
-// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成した DFF を返す．
 int
 BnNetwork::dup_dff(const BnDff* src_dff,
-		   HashMap<int, int>& id_map)
+		   vector<int>& id_map)
 {
   string dff_name = src_dff->name();
   bool has_clear = (src_dff->clear() != kBnNullId);
@@ -1140,27 +1093,27 @@ BnNetwork::dup_dff(const BnDff* src_dff,
   {
     int src_id = src_dff->input();
     int dst_id = dst_dff->input();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   {
     int src_id = src_dff->output();
     int dst_id = dst_dff->output();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   {
     int src_id = src_dff->clock();
     int dst_id = dst_dff->clock();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   if ( has_clear ) {
     int src_id = src_dff->clear();
     int dst_id = dst_dff->clear();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   if ( has_preset ) {
     int src_id = src_dff->preset();
     int dst_id = dst_dff->preset();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
 
   return dst_id;
@@ -1168,11 +1121,11 @@ BnNetwork::dup_dff(const BnDff* src_dff,
 
 // @brief ラッチを複製する．
 // @param[in] src_latch 元のラッチ
-// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成したラッチを返す．
 int
 BnNetwork::dup_latch(const BnLatch* src_latch,
-		     HashMap<int, int>& id_map)
+		     vector<int>& id_map)
 {
   string latch_name = src_latch->name();
   bool has_clear = (src_latch->clear() != kBnNullId);
@@ -1184,27 +1137,27 @@ BnNetwork::dup_latch(const BnLatch* src_latch,
   {
     int src_id = src_latch->input();
     int dst_id = dst_latch->input();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   {
     int src_id = src_latch->output();
     int dst_id = dst_latch->output();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   {
     int src_id = src_latch->enable();
     int dst_id = dst_latch->enable();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   if ( has_clear ) {
     int src_id = src_latch->clear();
     int dst_id = dst_latch->clear();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
   if ( has_preset ) {
     int src_id = src_latch->preset();
     int dst_id = dst_latch->preset();
-    id_map.add(src_id, dst_id);
+    id_map[src_id] = dst_id;
   }
 
   return dst_id;
@@ -1212,14 +1165,14 @@ BnNetwork::dup_latch(const BnLatch* src_latch,
 
 // @brief 論理ノードを複製する．
 // @param[in] src_node 元のノード
-// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
+// @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成したノードを返す．
 //
 // ノード間の接続は行わない．
 int
 BnNetwork::dup_logic(const BnNode* src_node,
 		     const BnNetwork& src_network,
-		     HashMap<int, int>& id_map)
+		     vector<int>& id_map)
 {
   ASSERT_COND( src_node->is_logic() );
 
@@ -1237,11 +1190,11 @@ BnNetwork::dup_logic(const BnNode* src_node,
   else {
     dst_id = _new_primitive(name, nfi, logic_type, cell);
   }
-  id_map.add(src_node->id(), dst_id);
+  id_map[src_node->id()] = dst_id;
 
   for ( auto i: Range(nfi) ) {
     int src_iid = src_node->fanin_id(i);
-    int iid = conv_id(src_iid, id_map);
+    int iid = id_map[src_iid];
     connect(iid, dst_id, i);
   }
 

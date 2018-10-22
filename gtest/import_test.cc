@@ -58,23 +58,15 @@ TEST(ImportTest, test1)
     int input3 = port3->bit(0);
     int input4 = port4->bit(0);
 
-    vector<int> input_list1;
+    vector<int> input_list1{input1, input2};
     vector<int> output_list1;
     network2.import_subnetwork(network1, input_list1, output_list1);
-    ASSERT_COND( input_list1.size() == 2 );
     ASSERT_COND( output_list1.size() == 1 );
 
-    network2.connect(input1, input_list1[0], 0);
-    network2.connect(input2, input_list1[1], 0);
-
-    vector<int> input_list2;
+    vector<int> input_list2{input3, input4};
     vector<int> output_list2;
     network2.import_subnetwork(network1, input_list2, output_list2);
-    ASSERT_COND( input_list2.size() == 2 );
     ASSERT_COND( output_list2.size() == 1 );
-
-    network2.connect(input3, input_list2[0], 0);
-    network2.connect(input4, input_list2[1], 0);
 
     int or_id = network2.new_or(string(), 2);
     network2.connect(output_list1[0], or_id, 0);
@@ -85,6 +77,8 @@ TEST(ImportTest, test1)
     int output = port5->bit(0);
 
     network2.connect(or_id, output, 0);
+
+    network2.wrap_up();
   }
 }
 
