@@ -65,8 +65,8 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 			     const char* name)
 {
   auto port_id = mNetwork->new_input_port(name);
-  auto port = mNetwork->port(port_id);
-  int id = port->bit(0);
+  auto& port = mNetwork->port(port_id);
+  int id = port.bit(0);
   mIdMap.add(name_id, id);
 
   return true;
@@ -83,8 +83,8 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 			      const char* name)
 {
   auto port_id = mNetwork->new_output_port(name);
-  auto port = mNetwork->port(port_id);
-  int id = port->bit(0);
+  auto& port = mNetwork->port(port_id);
+  int id = port.bit(0);
   add_fanin_info(id, name_id);
   return true;
 }
@@ -129,25 +129,25 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
   // この形式ではクロック以外の制御端子はない．
 
   int dff_id = mNetwork->new_dff(oname);
-  const BnDff* dff = mNetwork->dff(dff_id);
+  const BnDff& dff = mNetwork->dff(dff_id);
 
-  int output_id = dff->output();
+  int output_id = dff.output();
   mIdMap.add(oname_id, output_id);
 
-  int input_id = dff->input();
+  int input_id = dff.input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   add_fanin_info(input_id, iname_id);
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
     auto port_id = mNetwork->new_input_port(mClockName);
-    auto clock_port = mNetwork->port(port_id);
+    auto& clock_port = mNetwork->port(port_id);
     // クロックの入力ノード番号を記録する．
-    mClockId = clock_port->bit(0);
+    mClockId = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  int clock_id = dff->clock();
+  int clock_id = dff.clock();
   mNetwork->connect(mClockId, clock_id, 0);
 
   return true;
@@ -166,8 +166,8 @@ BnIscas89Handler::end()
     }
     const FaninInfo& fanin_info = mFaninInfoMap[node_id];
 
-    const BnNode* node = mNetwork->node(node_id);
-    if ( node->is_logic() ) {
+    const BnNode& node = mNetwork->node(node_id);
+    if ( node.is_logic() ) {
       int ni = fanin_info.fanin_num();
       for ( int i: Range(ni) ) {
 	int inode_id;
@@ -176,7 +176,7 @@ BnIscas89Handler::end()
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
-    else if ( node->is_output() ) {
+    else if ( node.is_output() ) {
       int iname_id = fanin_info.fanin(0);
       int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);

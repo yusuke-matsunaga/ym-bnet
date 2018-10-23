@@ -37,15 +37,15 @@ BnNodeEnc::~BnNodeEnc()
 // @param[in] node 対象のノード
 // @param[in] var_map 変数マップ
 void
-BnNodeEnc::make_cnf(const BnNode* node)
+BnNodeEnc::make_cnf(const BnNode& node)
 {
-  SatLiteral olit = lit(node->id());
-  int ni = node->fanin_num();
+  SatLiteral olit = lit(node.id());
+  int ni = node.fanin_num();
   vector<SatLiteral> ilit_array(ni);
   for ( auto i: Range(ni) ) {
-    ilit_array[i] = lit(node->fanin_id(i));
+    ilit_array[i] = lit(node.fanin_id(i));
   }
-  switch ( node->type() ) {
+  switch ( node.type() ) {
   case BnNodeType::Input:
     // なにもしない．
     break;
@@ -92,7 +92,7 @@ BnNodeEnc::make_cnf(const BnNode* node)
 
   case BnNodeType::Expr:
     {
-      const Expr& expr = mNetwork.expr(node->expr_id());
+      const Expr& expr = mNetwork.expr(node.expr_id());
       if ( expr.is_zero() ) {
 	make_zero(olit);
       }
@@ -135,7 +135,7 @@ BnNodeEnc::make_cnf(const BnNode* node)
 
   case BnNodeType::TvFunc:
     {
-      const TvFunc& func = mNetwork.func(node->func_id());
+      const TvFunc& func = mNetwork.func(node.func_id());
       int np = 1 << ni;
       for ( int p: Range(np) ) {
 	vector<SatLiteral> tmp_lits(ni + 1);

@@ -14,6 +14,7 @@
 #include "ym/BnNode.h"
 #include "ym/BlifCover.h"
 #include "ym/ClibCell.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -86,8 +87,8 @@ BnBlifHandler::inputs_elem(int name_id,
 			   const char* name)
 {
   auto port_id = mNetwork->new_input_port(name);
-  auto port = mNetwork->port(port_id);
-  int id = port->bit(0);
+  const auto& port = mNetwork->port(port_id);
+  int id = port.bit(0);
   mIdMap.add(name_id, id);
 
   return true;
@@ -101,8 +102,8 @@ BnBlifHandler::outputs_elem(int name_id,
 			    const char* name)
 {
   auto port_id = mNetwork->new_output_port(name);
-  auto port = mNetwork->port(port_id);
-  int id = port->bit(0);
+  const auto& port = mNetwork->port(port_id);
+  int id = port.bit(0);
   mFaninInfoMap.add(id, vector<int>({name_id}));
 
   return true;
@@ -182,44 +183,44 @@ BnBlifHandler::latch(int oname_id,
   }
   bool has_xoutput = false;
   int dff_id = mNetwork->new_dff(oname, has_xoutput, has_clear, has_preset);
-  const BnDff* dff = mNetwork->dff(dff_id);
+  const auto& dff = mNetwork->dff(dff_id);
 
-  int output_id = dff->output();
+  int output_id = dff.output();
   mIdMap.add(oname_id, output_id);
 
-  int input_id = dff->input();
+  int input_id = dff.input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   mFaninInfoMap.add(input_id, vector<int>(1, iname_id));
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
     auto port_id = mNetwork->new_input_port(mClockName);
-    auto clock_port = mNetwork->port(port_id);
+    const auto& clock_port = mNetwork->port(port_id);
     // クロックの入力ノード番号を記録する．
-    mClockId = clock_port->bit(0);
+    mClockId = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  int clock_id = dff->clock();
+  int clock_id = dff.clock();
   mNetwork->connect(mClockId, clock_id, 0);
 
   if ( has_clear || has_preset ) {
     if ( mResetId == kBnNullId ) {
       // リセット端子のポートを作る．
       auto port_id = mNetwork->new_input_port(mResetName);
-      auto reset_port = mNetwork->port(port_id);
+      const auto& reset_port = mNetwork->port(port_id);
       // リセット端子の入力ノードを記録する．
-      mResetId = reset_port->bit(0);
+      mResetId = reset_port.bit(0);
     }
   }
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
-    int clear_id = dff->clear();
+    int clear_id = dff.clear();
     mNetwork->connect(mResetId, clear_id, 0);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
-    int preset_id = dff->preset();
+    int preset_id = dff.preset();
     mNetwork->connect(mResetId, preset_id, 0);
   }
 
@@ -239,17 +240,17 @@ BnBlifHandler::end(const FileRegion& loc)
       continue;
     }
 
-    const BnNode* node = mNetwork->node(node_id);
-    if ( node->is_logic() ) {
+    const BnNode& node = mNetwork->node(node_id);
+    if ( node.is_logic() ) {
       int ni = fanin_info.size();
-      for ( int i = 0; i < ni; ++ i ) {
+      for ( int i: Range(ni) ) {
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
-    else if ( node->is_output() ) {
+    else if ( node.is_output() ) {
       int iname_id = fanin_info[0];
       int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);

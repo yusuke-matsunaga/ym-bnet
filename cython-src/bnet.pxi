@@ -286,7 +286,7 @@ cdef class BnNetwork :
     ### @brief ポートを返す．
     ### @param[in] port_id ( port_id >= 0 && port_id < port_num() )
     def port(self, int port_id) :
-        cdef const CXX_BnPort* c_port = self._this.port(port_id)
+        cdef const CXX_BnPort* c_port = &self._this.port(port_id)
         ans = BnPort()
         ans.__id = c_port.id()
         ans.__name = c_port.name().decode('UTF-8')
@@ -300,7 +300,7 @@ cdef class BnNetwork :
 
     ### @brief DFFを返す．
     def dff(self, int dff_id) :
-        cdef const CXX_BnDff* c_dff = self._this.dff(dff_id)
+        cdef const CXX_BnDff* c_dff = &self._this.dff(dff_id)
         ans = BnDff()
         ans.__id = c_dff.id()
         ans.__name = c_dff.name().decode('UTF-8')
@@ -319,7 +319,7 @@ cdef class BnNetwork :
 
     ### @brief ラッチを返す．
     def latch(self, int latch_id) :
-        cdef const CXX_BnLatch* c_latch = self._this.latch(latch_id)
+        cdef const CXX_BnLatch* c_latch = &self._this.latch(latch_id)
         ans = BnLatch()
         ans.__id = c_latch.id()
         ans.__name = c_latch.name().decode('UTF-8')
@@ -337,7 +337,7 @@ cdef class BnNetwork :
 
     ### @brief ノードを返す．
     def node(self, int node_id) :
-        cdef const CXX_BnNode* c_node = self._this.node(node_id)
+        cdef const CXX_BnNode* c_node = &self._this.node(node_id)
         cdef CXX_BnNodeType c_type = c_node.type()
         cdef int c_type_int = __bnnodetype_to_int(c_type)
         node = BnNode()

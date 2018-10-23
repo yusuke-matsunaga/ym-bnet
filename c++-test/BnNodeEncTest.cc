@@ -146,8 +146,8 @@ BnNodeEncTest::make_inputs(int ni)
 {
   for ( int i: Range(ni) ) {
     int port_id = mNetwork.new_input_port("");
-    auto port = mNetwork.port(port_id);
-    int id = port->bit(0);
+    auto& port = mNetwork.port(port_id);
+    int id = port.bit(0);
     EXPECT_EQ( i, id );
     SatVarId var = mSolver.new_variable();
     mVarMap[i] = var;
@@ -169,8 +169,8 @@ BnNodeEncTest::check(int node_id,
 		     const vector<int>& vals)
 {
   try {
-    auto node = mNetwork.node(node_id);
-    int ni = node->fanin_num();
+    auto& node = mNetwork.node(node_id);
+    int ni = node.fanin_num();
     for ( int i: Range(ni) ) {
       mNetwork.connect(i, node_id, i);
     }
@@ -402,7 +402,7 @@ BnNodeEncTest::check_expr(const Expr& expr)
 
   make_node_variable(id);
 
-  auto node = mNetwork.node(id);
+  auto& node = mNetwork.node(id);
 
   mEnc.make_cnf(node);
 
@@ -444,7 +444,7 @@ BnNodeEncTest::check_tvfunc(const TvFunc& func)
 
   make_node_variable(id);
 
-  auto node = mNetwork.node(id);
+  auto& node = mNetwork.node(id);
 
   mEnc.make_cnf(node);
 

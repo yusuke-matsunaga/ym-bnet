@@ -43,7 +43,7 @@ public:
   /// @brief ノードの入出力の関係を表すCNF式を作る．
   /// @param[in] node 対象のノード
   void
-  make_cnf(const BnNode* node);
+  make_cnf(const BnNode& node);
 
 
 private:

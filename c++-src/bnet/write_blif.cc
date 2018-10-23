@@ -50,7 +50,7 @@ write_blif(const BnNetwork& network,
     if ( count == 0 ) {
       s << ".inputs";
     }
-    s << " " << network.node(id)->name();
+    s << " " << network.node(id).name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -67,7 +67,7 @@ write_blif(const BnNetwork& network,
     if ( count == 0 ) {
       s << ".outputs";
     }
-    s << " " << network.node(id)->name();
+    s << " " << network.node(id).name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -81,14 +81,14 @@ write_blif(const BnNetwork& network,
   // .names 文の出力
   for ( auto id: network.logic_id_list() ) {
     s << ".names";
-    auto node = network.node(id);
-    for ( auto iid: node->fanin_id_list() ) {
-      auto inode = network.node(iid);
-      s << " " << inode->name();
+    auto& node = network.node(id);
+    for ( auto iid: node.fanin_id_list() ) {
+      auto& inode = network.node(iid);
+      s << " " << inode.name();
     }
-    s << " " << node->name() << endl;
-    auto type = node->type();
-    int ni = node->fanin_num();
+    s << " " << node.name() << endl;
+    auto type = node.type();
+    int ni = node.fanin_num();
     switch ( type ) {
     case BnNodeType::C0:
       s << "0" << endl;
@@ -184,7 +184,7 @@ write_blif(const BnNetwork& network,
       break;
     case BnNodeType::Expr:
       {
-	const Expr& expr = network.expr(node->expr_id());
+	const Expr& expr = network.expr(node.expr_id());
 	if ( expr.is_sop() ) {
 	  int nc = expr.child_num();
 	  if ( expr.is_and() ) {
@@ -306,7 +306,7 @@ write_blif(const BnNetwork& network,
       break;
     case BnNodeType::TvFunc:
       {
-	const TvFunc& func = network.func(node->func_id());
+	const TvFunc& func = network.func(node.func_id());
 	for ( auto p: Range(1 << ni) ) {
 	  if ( func.value(p) ) {
 	    for ( auto i: Range(ni) ) {

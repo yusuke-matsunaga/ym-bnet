@@ -474,12 +474,8 @@ public:
 
   /// @brief ポートの情報を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-  const BnPort*
+  const BnPort&
   port(int pos) const;
-
-  /// @brief ポートのリストを得る．
-  const vector<const BnPort*>&
-  port_list() const;
 
   /// @brief DFF数を得る．
   int
@@ -487,12 +483,8 @@ public:
 
   /// @brief DFFを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-  const BnDff*
+  const BnDff&
   dff(int pos) const;
-
-  /// @brief DFFのリストを得る．
-  const vector<const BnDff*>&
-  dff_list() const;
 
   /// @brief ラッチ数を得る．
   int
@@ -500,12 +492,8 @@ public:
 
   /// @brief ラッチを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-  const BnLatch*
+  const BnLatch&
   latch(int pos) const;
-
-  /// @brief ラッチのリストを得る．
-  const vector<const BnLatch*>&
-  latch_list() const;
 
   /// @brief ノード数を得る．
   int
@@ -516,12 +504,8 @@ public:
   ///
   /// BnNode* node = BnNetwork::node(id);
   /// node->id() == id が成り立つ．
-  const BnNode*
+  const BnNode&
   node(int id) const;
-
-  /// @brief ノードのリストを得る．
-  const vector<const BnNode*>&
-  node_list() const;
 
   /// @brief 入力数を得る．
   int
@@ -584,10 +568,6 @@ public:
   const TvFunc&
   func(int func_id) const;
 
-  /// @brief 関数のリストを得る．
-  const vector<TvFunc>&
-  func_list() const;
-
   /// @brief 論理式の数を得る．
   int
   expr_num() const;
@@ -596,10 +576,6 @@ public:
   /// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
   Expr
   expr(int expr_id) const;
-
-  /// @brief 論理式のリストを得る．
-  const vector<Expr>&
-  expr_list() const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
@@ -623,7 +599,7 @@ private:
   /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
   /// @return 生成した DFF 番号を返す．
   int
-  dup_dff(const BnDff* src_dff,
+  dup_dff(const BnDff& src_dff,
 	  vector<int>& id_map);
 
   /// @brief ラッチを複製する．
@@ -631,7 +607,7 @@ private:
   /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
   /// @return 生成したラッチ番号を返す．
   int
-  dup_latch(const BnLatch* src_latch,
+  dup_latch(const BnLatch& src_latch,
 	    vector<int>& id_map);
 
   /// @brief 論理ノードを複製する．
@@ -642,7 +618,7 @@ private:
   ///
   /// id_map の内容の基づいてファンイン間の接続を行う．
   int
-  dup_logic(const BnNode* src_node,
+  dup_logic(const BnNode& src_node,
 	    const BnNetwork& src_network,
 	    vector<int>& id_map);
 
@@ -871,19 +847,11 @@ BnNetwork::port_num() const
 // @brief ポートの情報を得る．
 // @param[in] pos 位置番号 ( 0 <= pos < port_num() )
 inline
-const BnPort*
+const BnPort&
 BnNetwork::port(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < port_num() );
-  return mPortList[pos];
-}
-
-// @brief ポートのリストを得る．
-inline
-const vector<const BnPort*>&
-BnNetwork::port_list() const
-{
-  return mPortList;
+  return *mPortList[pos];
 }
 
 // @brief DFF数を得る．
@@ -897,19 +865,11 @@ BnNetwork::dff_num() const
 // @brief DFFを返す．
 // @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
 inline
-const BnDff*
+const BnDff&
 BnNetwork::dff(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < dff_num() );
-  return mDffList[pos];
-}
-
-// @brief DFFのリストを得る．
-inline
-const vector<const BnDff*>&
-BnNetwork::dff_list() const
-{
-  return mDffList;
+  return *mDffList[pos];
 }
 
 // @brief ラッチ数を得る．
@@ -923,19 +883,11 @@ BnNetwork::latch_num() const
 // @brief ラッチを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
 inline
-const BnLatch*
+const BnLatch&
 BnNetwork::latch(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < latch_num() );
-  return mLatchList[pos];
-}
-
-// @brief ラッチのリストを得る．
-inline
-const vector<const BnLatch*>&
-BnNetwork::latch_list() const
-{
-  return mLatchList;
+  return *mLatchList[pos];
 }
 
 // @brief ノード数を得る．
@@ -1060,14 +1012,6 @@ BnNetwork::func(int func_id) const
   return mFuncList[func_id];
 }
 
-// @brief 関数のリストを得る．
-inline
-const vector<TvFunc>&
-BnNetwork::func_list() const
-{
-  return mFuncList;
-}
-
 // @brief 論理式の数を得る．
 inline
 int
@@ -1084,14 +1028,6 @@ BnNetwork::expr(int expr_id) const
 {
   ASSERT_COND( expr_id >= 0 && expr_id < expr_num() );
   return mExprList[expr_id];
-}
-
-// @brief 論理式のリストを得る．
-inline
-const vector<Expr>&
-BnNetwork::expr_list() const
-{
-  return mExprList;
 }
 
 END_NAMESPACE_YM_BNET
