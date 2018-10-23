@@ -66,18 +66,18 @@ set ( RUN_PYM_BNET
   env PYTHONPATH=${PROJECT_BINARY_DIR}/ym-bnet/py-test
   ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pym_bnet_test.py)
 
-add_test ( PyReadBlifTest
+add_test ( bnet_py_read_blif_test
   ${RUN_PYM_BNET} ReadBlifTest
   )
 
-set_property ( TEST PyReadBlifTest
+set_property ( TEST bnet_py_read_blif_test
   PROPERTY ENVIRONMENT TESTDATA_DIR=${PROJECT_SOURCE_DIR}/ym-bnet/testdata
   )
 
-add_test ( PyReadIscas89Test
+add_test ( bnet_py_read_iscas89_test
   ${RUN_PYM_BNET} ReadIscas89Test
   )
 
-set_property ( TEST PyReadIscas89Test
+set_property ( TEST bnet_py_read_iscas89_test
   PROPERTY ENVIRONMENT TESTDATA_DIR=${PROJECT_SOURCE_DIR}/ym-bnet/testdata
   )
