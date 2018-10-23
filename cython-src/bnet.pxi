@@ -176,7 +176,7 @@ cdef class BnNode :
         return self.__type
 
     @property
-    def input_id(self) :
+    def input_pos(self) :
         assert self.type == 'Input'
         return self.__subid
 
@@ -374,7 +374,7 @@ cdef class BnNetwork :
         node.__fanin_list = []
         node.__fanout_list = [ c_node.fanout_id(i) for i in range(c_node.fanout_num()) ]
         if type_str == 'Input' :
-            node.__subid = c_node.input_id()
+            node.__subid = c_node.input_pos()
             if c_node.is_port_input() :
                 node.__subtype = 'primary_input'
                 node.__obj_id = c_node.port_id()
@@ -391,7 +391,7 @@ cdef class BnNetwork :
             else :
                 assert False
         elif type_str == 'Output' :
-            node.__subid = c_node.output_id()
+            node.__subid = c_node.output_pos()
             node.__fanin_list = [ c_node.fanin_id(0) ]
             if c_node.is_port_output() :
                 node.__subtype = 'primary_output'
@@ -437,20 +437,32 @@ cdef class BnNetwork :
     def input_num(self) :
         return self._this.input_num()
 
+    ### @brief 入力のノード番号を返す．
+    def input_id(self, int pos) :
+        return self._this.input_id(pos)
+
     ### @brief 入力のノード番号のリストを返す．
     @property
     def input_id_list(self) :
-        return [ self._this.input_id(i) for i in range(self._this.input_num()) ]
+        return [ self._this.input_id(pos) for pos in range(self._this.input_num()) ]
 
     ### @brief 出力数を返す．
     @property
     def output_num(self) :
         return self._this.output_num()
 
+    ### @brief 出力のノード番号を返す．
+    def output_id(self, int pos) :
+        return self._this.output_id(pos)
+
     ### @brief 出力のノード番号のリストを返す．
     @property
     def output_id_list(self) :
         return [ self._this.output_id(i) for i in range(self._this.output_num()) ]
+
+    ### @brief 出力のソースノード番号を返す．
+    def output_src_id(self, int pos) :
+        return self._this.output_src_id(pos)
 
     ### @brief 出力のソースノード番号のリストを返す．
     @property
@@ -461,6 +473,10 @@ cdef class BnNetwork :
     @property
     def logic_num(self) :
         return self._this.logic_num()
+
+    ### @brief 論理ゲートのノード番号を返す．
+    def logic_id(self, int pos) :
+        return self._this.logic_id(pos)
 
     ### @brief 論理ゲートのノード番号のリストを返す．
     @property

@@ -83,9 +83,9 @@ public:
   /// @brief 入力番号を返す．
   ///
   /// is_input() == false の時の動作は不定<br>
-  /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+  /// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
   int
-  input_id() const override;
+  input_pos() const override;
 
   /// @brief 外部入力端子の時 true を返す．
   bool
@@ -116,9 +116,9 @@ public:
   /// @brief 出力番号を返す．
   ///
   /// is_output() == false の時の動作は不定<br>
-  /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+  /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
   int
-  output_id() const override;
+  output_pos() const override;
 
   /// @brief 外部出力端子の時に true を返す．
   bool

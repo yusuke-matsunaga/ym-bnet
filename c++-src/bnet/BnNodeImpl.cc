@@ -94,12 +94,12 @@ BnNodeImpl::fanout_id_list() const
 // @brief 入力番号を返す．
 //
 // is_input() == false の時の動作は不定<br>
-// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
 int
-BnNodeImpl::input_id() const
+BnNodeImpl::input_pos() const
 {
   ASSERT_NOT_REACHED;
-  return 0;
+  return -1;
 }
 
 // @brief 外部入力端子の時 true を返す．
@@ -140,12 +140,12 @@ BnNodeImpl::is_latch_xoutput() const
 // @brief 出力番号を返す．
 //
 // is_output() == false の時の動作は不定<br>
-// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
 int
-BnNodeImpl::output_id() const
+BnNodeImpl::output_pos() const
 {
   ASSERT_NOT_REACHED;
-  return 0;
+  return -1;
 }
 
 // @brief 外部出力端子の時に true を返す．

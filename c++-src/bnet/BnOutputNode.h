@@ -60,9 +60,9 @@ public:
   /// @brief 出力番号を返す．
   ///
   /// is_output() == false の時の動作は不定<br>
-  /// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+  /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
   int
-  output_id() const override;
+  output_pos() const override;
 
   /// @brief ファンイン数を得る．
   int
@@ -101,8 +101,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 出力番号
-  int mOutputId;
+  // 出力位置
+  int mOutputPos;
 
   // ファンインのノード番号
   int mFanin;

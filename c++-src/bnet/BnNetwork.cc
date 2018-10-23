@@ -818,7 +818,7 @@ BnNetwork::input_id(int pos) const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->input_num();
+  return mImpl->input_id(pos);
 }
 
 // @brief 入力ノードのノード番号のリストを得る．

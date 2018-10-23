@@ -24,7 +24,7 @@ BnInputNode::BnInputNode(int id,
 			 const string& name,
 			 int input_id) :
   BnNodeImpl(id, name),
-  mInputId(input_id)
+  mInputPos(input_id)
 {
 }
 
@@ -50,11 +50,11 @@ BnInputNode::is_input() const
 // @brief 入力番号を返す．
 //
 // is_input() == false の時の動作は不定<br>
-// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
 int
-BnInputNode::input_id() const
+BnInputNode::input_pos() const
 {
-  return mInputId;
+  return mInputPos;
 }
 
 

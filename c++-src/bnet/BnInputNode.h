@@ -60,9 +60,9 @@ public:
   /// @brief 入力番号を返す．
   ///
   /// is_input() == false の時の動作は不定<br>
-  /// node = BnNetwork::input(id) の時 node->input_id() = id となる．
+  /// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
   int
-  input_id() const override;
+  input_pos() const override;
 
 
 private:
@@ -70,8 +70,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力番号
-  int mInputId;
+  // 入力位置
+  int mInputPos;
 
 };
 

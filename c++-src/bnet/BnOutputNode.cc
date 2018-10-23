@@ -24,7 +24,7 @@ BnOutputNode::BnOutputNode(int id,
 			   const string& name,
 			   int output_id) :
   BnNodeImpl(id, name),
-  mOutputId(output_id),
+  mOutputPos(output_id),
   mFanin(kBnNullId)
 {
 }
@@ -51,11 +51,11 @@ BnOutputNode::is_output() const
 // @brief 出力番号を返す．
 //
 // is_output() == false の時の動作は不定<br>
-// node = BnNetwork::output(id) の時，node->output_id() = id となる．
+// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
 int
-BnOutputNode::output_id() const
+BnOutputNode::output_pos() const
 {
-  return mOutputId;
+  return mOutputPos;
 }
 
 // @brief ファンイン数を得る．
