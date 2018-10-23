@@ -65,6 +65,7 @@ set ( bnet_SOURCES
   c++-src/bnet/BnIscas89Handler.cc
   c++-src/bnet/BnLatchImpl.cc
   c++-src/bnet/BnNetwork.cc
+  c++-src/bnet/BnNetworkImpl.cc
   c++-src/bnet/BnNodeImpl.cc
   c++-src/bnet/BnInputNode.cc
   c++-src/bnet/BnOutputNode.cc

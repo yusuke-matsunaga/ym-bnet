@@ -13,12 +13,11 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/ClibCellLibrary.h"
-#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-class BnNodeImpl;
+class BnNetworkImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetwork BnNetwork.h "ym/BnNetwork.h"
@@ -68,6 +67,20 @@ public:
   /// @param[in] src コピー元のオブジェクト
   BnNetwork(const BnNetwork& src);
 
+  /// @brief ムーブコンストラクタ
+  /// @param[in] src ムーブ元のオブジェクト
+  BnNetwork(BnNetwork&& src);
+
+  /// @brief コピー代入演算子
+  /// @param[in] src コピー元のオブジェクト
+  BnNetwork&
+  operator=(const BnNetwork& src);
+
+  /// @brief ムーブ代入演算子
+  /// @param[in] src ムーブ元のオブジェクト
+  BnNetwork&
+  operator=(BnNetwork&& src);
+
   /// @brief デストラクタ
   ~BnNetwork();
 
@@ -88,6 +101,13 @@ public:
   /// @param[in] src コピー元のオブジェクト
   void
   copy(const BnNetwork& src);
+
+  /// @brief 内容をムーブする．
+  /// @param[in] src ムーブ元のオブジェクト
+  ///
+  /// src は破壊される．
+  void
+  move(BnNetwork&& src);
 
   /// @brief セルライブラリをセットする．
   /// @param[in] library ライブラリ
@@ -502,8 +522,8 @@ public:
   /// @brief ノードを得る．
   /// @param[in] id ノード番号 ( 0 <= id < node_num() )
   ///
-  /// BnNode* node = BnNetwork::node(id);
-  /// node->id() == id が成り立つ．
+  /// const BnNode& node = BnNetwork::node(id);
+  /// node.id() == id が成り立つ．
   const BnNode&
   node(int id) const;
 
@@ -594,114 +614,12 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief DFFを複製する．
-  /// @param[in] src_dff 元のDFF
-  /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
-  /// @return 生成した DFF 番号を返す．
-  int
-  dup_dff(const BnDff& src_dff,
-	  vector<int>& id_map);
-
-  /// @brief ラッチを複製する．
-  /// @param[in] src_latch 元のラッチ
-  /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
-  /// @return 生成したラッチ番号を返す．
-  int
-  dup_latch(const BnLatch& src_latch,
-	    vector<int>& id_map);
-
-  /// @brief 論理ノードを複製する．
-  /// @param[in] src_node 元のノード
-  /// @param[in] src_network 元のネットワーク
-  /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
-  /// @return 生成したノード番号を返す．
-  ///
-  /// id_map の内容の基づいてファンイン間の接続を行う．
-  int
-  dup_logic(const BnNode& src_node,
-	    const BnNetwork& src_network,
-	    vector<int>& id_map);
-
-  /// @brief DFFを追加する共通の処理を行う関数
-  /// @param[in] name DFF名
-  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
-  /// @param[in] has_clear クリア端子を持つ時 true にする．
-  /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @param[in] cell 対応するセル．
-  /// @return 生成したDFF番号を返す．
-  ///
-  /// - 名前の重複に関しては感知しない．
-  int
-  _new_dff(const string& name,
-	   bool has_xoutput,
-	   bool has_clear,
-	   bool has_preset,
-	   const ClibCell* cell);
-
-  /// @brief ラッチを追加する共通の処理を行う関数
-  /// @param[in] name ラッチ名
-  /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
-  /// @param[in] has_clear クリア端子を持つ時 true にする．
-  /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @param[in] cell 対応するセル．
-  /// @return 生成したラッチ番号を返す．
-  ///
-  /// - 名前の重複に関しては感知しない．
-  /// - cell はラッチのセルでなければならない．
-  int
-  _new_latch(const string& name,
-	     bool has_xoutput,
-	     bool has_clear,
-	     bool has_preset,
-	     const ClibCell* cell);
-
-  /// @brief プリミティブ型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] logic_type 論理型
-  /// @param[in] cell 対応するセル
-  /// @return 生成した論理ノードの番号を返す．
-  int
-  _new_primitive(const string& node_name,
-		 int ni,
-		 BnNodeType logic_type,
-		 const ClibCell* cell);
-
-  /// @brief 論理式型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] expr 論理式
-  /// @param[in] cell 対応するセル
-  /// @return 生成した論理ノードの番号を返す．
-  int
-  _new_expr(const string& node_name,
-	    int ni,
-	    const Expr& expr,
-	    const ClibCell* cell);
-
-  /// @brief 真理値表型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] tv 真理値表
-  /// @param[in] cell 対応するセル
-  /// @return 生成した論理ノードの番号を返す．
-  int
-  _new_tv(const string& node_name,
-	  int ni,
-	  const TvFunc& tv,
-	  const ClibCell* cell);
-
-  /// @brief 論理式を登録する．
-  /// @param[in] expr 論理式
-  /// @return 関数番号を返す．
-  int
-  _add_expr(const Expr& expr);
-
-  /// @brief 真理値表を登録する．
-  /// @param[in] tv 真理値表
-  /// @return 関数番号を返す．
-  int
-  _add_tv(const TvFunc& tv);
+  /// @brief ファンインの接続を行う．
+  /// @param[in] id 対象のノード番号
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  void
+  connect_fanins(int id,
+		 const vector<int>& fanin_id_list);
 
 
 private:
@@ -709,50 +627,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ネットワーク名
-  string mName;
-
-  // 関連するセルライブラリ
-  ClibCellLibrary mCellLibrary;
-
-  // ポートのリスト
-  vector<const BnPort*> mPortList;
-
-  // DFFのリスト
-  vector<const BnDff*> mDffList;
-
-  // ラッチのリスト
-  vector<const BnLatch*> mLatchList;
-
-  // 入力ノード番号のリスト
-  vector<int> mInputList;
-
-  // 出力ノード番号のリスト
-  vector<int> mOutputList;
-
-  // 出力ソースノード番号のリスト
-  vector<int> mOutputSrcList;
-
-  // 論理ノード番号のリスト
-  vector<int> mLogicList;
-
-  // ノード番号をキーにしてノードを納めた配列
-  vector<BnNodeImpl*> mNodeList;
-
-  // 関数のリスト
-  vector<TvFunc> mFuncList;
-
-  // TvFunc をキーにして関数番号を入れるハッシュ表
-  HashMap<TvFunc, int> mFuncMap;
-
-  // 論理式のリスト
-  vector<Expr> mExprList;
-
-  // TvFunc をキーにして論理式番号を入れるハッシュ表
-  HashMap<TvFunc, int> mExprMap;
-
-  // wrap_up() が実行後の時に true となるフラグ
-  bool mSane;
+  // 実装クラスへのポインタ
+  unique_ptr<BnNetworkImpl> mImpl;
 
 };
 
@@ -812,223 +688,6 @@ bool
 read_iscas89(BnNetwork& network,
 	     const string& filename,
 	     const string& clock_name = "clock");
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief ネットワーク名を得る．
-inline
-string
-BnNetwork::name() const
-{
-  return mName;
-}
-
-// @brief 関連するセルライブラリを得る．
-//
-// 場合によっては空の場合もある．
-inline
-const ClibCellLibrary&
-BnNetwork::library() const
-{
-  return mCellLibrary;
-}
-
-// @brief ポート数を得る．
-inline
-int
-BnNetwork::port_num() const
-{
-  return mPortList.size();
-}
-
-// @brief ポートの情報を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < port_num() )
-inline
-const BnPort&
-BnNetwork::port(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < port_num() );
-  return *mPortList[pos];
-}
-
-// @brief DFF数を得る．
-inline
-int
-BnNetwork::dff_num() const
-{
-  return mDffList.size();
-}
-
-// @brief DFFを返す．
-// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-inline
-const BnDff&
-BnNetwork::dff(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < dff_num() );
-  return *mDffList[pos];
-}
-
-// @brief ラッチ数を得る．
-inline
-int
-BnNetwork::latch_num() const
-{
-  return mLatchList.size();
-}
-
-// @brief ラッチを得る．
-// @param[in] pos 位置番号 ( 0 <= pos < latch_num() )
-inline
-const BnLatch&
-BnNetwork::latch(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < latch_num() );
-  return *mLatchList[pos];
-}
-
-// @brief ノード数を得る．
-inline
-int
-BnNetwork::node_num() const
-{
-  return mNodeList.size();
-}
-
-// @brief 入力数を得る．
-inline
-int
-BnNetwork::input_num() const
-{
-  return mInputList.size();
-}
-
-// @brief 入力ノードのノード番号を得る．
-// @param[in] pos 入力番号 ( 0 <= pos < input_num() )
-inline
-int
-BnNetwork::input_id(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < input_num() );
-  return mInputList[pos];
-}
-
-// @brief 入力ノードのノード番号のリストを得る．
-inline
-const vector<int>&
-BnNetwork::input_id_list() const
-{
-  return mInputList;
-}
-
-// @brief 出力数を得る．
-inline
-int
-BnNetwork::output_num() const
-{
-  return mOutputList.size();
-}
-
-// @brief 出力ノードのノード番号を得る．
-// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
-inline
-int
-BnNetwork::output_id(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < output_num() );
-  return mOutputList[pos];
-}
-
-// @brief 出力ノードのノード番号のリストを得る．
-inline
-const vector<int>&
-BnNetwork::output_id_list() const
-{
-  return mOutputList;
-}
-
-// @brief 出力ノードのソースノード番号を得る．
-// @param[in] pos 出力番号 ( 0 <= pos < output_num() )
-inline
-int
-BnNetwork::output_src_id(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < output_num() );
-  return mOutputSrcList[pos];
-}
-
-// @brief 出力ノードのソースノード番号のリストを得る．
-inline
-const vector<int>&
-BnNetwork::output_src_id_list() const
-{
-  return mOutputSrcList;
-}
-
-// @brief 論理ノード数を得る．
-inline
-int
-BnNetwork::logic_num() const
-{
-  return mLogicList.size();
-}
-
-// @brief 論理ノードのノード番号を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < logic_num() )
-inline
-int
-BnNetwork::logic_id(int pos) const
-{
-  ASSERT_COND( pos >= 0 && pos < logic_num() );
-  return mLogicList[pos];
-}
-
-// @brief 論理ノードのノード番号のリストを得る．
-inline
-const vector<int>&
-BnNetwork::logic_id_list() const
-{
-  return mLogicList;
-}
-
-// @brief 関数の数を得る．
-inline
-int
-BnNetwork::func_num() const
-{
-  return mFuncList.size();
-}
-
-// @brief 関数番号から関数を得る．
-// @param[in] func_id 関数番号 ( 0 <= func_id < func_num() )
-inline
-const TvFunc&
-BnNetwork::func(int func_id) const
-{
-  ASSERT_COND( func_id >= 0 && func_id < func_num() );
-  return mFuncList[func_id];
-}
-
-// @brief 論理式の数を得る．
-inline
-int
-BnNetwork::expr_num() const
-{
-  return mExprList.size();
-}
-
-// @brief 論理式番号から論理式を得る．
-// @param[in] expr_id 論理式番号 ( 0 <= expr_id < expr_num() )
-inline
-Expr
-BnNetwork::expr(int expr_id) const
-{
-  ASSERT_COND( expr_id >= 0 && expr_id < expr_num() );
-  return mExprList[expr_id];
-}
 
 END_NAMESPACE_YM_BNET
 
