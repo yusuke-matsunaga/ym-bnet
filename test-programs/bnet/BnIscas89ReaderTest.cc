@@ -21,11 +21,9 @@ BnIscas89ReaderTest(int argc,
     return -1;
   }
 
-  BnNetwork network;
-
   string filename = argv[1];
-  bool stat = read_iscas89(network, filename);
-  if ( !stat ) {
+  BnNetwork network = BnNetwork::read_iscas89(filename);
+  if ( network.node_num() == 0 ) {
     cerr << "read_iscas89(" << filename << ") failed" << endl;
     return -1;
   }

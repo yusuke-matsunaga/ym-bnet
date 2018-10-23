@@ -597,16 +597,72 @@ public:
   Expr
   expr(int expr_id) const;
 
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name ファイル入出力関数
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief blif ファイルを読み込む．
+  /// @param[in] filename ファイル名
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
+  /// @return ネットワークを返す．
+  static
+  BnNetwork
+  read_blif(const string& filename,
+	    const string& clock_name = "clock",
+	    const string& reset_name = "reset");
+
+  /// @brief blif ファイルを読み込む(セルライブラリ付き)．
+  /// @param[in] network 設定対象のネットワーク
+  /// @param[in] filename ファイル名
+  /// @param[in] cell_library セルライブラリ
+  /// @param[in] clock_name クロック端子名
+  /// @param[in] reset_name リセット端子名
+  /// @return ネットワークを返す．
+  static
+  BnNetwork
+  read_blif(const string& filename,
+	    const ClibCellLibrary& cell_library,
+	    const string& clock_name = "clock",
+	    const string& reset_name = "reset");
+
+  /// @brief iscas89 ファイルを読み込む．
+  /// @param[in] network 設定対象のネットワーク
+  /// @param[in] filename ファイル名
+  /// @param[in] clock_name クロック端子名
+  /// @return ネットワークを返す．
+  static
+  BnNetwork
+  read_iscas89(const string& filename,
+	       const string& clock_name = "clock");
+
+  /// @brief 内容を blif 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_blif(ostream& s) const;
+
+  /// @brief 内容を blif 形式で出力する．
+  /// @param[in] filename 出力先のファイル名
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_blif(const string& filename) const;
+
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   ///
   /// - 形式は独自フォーマット
   void
   write(ostream& s) const;
-
-  //////////////////////////////////////////////////////////////////////
-  /// @}
-  //////////////////////////////////////////////////////////////////////
 
 
 private:
@@ -631,63 +687,6 @@ private:
   unique_ptr<BnNetworkImpl> mImpl;
 
 };
-
-/// @relates BnNetwork
-/// @brief 内容を blif 形式で出力する．
-/// @param[in] s 出力先のストリーム
-/// @param[in] network ネットワーク
-///
-/// ポートの情報は無視される．
-void
-write_blif(const BnNetwork& network,
-	   ostream& s);
-
-/// @relates BnNetwork
-/// @brief 内容を blif 形式で出力する．
-/// @param[in] filename 出力先のファイル名
-/// @param[in] network ネットワーク
-///
-/// ポートの情報は無視される．
-void
-write_blif(const BnNetwork& network,
-	   const string& filename);
-
-
-// @brief blif ファイルを読み込む．
-// @param[in] network 設定対象のネットワーク
-// @param[in] filename ファイル名
-// @param[in] clock_name クロック端子名
-// @param[in] reset_name リセット端子名
-// @return 読み込みが成功したら true を返す．
-bool
-read_blif(BnNetwork& network,
-	  const string& filename,
-	  const string& clock_name = "clock",
-	  const string& reset_name = "reset");
-
-// @brief blif ファイルを読み込む(セルライブラリ付き)．
-// @param[in] network 設定対象のネットワーク
-// @param[in] filename ファイル名
-// @param[in] cell_library セルライブラリ
-// @param[in] clock_name クロック端子名
-// @param[in] reset_name リセット端子名
-// @return 読み込みが成功したら true を返す．
-bool
-read_blif(BnNetwork& network,
-	  const string& filename,
-	  const ClibCellLibrary& cell_library,
-	  const string& clock_name = "clock",
-	  const string& reset_name = "reset");
-
-// @brief iscas89 ファイルを読み込む．
-// @param[in] network 設定対象のネットワーク
-// @param[in] filename ファイル名
-// @param[in] clock_name クロック端子名
-// @return 読み込みが成功したら true を返す．
-bool
-read_iscas89(BnNetwork& network,
-	     const string& filename,
-	     const string& clock_name = "clock");
 
 END_NAMESPACE_YM_BNET
 

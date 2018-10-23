@@ -23,12 +23,11 @@ BEGIN_NAMESPACE_YM_BNET
 //
 // ポートの情報は無視される．
 void
-write_blif(const BnNetwork& network,
-	   const string& filename)
+BnNetwork::write_blif(const string& filename) const
 {
   ofstream ofs(filename);
   if ( ofs ) {
-    write_blif(network, ofs);
+    write_blif(ofs);
   }
 }
 
@@ -38,19 +37,18 @@ write_blif(const BnNetwork& network,
 //
 // ポートの情報は無視される．
 void
-write_blif(const BnNetwork& network,
-	   ostream& s)
+BnNetwork::write_blif(ostream& s) const
 {
   // .model 文の出力
-  s << ".model " << network.name() << endl;
+  s << ".model " << name() << endl;
 
   // .inputs 文の出力
   int count = 0;
-  for ( auto id: network.input_id_list() ) {
+  for ( auto id: input_id_list() ) {
     if ( count == 0 ) {
       s << ".inputs";
     }
-    s << " " << network.node(id).name();
+    s << " " << node(id).name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -63,11 +61,11 @@ write_blif(const BnNetwork& network,
 
   // .outputs 文の出力
   count = 0;
-  for ( auto id: network.output_id_list() ) {
+  for ( auto id: output_id_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
-    s << " " << network.node(id).name();
+    s << " " << node(id).name();
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -79,11 +77,11 @@ write_blif(const BnNetwork& network,
   }
 
   // .names 文の出力
-  for ( auto id: network.logic_id_list() ) {
+  for ( auto id: logic_id_list() ) {
     s << ".names";
-    auto& node = network.node(id);
+    auto& node = this->node(id);
     for ( auto iid: node.fanin_id_list() ) {
-      auto& inode = network.node(iid);
+      auto& inode = this->node(iid);
       s << " " << inode.name();
     }
     s << " " << node.name() << endl;
@@ -184,7 +182,7 @@ write_blif(const BnNetwork& network,
       break;
     case BnNodeType::Expr:
       {
-	const Expr& expr = network.expr(node.expr_id());
+	const Expr& expr = this->expr(node.expr_id());
 	if ( expr.is_sop() ) {
 	  int nc = expr.child_num();
 	  if ( expr.is_and() ) {
@@ -306,7 +304,7 @@ write_blif(const BnNetwork& network,
       break;
     case BnNodeType::TvFunc:
       {
-	const TvFunc& func = network.func(node.func_id());
+	const TvFunc& func = this->func(node.func_id());
 	for ( auto p: Range(1 << ni) ) {
 	  if ( func.value(p) ) {
 	    for ( auto i: Range(ni) ) {

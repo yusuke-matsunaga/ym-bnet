@@ -73,7 +73,9 @@ BnNetwork::~BnNetwork()
 void
 BnNetwork::clear()
 {
-  mImpl->clear();
+  if ( mImpl ) {
+    mImpl->clear();
+  }
 }
 
 // @brief 内容をコピーする．
@@ -85,6 +87,8 @@ BnNetwork::copy(const BnNetwork& src)
     // 自分自身がソースならなにもしない．
     return;
   }
+
+  ASSERT_COND( mImpl != nullptr );
 
   mImpl->copy(*src.mImpl);
 }
@@ -104,6 +108,8 @@ BnNetwork::move(BnNetwork&& src)
 void
 BnNetwork::set_library(const ClibCellLibrary& library)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   mImpl->set_library(library);
 }
 
@@ -112,6 +118,8 @@ BnNetwork::set_library(const ClibCellLibrary& library)
 void
 BnNetwork::set_name(const string& name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   mImpl->set_name(name);
 }
 
@@ -121,6 +129,8 @@ BnNetwork::set_name(const string& name)
 int
 BnNetwork::new_input_port(const string& port_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_port(port_name, vector<int>({0}));
 }
 
@@ -132,6 +142,8 @@ int
 BnNetwork::new_input_port(const string& port_name,
 			  int bit_width)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_port(port_name, vector<int>(bit_width, 0));
 }
 
@@ -141,6 +153,8 @@ BnNetwork::new_input_port(const string& port_name,
 int
 BnNetwork::new_output_port(const string& port_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_port(port_name, vector<int>({1}));
 }
 
@@ -152,6 +166,8 @@ int
 BnNetwork::new_output_port(const string& port_name,
 			   int bit_width)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_port(port_name, vector<int>(bit_width, 1));
 }
 
@@ -165,6 +181,8 @@ int
 BnNetwork::new_port(const string& port_name,
 		    const vector<int>& dir_vect)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_port(port_name, dir_vect);
 }
 
@@ -182,6 +200,8 @@ BnNetwork::new_dff(const string& name,
 		   bool has_clear,
 		   bool has_preset)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_dff(name, has_xoutput, has_clear, has_preset);
 }
 
@@ -196,6 +216,8 @@ int
 BnNetwork::new_dff(const string& name,
 		   const string& cell_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_dff(name, cell_name);
 }
 
@@ -212,6 +234,8 @@ BnNetwork::new_latch(const string& name,
 		     bool has_clear,
 		     bool has_preset)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_latch(name, has_xoutput, has_clear, has_preset);
 }
 
@@ -226,6 +250,8 @@ int
 BnNetwork::new_latch(const string& name,
 		     const string& cell_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_latch(name, cell_name);
 }
 
@@ -242,6 +268,8 @@ BnNetwork::new_logic(const string& node_name,
 		     BnNodeType logic_type,
 		     int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_primitive(node_name, ni, logic_type);
   return id;
 }
@@ -259,6 +287,8 @@ BnNetwork::new_logic(const string& node_name,
 		     BnNodeType logic_type,
 		     const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, logic_type);
   if ( id != kBnNullId ) {
@@ -275,6 +305,8 @@ BnNetwork::new_logic(const string& node_name,
 int
 BnNetwork::new_c0(const string& node_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_primitive(node_name, 1, BnNodeType::C0);
   return id;
 }
@@ -287,6 +319,8 @@ BnNetwork::new_c0(const string& node_name)
 int
 BnNetwork::new_c1(const string& node_name)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_primitive(node_name, 1, BnNodeType::C1);
   return id;
 }
@@ -301,6 +335,8 @@ int
 BnNetwork::new_buff(const string& node_name,
 		    int fanin_id)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_primitive(node_name, 1, BnNodeType::Buff);
   if ( fanin_id != kBnNullId ) {
     connect(fanin_id, id, 0);
@@ -318,6 +354,8 @@ int
 BnNetwork::new_not(const string& node_name,
 		   int fanin_id)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_primitive(node_name, 1, BnNodeType::Not);
   if ( fanin_id != kBnNullId ) {
     connect(fanin_id, id, 0);
@@ -335,6 +373,8 @@ int
 BnNetwork::new_and(const string& node_name,
 		   int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::And);
 }
 
@@ -348,6 +388,8 @@ int
 BnNetwork::new_and(const string& node_name,
 		   const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::And);
   if ( id != kBnNullId ) {
@@ -366,6 +408,8 @@ int
 BnNetwork::new_nand(const string& node_name,
 		    int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::Nand);
 }
 
@@ -379,6 +423,8 @@ int
 BnNetwork::new_nand(const string& node_name,
 		    const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::Nand);
   if ( id != kBnNullId ) {
@@ -397,6 +443,8 @@ int
 BnNetwork::new_or(const string& node_name,
 		  int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::Or);
 }
 
@@ -410,6 +458,8 @@ int
 BnNetwork::new_or(const string& node_name,
 		  const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::Or);
   if ( id != kBnNullId ) {
@@ -428,6 +478,8 @@ int
 BnNetwork::new_nor(const string& node_name,
 		   int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::Nor);
 }
 
@@ -441,6 +493,8 @@ int
 BnNetwork::new_nor(const string& node_name,
 		   const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::Nor);
   if ( id != kBnNullId ) {
@@ -459,6 +513,8 @@ int
 BnNetwork::new_xor(const string& node_name,
 		   int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::Xor);
 }
 
@@ -472,6 +528,8 @@ int
 BnNetwork::new_xor(const string& node_name,
 		   const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::Xor);
   if ( id != kBnNullId ) {
@@ -490,6 +548,8 @@ int
 BnNetwork::new_xnor(const string& node_name,
 		    int ni)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->new_primitive(node_name, ni, BnNodeType::Xnor);
 }
 
@@ -503,6 +563,8 @@ int
 BnNetwork::new_xnor(const string& node_name,
 		    const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int ni = fanin_id_list.size();
   int id = mImpl->new_primitive(node_name, ni, BnNodeType::Xnor);
   if ( id != kBnNullId ) {
@@ -523,6 +585,8 @@ BnNetwork::new_logic(const string& node_name,
 		     const Expr& expr,
 		     const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_expr(node_name, expr);
   if ( id != kBnNullId && !fanin_id_list.empty() ) {
     connect_fanins(id, fanin_id_list);
@@ -542,6 +606,8 @@ BnNetwork::new_logic(const string& node_name,
 		     const TvFunc& tv,
 		     const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_tv(node_name, tv);
   if ( id != kBnNullId && !fanin_id_list.empty() ) {
     connect_fanins(id, fanin_id_list);
@@ -562,6 +628,8 @@ BnNetwork::new_logic(const string& node_name,
 		     const string& cell_name,
 		     const vector<int>& fanin_id_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   int id = mImpl->new_cell(node_name, cell_name);
   if ( id != kBnNullId && !fanin_id_list.empty() ) {
     connect_fanins(id, fanin_id_list);
@@ -582,6 +650,8 @@ BnNetwork::import_subnetwork(const BnNetwork& src_network,
 			     const vector<int>& input_list,
 			     vector<int>& output_list)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   mImpl->import_subnetwork(*src_network.mImpl, input_list, output_list);
 }
 
@@ -594,6 +664,8 @@ BnNetwork::connect(int src_id,
 		   int dst_id,
 		   int ipos)
 {
+  ASSERT_COND( mImpl != nullptr );
+
   mImpl->connect(src_id, dst_id, ipos);
 }
 
@@ -611,6 +683,8 @@ BnNetwork::connect(int src_id,
 bool
 BnNetwork::wrap_up()
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->wrap_up();
 }
 
@@ -633,6 +707,8 @@ BnNetwork::connect_fanins(int id,
 string
 BnNetwork::name() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->name();
 }
 
@@ -642,6 +718,8 @@ BnNetwork::name() const
 const ClibCellLibrary&
 BnNetwork::library() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->library();
 }
 
@@ -649,6 +727,8 @@ BnNetwork::library() const
 int
 BnNetwork::port_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->port_num();
 }
 
@@ -657,6 +737,8 @@ BnNetwork::port_num() const
 const BnPort&
 BnNetwork::port(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->port(pos);
 }
 
@@ -664,6 +746,8 @@ BnNetwork::port(int pos) const
 int
 BnNetwork::dff_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->dff_num();
 }
 
@@ -672,6 +756,8 @@ BnNetwork::dff_num() const
 const BnDff&
 BnNetwork::dff(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->dff(pos);
 }
 
@@ -679,6 +765,8 @@ BnNetwork::dff(int pos) const
 int
 BnNetwork::latch_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->latch_num();
 }
 
@@ -687,6 +775,8 @@ BnNetwork::latch_num() const
 const BnLatch&
 BnNetwork::latch(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->latch(pos);
 }
 
@@ -694,6 +784,8 @@ BnNetwork::latch(int pos) const
 int
 BnNetwork::node_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->node_num();
 }
 
@@ -705,6 +797,8 @@ BnNetwork::node_num() const
 const BnNode&
 BnNetwork::node(int id) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->node(id);
 }
 
@@ -712,6 +806,8 @@ BnNetwork::node(int id) const
 int
 BnNetwork::input_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->input_num();
 }
 
@@ -720,6 +816,8 @@ BnNetwork::input_num() const
 int
 BnNetwork::input_id(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->input_num();
 }
 
@@ -727,6 +825,8 @@ BnNetwork::input_id(int pos) const
 const vector<int>&
 BnNetwork::input_id_list() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->input_id_list();
 }
 
@@ -734,6 +834,8 @@ BnNetwork::input_id_list() const
 int
 BnNetwork::output_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->output_num();
 }
 
@@ -742,6 +844,8 @@ BnNetwork::output_num() const
 int
 BnNetwork::output_id(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->output_id(pos);
 }
 
@@ -749,6 +853,8 @@ BnNetwork::output_id(int pos) const
 const vector<int>&
 BnNetwork::output_id_list() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->output_id_list();
 }
 
@@ -759,6 +865,8 @@ BnNetwork::output_id_list() const
 int
 BnNetwork::output_src_id(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->output_src_id(pos);
 }
 
@@ -768,6 +876,8 @@ BnNetwork::output_src_id(int pos) const
 const vector<int>&
 BnNetwork::output_src_id_list() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->output_src_id_list();
 }
 
@@ -775,6 +885,8 @@ BnNetwork::output_src_id_list() const
 int
 BnNetwork::logic_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->logic_num();
 }
 
@@ -783,6 +895,8 @@ BnNetwork::logic_num() const
 int
 BnNetwork::logic_id(int pos) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->logic_id(pos);
 }
 
@@ -790,6 +904,8 @@ BnNetwork::logic_id(int pos) const
 const vector<int>&
 BnNetwork::logic_id_list() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->logic_id_list();
 }
 
@@ -797,6 +913,8 @@ BnNetwork::logic_id_list() const
 int
 BnNetwork::func_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->func_num();
 }
 
@@ -805,6 +923,8 @@ BnNetwork::func_num() const
 const TvFunc&
 BnNetwork::func(int func_id) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->func(func_id);
 }
 
@@ -812,6 +932,8 @@ BnNetwork::func(int func_id) const
 int
 BnNetwork::expr_num() const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->expr_num();
 }
 
@@ -820,6 +942,8 @@ BnNetwork::expr_num() const
 Expr
 BnNetwork::expr(int expr_id) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   return mImpl->expr(expr_id);
 }
 
@@ -830,6 +954,8 @@ BnNetwork::expr(int expr_id) const
 void
 BnNetwork::write(ostream& s) const
 {
+  ASSERT_COND( mImpl != nullptr );
+
   mImpl->write(s);
 }
 

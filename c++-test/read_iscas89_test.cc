@@ -15,12 +15,9 @@ BEGIN_NAMESPACE_YM
 
 TEST(ReadIscas89Test, test)
 {
-  BnNetwork network;
-
   string filename = "b10.bench";
   string path = DATAPATH + filename;
-  bool stat = read_iscas89(network, path);
-  EXPECT_TRUE( stat );
+  BnNetwork network = BnNetwork::read_iscas89(path);
   int ni = 11;
   int no = 6;
   int nd = 17;

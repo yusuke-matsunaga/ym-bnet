@@ -21,16 +21,16 @@ BnBlifReaderTest(int argc,
     return -1;
   }
 
-  BnNetwork network;
-
   string filename = argv[1];
-  bool stat = read_blif(network, filename);
-  if ( !stat ) {
+  BnNetwork network = BnNetwork::read_blif(filename);
+  if ( network.node_num() == 0 ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;
   }
 
-  network.write(cout);
+  BnNetwork network2(std::move(network));
+
+  network2.write(cout);
 
   return 0;
 }

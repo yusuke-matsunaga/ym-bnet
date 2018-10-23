@@ -15,12 +15,9 @@ BEGIN_NAMESPACE_YM
 
 TEST(ReadBlifTest, test)
 {
-  BnNetwork network;
-
   string filename = "s5378.blif";
   string path = DATAPATH + filename;
-  bool stat = read_blif(network, path);
-  EXPECT_TRUE( stat );
+  BnNetwork network = BnNetwork::read_blif(path);
   int ni = 35;   // 入力数
   int no = 49;   // 出力数
   int nd = 179;  // D-FF数

@@ -18,8 +18,7 @@ blif_loop_test(int loop_count,
 	       const string& filename)
 {
   for (int i = 0; i < loop_count; ++ i) {
-    BnNetwork network;
-    read_blif(network, filename);
+    BnNetwork network = BnNetwork::read_blif(filename);
   }
 }
 
@@ -28,8 +27,7 @@ iscas89_loop_test(int loop_count,
 		  const string& filename)
 {
   for (int i = 0; i < loop_count; ++ i) {
-    BnNetwork network;
-    read_iscas89(network, filename);
+    BnNetwork network = BnNetwork::read_iscas89(filename);
   }
 }
 

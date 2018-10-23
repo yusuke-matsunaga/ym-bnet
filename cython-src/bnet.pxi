@@ -9,9 +9,6 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_BnNetwork cimport BnNetwork as CXX_BnNetwork
-from CXX_BnNetwork cimport write_blif as cxx_write_blif
-from CXX_BnNetwork cimport read_blif as cxx_read_blif
-from CXX_BnNetwork cimport read_iscas89 as cxx_read_iscas89
 from CXX_BnPort cimport BnPort as CXX_BnPort
 from CXX_BnDff cimport BnDff as CXX_BnDff
 from CXX_BnLatch cimport BnLatch as CXX_BnLatch
@@ -497,14 +494,16 @@ cdef class BnNetwork :
     ### @brief blif ファイルの書き出し
     def write_blif(self, str filename) :
         cdef string c_filename = filename.encode('UTF-8')
-        cxx_write_blif(self._this, c_filename)
+        self._this.write_blif(c_filename)
 
     ### @blief blif ファイルの読み込み
     @staticmethod
-    def read_blif(str filename, CellLibrary cell_library = None, clock_name = None, reset_name = None) :
+    def read_blif(str filename, CellLibrary cell_library = None,
+                  clock_name = None, reset_name = None) :
         cdef string c_filename = filename.encode('UTF-8')
         cdef string c_clock
         cdef string c_reset
+        cdef CXX_ClibCellLibrary c_library
         cdef bool stat
         if clock_name :
             c_clock = clock_name.encode('UTF-8')
@@ -512,13 +511,10 @@ cdef class BnNetwork :
             c_reset = reset_name.encode('UTF-8')
         network = BnNetwork()
         if cell_library == None :
-            stat = cxx_read_blif(network._this, c_filename, c_clock, c_reset)
+            network._this = CXX_BnNetwork.read_blif(c_filename, c_library, c_clock, c_reset)
         else :
-            stat = cxx_read_blif(network._this, c_filename, cell_library._this, c_clock, c_reset)
-        if stat :
-            return network
-        else :
-            return None
+            network._this = CXX_BnNetwork.read_blif(c_filename, cell_library._this, c_clock, c_reset)
+        return network
 
     ### @brief iscas89 ファイルの読み込み
     @staticmethod
@@ -529,8 +525,5 @@ cdef class BnNetwork :
         if clock_name :
             c_clock = clock_name.encode('UTF-8')
         network = BnNetwork()
-        stat = cxx_read_iscas89(network._this, c_filename, c_clock)
-        if stat :
-            return network
-        else :
-            return None
+        network._this = CXX_BnNetwork.read_iscas89(c_filename, c_clock)
+        return network
