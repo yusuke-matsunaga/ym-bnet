@@ -88,8 +88,6 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
     return;
   }
 
-  cout << "BnNetworkImpl::copy() invoked" << endl;
-
   clear();
 
   // セルライブラリの設定
