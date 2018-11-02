@@ -84,11 +84,6 @@ private:
   make_xor(SatLiteral olit,
 	   const vector<SatLiteral>& ilit_array);
 
-  /// @brief MUX論理のCNFを作る．
-  void
-  make_mux(SatLiteral olit,
-	   const vector<SatLiteral>& ilit_array);
-
   /// @brief 論理式のCNFを作る．
   SatLiteral
   make_expr(const Expr& expr,
