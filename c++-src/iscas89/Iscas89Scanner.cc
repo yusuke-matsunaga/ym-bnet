@@ -143,40 +143,43 @@ Iscas89Scanner::scan()
     // 文字列の終わり
 
     // 予約後の検索
-    if ( mCurString == "INPUT" ) {
+    if ( mCurString == "INPUT" || mCurString == "input" ) {
       return Iscas89Token::INPUT;
     }
-    if ( mCurString == "OUTPUT" ) {
+    if ( mCurString == "OUTPUT" || mCurString == "output" ) {
       return Iscas89Token::OUTPUT;
     }
-    if ( mCurString == "BUFF" ) {
+    if ( mCurString == "BUFF" || mCurString == "buff" ) {
       return Iscas89Token::BUFF;
     }
-    if ( mCurString == "NOT" ) {
+    if ( mCurString == "BUF" || mCurString == "buf" ) {
+      return Iscas89Token::BUFF;
+    }
+    if ( mCurString == "NOT" || mCurString == "not" ) {
       return Iscas89Token::NOT;
     }
-    if ( mCurString == "INV" ) {
+    if ( mCurString == "INV" || mCurString == "inv" ) {
       return Iscas89Token::NOT;
     }
-    if ( mCurString == "AND" ) {
+    if ( mCurString == "AND" || mCurString == "and" ) {
       return Iscas89Token::AND;
     }
-    if ( mCurString == "NAND" ) {
+    if ( mCurString == "NAND" || mCurString == "nand" ) {
       return Iscas89Token::NAND;
     }
-    if ( mCurString == "OR" ) {
+    if ( mCurString == "OR" || mCurString == "or" ) {
       return Iscas89Token::OR;
     }
-    if ( mCurString == "NOR" ) {
+    if ( mCurString == "NOR" || mCurString == "nor" ) {
       return Iscas89Token::NOR;
     }
-    if ( mCurString == "XOR" ) {
+    if ( mCurString == "XOR" || mCurString == "xor" ) {
       return Iscas89Token::XOR;
     }
-    if ( mCurString == "XNOR" ) {
+    if ( mCurString == "XNOR" || mCurString == "xnor" ) {
       return Iscas89Token::XNOR;
     }
-    if ( mCurString == "DFF" ) {
+    if ( mCurString == "DFF" || mCurString == "dff" ) {
       return Iscas89Token::DFF;
     }
     return Iscas89Token::NAME;

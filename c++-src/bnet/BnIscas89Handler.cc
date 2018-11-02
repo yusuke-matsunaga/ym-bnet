@@ -172,7 +172,11 @@ BnIscas89Handler::end()
       for ( int i: Range(ni) ) {
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
-	ASSERT_COND( stat1 );
+	if ( !stat1 ) {
+#warning "TODO: MsgMgr を使ったエラー出力を整える．"
+	  cerr << id2str(fanin_info.fanin(i)) << " not found" << endl;
+	  return false;
+	}
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
@@ -180,7 +184,11 @@ BnIscas89Handler::end()
       int iname_id = fanin_info.fanin(0);
       int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
-      ASSERT_COND( stat1 );
+      if ( !stat1 ) {
+#warning "TODO: MsgMgr を使ったエラー出力を整える．"
+	cerr << id2str(iname_id) << " not found" << endl;
+	return false;
+      }
       mNetwork->connect(inode_id, node_id, 0);
     }
   }
