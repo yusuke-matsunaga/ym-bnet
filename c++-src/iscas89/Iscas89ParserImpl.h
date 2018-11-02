@@ -114,19 +114,26 @@ private:
   /// @param[in] oname_id 出力名の ID 番号
   /// @param[in] type ゲートタイプ
   /// @return エラーが起きたら false を返す．
-  /// @note 入力名のリストは push_str() で積まれている．
   bool
   read_gate(const FileRegion& loc,
 	    int oname_id,
 	    BnNodeType type,
 	    const vector<int>& iname_id_list);
 
+  /// @brief ゲート文(MUX)を読み込む．
+  /// @param[in] loc ファイル位置
+  /// @param[in] oname_id 出力名の ID 番号
+  /// @return エラーが起きたら false を返す．
+  bool
+  read_mux(const FileRegion& loc,
+	   int oname_id,
+	   const vector<int>& iname_id_list);
+
   /// @brief D-FF用のゲート文を読み込む．
   /// @param[in] loc ファイル位置
   /// @param[in] oname_id 出力名の ID 番号
   /// @param[in] type ゲートタイプ
   /// @return エラーが起きたら false を返す．
-  /// @note 入力名のリストは push_str() で積まれている．
   bool
   read_dff(const FileRegion& loc,
 	   int oname_id,

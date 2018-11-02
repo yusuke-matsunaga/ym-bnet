@@ -113,6 +113,63 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
   return true;
 }
 
+// @brief ゲート文(MUX)を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @param[in] oname 出力名
+// @param[in] iname_list 入力名のリスト
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+//
+// 入力数のチェックは済んでいるものとする．
+bool
+BnIscas89Handler::read_mux(const FileRegion& loc,
+			   int oname_id,
+			   const char* oname,
+			   const vector<int>& iname_list)
+{
+  int ni = iname_list.size();
+  int nc = 0;
+  int nd = 1;
+  while ( nc + nd < ni ) {
+    ++ nc;
+    nd <<= 1;
+  }
+  ASSERT_COND( nc + nd == ni );
+
+  vector<Expr> cinputs(nc);
+  for ( int i: Range(nc) ) {
+    cinputs[i] = Expr::posi_literal(VarId(i));
+  }
+  vector<Expr> dinputs(nd);
+  for ( int i: Range(nd) ) {
+    dinputs[i] = Expr::posi_literal(VarId(i + nc));
+  }
+
+  vector<Expr> or_fanins(nd);
+  for ( int p: Range(nd) ) {
+    vector<Expr> and_fanins(nc + 1);
+    for ( int i: Range(nc) ) {
+      if ( p & (1 << i) ) {
+	and_fanins[i] = cinputs[i];
+      }
+      else {
+	and_fanins[i] = ~cinputs[i];
+      }
+    }
+    and_fanins[nc] = dinputs[p];
+    or_fanins[p] = Expr::make_and(and_fanins);
+  }
+  Expr mux_expr = Expr::make_or(or_fanins);
+  int id = mNetwork->new_logic(oname, mux_expr);
+
+  mIdMap.add(oname_id, id);
+
+  add_fanin_info(id, iname_list);
+
+  return true;
+}
+
 // @brief D-FF用のゲート文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] oname_id 出力名の ID 番号

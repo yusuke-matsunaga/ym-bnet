@@ -1041,5 +1041,4 @@ __int_to_bnnodetype(int val)
   return tbl[val];
 }
 
-
 END_NAMESPACE_YM_BNET

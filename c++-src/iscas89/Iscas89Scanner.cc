@@ -61,6 +61,7 @@ Iscas89Scanner::read_token(FileRegion& loc)
     case Iscas89Token::NOR:    cerr << "NOR"; break;
     case Iscas89Token::XOR:    cerr << "XOR"; break;
     case Iscas89Token::XNOR:   cerr << "XNOR"; break;
+    case Iscas89Token::MUX:    cerr << "MUX"; break;
     case Iscas89Token::DFF:    cerr << "DFF"; break;
     case Iscas89Token::NAME:   cerr << "NAME(" << cur_string() << ")"; break;
     case Iscas89Token::_EOF:   cerr << "EOF"; break;
@@ -178,6 +179,9 @@ Iscas89Scanner::scan()
     }
     if ( mCurString == "XNOR" || mCurString == "xnor" ) {
       return Iscas89Token::XNOR;
+    }
+    if ( mCurString == "MUX" || mCurString == "mux" ) {
+      return Iscas89Token::MUX;
     }
     if ( mCurString == "DFF" || mCurString == "dff" ) {
       return Iscas89Token::DFF;

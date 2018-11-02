@@ -84,6 +84,22 @@ Iscas89Handler::read_gate(const FileRegion& loc,
   return true;
 }
 
+// @brief ゲート文(MUX)を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @param[in] oname 出力名
+// @param[in] iname_list 入力名のリスト
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+Iscas89Handler::read_mux(const FileRegion& loc,
+			 int oname_id,
+			 const char* oname,
+			 const vector<int>& iname_list)
+{
+  return true;
+}
+
 // @brief D-FF用のゲート文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] oname_id 出力名の ID 番号

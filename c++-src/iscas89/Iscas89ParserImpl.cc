@@ -48,6 +48,7 @@ Iscas89ParserImpl::~Iscas89ParserImpl()
 // nor    = NAME '=' 'NOR' '(' NAME ',' NAME { ',' NAME } ')'
 // xor    = NAME '=' 'XOR' '(' NAME ',' NAME { ',' NAME } ')'
 // xnor   = NAME '=' 'XNOR' '(' NAME ',' NAME { ',' NAME } ')'
+// mux    = NAME '=' 'MUX' '(' NAME, NAME, NAME ')' // 3入力決め打ち？
 // dff    = NAME '=' 'DFF' '(' NAME ')'
 //
 bool
@@ -122,10 +123,17 @@ Iscas89ParserImpl::read(const string& filename)
 	if ( gate_type == Iscas89Token::DFF ) {
 	  if ( iname_id_list.size() != 1 ) {
 	    // 引数の数が合わない．
+#warning "TODO: ちゃんとしたエラーメッセージを出す．"
 	    goto error;
 	  }
 	  if ( !read_dff(FileRegion(first_loc, last_loc),
 			 name_id, iname_id_list[0]) ) {
+	    goto error;
+	  }
+	}
+	else if ( gate_type == Iscas89Token::MUX ) {
+	  if ( !read_mux(FileRegion(first_loc, last_loc),
+			 name_id, iname_id_list) ) {
 	    goto error;
 	  }
 	}
@@ -233,6 +241,7 @@ Iscas89ParserImpl::parse_gate_type()
   case Iscas89Token::NOR:
   case Iscas89Token::XOR:
   case Iscas89Token::XNOR:
+  case Iscas89Token::MUX:
     return tok;
 
   default:
@@ -383,7 +392,6 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 // @param[in] oname_id 出力名の ID 番号
 // @param[in] logic_type ゲートタイプ
 // @return エラーが起きたら false を返す．
-// @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     int oname_id,
@@ -413,12 +421,64 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
   return stat;
 }
 
+// @brief ゲート文(MUX)を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @return エラーが起きたら false を返す．
+bool
+Iscas89ParserImpl::read_mux(const FileRegion& loc,
+			    int oname_id,
+			    const vector<int>& iname_id_list)
+{
+  Iscas89IdCell* cell = id2cell(oname_id);
+  if ( cell->is_defined() ) {
+    // 二重定義
+    ostringstream buf;
+    buf << cell->str() << ": Defined more than once. "
+	<< "Previsous Definition is " << cell->def_loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+		    MsgType::Error,
+		    "ER_MLTDEF01",
+		    buf.str());
+    return false;
+  }
+  cell->set_defined();
+
+  { // 入力数をチェックする．
+    int ni = iname_id_list.size();
+    int nc = 0;
+    int nd = 1;
+    while ( nc + nd < ni ) {
+      ++ nc;
+      nd <<= 1;
+    }
+    if ( nc + nd != ni ) {
+      // 引数の数が合わない．
+      ostringstream buf;
+      buf << cell->str() << ": Wrong # of inputs for MUX-type.";
+      MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+		      MsgType::Error,
+		      "ER_MUX01",
+		      buf.str());
+      return false;
+    }
+  }
+
+  bool stat = true;
+  for ( auto handler: mHandlerList ) {
+    if ( !handler->read_mux(loc, oname_id, cell->str(), iname_id_list) ) {
+      stat = false;
+      break;
+    }
+  }
+  return stat;
+}
+
 // @brief D-FF用のゲート文を読み込む．
 // @param[in] loc ファイル位置
 // @param[in] oname_id 出力名の ID 番号
 // @param[in] type ゲートタイプ
 // @return エラーが起きたら false を返す．
-// @note 入力名のリストは push_str() で積まれている．
 bool
 Iscas89ParserImpl::read_dff(const FileRegion& loc,
 			    int oname_id,
@@ -468,6 +528,7 @@ token_str(Iscas89Token token)
   case Iscas89Token::XOR:    return "XOR";
   case Iscas89Token::XNOR:   return "XNOR";
   case Iscas89Token::DFF:    return "DFF";
+  case Iscas89Token::MUX:    return "MUX";
   case Iscas89Token::NAME:   return "__name__";
   case Iscas89Token::_EOF:   return "__eof__";
   case Iscas89Token::ERROR:  return "__error__";

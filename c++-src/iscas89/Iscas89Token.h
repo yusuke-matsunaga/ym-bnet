@@ -32,6 +32,7 @@ enum class Iscas89Token {
   NOR,
   XOR,
   XNOR,
+  MUX,
   DFF,
   NAME,
   _EOF,
