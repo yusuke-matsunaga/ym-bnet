@@ -42,7 +42,7 @@ BnNodeEnc::make_cnf(const BnNode& node)
   SatLiteral olit = lit(node.id());
   int ni = node.fanin_num();
   vector<SatLiteral> ilit_array(ni);
-  for ( auto i: Range(ni) ) {
+  for ( auto i: Range<>(ni) ) {
     ilit_array[i] = lit(node.fanin_id(i));
   }
   switch ( node.type() ) {
@@ -113,7 +113,7 @@ BnNodeEnc::make_cnf(const BnNode& node)
 	ASSERT_COND( expr.is_op() );
 	int nc = expr.child_num();
 	vector<SatLiteral> tmp_ilit_array(nc);
-	for ( int i: Range(nc) ) {
+	for ( int i: Range<>(nc) ) {
 	  tmp_ilit_array[i] = make_expr(expr.child(i), ilit_array);
 	}
 
@@ -137,9 +137,9 @@ BnNodeEnc::make_cnf(const BnNode& node)
     {
       const TvFunc& func = mNetwork.func(node.func_id());
       int np = 1 << ni;
-      for ( int p: Range(np) ) {
+      for ( int p: Range<>(np) ) {
 	vector<SatLiteral> tmp_lits(ni + 1);
-	for ( int i: Range(ni) ) {
+	for ( int i: Range<>(ni) ) {
 	  SatLiteral ilit = ilit_array[i];
 	  if ( p & (1 << i) ) {
 	    tmp_lits[i] = ~ilit;
@@ -340,7 +340,7 @@ BnNodeEnc::make_expr(const Expr& expr,
   ASSERT_COND( expr.is_op() );
   int nc = expr.child_num();
   vector<SatLiteral> tmp_ilit_array(nc);
-  for ( int i: Range(nc) ) {
+  for ( int i: Range<>(nc) ) {
     tmp_ilit_array[i] = make_expr(expr.child(i), ilit_array);
   }
 

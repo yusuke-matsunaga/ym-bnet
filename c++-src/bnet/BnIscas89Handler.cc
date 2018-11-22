@@ -138,18 +138,18 @@ BnIscas89Handler::read_mux(const FileRegion& loc,
   ASSERT_COND( nc + nd == ni );
 
   vector<Expr> cinputs(nc);
-  for ( int i: Range(nc) ) {
+  for ( int i: Range<>(nc) ) {
     cinputs[i] = Expr::posi_literal(VarId(i));
   }
   vector<Expr> dinputs(nd);
-  for ( int i: Range(nd) ) {
+  for ( int i: Range<>(nd) ) {
     dinputs[i] = Expr::posi_literal(VarId(i + nc));
   }
 
   vector<Expr> or_fanins(nd);
-  for ( int p: Range(nd) ) {
+  for ( int p: Range<>(nd) ) {
     vector<Expr> and_fanins(nc + 1);
-    for ( int i: Range(nc) ) {
+    for ( int i: Range<>(nc) ) {
       if ( p & (1 << i) ) {
 	and_fanins[i] = cinputs[i];
       }
@@ -226,7 +226,7 @@ BnIscas89Handler::end()
     const BnNode& node = mNetwork->node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.fanin_num();
-      for ( int i: Range(ni) ) {
+      for ( int i: Range<>(ni) ) {
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	if ( !stat1 ) {

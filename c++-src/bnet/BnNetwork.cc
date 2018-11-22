@@ -697,7 +697,7 @@ BnNetwork::connect_fanins(int id,
 {
   int ni = fanin_id_list.size();
   ASSERT_COND( mImpl->node(id).fanin_num() == ni );
-  for ( int i: Range(ni) ) {
+  for ( int i: Range<>(ni) ) {
     int iid = fanin_id_list[i];
     mImpl->connect(iid, id, i);
   }
