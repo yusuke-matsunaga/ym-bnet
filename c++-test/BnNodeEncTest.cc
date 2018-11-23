@@ -144,7 +144,7 @@ BnNodeEncTest::TearDown()
 void
 BnNodeEncTest::make_inputs(int ni)
 {
-  for ( int i: Range<>(ni) ) {
+  for ( int i: Range(ni) ) {
     int port_id = mNetwork.new_input_port("");
     auto& port = mNetwork.port(port_id);
     int id = port.bit(0);
@@ -171,7 +171,7 @@ BnNodeEncTest::check(int node_id,
   try {
     auto& node = mNetwork.node(node_id);
     int ni = node.fanin_num();
-    for ( int i: Range<>(ni) ) {
+    for ( int i: Range(ni) ) {
       mNetwork.connect(i, node_id, i);
     }
 
@@ -182,10 +182,10 @@ BnNodeEncTest::check(int node_id,
     int np = 1 << ni;
     EXPECT_EQ( np, vals.size() );
     SatLiteral olit(mVarMap[ni]);
-    for ( int p: Range<>(np) ) {
+    for ( int p: Range(np) ) {
       for ( int b: {0, 1} ) {
 	vector<SatLiteral> assumptions;
-	for ( int i: Range<>(ni) ) {
+	for ( int i: Range(ni) ) {
 	  bool inv = (p & (1U << i)) ? false : true;
 	  assumptions.push_back(SatLiteral(mVarMap[i], inv));
 	}
@@ -225,7 +225,7 @@ BnNodeEncTest::check_and(int ni)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     if ( p < (1 << ni) - 1) {
       vals[p] = 0;
     }
@@ -254,7 +254,7 @@ BnNodeEncTest::check_nand(int ni)
   //  1     1     0
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     if ( p < (1 << ni) - 1 ) {
       vals[p] = 1;
     }
@@ -284,7 +284,7 @@ BnNodeEncTest::check_or(int ni)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     if ( p == 0 ) {
       vals[p] = 0;
     }
@@ -314,7 +314,7 @@ BnNodeEncTest::check_nor(int ni)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     if ( p == 0 ) {
       vals[p] = 1;
     }
@@ -344,9 +344,9 @@ BnNodeEncTest::check_xor(int ni)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     int c = 0;
-    for ( int i: Range<>(ni) ) {
+    for ( int i: Range(ni) ) {
       if ( p & (1 << i) ) {
 	++ c;
       }
@@ -375,9 +375,9 @@ BnNodeEncTest::check_xnor(int ni)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     int c = 0;
-    for ( int i: Range<>(ni) ) {
+    for ( int i: Range(ni) ) {
       if ( p & (1 << i) ) {
 	++ c;
       }
@@ -396,7 +396,7 @@ BnNodeEncTest::check_expr(const Expr& expr)
   make_inputs(ni);
 
   int id = mNetwork.new_logic("", expr);
-  for ( int i: Range<>(ni) ) {
+  for ( int i: Range(ni) ) {
     mNetwork.connect(i, id, i);
   }
 
@@ -408,9 +408,9 @@ BnNodeEncTest::check_expr(const Expr& expr)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     vector<Expr::BitVectType> ipat(ni);
-    for ( int i: Range<>(ni) ) {
+    for ( int i: Range(ni) ) {
       if ( p & (1 << i) ) {
 	ipat[i] = 1;
       }
@@ -438,7 +438,7 @@ BnNodeEncTest::check_tvfunc(const TvFunc& func)
   make_inputs(ni);
 
   int id = mNetwork.new_logic("", func);
-  for ( int i: Range<>(ni) ) {
+  for ( int i: Range(ni) ) {
     mNetwork.connect(i, id, i);
   }
 
@@ -450,7 +450,7 @@ BnNodeEncTest::check_tvfunc(const TvFunc& func)
 
   int np = 1 << ni;
   vector<int> vals(np);
-  for ( int p: Range<>(np) ) {
+  for ( int p: Range(np) ) {
     vals[p] = func.value(p);
   }
 

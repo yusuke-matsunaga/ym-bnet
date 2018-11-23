@@ -101,14 +101,14 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
 
   // ポートの生成
   int np = src.port_num();
-  for ( int i: Range<>(np) ) {
+  for ( int i: Range(np) ) {
     auto& src_port = src.port(i);
     string port_name = src_port.name();
 
     // 各ビットの方向を求める．
     int nb = src_port.bit_width();
     vector<int> dirs(nb);
-    for ( int i: Range<>(nb) ) {
+    for ( int i: Range(nb) ) {
       int id = src_port.bit(i);
       auto& node = src.node(id);
       if ( node.is_input() ) {
@@ -128,7 +128,7 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
 
     // 各ビットの対応関係を記録する．
     auto& dst_port = port(dst_port_id);
-    for ( int i: Range<>(nb) ) {
+    for ( int i: Range(nb) ) {
       int src_id = src_port.bit(i);
       int dst_id = dst_port.bit(i);
       id_map[src_id] = dst_id;
@@ -138,7 +138,7 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
   // src の入力の対応するノードを input_list に入れる．
   int input_num = src.input_num();
   vector<int> input_list(input_num);
-  for ( int i: Range<>(input_num) ) {
+  for ( int i: Range(input_num) ) {
     int src_id = src.input_id(i);
     int dst_id = id_map[src_id];
     input_list[i] = dst_id;
@@ -150,7 +150,7 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
 
   // 出力端子のファンインの接続
   int output_num = src.output_num();
-  for ( int i: Range<>(src.output_num()) ) {
+  for ( int i: Range(src.output_num()) ) {
     int src_id = src.output_id(i);
     int src_fanin_id = src.output_src_id(i);
 
@@ -205,7 +205,7 @@ BnNetworkImpl::new_port(const string& port_name,
   int port_id = mPortList.size();
   int bit_width = dir_vect.size();
   vector<int> bits(bit_width);
-  for ( int i: Range<>(bit_width) ) {
+  for ( int i: Range(bit_width) ) {
     int node_id = mNodeList.size();
     bits[i] = node_id;
     string node_name;
@@ -675,7 +675,7 @@ BnNetworkImpl::import_subnetwork(const BnNetworkImpl& src_network,
   vector<int> id_map(src_network.node_num());
 
   // src_network の入力と input_list の対応関係を id_map に入れる．
-  for ( int i: Range<>(input_num) ) {
+  for ( int i: Range(input_num) ) {
     int src_id = src_network.input_id(i);
     int dst_id = input_list[i];
     id_map[src_id] = dst_id;
@@ -832,7 +832,7 @@ BnNetworkImpl::dup_logic(const BnNode& src_node,
   }
   id_map[src_node.id()] = dst_id;
 
-  for ( int i: Range<>(nfi) ) {
+  for ( int i: Range(nfi) ) {
     int src_iid = src_node.fanin_id(i);
     int iid = id_map[src_iid];
     connect(iid, dst_id, i);
@@ -881,7 +881,7 @@ BnNetworkImpl::wrap_up()
 
   // ポートのチェック
   for ( auto port_p: mPortList ) {
-    for ( int i: Range<>(port_p->bit_width()) ) {
+    for ( int i: Range(port_p->bit_width()) ) {
       int id = port_p->bit(i);
       if ( id == kBnNullId || id >= node_num() ) {
 	cerr << "Port#" << port_p->id() << "(" << port_p->name() << ").bit["
@@ -983,7 +983,7 @@ BnNetworkImpl::wrap_up()
 
   // ノードのチェック
   for ( auto node_p: mNodeList ) {
-    for ( int i: Range<>(node_p->fanin_num()) ) {
+    for ( int i: Range(node_p->fanin_num()) ) {
       int id = node_p->fanin_id(i);
       if ( id == kBnNullId ) {
 	cerr << "NODE#" << node_p->id() << "(" << node_p->name() << ").fanin["
@@ -1060,7 +1060,7 @@ BnNetworkImpl::wrap_up()
   // mOutputSrcList を作る．
   mOutputSrcList.clear();
   mOutputSrcList.resize(mOutputList.size());
-  for ( int i: Range<>(mOutputList.size()) ) {
+  for ( int i: Range(mOutputList.size()) ) {
     int oid = mOutputList[i];
     auto node_p = mNodeList[oid];
     int iid = node_p->fanin_id(0);
@@ -1129,7 +1129,7 @@ BnNetworkImpl::write(ostream& s) const
   for ( auto port_p: mPortList ) {
     s << "port#" << port_p->id() << ": ";
     s << "(" << port_p->name() << ") : ";
-    for ( int i: Range<>(port_p->bit_width()) ) {
+    for ( int i: Range(port_p->bit_width()) ) {
       s << " " << port_p->bit(i);
     }
     s << endl;

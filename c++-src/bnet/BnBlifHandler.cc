@@ -243,7 +243,7 @@ BnBlifHandler::end(const FileRegion& loc)
     const BnNode& node = mNetwork->node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.size();
-      for ( int i: Range<>(ni) ) {
+      for ( int i: Range(ni) ) {
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
 	ASSERT_COND( stat1 );
