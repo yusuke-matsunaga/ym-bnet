@@ -305,14 +305,14 @@ public:
   int
   func_id() const = 0;
 
-  /// @brief セルを返す．
+  /// @brief セル番号を返す．
   ///
   /// - is_logic() == false の時の動作は不定
   /// - 場合によっては nullptr を返す．
   /// - セルの入力ピンの並びと BnNode の入力ノードの並びは一致している．
   virtual
-  const ClibCell*
-  cell() const = 0;
+  int
+  cell_id() const = 0;
 
 };
 

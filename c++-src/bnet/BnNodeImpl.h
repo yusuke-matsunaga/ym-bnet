@@ -228,12 +228,12 @@ public:
   int
   func_id() const override;
 
-  /// @brief セルを返す．
+  /// @brief セル番号を返す．
   ///
   /// is_logic() == false の時の動作は不定
-  /// 場合によっては nullptr の場合もある．
-  const ClibCell*
-  cell() const override;
+  /// 場合によっては -1 の場合もある．
+  int
+  cell_id() const override;
 
 
 public:

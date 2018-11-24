@@ -93,14 +93,14 @@ public:
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @param[in] name DFF名
-  /// @param[in] cell_name 対応するセル名
+  /// @param[in] cell_id 対応するセル番号
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合とFFセルでない場合には nullptr を返す．
+  /// - FFセルでない場合には -1 を返す．
   int
   new_dff(const string& name,
-	  const string& cell_name);
+	  int cell_id);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
@@ -118,14 +118,14 @@ public:
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @param[in] name ラッチ名
-  /// @param[in] cell_name 対応するセル名．
+  /// @param[in] cell_id 対応するセル番号
   /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合とラッチセルでない場合には nullptr を返す．
+  /// - ラッチセルでない場合には -1 を返す．
   int
   new_latch(const string& name,
-	    const string& cell_name);
+	    int cell_id);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -161,14 +161,14 @@ public:
 
   /// @brief 論理セルを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] cell_name セル名
+  /// @param[in] cell_id セル番号
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
+  /// - 論理セルでない場合には kBnNullId を返す．
   int
   new_cell(const string& node_name,
-	   const string& cell_name);
+	   int cell_id);
 
   /// @brief 部分回路を追加する．
   /// @param[in] src_network 部分回路
@@ -389,7 +389,7 @@ private:
   /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @param[in] cell 対応するセル．
+  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
@@ -398,14 +398,14 @@ private:
 	   bool has_xoutput,
 	   bool has_clear,
 	   bool has_preset,
-	   const ClibCell* cell);
+	   int cell_id);
 
   /// @brief ラッチを追加する共通の処理を行う関数
   /// @param[in] name ラッチ名
   /// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
   /// @param[in] has_clear クリア端子を持つ時 true にする．
   /// @param[in] has_preset プリセット端子を持つ時 true にする．
-  /// @param[in] cell 対応するセル．
+  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
@@ -415,43 +415,43 @@ private:
 	     bool has_xoutput,
 	     bool has_clear,
 	     bool has_preset,
-	     const ClibCell* cell);
+	     int cell_id);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] logic_type 論理型
-  /// @param[in] cell 対応するセル
+  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成した論理ノードの番号を返す．
   int
   _new_primitive(const string& node_name,
 		 int ni,
 		 BnNodeType logic_type,
-		 const ClibCell* cell);
+		 int cell_id);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] expr 論理式
-  /// @param[in] cell 対応するセル
+  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成した論理ノードの番号を返す．
   int
   _new_expr(const string& node_name,
 	    int ni,
 	    const Expr& expr,
-	    const ClibCell* cell);
+	    int cell_id);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] ni 入力数
   /// @param[in] tv 真理値表
-  /// @param[in] cell 対応するセル
+  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成した論理ノードの番号を返す．
   int
   _new_tv(const string& node_name,
 	  int ni,
 	  const TvFunc& tv,
-	  const ClibCell* cell);
+	  int cell_id);
 
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式

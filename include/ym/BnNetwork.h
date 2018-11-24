@@ -173,14 +173,14 @@ public:
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @param[in] name DFF名
-  /// @param[in] cell_name 対応するセル名
+  /// @param[in] cell_id 対応するセル番号
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合とFFセルでない場合には nullptr を返す．
+  /// - FFセルでない場合には -1 を返す．
   int
   new_dff(const string& name,
-	  const string& cell_name);
+	  int cell_id);
 
   /// @brief ラッチを追加する．
   /// @param[in] name ラッチ名
@@ -198,14 +198,14 @@ public:
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @param[in] name ラッチ名
-  /// @param[in] cell_name 対応するセル名．
+  /// @param[in] cell_id 対応するセル番号
   /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合とラッチセルでない場合には nullptr を返す．
+  /// - ラッチセルでない場合には -1 を返す．
   int
   new_latch(const string& name,
-	    const string& cell_name);
+	    int cell_id);
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -417,15 +417,15 @@ public:
 
   /// @brief 論理セルを追加する．
   /// @param[in] node_name ノード名
-  /// @param[in] cell_name セル名
+  /// @param[in] cell_id セル番号
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  /// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
+  /// - 論理セルでない場合には kBnNullId を返す．
   int
   new_logic(const string& node_name,
-	    const string& cell_name,
+	    int cell_id,
 	    const vector<int>& fanin_id_list = vector<int>(0));
 
   /// @brief 部分回路を追加する．

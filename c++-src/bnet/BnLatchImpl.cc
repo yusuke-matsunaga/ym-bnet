@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] enable イネーブル端子のノード番号
 // @param[in] clear クリア端子のノード番号
 // @param[in] preset プリセット端子のノード番号
-// @param[in] cell セル
+// @param[in] cell_id セル番号
 BnLatchImpl::BnLatchImpl(int id,
 			 const string& name,
 			 int input,
@@ -37,7 +37,7 @@ BnLatchImpl::BnLatchImpl(int id,
 			 int enable,
 			 int clear,
 			 int preset,
-			 const ClibCell* cell) :
+			 int cell_id) :
   mId(id),
   mName(name),
   mInput(input),
@@ -46,11 +46,8 @@ BnLatchImpl::BnLatchImpl(int id,
   mEnable(enable),
   mClear(clear),
   mPreset(preset),
-  mCell(cell)
+  mCellId(cell_id)
 {
-  if ( cell != nullptr ) {
-    ASSERT_COND( cell->is_latch() );
-  }
 }
 
 // @brief デストラクタ
@@ -119,99 +116,13 @@ BnLatchImpl::preset() const
   return mPreset;
 }
 
-// @brief セルを返す．
+// @brief セル番号を返す．
 //
-// nullptr の場合もある．
-const ClibCell*
-BnLatchImpl::cell() const
-{
-  return mCell;
-}
-
-// @brief データ出力のピン番号を返す．
-//
-// cell() == nullptr の場合の値は不定
+// -1 の場合もある．
 int
-BnLatchImpl::output_pin_id() const
+BnLatchImpl::cell_id() const
 {
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.q_pos();
-}
-
-// @brief データ反転出力のピン番号を返す．
-//
-// cell() == nullptr の場合の値は不定
-int
-BnLatchImpl::xoutput_pin_id() const
-{
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.xq_pos();
-}
-
-// @brief データ入力のピン番号を返す．
-//
-// cell() == nullptr の場合の値は不定
-int
-BnLatchImpl::input_pin_id() const
-{
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.data_pos();
-}
-
-// @brief イネーブル端子のピン番号を返す．
-//
-// cell() == nullptr の場合の値は不定
-int
-BnLatchImpl::enable_pin_id() const
-{
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.enable_pos();
-}
-
-// @brief クリア信号のピン番号を返す．
-//
-// kBnNullId の場合もある．
-// cell() == nullptr の場合の値は不定
-int
-BnLatchImpl::clear_pin_id() const
-{
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.clear_pos();
-}
-
-// @brief プリセット信号のピン番号を返す．
-//
-// kBnNullId の場合もある．
-// cell() == nullptr の場合の値は不定
-int
-BnLatchImpl::preset_pin_id() const
-{
-  if ( cell() == nullptr ) {
-    return 0;
-  }
-
-  ClibLatchInfo ffinfo = cell()->latch_info();
-  return ffinfo.preset_pos();
+  return mCellId;
 }
 
 END_NAMESPACE_YM_BNET

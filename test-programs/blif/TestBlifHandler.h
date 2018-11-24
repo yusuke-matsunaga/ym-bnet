@@ -29,24 +29,21 @@ public:
 		  ostream* stream);
 
   /// @brief デストラクタ
-  virtual
   ~TestBlifHandler();
 
 
 public:
 
   /// @brief 初期化
-  virtual
   bool
-  init();
+  init() override;
 
   /// @brief セルライブラリの設定
   /// @param[in] library セルライブラリ
   ///
   /// この関数が呼ばれないこともある．
-  virtual
   void
-  set_cell_library(const ClibCellLibrary& library);
+  set_cell_library(const ClibCellLibrary& library) override;
 
   /// @brief .model 文の処理
   /// @param[in] loc1 .model の位置情報
@@ -54,31 +51,28 @@ public:
   /// @param[in] name 文字列
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   model(const FileRegion& loc1,
 	const FileRegion& loc2,
-	const char* name);
+	const char* name) override;
 
   /// @brief .inputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
   /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   inputs_elem(int name_id,
-	      const char* name);
+	      const char* name) override;
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name 文字列の情報
   /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   outputs_elem(int name_id,
-	       const char* name);
+	       const char* name) override;
 
   /// @brief .names 文の処理
   /// @param[in] onode_id 出力ノードのID番号
@@ -90,26 +84,24 @@ public:
   /// @note cover_pat は ni 個ごとに1行のパタンを表す．
   /// 各要素のとりうる値は '0', '1', '-' を表す．
   /// @note opat は '0' か '1' のどちらか
-  virtual
   bool
   names(int onode_id,
 	const char* oname,
 	const vector<int>& inode_id_array,
-	int cover_id);
+	int cover_id) override;
 
   /// @brief .gate 文の処理
   /// @param[in] onode_id 出力ノードのID番号
   /// @param[in] oname 出力名
   /// @param[in] inode_id_array 入力ノードのID番号の配列
-  /// @param[in] cell セル
+  /// @param[in] cell_id セル番号
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   gate(int onode_id,
        const char* oname,
        const vector<int>& inode_id_array,
-       const ClibCell* cell);
+       int cell_id) override;
 
   /// @brief .latch 文の処理
   /// @param[in] onode_id 出力ノードのID番号
@@ -119,31 +111,27 @@ public:
   /// @param[in] rval リセット時の値('0'/'1') 未定義なら ' '
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
   latch(int onode_id,
 	const char* oname,
 	int inode_id,
 	const FileRegion& loc4,
-	char rval);
+	char rval) override;
 
   /// @brief .end 文の処理
   /// @param[in] loc 位置情報
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  virtual
   bool
-  end(const FileRegion& loc);
+  end(const FileRegion& loc) override;
 
   /// @brief 通常終了時の処理
-  virtual
   void
-  normal_exit();
+  normal_exit() override;
 
   /// @brief エラー終了時の処理
-  virtual
   void
-  error_exit();
+  error_exit() override;
 
 
 private:

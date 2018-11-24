@@ -30,11 +30,11 @@ public:
   /// @param[in] id ID番号
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
-  /// @param[in] cell セル (nullptr の場合もあり)
+  /// @param[in] cell_id セル番号 (-1 の場合もあり)
   BnLogicNode(int id,
 	      const string& name,
 	      int ni,
-	      const ClibCell* cell);
+	      int cell_id);
 
   /// @brief デストラクタ
   ~BnLogicNode();
@@ -73,12 +73,12 @@ public:
   fanin_id_list() const override;
 #endif
 
-  /// @brief セルを返す．
+  /// @brief セル番号を返す．
   ///
   /// is_logic() == false の時の動作は不定
-  /// 場合によっては nullptr を返す．
-  const ClibCell*
-  cell() const override;
+  /// 場合によっては -1 を返す．
+  int
+  cell_id() const override;
 
 
 public:
@@ -110,11 +110,11 @@ private:
   vector<int> mFanins;
 #endif
 
-  // セル
-  const ClibCell* mCell;
+  // セル番号
+  int mCellId;
 
   // セルのピン番号の対応表
-  // mCell == nullptr なら nullptr
+  // mCell == -1 なら nullptr
   // mCellPinMap[i] に i 番目のファンインに対応するピン番号が入る．
   int* mCellPinMap;
 
@@ -138,12 +138,12 @@ public:
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
   /// @param[in] logic_type 論理タイプ
-  /// @param[in] cell セル (nullptr の場合もあり)
+  /// @param[in] cell_id セル番号 (-1 の場合もあり)
   BnPrimNode(int id,
 	     const string& name,
 	     int ni,
 	     BnNodeType logic_type,
-	     const ClibCell* cell = nullptr);
+	     int cell_id);
 
   /// @brief デストラクタ
   ~BnPrimNode();
@@ -191,12 +191,12 @@ public:
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
   /// @param[in] expr_id 関数番号
-  /// @param[in] cell セル (nullptr の場合もあり)
+  /// @param[in] cell_id セル番号 (-1 の場合もあり)
   BnExprNode(int id,
 	     const string& name,
 	     int ni,
 	     int expr_id,
-	     const ClibCell* cell = nullptr);
+	     int cell_id);
 
   /// @brief デストラクタ
   ~BnExprNode();
@@ -256,12 +256,12 @@ public:
   /// @param[in] name ノード名
   /// @param[in] ni 入力数
   /// @param[in] func_id 関数番号
-  /// @param[in] cell セル (nullptr の場合もあり)
+  /// @param[in] cell_id セル 番号(-1 の場合もあり)
   BnTvNode(int id,
 	   const string& name,
 	   int ni,
 	   int func_id,
-	   const ClibCell* cell = nullptr);
+	   int cell_id);
 
   /// @brief デストラクタ
   ~BnTvNode();

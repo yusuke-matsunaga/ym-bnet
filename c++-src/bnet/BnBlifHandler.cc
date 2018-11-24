@@ -138,7 +138,7 @@ BnBlifHandler::names(int oname_id,
 // @brief .gate 文の処理
 // @param[in] oname_id 出力ノードのID番号
 // @param[in] oname 出力名
-// @param[in] cell セル
+// @param[in] cell_id セル番号
 // @param[in] inode_id_array 入力ノードのID番号の配列
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
@@ -146,11 +146,12 @@ bool
 BnBlifHandler::gate(int oname_id,
 		    const char* oname,
 		    const vector<int>& inode_id_array,
-		    const ClibCell* cell)
+		    int cell_id)
 {
   int ni = inode_id_array.size();
-  ASSERT_COND( ni == cell->input_num() );
-  int node_id = mNetwork->new_logic(oname, cell->name());
+  const ClibCell& cell = mNetwork->library().cell(cell_id);
+  ASSERT_COND( ni == cell.input_num() );
+  int node_id = mNetwork->new_logic(oname, cell_id);
   mIdMap.add(oname_id, node_id);
 
   mFaninInfoMap.add(node_id, inode_id_array);

@@ -309,14 +309,14 @@ BnNodeImpl::func_id() const
   return 0;
 }
 
-// @brief セルを返す．
+// @brief セル番号を返す．
 //
 // is_logic() == false の時の動作は不定
-const ClibCell*
-BnNodeImpl::cell() const
+int
+BnNodeImpl::cell_id() const
 {
   ASSERT_NOT_REACHED;
-  return nullptr;
+  return -1;
 }
 
 // @brief ファンインを設定する．

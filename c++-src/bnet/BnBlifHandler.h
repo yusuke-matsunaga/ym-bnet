@@ -103,7 +103,7 @@ public:
   /// @brief .gate 文の処理
   /// @param[in] oname_id 出力ノードのID番号
   /// @param[in] oname 出力名
-  /// @param[in] cell セル
+  /// @param[in] cell_id セル番号
   /// @param[in] inode_id_array 入力ノードのID番号の配列
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
@@ -112,7 +112,7 @@ public:
   gate(int oname_id,
        const char* oname,
        const vector<int>& inode_id_array,
-       const ClibCell* cell);
+       int cell_id);
 
   /// @brief .latch 文の処理
   /// @param[in] oname_id 出力ノードのID番号

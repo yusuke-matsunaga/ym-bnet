@@ -145,8 +145,8 @@ private:
   // 出力の極性を表す文字
   char mOpatChar;
 
-  // 現在のセル
-  const ClibCell* mCell;
+  // 現在のセル番号
+  int mCellId;
 
   // 位置情報バッファ
   FileRegion mLoc1;

@@ -17,6 +17,7 @@
 #include "ym/ClibCellPin.h"
 #include "ym/FileIDO.h"
 #include "ym/MsgMgr.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -503,7 +504,7 @@ BlifParserImpl::read(const string& filename,
       }
       int n = mName1.size();
       mCoverPat.reserve(mCoverPat.size() + n);
-      for ( int i = 0; i < n; ++ i ) {
+      for ( int i: Range(n) ) {
 	char c = mName1[i];
 	if ( c == '1' ) {
 	  mCoverPat.put_char('1');
@@ -587,7 +588,7 @@ BlifParserImpl::read(const string& filename,
     cell->set_defined();
     int oid = cell->id();
     mIdArray.clear();
-    for ( int i = 0; i < ni ; ++ i ) {
+    for ( int i: Range(ni) ) {
       mIdArray.push_back(mNameArray[i]->id());
     }
     string ipat_str = mCoverPat.c_str();
@@ -615,8 +616,8 @@ BlifParserImpl::read(const string& filename,
       goto ST_GATE_SYNERROR;
     }
     const char* name = mScanner->cur_string();
-    mCell = mCellLibrary.cell(name);
-    if ( mCell == nullptr ) {
+    mCellId = mCellLibrary.cell_id(name);
+    if ( mCellId == -1 ) {
       ostringstream buf;
       buf << name << ": No such cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -624,28 +625,29 @@ BlifParserImpl::read(const string& filename,
 		      "NOCELL02", buf.str());
       goto ST_ERROR_EXIT;
     }
-    if ( !mCell->is_logic() ) {
+    const ClibCell& cell = mCellLibrary.cell(mCellId);
+    if ( !cell.is_logic() ) {
       ostringstream buf;
       buf << name << " : Not a logic cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
-    if ( mCell->output_num() != 1 ) {
+    if ( cell.output_num() != 1 ) {
       ostringstream buf;
       buf << name << " : Not a single output cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
-    if ( mCell->has_tristate(0) ) {
+    if ( cell.has_tristate(0) ) {
       ostringstream buf;
       buf << name << " : Is a tri-state cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
-    if ( mCell->inout_num() > 0 ) {
+    if ( cell.inout_num() > 0 ) {
       ostringstream buf;
       buf << name << " : Has inout pins.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -653,7 +655,7 @@ BlifParserImpl::read(const string& filename,
       return false;
     }
     mNameArray.clear();
-    mNameArray.resize(mCell->pin_num(), nullptr);
+    mNameArray.resize(cell.pin_num(), nullptr);
     n_token = 0;
     goto ST_GATE1;
   }
@@ -665,8 +667,9 @@ BlifParserImpl::read(const string& filename,
     if ( tk == BlifToken::STRING ) {
       mName1 = mScanner->cur_string();
       const char* name1 = mName1.c_str();
-      const ClibCellPin* pin = mCell->pin(name1);
-      if ( pin == nullptr ) {
+      const ClibCell& cell = mCellLibrary.cell(mCellId);
+      int pin_id = cell.pin_id(name1);
+      if ( pin_id == -1 ) {
 	ostringstream buf;
 	buf << name1 << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
@@ -686,23 +689,24 @@ BlifParserImpl::read(const string& filename,
 	goto ST_GATE_SYNERROR;
       }
       const char* name2 = mScanner->cur_string();
-      BlifIdCell* cell = mIdHash.find(name2, true);
-      cell->set_loc(loc2);
+      BlifIdCell* id_cell = mIdHash.find(name2, true);
+      id_cell->set_loc(loc2);
 
-      if ( pin->is_output() ) {
-	if ( cell->is_defined() ) {
+      const ClibCellPin& pin = cell.pin(pin_id);
+      if ( pin.is_output() ) {
+	if ( id_cell->is_defined() ) {
 	  // 二重定義
 	  ostringstream buf;
-	  buf << cell->str() << ": Defined more than once. "
-	      << "Previous definition is " << cell->def_loc() << ".";
-	  MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+	  buf << id_cell->str() << ": Defined more than once. "
+	      << "Previous definition is " << id_cell->def_loc() << ".";
+	  MsgMgr::put_msg(__FILE__, __LINE__, id_cell->loc(),
 			  MsgType::Error,
 			  "MLTDEF01", buf.str());
 	  goto ST_ERROR_EXIT;
 	}
-	cell->set_defined();
+	id_cell->set_defined();
       }
-      if ( mNameArray[pin->pin_id()] != nullptr ) {
+      if ( mNameArray[pin.pin_id()] != nullptr ) {
 	ostringstream buf;
 	buf << name2 << ": Appears more than once.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc2,
@@ -710,7 +714,7 @@ BlifParserImpl::read(const string& filename,
 			"MLTDEF02", buf.str());
 	goto ST_ERROR_EXIT;
       }
-      mNameArray[pin->pin_id()] = cell;
+      mNameArray[pin.pin_id()] = id_cell;
       ++ n_token;
       goto ST_GATE1;
     }
@@ -719,18 +723,19 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc1;
 	goto ST_GATE_SYNERROR;
       }
-      const ClibCellPin* opin = mCell->output(0);
-      BlifIdCell* oid = mNameArray[opin->pin_id()];
+      const ClibCell& cell = mCellLibrary.cell(mCellId);
+      const ClibCellPin& opin = cell.output(0);
+      BlifIdCell* oid = mNameArray[opin.pin_id()];
       int onode_id = oid->id();
-      int ni = mCell->input_num();
+      int ni = cell.input_num();
       mIdArray.clear();
-      for ( int i = 0; i < ni; ++ i ) {
-	const ClibCellPin* ipin = mCell->input(i);
-	int inode_id = mNameArray[ipin->pin_id()]->id();
+      for ( int i: Range(ni) ) {
+	const ClibCellPin& ipin = cell.input(i);
+	int inode_id = mNameArray[ipin.pin_id()]->id();
 	mIdArray.push_back(inode_id);
       }
       for ( auto handler: mHandlerList ) {
-	if ( !handler->gate(onode_id, oid->str(), mIdArray, mCell) ) {
+	if ( !handler->gate(onode_id, oid->str(), mIdArray, mCellId) ) {
 	  stat = false;
 	}
       }
@@ -876,7 +881,7 @@ BlifParserImpl::read(const string& filename,
  ST_NORMAL_EXIT:
   {
     int n = mIdHash.num();
-    for ( int i = 0; i < n; ++ i ) {
+    for ( int i: Range(n) ) {
       BlifIdCell* cell = mIdHash.cell(i);
       if ( !cell->is_defined() ) {
 	ostringstream buf;

@@ -20,14 +20,14 @@ BEGIN_NAMESPACE_YM_BNET
 // @param[in] id ID番号
 // @param[in] name ノード名
 // @param[in] ni 入力数
-// @param[in] cell セル (nullptr の場合もあり)
+// @param[in] cell_id セル番号 (-1 の場合もあり)
 BnLogicNode::BnLogicNode(int id,
 			 const string& name,
 			 int ni,
-			 const ClibCell* cell) :
+			 int cell_id) :
   BnNodeImpl(id, name),
   mFaninNum(ni),
-  mCell(cell)
+  mCellId(cell_id)
 {
   if ( mFaninNum > 0 ) {
     mFanins = new int[mFaninNum];
@@ -91,14 +91,14 @@ BnLogicNode::fanin_id_list() const
 }
 #endif
 
-// @brief セルを返す．
+// @brief セル番号を返す．
 //
 // is_logic() == false の時の動作は不定
 // 場合によっては nullptr を返す．
-const ClibCell*
-BnLogicNode::cell() const
+int
+BnLogicNode::cell_id() const
 {
-  return mCell;
+  return mCellId;
 }
 
 // @brief ファンインを設定する．
@@ -122,13 +122,13 @@ BnLogicNode::set_fanin(int ipos,
 // @param[in] name ノード名
 // @param[in] ni 入力数
 // @param[in] logic_type 論理タイプ
-// @param[in] cell セル (nullptr の場合もあり)
+// @param[in] cell_id セル番号 (nullptr の場合もあり)
 BnPrimNode::BnPrimNode(int id,
 		       const string& name,
 		       int ni,
 		       BnNodeType logic_type,
-		       const ClibCell* cell) :
-  BnLogicNode(id, name, ni, cell),
+		       int cell_id) :
+  BnLogicNode(id, name, ni, cell_id),
   mLogicType(logic_type)
 {
 }
@@ -155,13 +155,13 @@ BnPrimNode::type() const
 // @param[in] name ノード名
 // @param[in] ni 入力数
 // @param[in] expr_id 論理式番号
-// @param[in] cell セル (nullptr の場合もあり)
+// @param[in] cell_id セル番号 (-1 の場合もあり)
 BnExprNode::BnExprNode(int id,
 		       const string& name,
 		       int ni,
 		       int expr_id,
-		       const ClibCell* cell) :
-  BnLogicNode(id, name, ni, cell),
+		       int cell_id) :
+  BnLogicNode(id, name, ni, cell_id),
   mExprId(expr_id)
 {
 }
@@ -198,13 +198,13 @@ BnExprNode::expr_id() const
 // @param[in] name ノード名
 // @param[in] ni 入力数
 // @param[in] func_id 関数番号
-// @param[in] cell セル (nullptr の場合もあり)
+// @param[in] cell_id セル (-1 の場合もあり)
 BnTvNode::BnTvNode(int id,
 		   const string& name,
 		   int ni,
 		   int func_id,
-		   const ClibCell* cell) :
-  BnLogicNode(id, name, ni, cell),
+		   int cell_id) :
+  BnLogicNode(id, name, ni, cell_id),
   mFuncId(func_id)
 {
 }

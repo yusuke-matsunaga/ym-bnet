@@ -207,18 +207,18 @@ BnNetwork::new_dff(const string& name,
 
 // @brief セルの情報を持ったDFFを追加する．
 // @param[in] name DFF名
-// @param[in] cell_name 対応するセル名
+// @param[in] cell_id 対応するセル番号
 // @return 生成したDFF番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルは FF のセルでなければならない．
 int
 BnNetwork::new_dff(const string& name,
-		   const string& cell_name)
+		   int cell_id)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_dff(name, cell_name);
+  return mImpl->new_dff(name, cell_id);
 }
 
 // @brief ラッチを追加する．
@@ -241,18 +241,18 @@ BnNetwork::new_latch(const string& name,
 
 // @brief セルの情報を持ったラッチを追加する．
 // @param[in] name ラッチ名
-// @param[in] cell_name 対応するセル名．
+// @param[in] cell_id 対応するセル番号
 // @return 生成したラッチ番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルはラッチのセルでなければならない．
 int
 BnNetwork::new_latch(const string& name,
-		     const string& cell_name)
+		     int cell_id)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_latch(name, cell_name);
+  return mImpl->new_latch(name, cell_id);
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -617,20 +617,20 @@ BnNetwork::new_logic(const string& node_name,
 
 // @brief 論理セルを追加する．
 // @param[in] node_name ノード名
-// @param[in] cell_name セル名
+// @param[in] cell_id セル番号
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
-// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
+// - 論理セルでない場合には kBnNullId を返す．
 int
 BnNetwork::new_logic(const string& node_name,
-		     const string& cell_name,
+		     int cell_id,
 		     const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  int id = mImpl->new_cell(node_name, cell_name);
+  int id = mImpl->new_cell(node_name, cell_id);
   if ( id != kBnNullId && !fanin_id_list.empty() ) {
     connect_fanins(id, fanin_id_list);
   }

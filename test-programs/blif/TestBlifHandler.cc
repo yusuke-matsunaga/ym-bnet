@@ -121,21 +121,21 @@ TestBlifHandler::names(int onode_id,
 // @brief .gate 文の処理
 // @param[in] onode_id 出力ノードのID番号
 // @param[in] inode_id_array 入力ノードのID番号の配列
-// @param[in] cell セル
+// @param[in] cell_id セル番号
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
 TestBlifHandler::gate(int onode_id,
 		      const char* oname,
 		      const vector<int>& inode_id_array,
-		      const ClibCell* cell)
+		      int cell_id)
 {
-  (*mStreamPtr) << ".gate " << cell->name() << " " << oname
+  (*mStreamPtr) << ".gate " << cell_id << " " << oname
 		<< "\t[" << id2loc(onode_id) << "]" << endl;
   int ni = inode_id_array.size();
   for ( int i = 0; i < ni; ++ i ) {
     int id = inode_id_array[i];
-    (*mStreamPtr) << "  " << cell->input(i)->name() << " " << id2str(id)
+    (*mStreamPtr) << "  #" << i << ": " << id2str(id)
 		  << "\t[" << id2loc(id) << "]" << endl;
   }
   return true;

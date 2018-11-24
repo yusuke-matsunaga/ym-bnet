@@ -93,56 +93,12 @@ public:
   int
   preset() const = 0;
 
-  /// @brief セルを返す．
+  /// @brief セル番号を返す．
   ///
-  /// nullptr の場合もある．
-  virtual
-  const ClibCell*
-  cell() const = 0;
-
-  /// @brief データ出力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
+  /// -1 の場合もある．
   virtual
   int
-  output_pin_id() const = 0;
-
-  /// @brief データ反転出力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  xoutput_pin_id() const = 0;
-
-  /// @brief データ入力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  input_pin_id() const = 0;
-
-  /// @brief イネーブル端子のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  enable_pin_id() const = 0;
-
-  /// @brief クリア信号のピン番号を返す．
-  ///
-  /// kBnNullId の場合もある．
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  clear_pin_id() const = 0;
-
-  /// @brief プリセット信号のピン番号を返す．
-  ///
-  /// kBnNullId の場合もある．
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  preset_pin_id() const = 0;
+  cell_id() const = 0;
 
 };
 

@@ -32,7 +32,7 @@ public:
   /// @param[in] clock クロック端子のノード番号
   /// @param[in] clear クリア端子のノード番号
   /// @param[in] preset プリセット端子のノード番号
-  /// @param[in] cell セル
+  /// @param[in] cell_id セル番号
   BnDffImpl(int id,
 	    const string& name,
 	    int input,
@@ -41,7 +41,7 @@ public:
 	    int clock,
 	    int clear,
 	    int preset,
-	    const ClibCell* cell = nullptr);
+	    int cell_id);
 
   /// @brief デストラクタ
   virtual
@@ -98,56 +98,12 @@ public:
   int
   preset() const;
 
-  /// @brief セルを返す．
+  /// @brief セル番号を返す．
   ///
-  /// nullptr の場合もある．
-  virtual
-  const ClibCell*
-  cell() const;
-
-  /// @brief データ出力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
+  /// -1 の場合もある．
   virtual
   int
-  output_pin_id() const;
-
-  /// @brief 反転データ出力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  xoutput_pin_id() const;
-
-  /// @brief データ入力のピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  input_pin_id() const;
-
-  /// @brief クロックのピン番号を返す．
-  ///
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  clock_pin_id() const;
-
-  /// @brief クリア信号のピン番号を返す．
-  ///
-  /// kBnNullId の場合もある．
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  clear_pin_id() const;
-
-  /// @brief プリセット信号のピン番号を返す．
-  ///
-  /// kBnNullId の場合もある．
-  /// cell() == nullptr の場合の値は不定
-  virtual
-  int
-  preset_pin_id() const;
+  cell_id() const;
 
 
 private:
@@ -179,8 +135,8 @@ private:
   // プリセット信号ノード
   int mPreset;
 
-  // セル
-  const ClibCell* mCell;
+  // セル番号
+  int mCellId;
 
 };
 

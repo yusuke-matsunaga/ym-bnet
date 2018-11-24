@@ -257,30 +257,30 @@ BnNetworkImpl::new_dff(const string& name,
 		       bool has_clear,
 		       bool has_preset)
 {
-  return _new_dff(name, has_xoutput, has_clear, has_preset, nullptr);
+  return _new_dff(name, has_xoutput, has_clear, has_preset, -1);
 }
 
 // @brief セルの情報を持ったDFFを追加する．
 // @param[in] name DFF名
-// @param[in] cell_name 対応するセル名
+// @param[in] cell_id 対応するセル番号
 // @return 生成したDFF番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルは FF のセルでなければならない．
 int
 BnNetworkImpl::new_dff(const string& name,
-		       const string& cell_name)
+		       int cell_id)
 {
-  const ClibCell* cell = mCellLibrary.cell(cell_name);
-  if ( cell == nullptr || !cell->is_ff() ) {
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_ff() ) {
     return -1;
   }
 
-  ClibFFInfo ffinfo = cell->ff_info();
+  ClibFFInfo ffinfo = cell.ff_info();
   bool has_xoutput = ffinfo.has_xq();
   bool has_clear = ffinfo.has_clear();
   bool has_preset = ffinfo.has_preset();
-  return _new_dff(name, has_xoutput, has_clear, has_preset, cell);
+  return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
 }
 
 // @brief DFFを追加する共通の関数
@@ -288,7 +288,7 @@ BnNetworkImpl::new_dff(const string& name,
 // @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @param[in] cell 対応するセル．
+// @param[in] cell_id 対応するセル番号．
 // @return 生成したDFF番号を返す．
 //
 // 名前の重複に関しては感知しない．
@@ -297,7 +297,7 @@ BnNetworkImpl::_new_dff(const string& name,
 			bool has_xoutput,
 			bool has_clear,
 			bool has_preset,
-			const ClibCell* cell)
+			int cell_id)
 {
   int dff_id = mDffList.size();
 
@@ -370,7 +370,7 @@ BnNetworkImpl::_new_dff(const string& name,
   }
 
   BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id, xoutput_id,
-			     clock_id, clear_id, preset_id, cell);
+			     clock_id, clear_id, preset_id, cell_id);
   mDffList.push_back(dff);
 
   return dff_id;
@@ -389,30 +389,30 @@ BnNetworkImpl::new_latch(const string& name,
 			 bool has_clear,
 			 bool has_preset)
 {
-  return _new_latch(name, has_xoutput, has_clear, has_preset, nullptr);
+  return _new_latch(name, has_xoutput, has_clear, has_preset, -1);
 }
 
 // @brief セルの情報を持ったラッチを追加する．
 // @param[in] name ラッチ名
-// @param[in] cell_name 対応するセル名．
+// @param[in] cell_id 対応するセル番号
 // @return 生成したラッチ番号を返す．
 //
 // - 名前の重複に関しては感知しない．
 // - セルはラッチのセルでなければならない．
 int
 BnNetworkImpl::new_latch(const string& name,
-			 const string& cell_name)
+			 int cell_id)
 {
-  const ClibCell* cell = mCellLibrary.cell(cell_name);
-  if ( cell == nullptr || !cell->is_latch() ) {
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_latch() ) {
     return -1;
   }
 
-  ClibLatchInfo latchinfo = cell->latch_info();
+  ClibLatchInfo latchinfo = cell.latch_info();
   bool has_xoutput = latchinfo.has_xq();
   bool has_clear = latchinfo.has_clear();
   bool has_preset = latchinfo.has_preset();
-  return _new_latch(name, has_xoutput, has_clear, has_preset, cell);
+  return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
 }
 
 // @brief ラッチを追加する共通の処理を行う関数
@@ -420,7 +420,7 @@ BnNetworkImpl::new_latch(const string& name,
 // @param[in] has_xoutput 反転出力端子を持つ時 true にする．
 // @param[in] has_clear クリア端子を持つ時 true にする．
 // @param[in] has_preset プリセット端子を持つ時 true にする．
-// @param[in] cell 対応するセル．
+// @param[in] cell_id 対応するセル番号．
 // @return 生成したラッチ番号を返す．
 //
 // 名前の重複に関しては感知しない．
@@ -430,7 +430,7 @@ BnNetworkImpl::_new_latch(const string& name,
 			  bool has_xoutput,
 			  bool has_clear,
 			  bool has_preset,
-			  const ClibCell* cell)
+			  int cell_id)
 {
   int latch_id = mLatchList.size();
 
@@ -502,7 +502,7 @@ BnNetworkImpl::_new_latch(const string& name,
   }
 
   BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id, xoutput_id,
-				   enable_id, clear_id, preset_id, cell);
+				   enable_id, clear_id, preset_id, cell_id);
   mLatchList.push_back(latch);
 
   return latch_id;
@@ -518,7 +518,7 @@ BnNetworkImpl::new_primitive(const string& node_name,
 			     int ni,
 			     BnNodeType logic_type)
 {
-  return _new_primitive(node_name, ni, logic_type, nullptr);
+  return _new_primitive(node_name, ni, logic_type, -1);
 }
 
 // @brief 論理式型の論理ノードを追加する．
@@ -535,9 +535,9 @@ BnNetworkImpl::new_expr(const string& node_name,
   int ni = expr.input_size();
   if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, nullptr);
+    return _new_primitive(node_name, ni, logic_type, -1);
   }
-  return _new_expr(node_name, ni, expr, nullptr);
+  return _new_expr(node_name, ni, expr, -1);
 }
 
 // @brief 真理値表型の論理ノードを追加する．
@@ -554,53 +554,51 @@ BnNetworkImpl::new_tv(const string& node_name,
   int ni = tv.input_num();
   if ( logic_type != BnNodeType::TvFunc ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, nullptr);
+    return _new_primitive(node_name, ni, logic_type, -1);
   }
-  return _new_tv(node_name, ni, tv, nullptr);
+  return _new_tv(node_name, ni, tv, -1);
 }
 
 // @brief 論理セルを追加する．
 // @param[in] node_name ノード名
-// @param[in] cell_name セル名
+// @param[in] cell_id セル番号
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 // - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
 int
 BnNetworkImpl::new_cell(const string& node_name,
-			const string& cell_name)
+			int cell_id)
 {
-  const ClibCell* cell = mCellLibrary.cell(cell_name);
-  if ( cell == nullptr ||
-       cell->is_logic() ||
-       cell->output_num() != 1 ) {
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_logic() || cell.output_num() != 1 ) {
     return kBnNullId;
   }
 
-  Expr expr = cell->logic_expr(0);
+  Expr expr = cell.logic_expr(0);
   BnNodeType logic_type = FuncAnalyzer::analyze(expr);
-  int ni = cell->input_num();
+  int ni = cell.input_num();
   if ( logic_type != BnNodeType::Expr ) {
     // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, cell);
+    return _new_primitive(node_name, ni, logic_type, cell_id);
   }
-  return _new_expr(node_name, ni, expr, cell);
+  return _new_expr(node_name, ni, expr, cell_id);
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
 // @param[in] logic_type 論理型
-// @param[in] cell 対応するセル
+// @param[in] cell_id 対応するセル番号
 // @return 生成した論理ノードの番号を返す．
 int
 BnNetworkImpl::_new_primitive(const string& node_name,
 			      int ni,
 			      BnNodeType logic_type,
-			      const ClibCell* cell)
+			      int cell_id)
 {
   int id = mNodeList.size();
-  BnNodeImpl* node = new BnPrimNode(id, node_name, ni, logic_type, cell);
+  BnNodeImpl* node = new BnPrimNode(id, node_name, ni, logic_type, cell_id);
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
@@ -611,17 +609,17 @@ BnNetworkImpl::_new_primitive(const string& node_name,
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
 // @param[in] expr 論理式
-// @param[in] cell 対応するセル
+// @param[in] cell_id 対応するセル番号
 // @return 生成した論理ノードの番号を返す．
 int
 BnNetworkImpl::_new_expr(const string& node_name,
 			 int ni,
 			 const Expr& expr,
-			 const ClibCell* cell)
+			 int cell_id)
 {
   int id = mNodeList.size();
   int expr_id = _add_expr(expr);
-  BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr_id, cell);
+  BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr_id, cell_id);
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
@@ -632,17 +630,17 @@ BnNetworkImpl::_new_expr(const string& node_name,
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
 // @param[in] tv 真理値表
-// @param[in] cell 対応するセル
+// @param[in] cell_id 対応するセル番号
 // @return 生成した論理ノードの番号を返す．
 int
 BnNetworkImpl::_new_tv(const string& node_name,
 		       int ni,
 		       const TvFunc& tv,
-		       const ClibCell* cell)
+		       int cell_id)
 {
   int id = mNodeList.size();
   int func_id = _add_tv(tv);
-  BnNodeImpl* node = new BnTvNode(id, node_name, ni, func_id, cell);
+  BnNodeImpl* node = new BnTvNode(id, node_name, ni, func_id, cell_id);
   mNodeList.push_back(node);
   mLogicList.push_back(id);
 
@@ -819,16 +817,16 @@ BnNetworkImpl::dup_logic(const BnNode& src_node,
   int nfi = src_node.fanin_num();
   string name = src_node.name();
   BnNodeType logic_type = src_node.type();
-  const ClibCell* cell = src_node.cell();
+  int cell_id = src_node.cell_id();
   int dst_id = kBnNullId;
   if ( logic_type == BnNodeType::Expr ) {
-    dst_id = _new_expr(name, nfi, src_network.expr(src_node.expr_id()), cell);
+    dst_id = _new_expr(name, nfi, src_network.expr(src_node.expr_id()), cell_id);
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
-    dst_id = _new_tv(name, nfi, src_network.func(src_node.func_id()), cell);
+    dst_id = _new_tv(name, nfi, src_network.func(src_node.func_id()), cell_id);
   }
   else {
-    dst_id = _new_primitive(name, nfi, logic_type, cell);
+    dst_id = _new_primitive(name, nfi, logic_type, cell_id);
   }
   id_map[src_node.id()] = dst_id;
 
@@ -1243,8 +1241,10 @@ BnNetworkImpl::write(ostream& s) const
       ASSERT_NOT_REACHED;
     }
     s << endl;
-    if ( node_p->cell() ) {
-      s << "    cell: " << node_p->cell()->name() << endl;
+    int cell_id = node_p->cell_id();
+    if ( cell_id != -1 ) {
+      const ClibCell& cell = mCellLibrary.cell(cell_id);
+      s << "    cell: " << cell.name() << endl;
     }
     s << endl;
   }
