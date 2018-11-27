@@ -450,6 +450,29 @@ public:
 	  int dst_node,
 	  int ipos);
 
+  /// @brief 単純なノードに分解する．
+  ///
+  /// 単純なノードとは以下のノード型
+  /// * BnNodeType::C0
+  /// * BnNodeType::C1
+  /// * BnNodeType::Buff
+  /// * BnNodeType::Not
+  /// * BnNodeType::And
+  /// * BnNodeType::Nand
+  /// * BnNodeType::Or
+  /// * BnNodeType::Nor
+  /// * BnNodeType::Xor
+  /// * BnNodeType::Xnor
+  void
+  simple_decomp();
+
+  /// @brief ファンアウトをつなぎ替える．
+  /// @param[in] old_id もとのノード番号
+  /// @param[in] new_id つなぎ替える新しいノード番号
+  void
+  substitute_fanout(int old_id,
+		    int new_id);
+
   /// @brief 整合性のチェックを行う．
   /// @return チェック結果を返す．
   ///
@@ -656,6 +679,20 @@ public:
   /// ポートの情報は無視される．
   void
   write_blif(const string& filename) const;
+
+  /// @brief 内容を ISCAS89(.bench) 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_iscas89(ostream& s) const;
+
+  /// @brief 内容を ISCAS89(.bench) 形式で出力する．
+  /// @param[in] filename 出力先のファイル名
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_iscas89(const string& filename) const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム

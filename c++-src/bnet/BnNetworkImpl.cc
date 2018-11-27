@@ -857,6 +857,42 @@ BnNetworkImpl::connect(int src_id,
   mSane = false;
 }
 
+// @brief ファンアウトをつなぎ替える．
+// @param[in] old_id もとのノード番号
+// @param[in] new_id つなぎ替える新しいノード番号
+void
+BnNetworkImpl::substitute_fanout(int old_id,
+				 int new_id)
+{
+  ASSERT_COND( old_id >= 0 && old_id < mNodeList.size() );
+  ASSERT_COND( new_id >= 0 && new_id < mNodeList.size() );
+
+  // old_id のファンアウトのリストをコピーする．
+  BnNodeImpl* old_node = mNodeList[old_id];
+  vector<int> fo_list{old_node->fanout_id_list()};
+  for ( int dst: fo_list ) {
+    BnNodeImpl* dst_node = mNodeList[dst];
+    // old_id のファンインを探す．
+    int ipos = -1;
+    if ( dst_node->is_output() ) {
+      ASSERT_COND( dst_node->fanin_id(0) == old_id );
+      ipos = 0;
+    }
+    else {
+      for ( int i: Range(dst_node->fanin_num()) ) {
+	if ( dst_node->fanin_id(i) == old_id ) {
+	  ipos = i;
+	  break;
+	}
+      }
+    }
+    ASSERT_COND( ipos >= 0 );
+    dst_node->set_fanin(ipos, new_id);
+  }
+
+  mSane = false;
+}
+
 // @brief 整合性のチェックを行う．
 // @return チェック結果を返す．
 //

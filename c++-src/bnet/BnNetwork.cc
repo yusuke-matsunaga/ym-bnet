@@ -669,6 +669,18 @@ BnNetwork::connect(int src_id,
   mImpl->connect(src_id, dst_id, ipos);
 }
 
+// @brief ファンアウトをつなぎ替える．
+// @param[in] old_id もとのノード番号
+// @param[in] new_id つなぎ替える新しいノード番号
+void
+BnNetwork::substitute_fanout(int old_id,
+			     int new_id)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->substitute_fanout(old_id, new_id);
+}
+
 // @brief 整合性のチェックを行う．
 // @return チェック結果を返す．
 //

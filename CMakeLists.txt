@@ -82,6 +82,8 @@ set ( bnet_SOURCES
   c++-src/bnet/read_blif.cc
   c++-src/bnet/read_iscas89.cc
   c++-src/bnet/write_blif.cc
+  c++-src/bnet/write_iscas89.cc
+  c++-src/bnet/simple_decomp.cc
   c++-src/bnet/BnNodeEnc.cc
   )
 

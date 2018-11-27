@@ -192,6 +192,13 @@ public:
 	  int dst_node,
 	  int ipos);
 
+  /// @brief ファンアウトをつなぎ替える．
+  /// @param[in] old_id もとのノード番号
+  /// @param[in] new_id つなぎ替える新しいノード番号
+  void
+  substitute_fanout(int old_id,
+		    int new_id);
+
   /// @brief 整合性のチェックを行う．
   /// @return チェック結果を返す．
   ///
