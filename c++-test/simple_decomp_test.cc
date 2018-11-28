@@ -41,7 +41,7 @@ TEST(SimpleDecompTest, test1)
   Expr lit1{Expr::posi_literal(var1)};
   Expr lit2{Expr::posi_literal(var2)};
 
-  Expr expr = (lit0 & ~lit1) | lit2;
+  Expr expr = (lit0 & ~lit1) | (~lit1 & lit2);
   vector<int> fanin_id_list{input1, input2, input3};
   int id1 = network1.new_logic(string(), expr, fanin_id_list);
 

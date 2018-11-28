@@ -13,12 +13,14 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/ClibCellLibrary.h"
+#include "ym/ClibCell.h"
+#include "ym/ClibFFInfo.h"
+#include "ym/ClibLatchInfo.h"
 #include "ym/HashMap.h"
+#include "BnNodeImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-class BnNodeImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BnNetworkImpl BnNetworkImpl.h "BnNetworkImpl.h"
@@ -534,15 +536,16 @@ private:
   /// @brief 論理式型のノードを分解する．
   /// @param[in] id ノード番号
   /// @param[in] expr 論理式
-  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  /// @param[in] term_list リテラルに対するノード番号のリスト
   /// @return ノード番号を返す．
   ///
   /// * id が kBnNullId 以外ならそのノードを置き換える．
   /// * そうでなければ新規のノードを作る．
+  /// * term_list は入力数の2倍のサイズ(i * 2 + 0 で肯定のリテラルを表す)
   int
   _decomp_expr(int id,
 	       const Expr& expr,
-	       const vector<int>& fanin_id_list);
+	       vector<int>& term_list);
 
   /// @brief 真理値表型のノードを分解する．
   /// @param[in] id ノード番号
@@ -790,6 +793,20 @@ BnNetworkImpl::node_num() const
   return mNodeList.size();
 }
 
+// @brief ノードを得る．
+// @param[in] id ノード番号 ( 0 <= id < node_num() )
+//
+// BnNode* node = BnNetworkImpl::node(id);
+// node->id() == id が成り立つ．
+inline
+const BnNode&
+BnNetworkImpl::node(int id) const
+{
+  ASSERT_COND( id >= 0 && id < node_num() );
+
+  return *mNodeList[id];
+}
+
 // @brief 入力数を得る．
 inline
 int
@@ -805,6 +822,7 @@ int
 BnNetworkImpl::input_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < input_num() );
+
   return mInputList[pos];
 }
 
@@ -831,6 +849,7 @@ int
 BnNetworkImpl::output_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < output_num() );
+
   return mOutputList[pos];
 }
 
@@ -849,6 +868,7 @@ int
 BnNetworkImpl::output_src_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < output_num() );
+
   return mOutputSrcList[pos];
 }
 
@@ -875,6 +895,7 @@ int
 BnNetworkImpl::logic_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < logic_num() );
+
   return mLogicList[pos];
 }
 
@@ -922,6 +943,107 @@ BnNetworkImpl::expr(int expr_id) const
   return mExprList[expr_id];
 }
 
+// @brief DFFを追加する．
+// @param[in] name DFF名
+// @param[in] has_xoutput 反転出力端子を持つ時 true にする．
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @return 生成したDFF番号を返す．
+//
+// 名前の重複に関しては感知しない．
+inline
+int
+BnNetworkImpl::new_dff(const string& name,
+		       bool has_xoutput,
+		       bool has_clear,
+		       bool has_preset)
+{
+  return _new_dff(name, has_xoutput, has_clear, has_preset, -1);
+}
+
+// @brief セルの情報を持ったDFFを追加する．
+// @param[in] name DFF名
+// @param[in] cell_id 対応するセル番号
+// @return 生成したDFF番号を返す．
+//
+// - 名前の重複に関しては感知しない．
+// - セルは FF のセルでなければならない．
+inline
+int
+BnNetworkImpl::new_dff(const string& name,
+		       int cell_id)
+{
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_ff() ) {
+    return -1;
+  }
+
+  ClibFFInfo ffinfo = cell.ff_info();
+  bool has_xoutput = ffinfo.has_xq();
+  bool has_clear = ffinfo.has_clear();
+  bool has_preset = ffinfo.has_preset();
+  return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
+}
+
+// @brief ラッチを追加する．
+// @param[in] name ラッチ名
+// @param[in] has_clear クリア端子を持つ時 true にする．
+// @param[in] has_preset プリセット端子を持つ時 true にする．
+// @return 生成したラッチ番号を返す．
+//
+// 名前の重複に関しては感知しない．
+inline
+int
+BnNetworkImpl::new_latch(const string& name,
+			 bool has_xoutput,
+			 bool has_clear,
+			 bool has_preset)
+{
+  return _new_latch(name, has_xoutput, has_clear, has_preset, -1);
+}
+
+// @brief セルの情報を持ったラッチを追加する．
+// @param[in] name ラッチ名
+// @param[in] cell_id 対応するセル番号
+// @return 生成したラッチ番号を返す．
+//
+// - 名前の重複に関しては感知しない．
+// - セルはラッチのセルでなければならない．
+inline
+int
+BnNetworkImpl::new_latch(const string& name,
+			 int cell_id)
+{
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_latch() ) {
+    return -1;
+  }
+
+  ClibLatchInfo latchinfo = cell.latch_info();
+  bool has_xoutput = latchinfo.has_xq();
+  bool has_clear = latchinfo.has_clear();
+  bool has_preset = latchinfo.has_preset();
+  return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
+}
+
+// @brief プリミティブ型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] ni 入力数
+// @param[in] logic_type 論理型
+// @return 生成した論理ノードの番号を返す．
+inline
+int
+BnNetworkImpl::new_primitive(const string& node_name,
+			     int ni,
+			     BnNodeType logic_type)
+{
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_primitive(id, node_name, ni, logic_type, -1);
+  mNodeList.push_back(node);
+
+  return id;
+}
+
 // @brief プリミティブ型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] logic_type 論理型
@@ -936,6 +1058,24 @@ BnNetworkImpl::new_primitive(const string& node_name,
   int ni = fanin_id_list.size();
   int id = new_primitive(node_name, ni, logic_type);
   connect_fanins(id, fanin_id_list);
+  return id;
+}
+
+// @brief 論理式型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] expr 論理式
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+inline
+int
+BnNetworkImpl::new_expr(const string& node_name,
+			const Expr& expr)
+{
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_expr(id, node_name, expr, -1);
+  mNodeList.push_back(node);
+
   return id;
 }
 
@@ -961,6 +1101,24 @@ BnNetworkImpl::new_expr(const string& node_name,
 // @brief 真理値表型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] tv 真理値表
+// @return 生成した論理ノードを返す．
+//
+// ノード名の重複に関しては感知しない．
+inline
+int
+BnNetworkImpl::new_tv(const string& node_name,
+		      const TvFunc& tv)
+{
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_tv(id, node_name, tv, -1);
+  mNodeList.push_back(node);
+
+  return id;
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] tv 真理値表
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
@@ -974,6 +1132,28 @@ BnNetworkImpl::new_tv(const string& node_name,
 {
   int id = new_tv(node_name, tv);
   connect_fanins(id, fanin_id_list);
+  return id;
+}
+
+// @brief 論理セルを追加する．
+// @param[in] node_name ノード名
+// @param[in] cell_id セル番号
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+// - セル名に合致するセルがない場合と論理セルでない場合には kBnNullId を返す．
+inline
+int
+BnNetworkImpl::new_cell(const string& node_name,
+			int cell_id)
+{
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_cell(id, node_name, cell_id);
+  if ( node == nullptr ) {
+    return kBnNullId;
+  }
+  mNodeList.push_back(node);
+
   return id;
 }
 
@@ -998,6 +1178,24 @@ BnNetworkImpl::new_cell(const string& node_name,
 
 // @brief プリミティブ型の論理ノードに変更する．
 // @param[in] id ノード番号
+// @param[in] ni 入力数
+// @param[in] logic_type 論理型
+inline
+void
+BnNetworkImpl::change_primitive(int id,
+				int ni,
+				BnNodeType logic_type)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_primitive(id, old_node->name(), ni, logic_type, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
+}
+
+// @brief プリミティブ型の論理ノードに変更する．
+// @param[in] id ノード番号
 // @param[in] logic_type 論理型
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 inline
@@ -1009,6 +1207,24 @@ BnNetworkImpl::change_primitive(int id,
   int ni = fanin_id_list.size();
   change_primitive(id, ni, logic_type);
   connect_fanins(id, fanin_id_list);
+}
+
+// @brief 論理式型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] expr 論理式
+//
+// 入力数は expr.input_size() を用いる．
+inline
+void
+BnNetworkImpl::change_expr(int id,
+			   const Expr& expr)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_expr(id, old_node->name(), expr, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
 }
 
 // @brief 論理式型の論理ノードに変更する．
@@ -1032,6 +1248,24 @@ BnNetworkImpl::change_expr(int id,
 // @brief 真理値表型の論理ノードに変更する．
 // @param[in] id ノード番号
 // @param[in] tv 真理値表
+//
+// - 入力数は tv.input_num() を用いる．
+inline
+void
+BnNetworkImpl::change_tv(int id,
+			 const TvFunc& tv)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_tv(id, old_node->name(), tv, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
+}
+
+// @brief 真理値表型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] tv 真理値表
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 //
 // - 入力数は tv.input_num() を用いる．
@@ -1045,6 +1279,27 @@ BnNetworkImpl::change_tv(int id,
 
   change_tv(id, tv);
   connect_fanins(id, fanin_id_list);
+}
+
+// @brief セル型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] cell_id セル番号
+//
+// - 入力数はセルから取得する．
+// - 論理セルでない場合にはなにもしない．
+inline
+void
+BnNetworkImpl::change_cell(int id,
+			   int cell_id)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_cell(id, old_node->name(), cell_id);
+  if ( new_node != nullptr ) {
+    mNodeList[id] = new_node;
+    delete old_node;
+  }
 }
 
 // @brief セル型の論理ノードに変更する．
