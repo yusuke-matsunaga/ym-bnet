@@ -192,6 +192,307 @@ BnNetworkImpl::set_name(const string& name)
   mName = name;
 }
 
+// @brief 部分回路を追加する．
+// @param[in] src_network 部分回路
+// @param[in] input_list インポートした部分回路の入力に接続するノード番号のリスト
+// @param[out] output_list インポートした部分回路の出力ノード番号のリスト
+//
+// * src_network は wrap_up() されている必要がある．
+// * src_network のポートの情報は失われる．
+// * 矛盾しない限りセルライブラリの情報も引く継がれる．
+void
+BnNetworkImpl::import_subnetwork(const BnNetworkImpl& src_network,
+				 const vector<int>& input_list,
+				 vector<int>& output_list)
+{
+  ASSERT_COND( src_network.mSane );
+
+  int input_num = src_network.input_num();
+  ASSERT_COND( input_list.size() == input_num );
+
+  int output_num = src_network.output_num();
+  output_list.clear();
+  output_list.reserve(output_num);
+
+  // src_network のノード番号をキーにして生成したノード番号を入れる配列
+  vector<int> id_map(src_network.node_num());
+
+  // src_network の入力と input_list の対応関係を id_map に入れる．
+  for ( int i: Range(input_num) ) {
+    int src_id = src_network.input_id(i);
+    int dst_id = input_list[i];
+    id_map[src_id] = dst_id;
+  }
+
+  // DFFを作る．
+  for ( auto src_dff_p: src_network.mDffList ) {
+    _dup_dff(*src_dff_p, id_map);
+  }
+
+  // ラッチを作る．
+  for ( auto src_latch_p: src_network.mLatchList ) {
+    _dup_latch(*src_latch_p, id_map);
+  }
+
+  // 関数情報の生成
+  for ( auto& func: src_network.mFuncList ) {
+    int func_id = _reg_tv(func);
+  }
+
+  // 論理式情報の生成
+  for ( auto& expr: src_network.mExprList ) {
+    int expr_id = _reg_expr(expr);
+  }
+
+  // 論理ノードの生成
+  for ( int src_id: src_network.logic_id_list() ) {
+    auto& src_node = src_network.node(src_id);
+    int dst_id = _dup_logic(src_node, src_network, id_map);
+  }
+
+  // src_network の外部出力のファンインに対応するノード番号を
+  // output_list に入れる．
+  for ( int src_id: src_network.output_src_id_list() ) {
+    int dst_id = id_map[src_id];
+    output_list.push_back(dst_id);
+  }
+}
+
+// @brief DFFを複製する．
+// @param[in] src_dff 元のDFF
+// @param[out] id_map 生成したノードの対応関係を記録する配列
+// @return 生成した DFF を返す．
+int
+BnNetworkImpl::_dup_dff(const BnDff& src_dff,
+			vector<int>& id_map)
+{
+  string dff_name = src_dff.name();
+  bool has_clear = (src_dff.clear() != kBnNullId);
+  bool has_preset = (src_dff.preset() != kBnNullId);
+  int dst_id = new_dff(dff_name, has_clear, has_preset);
+  auto& dst_dff = dff(dst_id);
+
+  // 各端子の対応関係を記録する．
+  {
+    int src_id = src_dff.input();
+    int dst_id = dst_dff.input();
+    id_map[src_id] = dst_id;
+  }
+  {
+    int src_id = src_dff.output();
+    int dst_id = dst_dff.output();
+    id_map[src_id] = dst_id;
+  }
+  {
+    int src_id = src_dff.clock();
+    int dst_id = dst_dff.clock();
+    id_map[src_id] = dst_id;
+  }
+  if ( has_clear ) {
+    int src_id = src_dff.clear();
+    int dst_id = dst_dff.clear();
+    id_map[src_id] = dst_id;
+  }
+  if ( has_preset ) {
+    int src_id = src_dff.preset();
+    int dst_id = dst_dff.preset();
+    id_map[src_id] = dst_id;
+  }
+
+  return dst_id;
+}
+
+// @brief ラッチを複製する．
+// @param[in] src_latch 元のラッチ
+// @param[out] id_map 生成したノードの対応関係を記録する配列
+// @return 生成したラッチを返す．
+int
+BnNetworkImpl::_dup_latch(const BnLatch& src_latch,
+			  vector<int>& id_map)
+{
+  string latch_name = src_latch.name();
+  bool has_clear = (src_latch.clear() != kBnNullId);
+  bool has_preset = (src_latch.preset() != kBnNullId);
+  int dst_id = new_latch(latch_name, has_clear, has_preset);
+  auto& dst_latch = latch(dst_id);
+
+  // 各端子の対応関係を記録する．
+  {
+    int src_id = src_latch.input();
+    int dst_id = dst_latch.input();
+    id_map[src_id] = dst_id;
+  }
+  {
+    int src_id = src_latch.output();
+    int dst_id = dst_latch.output();
+    id_map[src_id] = dst_id;
+  }
+  {
+    int src_id = src_latch.enable();
+    int dst_id = dst_latch.enable();
+    id_map[src_id] = dst_id;
+  }
+  if ( has_clear ) {
+    int src_id = src_latch.clear();
+    int dst_id = dst_latch.clear();
+    id_map[src_id] = dst_id;
+  }
+  if ( has_preset ) {
+    int src_id = src_latch.preset();
+    int dst_id = dst_latch.preset();
+    id_map[src_id] = dst_id;
+  }
+
+  return dst_id;
+}
+
+// @brief 論理ノードを複製する．
+// @param[in] src_node 元のノード
+// @param[out] id_map 生成したノードの対応関係を記録する配列
+// @return 生成したノードのノード番号を返す．
+//
+// ノード間の接続は行わない．
+int
+BnNetworkImpl::_dup_logic(const BnNode& src_node,
+			  const BnNetworkImpl& src_network,
+			  vector<int>& id_map)
+{
+  ASSERT_COND( src_node.is_logic() );
+
+  int nfi = src_node.fanin_num();
+  string name = src_node.name();
+  BnNodeType logic_type = src_node.type();
+  int cell_id = src_node.cell_id();
+  int dst_id = mNodeList.size();
+  BnNodeImpl* node = nullptr;
+  if ( logic_type == BnNodeType::Expr ) {
+    const Expr& expr = src_network.expr(src_node.expr_id());
+    int expr_id = _reg_expr(expr);
+    node = new BnExprNode(dst_id, name, nfi, expr_id, cell_id);
+  }
+  else if ( logic_type == BnNodeType::TvFunc ) {
+    const TvFunc& func = src_network.func(src_node.func_id());
+    int func_id = _reg_tv(func);
+    node = new BnTvNode(dst_id, name, nfi, func_id, cell_id);
+  }
+  else {
+    node = _new_primitive(dst_id, name, nfi, logic_type, cell_id);
+  }
+  ASSERT_COND( node != nullptr );
+  mNodeList.push_back(node);
+  id_map[src_node.id()] = dst_id;
+
+  for ( int i: Range(nfi) ) {
+    int src_iid = src_node.fanin_id(i);
+    int iid = id_map[src_iid];
+    connect(iid, dst_id, i);
+  }
+
+  return dst_id;
+}
+
+// @brief 各ノードがプリミティブ型になるように分解する．
+void
+BnNetworkImpl::simple_decomp()
+{
+  // 分解するノードのリストを作る．
+  vector<BnNodeImpl*> node_list;
+  node_list.reserve(mNodeList.size());
+  for ( auto node: mNodeList ) {
+    if ( node->type() == BnNodeType::Expr ||
+	 node->type() == BnNodeType::TvFunc ) {
+      node_list.push_back(node);
+    }
+  }
+
+  // node_list の各ノードを分解する．
+  // 直接 mNodeList で for ループを回さない理由は
+  // 分解の途中で mNodeList が変化するため．
+  for ( auto node: node_list ) {
+    if ( node->type() == BnNodeType::Expr ) {
+      _decomp_expr(node->id(), expr(node->expr_id()), node->fanin_id_list());
+    }
+    else { // BnNodeType::TvFunc
+      _decomp_tvfunc(node->id(), func(node->func_id()), node->fanin_id_list());
+    }
+  }
+
+  mSane = false;
+
+  wrap_up();
+}
+
+// @brief 論理式型のノードを分解する．
+// @param[in] id ノード番号
+// @param[in] expr 論理式
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return ノード番号を返す．
+//
+// * id が kBnNullId 以外ならそのノードを置き換える．
+// * そうでなければ新規のノードを作る．
+int
+BnNetworkImpl::_decomp_expr(int id,
+			    const Expr& expr,
+			    const vector<int>& fanin_id_list)
+{
+  if ( expr.is_posi_literal() ) {
+    VarId varid = expr.varid();
+    return fanin_id_list[varid.val()];
+  }
+  else if ( expr.is_nega_literal() ) {
+#warning "TODO: 否定のリテラルが2回以上現れる時は NOT ゲートを共有できる"
+    VarId varid = expr.varid();
+    return new_primitive(string(), BnNodeType::Not,
+			 vector<int>{ fanin_id_list[varid.val()] });
+  }
+  // 定数はありえない．
+  ASSERT_COND( expr.is_op() );
+
+  int nc = expr.child_num();
+  vector<int> new_fanin_list(nc);
+  for ( int i: Range(nc) ) {
+    int iid = _decomp_expr(kBnNullId, expr.child(i), fanin_id_list);
+    new_fanin_list[i] = iid;
+  }
+  BnNodeType node_type{BnNodeType::None};
+  if ( expr.is_and() ) {
+    node_type = BnNodeType::And;
+  }
+  else if ( expr.is_or() ) {
+    node_type = BnNodeType::Or;
+  }
+  else if ( expr.is_xor() ) {
+    node_type = BnNodeType::Xor;
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
+
+  if ( id == kBnNullId ) {
+    id = new_primitive(string(), node_type, new_fanin_list);
+  }
+  else {
+    change_primitive(id, node_type, new_fanin_list);
+  }
+  return id;
+}
+
+// @brief 真理値表型のノードを分解する．
+// @param[in] id ノード番号
+// @param[in] func 関数
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return ノード番号を返す．
+//
+// * id が kBnNullId 以外ならそのノードを置き換える．
+// * そうでなければ新規のノードを作る．
+int
+BnNetworkImpl::_decomp_tvfunc(int id,
+			      const TvFunc& func,
+			      const vector<int>& fanin_id_list)
+{
+  return id;
+}
+
 // @brief 入出力混合のポートを作る．
 // @param[in] port_name ポート名
 // @param[in] dir_vect 向きを表すベクタ
@@ -518,7 +819,11 @@ BnNetworkImpl::new_primitive(const string& node_name,
 			     int ni,
 			     BnNodeType logic_type)
 {
-  return _new_primitive(node_name, ni, logic_type, -1);
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_primitive(id, node_name, ni, logic_type, -1);
+  mNodeList.push_back(node);
+
+  return id;
 }
 
 // @brief 論理式型の論理ノードを追加する．
@@ -531,13 +836,11 @@ int
 BnNetworkImpl::new_expr(const string& node_name,
 			const Expr& expr)
 {
-  BnNodeType logic_type = FuncAnalyzer::analyze(expr);
-  int ni = expr.input_size();
-  if ( logic_type != BnNodeType::Expr ) {
-    // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, -1);
-  }
-  return _new_expr(node_name, ni, expr, -1);
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_expr(id, node_name, expr, -1);
+  mNodeList.push_back(node);
+
+  return id;
 }
 
 // @brief 真理値表型の論理ノードを追加する．
@@ -550,13 +853,11 @@ int
 BnNetworkImpl::new_tv(const string& node_name,
 		      const TvFunc& tv)
 {
-  BnNodeType logic_type = FuncAnalyzer::analyze(tv);
-  int ni = tv.input_num();
-  if ( logic_type != BnNodeType::TvFunc ) {
-    // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, -1);
-  }
-  return _new_tv(node_name, ni, tv, -1);
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_tv(id, node_name, tv, -1);
+  mNodeList.push_back(node);
+
+  return id;
 }
 
 // @brief 論理セルを追加する．
@@ -570,291 +871,170 @@ int
 BnNetworkImpl::new_cell(const string& node_name,
 			int cell_id)
 {
-  const ClibCell& cell = mCellLibrary.cell(cell_id);
-  if ( !cell.is_logic() || cell.output_num() != 1 ) {
+  int id = mNodeList.size();
+  BnNodeImpl* node = _new_cell(id, node_name, cell_id);
+  if ( node == nullptr ) {
     return kBnNullId;
   }
+  mNodeList.push_back(node);
 
-  Expr expr = cell.logic_expr(0);
-  BnNodeType logic_type = FuncAnalyzer::analyze(expr);
-  int ni = cell.input_num();
-  if ( logic_type != BnNodeType::Expr ) {
-    // 組み込み型だった．
-    return _new_primitive(node_name, ni, logic_type, cell_id);
+  return id;
+}
+
+// @brief プリミティブ型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] ni 入力数
+// @param[in] logic_type 論理型
+void
+BnNetworkImpl::change_primitive(int id,
+				int ni,
+				BnNodeType logic_type)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_primitive(id, old_node->name(), ni, logic_type, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
+}
+
+// @brief 論理式型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] expr 論理式
+//
+// 入力数は expr.input_size() を用いる．
+void
+BnNetworkImpl::change_expr(int id,
+			   const Expr& expr)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_expr(id, old_node->name(), expr, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
+}
+
+// @brief 真理値表型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] tv 真理値表
+//
+// - 入力数は tv.input_num() を用いる．
+void
+BnNetworkImpl::change_tv(int id,
+			 const TvFunc& tv)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_tv(id, old_node->name(), tv, -1);
+  mNodeList[id] = new_node;
+  delete old_node;
+}
+
+// @brief セル型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] cell_id セル番号
+//
+// - 入力数はセルから取得する．
+// - 論理セルでない場合にはなにもしない．
+void
+BnNetworkImpl::change_cell(int id,
+			   int cell_id)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* old_node = mNodeList[id];
+  BnNodeImpl* new_node = _new_cell(id, old_node->name(), cell_id);
+  if ( new_node != nullptr ) {
+    mNodeList[id] = new_node;
+    delete old_node;
   }
-  return _new_expr(node_name, ni, expr, cell_id);
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
+// @param[in] id ノード番号
 // @param[in] node_name ノード名
 // @param[in] ni 入力数
 // @param[in] logic_type 論理型
 // @param[in] cell_id 対応するセル番号
-// @return 生成した論理ノードの番号を返す．
-int
-BnNetworkImpl::_new_primitive(const string& node_name,
+// @return 生成した論理ノードを返す．
+BnNodeImpl*
+BnNetworkImpl::_new_primitive(int id,
+			      const string& node_name,
 			      int ni,
 			      BnNodeType logic_type,
 			      int cell_id)
 {
-  int id = mNodeList.size();
-  BnNodeImpl* node = new BnPrimNode(id, node_name, ni, logic_type, cell_id);
-  mNodeList.push_back(node);
-  mLogicList.push_back(id);
-
-  return id;
+  return new BnPrimNode(id, node_name, ni, logic_type, cell_id);
 }
 
 // @brief 論理式型の論理ノードを追加する．
+// @param[in] id ノード番号
 // @param[in] node_name ノード名
-// @param[in] ni 入力数
 // @param[in] expr 論理式
 // @param[in] cell_id 対応するセル番号
-// @return 生成した論理ノードの番号を返す．
-int
-BnNetworkImpl::_new_expr(const string& node_name,
-			 int ni,
+// @return 生成した論理ノードを返す．
+BnNodeImpl*
+BnNetworkImpl::_new_expr(int id,
+			 const string& node_name,
 			 const Expr& expr,
 			 int cell_id)
 {
-  int id = mNodeList.size();
-  int expr_id = _add_expr(expr);
-  BnNodeImpl* node = new BnExprNode(id, node_name, ni, expr_id, cell_id);
-  mNodeList.push_back(node);
-  mLogicList.push_back(id);
-
-  return id;
+  int ni = expr.input_size();
+  BnNodeType logic_type = FuncAnalyzer::analyze(expr);
+  if ( logic_type != BnNodeType::Expr ) {
+    // 組み込み型だった．
+    return _new_primitive(id, node_name, ni, logic_type, cell_id);
+  }
+  else {
+    // 論理式型だった．
+    int expr_id = _reg_expr(expr);
+    return new BnExprNode(id, node_name, ni, expr_id, cell_id);
+  }
 }
 
 // @brief 真理値表型の論理ノードを追加する．
+// @param[in] id ノード番号
 // @param[in] node_name ノード名
-// @param[in] ni 入力数
 // @param[in] tv 真理値表
 // @param[in] cell_id 対応するセル番号
-// @return 生成した論理ノードの番号を返す．
-int
-BnNetworkImpl::_new_tv(const string& node_name,
-		       int ni,
+// @return 生成した論理ノードを返す．
+BnNodeImpl*
+BnNetworkImpl::_new_tv(int id,
+		       const string& node_name,
 		       const TvFunc& tv,
 		       int cell_id)
 {
-  int id = mNodeList.size();
-  int func_id = _add_tv(tv);
-  BnNodeImpl* node = new BnTvNode(id, node_name, ni, func_id, cell_id);
-  mNodeList.push_back(node);
-  mLogicList.push_back(id);
-
-  return id;
-}
-
-// @brief 部分回路を追加する．
-// @param[in] src_network 部分回路
-// @param[in] input_list インポートした部分回路の入力に接続するノード番号のリスト
-// @param[out] output_list インポートした部分回路の出力ノード番号のリスト
-//
-// * src_network は wrap_up() されている必要がある．
-// * src_network のポートの情報は失われる．
-// * 矛盾しない限りセルライブラリの情報も引く継がれる．
-void
-BnNetworkImpl::import_subnetwork(const BnNetworkImpl& src_network,
-				 const vector<int>& input_list,
-				 vector<int>& output_list)
-{
-  ASSERT_COND( src_network.mSane );
-
-  int input_num = src_network.input_num();
-  ASSERT_COND( input_list.size() == input_num );
-
-  int output_num = src_network.output_num();
-  output_list.clear();
-  output_list.reserve(output_num);
-
-  // src_network のノード番号をキーにして生成したノード番号を入れる配列
-  vector<int> id_map(src_network.node_num());
-
-  // src_network の入力と input_list の対応関係を id_map に入れる．
-  for ( int i: Range(input_num) ) {
-    int src_id = src_network.input_id(i);
-    int dst_id = input_list[i];
-    id_map[src_id] = dst_id;
-  }
-
-  // DFFを作る．
-  for ( auto src_dff_p: src_network.mDffList ) {
-    dup_dff(*src_dff_p, id_map);
-  }
-
-  // ラッチを作る．
-  for ( auto src_latch_p: src_network.mLatchList ) {
-    dup_latch(*src_latch_p, id_map);
-  }
-
-  // 関数情報の生成
-  for ( auto& func: src_network.mFuncList ) {
-    int func_id = _add_tv(func);
-  }
-
-  // 論理式情報の生成
-  for ( auto& expr: src_network.mExprList ) {
-    int expr_id = _add_expr(expr);
-  }
-
-  // 論理ノードの生成
-  for ( int src_id: src_network.logic_id_list() ) {
-    auto& src_node = src_network.node(src_id);
-    int dst_id = dup_logic(src_node, src_network, id_map);
-  }
-
-  // src_network の外部出力のファンインに対応するノード番号を
-  // output_list に入れる．
-  for ( int src_id: src_network.output_src_id_list() ) {
-    int dst_id = id_map[src_id];
-    output_list.push_back(dst_id);
-  }
-}
-
-// @brief DFFを複製する．
-// @param[in] src_dff 元のDFF
-// @param[out] id_map 生成したノードの対応関係を記録する配列
-// @return 生成した DFF を返す．
-int
-BnNetworkImpl::dup_dff(const BnDff& src_dff,
-		       vector<int>& id_map)
-{
-  string dff_name = src_dff.name();
-  bool has_clear = (src_dff.clear() != kBnNullId);
-  bool has_preset = (src_dff.preset() != kBnNullId);
-  int dst_id = new_dff(dff_name, has_clear, has_preset);
-  auto& dst_dff = dff(dst_id);
-
-  // 各端子の対応関係を記録する．
-  {
-    int src_id = src_dff.input();
-    int dst_id = dst_dff.input();
-    id_map[src_id] = dst_id;
-  }
-  {
-    int src_id = src_dff.output();
-    int dst_id = dst_dff.output();
-    id_map[src_id] = dst_id;
-  }
-  {
-    int src_id = src_dff.clock();
-    int dst_id = dst_dff.clock();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_clear ) {
-    int src_id = src_dff.clear();
-    int dst_id = dst_dff.clear();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_preset ) {
-    int src_id = src_dff.preset();
-    int dst_id = dst_dff.preset();
-    id_map[src_id] = dst_id;
-  }
-
-  return dst_id;
-}
-
-// @brief ラッチを複製する．
-// @param[in] src_latch 元のラッチ
-// @param[out] id_map 生成したノードの対応関係を記録する配列
-// @return 生成したラッチを返す．
-int
-BnNetworkImpl::dup_latch(const BnLatch& src_latch,
-			 vector<int>& id_map)
-{
-  string latch_name = src_latch.name();
-  bool has_clear = (src_latch.clear() != kBnNullId);
-  bool has_preset = (src_latch.preset() != kBnNullId);
-  int dst_id = new_latch(latch_name, has_clear, has_preset);
-  auto& dst_latch = latch(dst_id);
-
-  // 各端子の対応関係を記録する．
-  {
-    int src_id = src_latch.input();
-    int dst_id = dst_latch.input();
-    id_map[src_id] = dst_id;
-  }
-  {
-    int src_id = src_latch.output();
-    int dst_id = dst_latch.output();
-    id_map[src_id] = dst_id;
-  }
-  {
-    int src_id = src_latch.enable();
-    int dst_id = dst_latch.enable();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_clear ) {
-    int src_id = src_latch.clear();
-    int dst_id = dst_latch.clear();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_preset ) {
-    int src_id = src_latch.preset();
-    int dst_id = dst_latch.preset();
-    id_map[src_id] = dst_id;
-  }
-
-  return dst_id;
-}
-
-// @brief 論理ノードを複製する．
-// @param[in] src_node 元のノード
-// @param[out] id_map 生成したノードの対応関係を記録する配列
-// @return 生成したノードのノード番号を返す．
-//
-// ノード間の接続は行わない．
-int
-BnNetworkImpl::dup_logic(const BnNode& src_node,
-			 const BnNetworkImpl& src_network,
-			 vector<int>& id_map)
-{
-  ASSERT_COND( src_node.is_logic() );
-
-  int nfi = src_node.fanin_num();
-  string name = src_node.name();
-  BnNodeType logic_type = src_node.type();
-  int cell_id = src_node.cell_id();
-  int dst_id = kBnNullId;
-  if ( logic_type == BnNodeType::Expr ) {
-    dst_id = _new_expr(name, nfi, src_network.expr(src_node.expr_id()), cell_id);
-  }
-  else if ( logic_type == BnNodeType::TvFunc ) {
-    dst_id = _new_tv(name, nfi, src_network.func(src_node.func_id()), cell_id);
+  int ni = tv.input_num();
+  BnNodeType logic_type = FuncAnalyzer::analyze(tv);
+  if ( logic_type != BnNodeType::TvFunc ) {
+    // 組み込み型だった．
+    return _new_primitive(id, node_name, ni, logic_type, cell_id);
   }
   else {
-    dst_id = _new_primitive(name, nfi, logic_type, cell_id);
+    int func_id = _reg_tv(tv);
+    return new BnTvNode(id, node_name, ni, func_id, cell_id);
   }
-  id_map[src_node.id()] = dst_id;
-
-  for ( int i: Range(nfi) ) {
-    int src_iid = src_node.fanin_id(i);
-    int iid = id_map[src_iid];
-    connect(iid, dst_id, i);
-  }
-
-  return dst_id;
 }
 
-// @brief ノード間を接続する．
-// @param[in] src_id ファンアウト元のノード番号
-// @param[in] dst_id ファンイン先のノード番号
-// @param[in] ipos ファンインの位置
-void
-BnNetworkImpl::connect(int src_id,
-		       int dst_id,
-		       int ipos)
+// @brief セル型の論理ノードを生成する．
+// @param[in] id ノード番号
+// @param[in] node_name ノード名
+// @param[in] cell_id セル番号
+// @return 生成した論理ノードを返す．
+BnNodeImpl*
+BnNetworkImpl::_new_cell(int id,
+			 const string& node_name,
+			 int cell_id)
 {
-  ASSERT_COND( src_id >= 0 && src_id < mNodeList.size() );
-  ASSERT_COND( dst_id >= 0 && dst_id < mNodeList.size() );
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_logic() || cell.output_num() != 1 ) {
+    return nullptr;
+  }
 
-  BnNodeImpl* dst_node = mNodeList[dst_id];
-  dst_node->set_fanin(ipos, src_id);
-
-  mSane = false;
+  Expr expr = cell.logic_expr(0);
+  return _new_expr(id, node_name, expr, cell_id);
 }
 
 // @brief ファンアウトをつなぎ替える．
@@ -889,6 +1069,45 @@ BnNetworkImpl::substitute_fanout(int old_id,
     ASSERT_COND( ipos >= 0 );
     dst_node->set_fanin(ipos, new_id);
   }
+
+  mSane = false;
+}
+
+// @brief ファンインをつなぎ替える．
+// @param[in] id ノード番号
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+void
+BnNetworkImpl::connect_fanins(int id,
+			      const vector<int>& fanin_id_list)
+{
+  ASSERT_COND( id >= 0 && id < mNodeList.size() );
+
+  BnNodeImpl* node = mNodeList[id];
+  int ni = node->fanin_num();
+
+  ASSERT_COND( fanin_id_list.size() == ni );
+
+  for ( int i: Range(ni) ) {
+    node->set_fanin(i, fanin_id_list[i]);
+  }
+
+  mSane = true;
+}
+
+// @brief ノード間を接続する．
+// @param[in] src_id ファンアウト元のノード番号
+// @param[in] dst_id ファンイン先のノード番号
+// @param[in] ipos ファンインの位置
+void
+BnNetworkImpl::connect(int src_id,
+		       int dst_id,
+		       int ipos)
+{
+  ASSERT_COND( src_id >= 0 && src_id < mNodeList.size() );
+  ASSERT_COND( dst_id >= 0 && dst_id < mNodeList.size() );
+
+  BnNodeImpl* dst_node = mNodeList[dst_id];
+  dst_node->set_fanin(ipos, src_id);
 
   mSane = false;
 }
@@ -1110,7 +1329,7 @@ BnNetworkImpl::wrap_up()
 // @param[in] expr 論理式
 // @return 関数番号を返す．
 int
-BnNetworkImpl::_add_expr(const Expr& expr)
+BnNetworkImpl::_reg_expr(const Expr& expr)
 {
   int ni = expr.input_size();
   int expr_id = 0;
@@ -1137,7 +1356,7 @@ BnNetworkImpl::_add_expr(const Expr& expr)
 // @param[in] tv 真理値表
 // @return 関数番号を返す．
 int
-BnNetworkImpl::_add_tv(const TvFunc& tv)
+BnNetworkImpl::_reg_tv(const TvFunc& tv)
 {
   // 同じ関数が登録されていないか調べる．
   int func_id;

@@ -50,9 +50,11 @@ TEST(SimpleDecompTest, test1)
 
   network1.wrap_up();
 
+  network1.write(cout);
+
   network1.simple_decomp();
 
-  network1.write_blif(cout);
+  network1.write(cout);
 }
 
 END_NAMESPACE_YM

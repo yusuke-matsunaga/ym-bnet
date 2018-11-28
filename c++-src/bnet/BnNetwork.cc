@@ -289,9 +289,69 @@ BnNetwork::new_logic(const string& node_name,
 {
   ASSERT_COND( mImpl != nullptr );
 
-  int ni = fanin_id_list.size();
-  int id = mImpl->new_primitive(node_name, ni, logic_type);
-  if ( id != kBnNullId ) {
+  int id = mImpl->new_primitive(node_name, logic_type, fanin_id_list);
+  return id;
+}
+
+// @brief 論理式型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] expr 論理式
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_logic(const string& node_name,
+		     const Expr& expr,
+		     const vector<int>& fanin_id_list)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  int id = mImpl->new_expr(node_name, expr);
+  if ( id != kBnNullId && !fanin_id_list.empty() ) {
+    connect_fanins(id, fanin_id_list);
+  }
+  return id;
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+// @param[in] node_name ノード名
+// @param[in] tv 真理値表
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードを返す．
+//
+// ノード名の重複に関しては感知しない．
+int
+BnNetwork::new_logic(const string& node_name,
+		     const TvFunc& tv,
+		     const vector<int>& fanin_id_list)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  int id = mImpl->new_tv(node_name, tv);
+  if ( id != kBnNullId && !fanin_id_list.empty() ) {
+    connect_fanins(id, fanin_id_list);
+  }
+  return id;
+}
+
+// @brief 論理セルを追加する．
+// @param[in] node_name ノード名
+// @param[in] cell_id セル番号
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+// @return 生成した論理ノードの番号を返す．
+//
+// - ノード名の重複に関しては感知しない．
+// - 論理セルでない場合には kBnNullId を返す．
+int
+BnNetwork::new_logic(const string& node_name,
+		     int cell_id,
+		     const vector<int>& fanin_id_list)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  int id = mImpl->new_cell(node_name, cell_id);
+  if ( id != kBnNullId && !fanin_id_list.empty() ) {
     connect_fanins(id, fanin_id_list);
   }
   return id;
@@ -573,68 +633,62 @@ BnNetwork::new_xnor(const string& node_name,
   return id;
 }
 
-// @brief 論理式型の論理ノードを追加する．
-// @param[in] node_name ノード名
+// @brief プリミティブ型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] logic_type 論理型
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+//
+// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
+void
+BnNetwork::change_logic(int id,
+			BnNodeType logic_type,
+			const vector<int>& fanin_id_list)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->change_primitive(id, logic_type, fanin_id_list);
+}
+
+// @brief 論理式型の論理ノードに変更する．
+// @param[in] id ノード番号
 // @param[in] expr 論理式
 // @param[in] fanin_id_list ファンインのノード番号のリスト
-// @return 生成した論理ノードの番号を返す．
-//
-// - ノード名の重複に関しては感知しない．
-int
-BnNetwork::new_logic(const string& node_name,
-		     const Expr& expr,
-		     const vector<int>& fanin_id_list)
+void
+BnNetwork::change_logic(int id,
+			const Expr& expr,
+			const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  int id = mImpl->new_expr(node_name, expr);
-  if ( id != kBnNullId && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  mImpl->change_expr(id, expr, fanin_id_list);
 }
 
-// @brief 真理値表型の論理ノードを追加する．
-// @param[in] node_name ノード名
+// @brief 真理値表型の論理ノードに変更する．
+// @param[in] id ノード番号
 // @param[in] tv 真理値表
 // @param[in] fanin_id_list ファンインのノード番号のリスト
-// @return 生成した論理ノードを返す．
-//
-// ノード名の重複に関しては感知しない．
-int
-BnNetwork::new_logic(const string& node_name,
-		     const TvFunc& tv,
-		     const vector<int>& fanin_id_list)
+void
+BnNetwork::change_logic(int id,
+			const TvFunc& tv,
+			const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  int id = mImpl->new_tv(node_name, tv);
-  if ( id != kBnNullId && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  mImpl->change_tv(id, tv, fanin_id_list);
 }
 
-// @brief 論理セルを追加する．
-// @param[in] node_name ノード名
+// @brief 論理セルに変更する．
+// @param[in] id ノード番号
 // @param[in] cell_id セル番号
 // @param[in] fanin_id_list ファンインのノード番号のリスト
-// @return 生成した論理ノードの番号を返す．
-//
-// - ノード名の重複に関しては感知しない．
-// - 論理セルでない場合には kBnNullId を返す．
-int
-BnNetwork::new_logic(const string& node_name,
-		     int cell_id,
-		     const vector<int>& fanin_id_list)
+void
+BnNetwork::change_logic(int id,
+			int cell_id,
+			const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
-  int id = mImpl->new_cell(node_name, cell_id);
-  if ( id != kBnNullId && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  mImpl->change_cell(id, cell_id, fanin_id_list);
 }
 
 // @brief 部分回路を追加する．
@@ -653,6 +707,27 @@ BnNetwork::import_subnetwork(const BnNetwork& src_network,
   ASSERT_COND( mImpl != nullptr );
 
   mImpl->import_subnetwork(*src_network.mImpl, input_list, output_list);
+}
+
+// @brief 単純なノードに分解する．
+//
+// 単純なノードとは以下のノード型
+// * BnNodeType::C0
+// * BnNodeType::C1
+// * BnNodeType::Buff
+// * BnNodeType::Not
+// * BnNodeType::And
+// * BnNodeType::Nand
+// * BnNodeType::Or
+// * BnNodeType::Nor
+// * BnNodeType::Xor
+// * BnNodeType::Xnor
+void
+BnNetwork::simple_decomp()
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->simple_decomp();
 }
 
 // @brief ノード間を接続する．

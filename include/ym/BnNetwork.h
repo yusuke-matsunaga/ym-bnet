@@ -233,6 +233,45 @@ public:
 	    BnNodeType logic_type,
 	    const vector<int>& fanin_id_list);
 
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] expr 論理式
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は expr.input_num() を用いる．
+  int
+  new_logic(const string& node_name,
+	    const Expr& expr,
+	    const vector<int>& fanin_id_list = vector<int>(0));
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] tv 真理値表
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は tv.input_num() を用いる．
+  int
+  new_logic(const string& node_name,
+	    const TvFunc& tv,
+	    const vector<int>& fanin_id_list = vector<int>(0));
+
+  /// @brief 論理セルを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] cell_id セル番号
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 論理セルでない場合には kBnNullId を返す．
+  int
+  new_logic(const string& node_name,
+	    int cell_id,
+	    const vector<int>& fanin_id_list = vector<int>(0));
+
   /// @brief C0型(定数０)の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @return 生成した論理ノードの番号を返す．
@@ -389,44 +428,43 @@ public:
   new_xnor(const string& node_name,
 	   const vector<int>& fanin_id_list);
 
-  /// @brief 論理式型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
+  /// @brief プリミティブ型の論理ノードに変更する．
+  /// @param[in] id ノード番号
+  /// @param[in] logic_type 論理型
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  ///
+  /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
+  void
+  change_logic(int id,
+	       BnNodeType logic_type,
+	       const vector<int>& fanin_id_list);
+
+  /// @brief 論理式型の論理ノードに変更する．
+  /// @param[in] id ノード番号
   /// @param[in] expr 論理式
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 入力数は expr.input_num() を用いる．
-  int
-  new_logic(const string& node_name,
-	    const Expr& expr,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+  void
+  change_logic(int id,
+	       const Expr& expr,
+	       const vector<int>& fanin_id_list);
 
-  /// @brief 真理値表型の論理ノードを追加する．
-  /// @param[in] node_name ノード名
+  /// @brief 真理値表型の論理ノードに変更する．
+  /// @param[in] id ノード番号
   /// @param[in] tv 真理値表
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 入力数は tv.input_num() を用いる．
-  int
-  new_logic(const string& node_name,
-	    const TvFunc& tv,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+  void
+  change_logic(int id,
+	       const TvFunc& tv,
+	       const vector<int>& fanin_id_list);
 
-  /// @brief 論理セルを追加する．
-  /// @param[in] node_name ノード名
+  /// @brief 論理セルに変更する．
+  /// @param[in] id ノード番号
   /// @param[in] cell_id セル番号
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 論理セルでない場合には kBnNullId を返す．
-  int
-  new_logic(const string& node_name,
-	    int cell_id,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+  void
+  change_logic(int id,
+	       int cell_id,
+	       const vector<int>& fanin_id_list);
 
   /// @brief 部分回路を追加する．
   /// @param[in] src_network 部分回路
