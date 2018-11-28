@@ -40,6 +40,8 @@ Iscas89ParserImpl::~Iscas89ParserImpl()
 // line   = input | output | buff | not | and | nand | or | nor | xor | xnor | dff ;
 // input  = 'INPUT' '(' NAME ')'
 // output = 'OUTPUT' '(' NAME ')'
+// const0 = NAME '=' 'CONST0' '(' ')'  // ym-bnet オリジナル
+// const1 = NAME '=' 'CONST1' '(' ')'  // ym-bnet オリジナル
 // buff   = NAME '=' 'BUFF' '(' NAME ')'
 // not    = NAME '=' 'NOT' '(' NAME ')'
 // and    = NAME '=' 'AND' '(' NAME ',' NAME { ',' NAME } ')'
@@ -48,7 +50,7 @@ Iscas89ParserImpl::~Iscas89ParserImpl()
 // nor    = NAME '=' 'NOR' '(' NAME ',' NAME { ',' NAME } ')'
 // xor    = NAME '=' 'XOR' '(' NAME ',' NAME { ',' NAME } ')'
 // xnor   = NAME '=' 'XNOR' '(' NAME ',' NAME { ',' NAME } ')'
-// mux    = NAME '=' 'MUX' '(' NAME, NAME, NAME ')' // 3入力決め打ち？
+// mux    = NAME '=' 'MUX' '(' NAME, NAME, NAME ')' // host2015 オリジナル．3入力決め打ち？
 // dff    = NAME '=' 'DFF' '(' NAME ')'
 //
 bool
@@ -112,15 +114,23 @@ Iscas89ParserImpl::read(const string& filename)
 	}
 
 	Iscas89Token gate_type = parse_gate_type();
-	if ( gate_type == Iscas89Token::ERROR ) {
-	  goto error;
-	}
+	BnNodeType type = BnNodeType::None;
 	vector<int> iname_id_list;
-	if ( !parse_name_list(iname_id_list, last_loc) ) {
-	  goto error;
-	}
-
-	if ( gate_type == Iscas89Token::DFF ) {
+	switch ( gate_type ) {
+	case Iscas89Token::CONST0: type = BnNodeType::C0; break;
+	case Iscas89Token::CONST1: type = BnNodeType::C1; break;
+	case Iscas89Token::BUFF:   type = BnNodeType::Buff; break;
+	case Iscas89Token::NOT:    type = BnNodeType::Not;  break;
+	case Iscas89Token::AND:    type = BnNodeType::And;  break;
+	case Iscas89Token::NAND:   type = BnNodeType::Nand; break;
+	case Iscas89Token::OR:     type = BnNodeType::Or;   break;
+	case Iscas89Token::NOR:    type = BnNodeType::Nor;  break;
+	case Iscas89Token::XOR:    type = BnNodeType::Xor;  break;
+	case Iscas89Token::XNOR:   type = BnNodeType::Xnor; break;
+	case Iscas89Token::DFF:
+	  if ( !parse_name_list(iname_id_list, last_loc) ) {
+	    goto error;
+	  }
 	  if ( iname_id_list.size() != 1 ) {
 	    // 引数の数が合わない．
 #warning "TODO: ちゃんとしたエラーメッセージを出す．"
@@ -130,25 +140,21 @@ Iscas89ParserImpl::read(const string& filename)
 			 name_id, iname_id_list[0]) ) {
 	    goto error;
 	  }
-	}
-	else if ( gate_type == Iscas89Token::MUX ) {
+	  break;
+	case Iscas89Token::MUX:
 	  if ( !read_mux(FileRegion(first_loc, last_loc),
 			 name_id, iname_id_list) ) {
 	    goto error;
 	  }
+	  break;
+	default:
+	  goto error;
 	}
-	else {
-	  BnNodeType type;
-	  switch ( gate_type ) {
-	  case Iscas89Token::BUFF: type = BnNodeType::Buff; break;
-	  case Iscas89Token::NOT:  type = BnNodeType::Not;  break;
-	  case Iscas89Token::AND:  type = BnNodeType::And;  break;
-	  case Iscas89Token::NAND: type = BnNodeType::Nand; break;
-	  case Iscas89Token::OR:   type = BnNodeType::Or;   break;
-	  case Iscas89Token::NOR:  type = BnNodeType::Nor;  break;
-	  case Iscas89Token::XOR:  type = BnNodeType::Xor;  break;
-	  case Iscas89Token::XNOR: type = BnNodeType::Xnor; break;
-	  default: ASSERT_NOT_REACHED;
+	if ( type != BnNodeType::None ) {
+	  if ( type != BnNodeType::C0 && type != BnNodeType::C1 ) {
+	    if ( !parse_name_list(iname_id_list, last_loc) ) {
+	      goto error;
+	    }
 	  }
 	  if ( !read_gate(FileRegion(first_loc, last_loc),
 			  name_id, type, iname_id_list) ) {
@@ -170,7 +176,12 @@ Iscas89ParserImpl::read(const string& filename)
   error:
     has_error = true;
     // ')' まで読み進める．
-    while ( read_token(name_id, first_loc) != Iscas89Token::RPAR ) ;
+    for ( ; ; ) {
+      Iscas89Token tok = read_token(name_id, first_loc);
+      if ( tok == Iscas89Token::RPAR || tok == Iscas89Token::_EOF ) {
+	break;
+      }
+    }
   }
 
   // 出力文の処理を行う．
@@ -232,6 +243,8 @@ Iscas89ParserImpl::parse_gate_type()
 
   Iscas89Token tok = read_token(cur_lval, cur_loc);
   switch ( tok ) {
+  case Iscas89Token::CONST0:
+  case Iscas89Token::CONST1:
   case Iscas89Token::BUFF:
   case Iscas89Token::NOT:
   case Iscas89Token::DFF:
@@ -410,6 +423,7 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 		    buf.str());
     return false;
   }
+
   cell->set_defined();
   bool stat = true;
   for ( auto handler: mHandlerList ) {
@@ -519,6 +533,8 @@ token_str(Iscas89Token token)
   case Iscas89Token::COMMA:  return ",";
   case Iscas89Token::INPUT:  return "INPUT";
   case Iscas89Token::OUTPUT: return "OUTPUT";
+  case Iscas89Token::CONST0: return "CONST0";
+  case Iscas89Token::CONST1: return "CONST1";
   case Iscas89Token::BUFF:   return "BUFF";
   case Iscas89Token::NOT:    return "NOT";
   case Iscas89Token::AND:    return "AND";

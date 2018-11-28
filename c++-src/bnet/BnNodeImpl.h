@@ -205,14 +205,9 @@ public:
   int
   fanin_id(int pos) const override;
 
-#if 0
   /// @brief ファンインのノード番号のリストを返す．
-  Array<int>
-  fanin_id_list() const override;
-#else
   const vector<int>&
   fanin_id_list() const override;
-#endif
 
   /// @brief 論理式番号を返す．
   ///

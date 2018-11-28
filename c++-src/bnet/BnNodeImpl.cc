@@ -271,21 +271,13 @@ BnNodeImpl::fanin_id(int pos) const
   return kBnNullId;
 }
 
-#if 0
 // @brief ファンインのノード番号のリストを返す．
-Array<int>
-BnNodeImpl::fanin_id_list() const
-{
-  return Array<int>(nullptr, 0, 0);
-}
-#else
 const vector<int>&
 BnNodeImpl::fanin_id_list() const
 {
   static vector<int> dummy;
   return dummy;
 }
-#endif
 
 // @brief 論理式番号を返す．
 //

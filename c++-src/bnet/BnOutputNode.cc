@@ -75,14 +75,7 @@ BnOutputNode::fanin_id(int pos) const
   return mFanin;
 }
 
-#if 0
 // @brief ファンインのノード番号のリストを返す．
-Array<int>
-BnOutputNode::fanin_id_list() const
-{
-  return Array<int>(&mFanin, 0, 1);
-}
-#else
 const vector<int>&
 BnOutputNode::fanin_id_list() const
 {
@@ -90,7 +83,6 @@ BnOutputNode::fanin_id_list() const
   dummy_fanin[0] = mFanin;
   return dummy_fanin;
 }
-#endif
 
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置

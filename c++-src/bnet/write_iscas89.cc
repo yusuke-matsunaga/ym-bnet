@@ -114,9 +114,10 @@ BnNetwork::write_iscas89(ostream& s) const
       for ( auto iid: node.fanin_id_list() ) {
 	s << comma << this->node(iid).name();
 	comma = ", ";
-	  }
-      s << ")" << endl;
+      }
+      s << ")";
     }
+    s << endl;
   }
 }
 

@@ -29,4 +29,20 @@ TEST(ReadIscas89Test, test)
   EXPECT_EQ( nd, network.dff_num() );
 }
 
+TEST(ReadIscas89Test, const_test)
+{
+  string filename = "const.bench";
+  string path = DATAPATH + filename;
+  BnNetwork network = BnNetwork::read_iscas89(path);
+  int ni = 1;
+  int no = 1;
+  int nd = 0;
+  int ng = 2;
+  EXPECT_EQ( ni + nd, network.input_num() );
+  EXPECT_EQ( no + nd + nd, network.output_num() );
+  EXPECT_EQ( ng, network.logic_num() );
+  EXPECT_EQ( ni + no, network.port_num() );
+  EXPECT_EQ( nd, network.dff_num() );
+}
+
 END_NAMESPACE_YM

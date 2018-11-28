@@ -64,14 +64,9 @@ public:
   int
   fanin_id(int pos) const override;
 
-#if 0
   /// @brief ファンインのノード番号のリストを返す．
-  Array<int>
-  fanin_id_list() const override;
-#else
   const vector<int>&
   fanin_id_list() const override;
-#endif
 
   /// @brief セル番号を返す．
   ///
@@ -99,16 +94,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-#if 1
-  // ファンイン数
-  int mFaninNum;
-
-  // ファンインのノード番号の配列
-  // サイズは mFaninNum
-  int* mFanins;
-#else
   vector<int> mFanins;
-#endif
 
   // セル番号
   int mCellId;

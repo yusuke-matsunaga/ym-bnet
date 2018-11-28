@@ -26,24 +26,14 @@ BnLogicNode::BnLogicNode(int id,
 			 int ni,
 			 int cell_id) :
   BnNodeImpl(id, name),
-  mFaninNum(ni),
+  mFanins(ni, kBnNullId),
   mCellId(cell_id)
 {
-  if ( mFaninNum > 0 ) {
-    mFanins = new int[mFaninNum];
-    for ( int i = 0; i < mFaninNum; ++ i ) {
-      mFanins[i] = kBnNullId;
-    }
-  }
-  else {
-    mFanins = nullptr;
-  }
 }
 
 // @brief デストラクタ
 BnLogicNode::~BnLogicNode()
 {
-  delete [] mFanins;
 }
 
 // @brief 外部入力の時 true を返す．
@@ -57,7 +47,7 @@ BnLogicNode::is_logic() const
 int
 BnLogicNode::fanin_num() const
 {
-  return mFaninNum;
+  return mFanins.size();
 }
 
 // @brief ファンインを求める．
@@ -66,30 +56,16 @@ int
 BnLogicNode::fanin_id(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < fanin_num() );
+
   return mFanins[pos];
 }
 
-#if 0
 // @brief ファンインのノード番号のリストを返す．
-Array<int>
-BnLogicNode::fanin_id_list() const
-{
-  return Array<int>(mFanins, 0, fanin_num());
-}
-#else
 const vector<int>&
 BnLogicNode::fanin_id_list() const
 {
-  static vector<int> dummy;
-  dummy.clear();
-  dummy.resize(mFaninNum);
-  for ( int i = 0; i < mFaninNum; ++ i ) {
-    dummy[i] = mFanins[i];
-  }
-  return dummy;
-  //return mFanins;
+  return mFanins;
 }
-#endif
 
 // @brief セル番号を返す．
 //
@@ -109,6 +85,7 @@ BnLogicNode::set_fanin(int ipos,
 		       int fanin_id)
 {
   ASSERT_COND( ipos >= 0 && ipos < fanin_num() );
+
   mFanins[ipos] = fanin_id;
 }
 

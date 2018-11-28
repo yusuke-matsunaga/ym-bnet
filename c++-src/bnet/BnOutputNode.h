@@ -73,14 +73,9 @@ public:
   int
   fanin_id(int pos) const override;
 
-#if 0
   /// @brief ファンインのノード番号のリストを返す．
-  Array<int>
-  fanin_id_list() const override;
-#else
   const vector<int>&
   fanin_id_list() const override;
-#endif
 
 
 public:
@@ -132,7 +127,6 @@ public:
 	       int port_bit);
 
   /// @brief デストラクタ
-  virtual
   ~BnPortOutput();
 
 
@@ -142,9 +136,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部出力端子の時に true を返す．
-  virtual
   bool
-  is_port_output() const;
+  is_port_output() const override;
 
 
 public:
@@ -155,16 +148,14 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-  virtual
   int
-  port_id() const;
+  port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
-  virtual
   int
-  port_bit() const;
+  port_bit() const override;
 
 
 private:
@@ -203,7 +194,6 @@ public:
 	       int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffControl();
 
 
@@ -216,9 +206,8 @@ public:
   ///
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  virtual
   int
-  dff_id() const;
+  dff_id() const override;
 
 
 private:
@@ -254,7 +243,6 @@ public:
 	     int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffInput();
 
 
@@ -264,9 +252,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brie DFFの入力端子の時に true を返す．
-  virtual
   bool
-  is_dff_input() const;
+  is_dff_input() const override;
 
 
 private:
@@ -297,7 +284,6 @@ public:
 	     int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffClock();
 
 
@@ -307,9 +293,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFのクロック端子の時に true を返す．
-  virtual
   bool
-  is_dff_clock() const;
+  is_dff_clock() const override;
 
 
 private:
@@ -340,7 +325,6 @@ public:
 	     int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffClear();
 
 
@@ -350,9 +334,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFのクリア端子の時に true を返す．
-  virtual
   bool
-  is_dff_clear() const;
+  is_dff_clear() const override;
 
 
 private:
@@ -383,7 +366,6 @@ public:
 	      int dff_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnDffPreset();
 
 
@@ -393,9 +375,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief DFFのプリセット端子の時に true を返す．
-  virtual
   bool
-  is_dff_preset() const;
+  is_dff_preset() const override;
 
 
 private:
@@ -428,7 +409,6 @@ public:
 		 int latch_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnLatchControl();
 
 
@@ -441,9 +421,8 @@ public:
   ///
   /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  virtual
   int
-  latch_id() const;
+  latch_id() const override;
 
 
 private:
@@ -479,7 +458,6 @@ public:
 	       int latch_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnLatchInput();
 
 
@@ -489,9 +467,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brie ラッチの入力端子の時に true を返す．
-  virtual
   bool
-  is_latch_input() const;
+  is_latch_input() const override;
 
 
 private:
@@ -522,7 +499,6 @@ public:
 		int latch_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnLatchEnable();
 
 
@@ -532,9 +508,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ラッチのイネーブル端子の時に true を返す．
-  virtual
   bool
-  is_latch_enable() const;
+  is_latch_enable() const override;
 
 
 private:
@@ -565,7 +540,6 @@ public:
 	       int latch_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnLatchClear();
 
 
@@ -575,9 +549,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ラッチのクリア端子の時に true を返す．
-  virtual
   bool
-  is_latch_clear() const;
+  is_latch_clear() const override;
 
 
 private:
@@ -608,7 +581,6 @@ public:
 		int latch_id);
 
   /// @brief デストラクタ
-  virtual
   ~BnLatchPreset();
 
 
@@ -618,9 +590,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ラッチのプリセット端子の時に true を返す．
-  virtual
   bool
-  is_latch_preset() const;
+  is_latch_preset() const override;
 
 
 private:

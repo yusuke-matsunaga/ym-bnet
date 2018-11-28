@@ -32,8 +32,10 @@ enum class Iscas89Token {
   NOR,
   XOR,
   XNOR,
-  MUX,
+  MUX, // host2015 で使用．オリジナルではないはず．
   DFF,
+  CONST0, // ym-bnet オリジナル
+  CONST1, // ym-bnet オリジナル
   NAME,
   _EOF,
   ERROR

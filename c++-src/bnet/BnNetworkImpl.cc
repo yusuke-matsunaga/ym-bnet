@@ -1060,6 +1060,15 @@ BnNetworkImpl::wrap_up()
     mark[id] = true;
   }
 
+  // 定数ノードをキューに積む．
+  for ( auto node: mNodeList ) {
+    if ( node->is_logic() && node->fanin_num() == 0 ) {
+      int id = node->id();
+      queue.push_back(id);
+      mark[id] = true;
+    }
+  }
+
   mLogicList.clear();
   mLogicList.reserve(node_num() - input_num() - output_num());
 
