@@ -11,8 +11,11 @@
 #include "ym/BnNode.h"
 #include "ym/BnNodeType.h"
 #include "ym/Range.h"
-
 #include "BnNetworkImpl.h"
+#include "BlifWriter.h"
+#include "Iscas89Writer.h"
+#include <fstream>
+
 
 BEGIN_NAMESPACE_YM_BNET
 
@@ -1032,6 +1035,90 @@ BnNetwork::expr(int expr_id) const
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->expr(expr_id);
+}
+
+// @brief 内容を blif 形式で出力する．
+// @param[in] filename 出力先のファイル名
+// @param[in] network ネットワーク
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_blif(const string& filename) const
+{
+  ofstream ofs(filename);
+  if ( ofs ) {
+    write_blif(ofs);
+  }
+}
+
+// @brief 内容を blif 形式で出力する．
+// @param[in] s 出力先のストリーム
+// @param[in] network ネットワーク
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_blif(ostream& s) const
+{
+  BlifWriter writer(*this);
+  writer(s);
+}
+
+// @brief 内容を ISCAS89(.bench) 形式で出力する．
+// @param[in] filename 出力先のファイル名
+// @param[in] network ネットワーク
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_iscas89(const string& filename) const
+{
+  ofstream ofs(filename);
+  if ( ofs ) {
+    write_iscas89(ofs);
+  }
+}
+
+// @brief 内容を ISCAS89(.bench) 形式で出力する．
+// @param[in] s 出力先のストリーム
+// @param[in] network ネットワーク
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_iscas89(ostream& s) const
+{
+  // 個々のノードが単純なゲートか調べる．
+  bool ng = false;
+  for ( auto id: logic_id_list() ) {
+    auto& node = this->node(id);
+    switch ( node.type() ) {
+    case BnNodeType::C0:
+    case BnNodeType::C1:
+    case BnNodeType::Buff:
+    case BnNodeType::Not:
+    case BnNodeType::And:
+    case BnNodeType::Nand:
+    case BnNodeType::Or:
+    case BnNodeType::Nor:
+    case BnNodeType::Xor:
+    case BnNodeType::Xnor:
+      break;
+    default:
+      // 上記以外は .bench では受け付けない．
+      ng = true;
+      break;
+    }
+  }
+  if ( ng ) {
+    // iscas89 フォーマットに合うように変形する
+    BnNetwork network(*this);
+    network.simple_decomp();
+    Iscas89Writer writer(network);
+    writer(s);
+    return;
+  }
+  else {
+    Iscas89Writer writer(*this);
+    writer(s);
+  }
 }
 
 // @brief 内容を出力する．

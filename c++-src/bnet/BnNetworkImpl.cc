@@ -577,9 +577,6 @@ BnNetworkImpl::_new_dff(const string& name,
   int output_id = mNodeList.size();
   {
     int iid = mInputList.size();
-    ostringstream buf;
-    buf << name << ".output";
-    string name = buf.str();
     BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);

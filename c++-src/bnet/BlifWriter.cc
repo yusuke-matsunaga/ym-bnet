@@ -1,54 +1,54 @@
 
-/// @file write_blif.cc
-/// @brief write_blif の実装ファイル
+/// @file BlifWriter.cc
+/// @brief BlifWriter の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
+#include "BlifWriter.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
+#include "ym/BnDff.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Range.h"
-#include <fstream>
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-// @brief 内容を blif 形式で出力する．
-// @param[in] filename 出力先のファイル名
-// @param[in] network ネットワーク
-//
-// ポートの情報は無視される．
-void
-BnNetwork::write_blif(const string& filename) const
+// @brief コンストラクタ
+// @param[in] network 対象のネットワーク
+BlifWriter::BlifWriter(const BnNetwork& network) :
+  WriterBase(network)
 {
-  ofstream ofs(filename);
-  if ( ofs ) {
-    write_blif(ofs);
-  }
+  init_name_array("__node(", ")");
 }
 
-// @brief 内容を blif 形式で出力する．
+// @brief デストラクタ
+BlifWriter::~BlifWriter()
+{
+}
+
+// @brief blif 形式で出力する．
 // @param[in] s 出力先のストリーム
-// @param[in] network ネットワーク
-//
-// ポートの情報は無視される．
 void
-BnNetwork::write_blif(ostream& s) const
+BlifWriter::operator()(ostream& s)
 {
   // .model 文の出力
-  s << ".model " << name() << endl;
+  s << ".model " << network().name() << endl;
 
   // .inputs 文の出力
   int count = 0;
-  for ( auto id: input_id_list() ) {
+  for ( auto id: network().input_id_list() ) {
+    auto& node = network().node(id);
+    if ( !node.is_port_input() || !is_data(id) ) {
+      continue;
+    }
     if ( count == 0 ) {
       s << ".inputs";
     }
-    s << " " << node(id).name();
+    s << " " << node_name(id);
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -61,11 +61,15 @@ BnNetwork::write_blif(ostream& s) const
 
   // .outputs 文の出力
   count = 0;
-  for ( auto id: output_id_list() ) {
+  for ( auto id: network().output_id_list() ) {
+    auto& node = network().node(id);
+    if ( !node.is_port_output() ) {
+      continue;
+    }
     if ( count == 0 ) {
       s << ".outputs";
     }
-    s << " " << node(id).name();
+    s << " " << node_name(id);
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -76,15 +80,24 @@ BnNetwork::write_blif(ostream& s) const
     s << endl;
   }
 
+  // .latch 文の出力
+  for ( auto id: Range(network().dff_num()) ) {
+    auto& dff = network().dff(id);
+    s << ".latch " << node_name(dff.input()) << " " << node_name(dff.output()) << endl;
+  }
+
   // .names 文の出力
-  for ( auto id: logic_id_list() ) {
-    s << ".names";
-    auto& node = this->node(id);
-    for ( auto iid: node.fanin_id_list() ) {
-      auto& inode = this->node(iid);
-      s << " " << inode.name();
+  for ( auto id: network().logic_id_list() ) {
+    if ( !is_data(id) ) {
+      continue;
     }
-    s << " " << node.name() << endl;
+
+    s << ".names";
+    auto& node = network().node(id);
+    for ( auto iid: node.fanin_id_list() ) {
+      s << " " << node_name(iid);
+    }
+    s << " " << node_name(id) << endl;
     auto type = node.type();
     int ni = node.fanin_num();
     switch ( type ) {
@@ -182,7 +195,7 @@ BnNetwork::write_blif(ostream& s) const
       break;
     case BnNodeType::Expr:
       {
-	const Expr& expr = this->expr(node.expr_id());
+	const Expr& expr = network().expr(node.expr_id());
 	if ( expr.is_sop() ) {
 	  int nc = expr.child_num();
 	  if ( expr.is_and() ) {
@@ -304,7 +317,7 @@ BnNetwork::write_blif(ostream& s) const
       break;
     case BnNodeType::TvFunc:
       {
-	const TvFunc& func = this->func(node.func_id());
+	const TvFunc& func = network().func(node.func_id());
 	for ( auto p: Range(1 << ni) ) {
 	  if ( func.value(p) ) {
 	    for ( auto i: Range(ni) ) {
