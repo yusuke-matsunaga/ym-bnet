@@ -73,11 +73,13 @@ public:
 
   /// @brief コピー代入演算子
   /// @param[in] src コピー元のオブジェクト
+  /// @return 代入後の自身への参照を返す．
   BnNetwork&
   operator=(const BnNetwork& src);
 
   /// @brief ムーブ代入演算子
   /// @param[in] src ムーブ元のオブジェクト
+  /// @return 代入後の自身への参照を返す．
   BnNetwork&
   operator=(BnNetwork&& src);
 

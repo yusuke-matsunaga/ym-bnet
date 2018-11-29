@@ -150,7 +150,7 @@ BnNetworkImpl::copy(const BnNetworkImpl& src)
 
   // 出力端子のファンインの接続
   int output_num = src.output_num();
-  for ( int i: Range(src.output_num()) ) {
+  for ( int i: Range(output_num) ) {
     int src_id = src.output_id(i);
     int src_fanin_id = src.output_src_id(i);
 
@@ -568,8 +568,8 @@ BnNetworkImpl::_new_dff(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".input";
-    string name = buf.str();
-    BnNodeImpl* node = new BnDffInput(input_id, name, oid, dff_id);
+    string iname = buf.str();
+    BnNodeImpl* node = new BnDffInput(input_id, iname, oid, dff_id);
     mNodeList.push_back(node);
     mOutputList.push_back(input_id);
   }
@@ -588,8 +588,8 @@ BnNetworkImpl::_new_dff(const string& name,
     int iid = mInputList.size();
     ostringstream buf;
     buf << name << ".xoutput";
-    string name = buf.str();
-    BnNodeImpl* node = new BnDffXOutput(xoutput_id, name, iid, dff_id);
+    string xname = buf.str();
+    BnNodeImpl* node = new BnDffXOutput(xoutput_id, xname, iid, dff_id);
     mNodeList.push_back(node);
     mInputList.push_back(xoutput_id);
   }
@@ -599,8 +599,8 @@ BnNetworkImpl::_new_dff(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".clock";
-    string name = buf.str();
-    BnNodeImpl* node = new BnDffClock(clock_id, name, oid, dff_id);
+    string cname = buf.str();
+    BnNodeImpl* node = new BnDffClock(clock_id, cname, oid, dff_id);
     mNodeList.push_back(node);
     mOutputList.push_back(clock_id);
   }
@@ -611,8 +611,8 @@ BnNetworkImpl::_new_dff(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".clear";
-    string name = buf.str();
-    BnNodeImpl* node = new BnDffClear(clear_id, name, oid, dff_id);
+    string rname = buf.str();
+    BnNodeImpl* node = new BnDffClear(clear_id, rname, oid, dff_id);
     mNodeList.push_back(node);
     mOutputList.push_back(clear_id);
   }
@@ -623,7 +623,8 @@ BnNetworkImpl::_new_dff(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".preset";
-    BnNodeImpl* node = new BnDffPreset(preset_id, name, oid, dff_id);
+    string sname = buf.str();
+    BnNodeImpl* node = new BnDffPreset(preset_id, sname, oid, dff_id);
     mNodeList.push_back(node);
     mOutputList.push_back(preset_id);
   }
@@ -659,8 +660,8 @@ BnNetworkImpl::_new_latch(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".input";
-    string name = buf.str();
-    BnNodeImpl* node = new BnLatchInput(input_id, name, oid, latch_id);
+    string iname = buf.str();
+    BnNodeImpl* node = new BnLatchInput(input_id, iname, oid, latch_id);
     mNodeList.push_back(node);
     mOutputList.push_back(input_id);
   }
@@ -668,9 +669,6 @@ BnNetworkImpl::_new_latch(const string& name,
   int output_id = mNodeList.size();
   {
     int iid = mInputList.size();
-    ostringstream buf;
-    buf << name << ".output";
-    string name = buf.str();
     BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
@@ -681,8 +679,8 @@ BnNetworkImpl::_new_latch(const string& name,
     int iid = mInputList.size();
     ostringstream buf;
     buf << name << ".xoutput";
-    string name = buf.str();
-    BnNodeImpl* node = new BnLatchXOutput(output_id, name, iid, latch_id);
+    string xname = buf.str();
+    BnNodeImpl* node = new BnLatchXOutput(output_id, xname, iid, latch_id);
     mNodeList.push_back(node);
     mInputList.push_back(xoutput_id);
   }
@@ -692,8 +690,8 @@ BnNetworkImpl::_new_latch(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".enable";
-    string name = buf.str();
-    BnNodeImpl* node = new BnLatchEnable(enable_id, name, oid, latch_id);
+    string ename = buf.str();
+    BnNodeImpl* node = new BnLatchEnable(enable_id, ename, oid, latch_id);
     mNodeList.push_back(node);
     mOutputList.push_back(enable_id);
   }
@@ -704,8 +702,8 @@ BnNetworkImpl::_new_latch(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".clear";
-    string name = buf.str();
-    BnNodeImpl* node = new BnLatchClear(clear_id, name, oid, latch_id);
+    string rname = buf.str();
+    BnNodeImpl* node = new BnLatchClear(clear_id, rname, oid, latch_id);
     mNodeList.push_back(node);
     mOutputList.push_back(clear_id);
   }
@@ -716,7 +714,8 @@ BnNetworkImpl::_new_latch(const string& name,
     int oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".preset";
-    BnNodeImpl* node = new BnLatchPreset(preset_id, name, oid, latch_id);
+    string sname = buf.str();
+    BnNodeImpl* node = new BnLatchPreset(preset_id, sname, oid, latch_id);
     mNodeList.push_back(node);
     mOutputList.push_back(preset_id);
   }

@@ -12,6 +12,7 @@
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
+#include "ym/MsgMgr.h"
 #include "ym/Range.h"
 
 
@@ -230,8 +231,10 @@ BnIscas89Handler::end()
 	int inode_id;
 	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
 	if ( !stat1 ) {
-#warning "TODO: MsgMgr を使ったエラー出力を整える．"
-	  cerr << id2str(fanin_info.fanin(i)) << " not found" << endl;
+	  ostringstream buf;
+	  buf << id2str(fanin_info.fanin(i)) << " not found" << endl;
+	  MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
+			  "ISCAS89_PARSER", buf.str());
 	  return false;
 	}
 	mNetwork->connect(inode_id, node_id, i);
@@ -242,8 +245,10 @@ BnIscas89Handler::end()
       int inode_id;
       bool stat1 = mIdMap.find(iname_id, inode_id);
       if ( !stat1 ) {
-#warning "TODO: MsgMgr を使ったエラー出力を整える．"
-	cerr << id2str(iname_id) << " not found" << endl;
+	ostringstream buf;
+	buf << id2str(iname_id) << " not found" << endl;
+	MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
+			"ISCAS89_PARSER", buf.str());
 	return false;
       }
       mNetwork->connect(inode_id, node_id, 0);
