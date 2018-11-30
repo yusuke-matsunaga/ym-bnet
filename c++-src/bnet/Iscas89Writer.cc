@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_BNET
 Iscas89Writer::Iscas89Writer(const BnNetwork& network) :
   WriterBase(network)
 {
-  init_name_array("__node(", ")");
+  init_name_array("__node[", "]");
 }
 
 // @brief デストラクタ

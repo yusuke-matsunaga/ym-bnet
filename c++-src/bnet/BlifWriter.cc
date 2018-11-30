@@ -22,7 +22,7 @@ BEGIN_NAMESPACE_YM_BNET
 BlifWriter::BlifWriter(const BnNetwork& network) :
   WriterBase(network)
 {
-  init_name_array("__node(", ")");
+  init_name_array("__node[", "]");
 }
 
 // @brief デストラクタ
