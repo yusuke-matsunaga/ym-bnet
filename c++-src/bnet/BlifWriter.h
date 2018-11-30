@@ -24,7 +24,11 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] network 対象のネットワーク
-  BlifWriter(const BnNetwork& network);
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
+  BlifWriter(const BnNetwork& network,
+	     const string& prefix,
+	     const string& suffix);
 
   /// @brief デストラクタ
   ~BlifWriter();

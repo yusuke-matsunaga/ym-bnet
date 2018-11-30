@@ -20,10 +20,14 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
-Iscas89Writer::Iscas89Writer(const BnNetwork& network) :
+// @param[in] prefix 自動生成名の接頭語
+// @param[in] suffix 自動生成名の接尾語
+Iscas89Writer::Iscas89Writer(const BnNetwork& network,
+			     const string& prefix,
+			     const string& suffix) :
   WriterBase(network)
 {
-  init_name_array("__node[", "]");
+  init_name_array(prefix, suffix);
 }
 
 // @brief デストラクタ

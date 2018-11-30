@@ -34,8 +34,8 @@ WriterBase::~WriterBase()
 // @param[in] prefix 自動生成名の接頭語
 // @param[in] suffix 自動生成名の接尾語
 void
-WriterBase::init_name_array(const char* prefix,
-			    const char* suffix)
+WriterBase::init_name_array(const string& prefix,
+			    const string& suffix)
 {
   // ノード名の自動生成が必要なノード番号のリスト
   vector<int> node_list;

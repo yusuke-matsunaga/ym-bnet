@@ -49,8 +49,8 @@ protected:
   /// @param[in] prefix 自動生成名の接頭語
   /// @param[in] suffix 自動生成名の接尾語
   void
-  init_name_array(const char* prefix,
-		  const char* suffix);
+  init_name_array(const string& prefix,
+		  const string& suffix);
 
   /// @brief 対象のネットワークを返す．
   const BnNetwork&

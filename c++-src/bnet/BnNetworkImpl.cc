@@ -513,7 +513,7 @@ BnNetworkImpl::new_port(const string& port_name,
     string node_name;
     if ( bit_width > 1 ) {
       ostringstream buf;
-      buf << port_name << "[" << i << "]";
+      buf << port_name << "." << i;
       node_name = buf.str();
     }
     else {

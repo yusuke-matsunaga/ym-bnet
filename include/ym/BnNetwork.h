@@ -708,31 +708,47 @@ public:
 
   /// @brief 内容を blif 形式で出力する．
   /// @param[in] s 出力先のストリーム
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
   ///
   /// ポートの情報は無視される．
   void
-  write_blif(ostream& s) const;
+  write_blif(ostream& s,
+	     const string& prefix = "__node",
+	     const string& suffix = "") const;
 
   /// @brief 内容を blif 形式で出力する．
   /// @param[in] filename 出力先のファイル名
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
   ///
   /// ポートの情報は無視される．
   void
-  write_blif(const string& filename) const;
+  write_blif(const string& filename,
+	     const string& prefix = "__node",
+	     const string& suffix = "") const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
   /// @param[in] s 出力先のストリーム
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
   ///
   /// ポートの情報は無視される．
   void
-  write_iscas89(ostream& s) const;
+  write_iscas89(ostream& s,
+		const string& prefix = "__node",
+		const string& suffix = "") const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
   /// @param[in] filename 出力先のファイル名
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
   ///
   /// ポートの情報は無視される．
   void
-  write_iscas89(const string& filename) const;
+  write_iscas89(const string& filename,
+		const string& prefix = "__node",
+		const string& suffix = "") const;
 
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
