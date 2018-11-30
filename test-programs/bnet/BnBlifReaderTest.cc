@@ -12,21 +12,52 @@
 
 BEGIN_NAMESPACE_YM
 
+void
+write_network(const BnNetwork& network,
+	      ostream& s,
+	      bool blif,
+	      bool iscas89)
+{
+  if ( blif ) {
+    network.write_blif(s);
+  }
+  else if ( iscas89 ) {
+    network.write_iscas89(s);
+  }
+  else {
+    network.write(s);
+  }
+}
+
 int
 BnBlifReaderTest(int argc,
 		 char** argv)
 {
   bool blif = false;
   bool iscas89 = false;
+  bool copy = false;
 
   int argbase = 1;
-  if ( strcmp(argv[argbase], "--blif") == 0 ) {
-    blif = true;
-    ++ argbase;
-  }
-  else if ( strcmp(argv[argbase], "--iscas89") == 0 ) {
-    iscas89 = true;
-    ++ argbase;
+  while ( argc > argbase ) {
+    if ( strcmp(argv[argbase], "--blif") == 0 ) {
+      blif = true;
+      ++ argbase;
+    }
+    else if ( strcmp(argv[argbase], "--iscas89") == 0 ) {
+      iscas89 = true;
+      ++ argbase;
+    }
+    else if ( strcmp(argv[argbase], "--copy") == 0 ) {
+      copy = true;
+      ++ argbase;
+    }
+    else if ( strncmp(argv[argbase], "--", 2) == 0 ) {
+      cerr << argv[argbase] << ": Unknown option, ignoared" << endl;
+      ++ argbase;
+    }
+    else {
+      break;
+    }
   }
 
   if ( argc - argbase != 1 ) {
@@ -41,14 +72,12 @@ BnBlifReaderTest(int argc,
     return -1;
   }
 
-  if ( blif ) {
-    network.write_blif(cout);
-  }
-  else if ( iscas89 ) {
-    network.write_iscas89(cout);
+  if ( copy ) {
+    BnNetwork network2{network};
+    write_network(network2, cout, blif, iscas89);
   }
   else {
-    network.write(cout);
+    write_network(network, cout, blif, iscas89);
   }
 
   return 0;

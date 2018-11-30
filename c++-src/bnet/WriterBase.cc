@@ -51,6 +51,10 @@ WriterBase::init_name_array(const string& prefix,
   // ただし重複のチェックを行う．
   for ( int id: Range(mNetwork.node_num()) ) {
     auto& node = mNetwork.node(id);
+    if ( node.is_output() ) {
+      // 外部出力ノードは無視
+      continue;
+    }
     string name = node.name();
     if ( name == string() ) {
       node_list.push_back(id);
