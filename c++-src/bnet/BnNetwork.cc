@@ -639,13 +639,29 @@ BnNetwork::new_xnor(const string& node_name,
 // @brief プリミティブ型の論理ノードに変更する．
 // @param[in] id ノード番号
 // @param[in] logic_type 論理型
+// @param[in] ni 入力数
+//
+// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
+void
+BnNetwork::change_primitive(int id,
+			    BnNodeType logic_type,
+			    int ni)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->change_primitive(id, logic_type, ni);
+}
+
+// @brief プリミティブ型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] logic_type 論理型
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 //
 // - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
 void
-BnNetwork::change_logic(int id,
-			BnNodeType logic_type,
-			const vector<int>& fanin_id_list)
+BnNetwork::change_primitive(int id,
+			    BnNodeType logic_type,
+			    const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
@@ -655,11 +671,25 @@ BnNetwork::change_logic(int id,
 // @brief 論理式型の論理ノードに変更する．
 // @param[in] id ノード番号
 // @param[in] expr 論理式
+//
+// 入力数は expr.input_size() から得る．
+void
+BnNetwork::change_expr(int id,
+		       const Expr& expr)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->change_expr(id, expr);
+}
+
+// @brief 論理式型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] expr 論理式
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 void
-BnNetwork::change_logic(int id,
-			const Expr& expr,
-			const vector<int>& fanin_id_list)
+BnNetwork::change_expr(int id,
+		       const Expr& expr,
+		       const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
@@ -669,11 +699,25 @@ BnNetwork::change_logic(int id,
 // @brief 真理値表型の論理ノードに変更する．
 // @param[in] id ノード番号
 // @param[in] tv 真理値表
+//
+// 入力数は tv.input_num() から得る．
+void
+BnNetwork::change_tv(int id,
+		     const TvFunc& tv)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->change_tv(id, tv);
+}
+
+// @brief 真理値表型の論理ノードに変更する．
+// @param[in] id ノード番号
+// @param[in] tv 真理値表
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 void
-BnNetwork::change_logic(int id,
-			const TvFunc& tv,
-			const vector<int>& fanin_id_list)
+BnNetwork::change_tv(int id,
+		     const TvFunc& tv,
+		     const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 
@@ -683,11 +727,26 @@ BnNetwork::change_logic(int id,
 // @brief 論理セルに変更する．
 // @param[in] id ノード番号
 // @param[in] cell_id セル番号
+//
+// - 入力数はセルから取得する．
+// - 論理セルでない場合にはなにもしない．
+void
+BnNetwork::change_cell(int id,
+		       int cell_id)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->change_cell(id, cell_id);
+}
+
+// @brief 論理セルに変更する．
+// @param[in] id ノード番号
+// @param[in] cell_id セル番号
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 void
-BnNetwork::change_logic(int id,
-			int cell_id,
-			const vector<int>& fanin_id_list)
+BnNetwork::change_cell(int id,
+		       int cell_id,
+		       const vector<int>& fanin_id_list)
 {
   ASSERT_COND( mImpl != nullptr );
 

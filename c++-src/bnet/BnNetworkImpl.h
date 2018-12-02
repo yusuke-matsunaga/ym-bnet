@@ -244,8 +244,8 @@ public:
   /// @param[in] logic_type 論理型
   void
   change_primitive(int id,
-		   int ni,
-		   BnNodeType logic_type);
+		   BnNodeType logic_type,
+		   int ni);
 
   /// @brief プリミティブ型の論理ノードに変更する．
   /// @param[in] id ノード番号
@@ -1183,8 +1183,8 @@ BnNetworkImpl::new_cell(const string& node_name,
 inline
 void
 BnNetworkImpl::change_primitive(int id,
-				int ni,
-				BnNodeType logic_type)
+				BnNodeType logic_type,
+				int ni)
 {
   ASSERT_COND( id >= 0 && id < mNodeList.size() );
 
@@ -1205,7 +1205,7 @@ BnNetworkImpl::change_primitive(int id,
 				const vector<int>& fanin_id_list)
 {
   int ni = fanin_id_list.size();
-  change_primitive(id, ni, logic_type);
+  change_primitive(id, logic_type, ni);
   connect_fanins(id, fanin_id_list);
 }
 
