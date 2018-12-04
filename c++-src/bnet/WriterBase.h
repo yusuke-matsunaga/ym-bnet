@@ -9,6 +9,8 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/NameMgr.h"
+#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -72,6 +74,17 @@ protected:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノード名の登録を行う．
+  /// @param[in] node ノード
+  /// @param[in] name_hash ノード名のハッシュ
+  /// @param[in] name_mgr ノード名を管理するクラス
+  /// @param[out] node_list ノード名の生成が必要なノード番号のリスト
+  void
+  reg_node_name(const BnNode& node,
+		HashSet<string>& name_hash,
+		NameMgr& name_mgr,
+		vector<int>& node_list);
 
   /// @brief TFI のノードに印をつける．
   /// @param[in] node_id ノード番号

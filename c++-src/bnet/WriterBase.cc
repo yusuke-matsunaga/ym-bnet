@@ -49,26 +49,33 @@ WriterBase::init_name_array(const string& prefix,
 
   // もともと与えられた名前があればそれを使う．
   // ただし重複のチェックを行う．
-  for ( int id: Range(mNetwork.node_num()) ) {
+  for ( int id: mNetwork.input_id_list() ) {
     auto& node = mNetwork.node(id);
-    if ( node.is_output() ) {
-      // 外部出力ノードは無視
-      continue;
+    if ( node.is_port_input() ) {
+      reg_node_name(node, name_hash, name_mgr, node_list);
     }
-    string name = node.name();
-    if ( name == string() ) {
-      node_list.push_back(id);
+  }
+  for ( int id: mNetwork.output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    if ( node.is_port_output() ) {
+      reg_node_name(node, name_hash, name_mgr, node_list);
     }
-    else if ( name_hash.check(name) ) {
-      // 名前が重複していた．
-      node_list.push_back(id);
+  }
+  for ( int id: mNetwork.input_id_list() ) {
+    auto& node = mNetwork.node(id);
+    if ( !node.is_port_input() ) {
+      reg_node_name(node, name_hash, name_mgr, node_list);
     }
-    else {
-      // 名前を登録する．
-      name_mgr.add(name.c_str());
-      name_hash.add(name);
-      mNameArray[id] = name;
+  }
+  for ( int id: mNetwork.output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    if ( !node.is_port_output() ) {
+      reg_node_name(node, name_hash, name_mgr, node_list);
     }
+  }
+  for ( int id: mNetwork.logic_id_list() ) {
+    auto& node = mNetwork.node(id);
+    reg_node_name(node, name_hash, name_mgr, node_list);
   }
 
   // node_list のノードに名前を与える．
@@ -77,17 +84,23 @@ WriterBase::init_name_array(const string& prefix,
     mNameArray[id] = name;
   }
 
-  // 出力ノードの名前をファンインの名前に付け替える．
+  // 出力ノードのファンインの名前を出力の名前に付け替える．
   for ( int i: Range(mNetwork.output_num()) ) {
     int id = mNetwork.output_id(i);
     int src_id = mNetwork.output_src_id(i);
-    mNameArray[id] = mNameArray[src_id];
+    auto& node = mNetwork.node(id);
+    if ( node.is_port_output() ) {
+      mNameArray[src_id] = mNameArray[id];
+    }
+    else if ( node.is_dff_input() ) {
+      mNameArray[id] = mNameArray[src_id];
+    }
   }
 
   // データ系のノードに印をつける．
   for ( int id: mNetwork.output_id_list() ) {
     auto& node = mNetwork.node(id);
-    if ( node.is_port_output() ) {
+    if ( node.is_port_output() || node.is_dff_input() ) {
       mark_tfi(node.fanin_id(0));
     }
   }
@@ -102,6 +115,34 @@ WriterBase::init_name_array(const string& prefix,
     if ( node.fanout_num() == 0 ) {
       mark_tfi(id);
     }
+  }
+}
+
+// @brief ノード名の登録を行う．
+// @param[in] node ノード
+// @param[in] name_hash ノード名のハッシュ
+// @param[in] name_mgr ノード名を管理するクラス
+// @param[out] node_list ノード名の生成が必要なノード番号のリスト
+void
+WriterBase::reg_node_name(const BnNode& node,
+			  HashSet<string>& name_hash,
+			  NameMgr& name_mgr,
+			  vector<int>& node_list)
+{
+  string name = node.name();
+  int id = node.id();
+  if ( name == string() ) {
+    node_list.push_back(id);
+  }
+  else if ( name_hash.check(name) ) {
+    // 名前が重複していた．
+    node_list.push_back(id);
+  }
+  else {
+    // 名前を登録する．
+    name_mgr.add(name.c_str());
+    name_hash.add(name);
+    mNameArray[id] = name;
   }
 }
 

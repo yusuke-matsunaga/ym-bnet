@@ -577,7 +577,10 @@ BnNetworkImpl::_new_dff(const string& name,
   int output_id = mNodeList.size();
   {
     int iid = mInputList.size();
-    BnNodeImpl* node = new BnDffOutput(output_id, name, iid, dff_id);
+    ostringstream buf;
+    buf << name;
+    string oname = buf.str();
+    BnNodeImpl* node = new BnDffOutput(output_id, oname, iid, dff_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
   }
@@ -669,7 +672,10 @@ BnNetworkImpl::_new_latch(const string& name,
   int output_id = mNodeList.size();
   {
     int iid = mInputList.size();
-    BnNodeImpl* node = new BnLatchOutput(output_id, name, iid, latch_id);
+    ostringstream buf;
+    buf << name;
+    string oname = buf.str();
+    BnNodeImpl* node = new BnLatchOutput(output_id, oname, iid, latch_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
   }
