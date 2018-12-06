@@ -10,7 +10,6 @@
 
 
 #include "ym/bnet.h"
-#include "ym/SimpleAlloc.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -74,10 +73,6 @@ private:
 	    const string& ipat_str,
 	    char opat_char);
 
-  /// @brief カバーを登録する．
-  void
-  reg_cover(BlifCover* cover);
-
   /// @brief ハッシュ表のメモリを確保する．
   /// @param[in] req_size 要求サイズ
   void
@@ -88,9 +83,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // BlifCover 用のメモリアロケータ
-  SimpleAlloc mAlloc;
 
   // 登録されているカバー数
   int mCoverNum;

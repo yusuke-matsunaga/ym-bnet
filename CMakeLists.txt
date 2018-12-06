@@ -57,7 +57,6 @@ add_subdirectory ( test-programs )
 # ===================================================================
 
 set ( blif_SOURCES
-  c++-src/blif/BlifCover.cc
   c++-src/blif/BlifCoverMgr.cc
   c++-src/blif/BlifDic.cc
   c++-src/blif/BlifHandler.cc

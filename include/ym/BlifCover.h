@@ -9,21 +9,12 @@
 /// All rights reserved.
 
 
-#include "bnet.h"
+#include "ym/bnet.h"
 #include "ym/Expr.h"
+#include "ym/SopCover.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-//////////////////////////////////////////////////////////////////////
-/// @brief パタンを表す列挙型
-//////////////////////////////////////////////////////////////////////
-enum class BlifPat {
-  _0,
-  _1,
-  _D
-};
-
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCover BlifCover.h "ym/BlifCover.h"
@@ -37,12 +28,19 @@ class BlifCover
 {
   friend class BlifCoverMgr;
 
-  using PatVectType = ymuint64;
-
 private:
 
   /// @brief コンストラクタ
-  BlifCover();
+  /// @param[in] id ID番号
+  /// @param[in] ni 入力数
+  /// @param[in] cube_list キューブを表すリテラルのリストのリスト
+  /// @param[in] opat 出力のパタン
+  /// @param[in] expr 論理式
+  BlifCover(int id,
+	    int ni,
+	    const vector<vector<Literal>>& cube_list,
+	    SopPat opat,
+	    const Expr& expr);
 
   /// @brief デストラクタ
   ~BlifCover();
@@ -69,7 +67,7 @@ public:
   /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
   /// @return パタンを返す．
-  BlifPat
+  SopPat
   input_pat(int ipos,
 	    int cpos) const;
 
@@ -77,7 +75,7 @@ public:
   ///
   /// - すべてのキューブに対して同一のパタンとなる．
   /// - ドントケアはない．
-  BlifPat
+  SopPat
   output_pat() const;
 
   /// @brief 対応する論理式を返す．
@@ -104,14 +102,11 @@ private:
   // ID番号
   int mId;
 
-  // 入力数
-  int mInputNum;
-
-  // キューブ数
-  int mCubeNum;
+  // 入力カバー
+  SopCover mInputCover;
 
   // 出力パタン
-  BlifPat mOutputPat;
+  SopPat mOutputPat;
 
   // 論理式
   Expr mExpr;
@@ -119,21 +114,38 @@ private:
   // 次の要素を指すリンクポインタ
   BlifCover* mLink;
 
-  // パタンを表すビット配列
-  // 一つのパタンを2ビットで表す．
-  PatVectType mPatArray[1];
-
 };
-
-/// @brief BlifCover::Pat のストリーム出力
-ostream&
-operator<<(ostream& s,
-	   BlifPat pat);
 
 
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] id ID番号
+// @param[in] ni 入力数
+// @param[in] cube_list キューブを表すリテラルのリストのリスト
+// @param[in] opat 出力のパタン
+// @param[in] expr 論理式
+inline
+BlifCover::BlifCover(int id,
+		     int ni,
+		     const vector<vector<Literal>>& cube_list,
+		     SopPat opat,
+		     const Expr& expr) :
+  mId(id),
+  mInputCover(ni, cube_list),
+  mOutputPat(opat),
+  mExpr(expr),
+  mLink(nullptr)
+{
+}
+
+// @brief デストラクタ
+inline
+BlifCover::~BlifCover()
+{
+}
 
 // @brief ID番号を返す．
 inline
@@ -148,7 +160,7 @@ inline
 int
 BlifCover::input_num() const
 {
-  return mInputNum;
+  return mInputCover.variable_num();
 }
 
 // @brief キューブ数を返す．
@@ -156,7 +168,19 @@ inline
 int
 BlifCover::cube_num() const
 {
-  return mCubeNum;
+  return mInputCover.cube_num();
+}
+
+// @brief 入力パタンを返す．
+// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
+// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
+// @return パタンを返す．
+inline
+SopPat
+BlifCover::input_pat(int cpos,
+		     int ipos) const
+{
+  return mInputCover.get_pat(cpos, VarId(ipos));
 }
 
 // @brief 出力パタンを返す．
@@ -164,7 +188,7 @@ BlifCover::cube_num() const
 // - すべてのキューブに対して同一のパタンとなる．
 // - ドントケアはない．
 inline
-BlifPat
+SopPat
 BlifCover::output_pat() const
 {
   return mOutputPat;
@@ -176,21 +200,6 @@ Expr
 BlifCover::expr() const
 {
   return mExpr;
-}
-
-// @brief BlifCover::Pat のストリーム出力
-inline
-ostream&
-operator<<(ostream& s,
-	   BlifPat pat)
-{
-  switch ( pat ) {
-  case BlifPat::_0: s << '0'; break;
-  case BlifPat::_1: s << '1'; break;
-  case BlifPat::_D: s << '-'; break;
-  default: ASSERT_NOT_REACHED;
-  }
-  return s;
 }
 
 END_NAMESPACE_YM_BNET
