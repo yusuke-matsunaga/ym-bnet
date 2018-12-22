@@ -23,6 +23,13 @@ BEGIN_NAMESPACE_YM_BNET
 /// 割り当てること
 /// そのために init_name_array(prefix, suffix) を呼ぶ必要がある．
 /// ここで，prefix, suffix は自動生成名の接頭語，接尾語．
+///
+/// 注意が必要なのは外部出力ノードの名前．
+/// blif や iscas89 では外部出力には名前はなく，そのファンインの
+/// ノード名が指定されているだけである．
+/// ただし，それを再び blif や iscas89 で出力する限り外部出力名
+/// は必要でないので明示的には問題とならない．
+/// ここでは外部出力名は一律にそのファンインのノード名とする．
 //////////////////////////////////////////////////////////////////////
 class WriterBase
 {
@@ -76,12 +83,12 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード名の登録を行う．
-  /// @param[in] node ノード
+  /// @param[in] node_id ノード番号
   /// @param[in] name_hash ノード名のハッシュ
   /// @param[in] name_mgr ノード名を管理するクラス
   /// @param[out] node_list ノード名の生成が必要なノード番号のリスト
   void
-  reg_node_name(const BnNode& node,
+  reg_node_name(int node_id,
 		HashSet<string>& name_hash,
 		NameMgr& name_mgr,
 		vector<int>& node_list);

@@ -42,18 +42,16 @@ Iscas89Writer::operator()(ostream& s)
 {
   // INPUT 文の出力
   int count = 0;
-  for ( auto id: network().input_id_list() ) {
-    if ( network().node(id).is_port_input() && is_data(id) ) {
+  for ( int id: network().primary_input_id_list() ) {
+    if ( is_data(id) ) {
       s << "INPUT(" << node_name(id) << ")" << endl;
     }
   }
   s << endl;
 
   // OUTPUT 文の出力
-  for ( auto id: network().output_id_list() ) {
-    if ( network().node(id).is_port_output() ) {
-      s << "OUTPUT(" << node_name(id) << ")" << endl;
-    }
+  for ( int id: network().primary_output_id_list() ) {
+    s << "OUTPUT(" << node_name(id) << ")" << endl;
   }
   s << endl;
 

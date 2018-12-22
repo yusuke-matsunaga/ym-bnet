@@ -979,6 +979,15 @@ BnNetwork::input_id_list() const
   return mImpl->input_id_list();
 }
 
+// @brief 外部入力ノードのノード番号のリストを得る．
+const vector<int>&
+BnNetwork::primary_input_id_list() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->primary_input_id_list();
+}
+
 // @brief 出力数を得る．
 int
 BnNetwork::output_num() const
@@ -1028,6 +1037,24 @@ BnNetwork::output_src_id_list() const
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->output_src_id_list();
+}
+
+// @brief 外部出力ノードのノード番号のリストを得る．
+const vector<int>&
+BnNetwork::primary_output_id_list() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->primary_output_id_list();
+}
+
+// @brief 外部出力ノードのソースノード番号のリストを得る．
+const vector<int>&
+BnNetwork::primary_output_src_id_list() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->primary_output_src_id_list();
 }
 
 // @brief 論理ノード数を得る．

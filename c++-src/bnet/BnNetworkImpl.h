@@ -431,6 +431,10 @@ public:
   const vector<int>&
   input_id_list() const;
 
+  /// @brief 外部入力ノードのノード番号のリストを得る．
+  const vector<int>&
+  primary_input_id_list() const;
+
   /// @brief 出力数を得る．
   int
   output_num() const;
@@ -456,6 +460,14 @@ public:
   /// ソースノードとは出力ノードのファンインのノード
   const vector<int>&
   output_src_id_list() const;
+
+  /// @brief 外部出力ノードのノード番号のリストを得る．
+  const vector<int>&
+  primary_output_id_list() const;
+
+  /// @brief 外部出力ノードのソースノード番号のリストを得る．
+  const vector<int>&
+  primary_output_src_id_list() const;
 
   /// @brief 論理ノード数を得る．
   int
@@ -682,11 +694,20 @@ private:
   // 入力ノード番号のリスト
   vector<int> mInputList;
 
+  // 外部入力ノード番号のリスト
+  vector<int> mPrimaryInputList;
+
   // 出力ノード番号のリスト
   vector<int> mOutputList;
 
   // 出力ソースノード番号のリスト
   vector<int> mOutputSrcList;
+
+  // 外部出力ノード番号のリスト
+  vector<int> mPrimaryOutputList;
+
+  // 外部出力ソースノード番号のリスト
+  vector<int> mPrimaryOutputSrcList;
 
   // 論理ノード番号のリスト
   vector<int> mLogicList;
@@ -834,6 +855,14 @@ BnNetworkImpl::input_id_list() const
   return mInputList;
 }
 
+// @brief 外部入力ノードのノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetworkImpl::primary_input_id_list() const
+{
+  return mPrimaryInputList;
+}
+
 // @brief 出力数を得る．
 inline
 int
@@ -878,6 +907,22 @@ const vector<int>&
 BnNetworkImpl::output_src_id_list() const
 {
   return mOutputSrcList;
+}
+
+// @brief 外部出力ノードのノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetworkImpl::primary_output_id_list() const
+{
+  return mPrimaryOutputList;
+}
+
+// @brief 外部出力ノードのソースノード番号のリストを得る．
+inline
+const vector<int>&
+BnNetworkImpl::primary_output_src_id_list() const
+{
+  return mPrimaryOutputSrcList;
 }
 
 // @brief 論理ノード数を得る．

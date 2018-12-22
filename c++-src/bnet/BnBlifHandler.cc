@@ -13,6 +13,7 @@
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/BlifCover.h"
+#include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/Range.h"
 

@@ -8,6 +8,7 @@
 
 #include "WriterBase.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "ym/NameMgr.h"
@@ -51,38 +52,19 @@ WriterBase::init_name_array(const string& prefix,
   // ただし重複のチェックを行う．
 
   // まず外部入力の名前を登録する．
-  for ( int id: mNetwork.input_id_list() ) {
-    auto& node = mNetwork.node(id);
-    if ( node.is_port_input() ) {
-      reg_node_name(node, name_hash, name_mgr, node_list);
-    }
-  }
-  // 次に外部出力の名前を登録する．
-  for ( int id: mNetwork.output_id_list() ) {
-    auto& node = mNetwork.node(id);
-    if ( node.is_port_output() ) {
-      reg_node_name(node, name_hash, name_mgr, node_list);
-    }
+  for ( int id: mNetwork.primary_input_id_list() ) {
+    reg_node_name(id, name_hash, name_mgr, node_list);
   }
 
   // FFの出力を登録する．
-  for ( int id: mNetwork.input_id_list() ) {
-    auto& node = mNetwork.node(id);
-    if ( !node.is_port_input() ) {
-      reg_node_name(node, name_hash, name_mgr, node_list);
-    }
+  for ( int id: Range(network().dff_num()) ) {
+    auto& dff = network().dff(id);
+    reg_node_name(dff.output(), name_hash, name_mgr, node_list);
   }
-  // FFの入力を登録する．
-  for ( int id: mNetwork.output_id_list() ) {
-    auto& node = mNetwork.node(id);
-    if ( !node.is_port_output() ) {
-      reg_node_name(node, name_hash, name_mgr, node_list);
-    }
-  }
+
   // 論理ノードを登録する．
   for ( int id: mNetwork.logic_id_list() ) {
-    auto& node = mNetwork.node(id);
-    reg_node_name(node, name_hash, name_mgr, node_list);
+    reg_node_name(id, name_hash, name_mgr, node_list);
   }
 
   // node_list のノードに名前を与える．
@@ -91,26 +73,13 @@ WriterBase::init_name_array(const string& prefix,
     mNameArray[id] = name;
   }
 
-  // 出力ノードのファンインの名前を出力の名前に付け替える．
+  // 出力ノードの名前をそのファンインの名前に付け替える．
   for ( int i: Range(mNetwork.output_num()) ) {
     int id = mNetwork.output_id(i);
     int src_id = mNetwork.output_src_id(i);
     auto& node = mNetwork.node(id);
     auto& src_node = mNetwork.node(src_id);
-    if ( node.is_port_output() ) {
-      if ( src_node.is_port_input() ) {
-	// 外部入力が直接外部出力に繋がっている場合は例外
-	// 出力ノードの名前を入力ノードと同じにする．
-	mNameArray[id] = mNameArray[src_id];
-      }
-      else {
-	mNameArray[src_id] = mNameArray[id];
-      }
-    }
-    else if ( node.is_dff_input() ) {
-      // FFの入力の場合はファンインの名前にする．
-      mNameArray[id] = mNameArray[src_id];
-    }
+    mNameArray[id] = mNameArray[src_id];
   }
 
   // データ系のノードに印をつける．
@@ -135,31 +104,31 @@ WriterBase::init_name_array(const string& prefix,
 }
 
 // @brief ノード名の登録を行う．
-// @param[in] node ノード
+// @param[in] node_id ノード番号
 // @param[in] name_hash ノード名のハッシュ
 // @param[in] name_mgr ノード名を管理するクラス
 // @param[out] node_list ノード名の生成が必要なノード番号のリスト
 void
-WriterBase::reg_node_name(const BnNode& node,
+WriterBase::reg_node_name(int node_id,
 			  HashSet<string>& name_hash,
 			  NameMgr& name_mgr,
 			  vector<int>& node_list)
 {
+  auto& node = mNetwork.node(node_id);
   string name = node.name();
-  int id = node.id();
   if ( name == string() ) {
     // 名前がなかった．
-    node_list.push_back(id);
+    node_list.push_back(node_id);
   }
   else if ( name_hash.check(name) ) {
     // 名前が重複していた．
-    node_list.push_back(id);
+    node_list.push_back(node_id);
   }
   else {
     // 名前を登録する．
     name_mgr.add(name.c_str());
     name_hash.add(name);
-    mNameArray[id] = name;
+    mNameArray[node_id] = name;
   }
 }
 

@@ -69,8 +69,11 @@ BnNetworkImpl::clear()
   mDffList.clear();
   mLatchList.clear();
   mInputList.clear();
+  mPrimaryInputList.clear();
   mOutputList.clear();
   mOutputSrcList.clear();
+  mPrimaryOutputList.clear();
+  mPrimaryOutputSrcList.clear();
   mLogicList.clear();
   mNodeList.clear();
 
@@ -524,12 +527,14 @@ BnNetworkImpl::new_port(const string& port_name,
       BnNodeImpl* node = new BnPortInput(node_id, node_name, input_id, port_id, i);
       mNodeList.push_back(node);
       mInputList.push_back(node_id);
+      mPrimaryInputList.push_back(node_id);
     }
     else {
       int output_id = mOutputList.size();
       BnNodeImpl* node = new BnPortOutput(node_id, node_name, output_id, port_id, i);
       mNodeList.push_back(node);
       mOutputList.push_back(node_id);
+      mPrimaryOutputList.push_back(node_id);
     }
   }
 
@@ -1108,6 +1113,16 @@ BnNetworkImpl::wrap_up()
     auto node_p = mNodeList[oid];
     int iid = node_p->fanin_id(0);
     mOutputSrcList[i] = iid;
+  }
+
+  // mPrimaryOutputSrcList を作る．
+  mPrimaryOutputSrcList.clear();
+  mPrimaryOutputSrcList.resize(mPrimaryOutputList.size());
+  for ( int i: Range(mPrimaryOutputList.size()) ) {
+    int oid = mPrimaryOutputList[i];
+    auto node_p = mNodeList[oid];
+    int iid = node_p->fanin_id(0);
+    mPrimaryOutputSrcList[i] = iid;
   }
 
   mSane = true;

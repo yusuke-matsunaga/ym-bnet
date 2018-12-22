@@ -12,7 +12,7 @@
 #include "ym/bnet.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
-#include "ym/ClibCellLibrary.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -44,9 +44,10 @@ class BnNetworkImpl;
 ///
 /// ポートの名前空間はノードとは別に設ける．
 /// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，ポートは1つのノードに対応する．
-///
-/// このクラスはファイル入出力用のモデルであり，このクラス上で
-/// 回路変換などの処理を行うことは考えていない．
+/// この場合，ポート名は外部入力ノード，外部出力ノードの名前と同じになる．
+/// ただし，blifやiscas89で記述可能な外部入力と外部出力に同名の信号がある場合には
+/// 実際には無名の外部出力ポートがあり，そのファンインが外部入力とみなす．
+/// このような細かな指定が可能なのは Verilog-HDL のような本格的な HDL のみ．
 ///
 /// 回路構造を作るには new_XXXX() でノードを作り，connect() で接続を作る．
 /// 最後に wrap_up() で最終処理を行う．
@@ -642,6 +643,10 @@ public:
   const vector<int>&
   input_id_list() const;
 
+  /// @brief 外部入力ノードのノード番号のリストを得る．
+  const vector<int>&
+  primary_input_id_list() const;
+
   /// @brief 出力数を得る．
   int
   output_num() const;
@@ -667,6 +672,14 @@ public:
   /// ソースノードとは出力ノードのファンインのノード
   const vector<int>&
   output_src_id_list() const;
+
+  /// @brief 外部出力ノードのノード番号のリストを得る．
+  const vector<int>&
+  primary_output_id_list() const;
+
+  /// @brief 外部出力ノードのソースノード番号のリストを得る．
+  const vector<int>&
+  primary_output_src_id_list() const;
 
   /// @brief 論理ノード数を得る．
   int
