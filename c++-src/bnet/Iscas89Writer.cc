@@ -62,6 +62,17 @@ Iscas89Writer::operator()(ostream& s)
   }
   s << endl;
 
+  // 出力用の追加の BUFF 文
+  for ( int id: network().primary_output_id_list() ) {
+    auto& node = network().node(id);
+    int src_id = node.fanin_id(0);
+    string src_name = node_name(src_id);
+    string name = node_name(id);
+    if ( name != src_name ) {
+      s << name << " = BUFF(" << src_name << ")" << endl;
+    }
+  }
+
   // ゲート文の出力
   for ( auto id: network().logic_id_list() ) {
     if ( !is_data(id) ) {

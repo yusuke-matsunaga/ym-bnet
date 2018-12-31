@@ -8,7 +8,9 @@
 
 #include "WriterBase.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnPort.h"
 #include "ym/BnDff.h"
+#include "ym/BnLatch.h"
 #include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "ym/NameMgr.h"
@@ -38,10 +40,6 @@ void
 WriterBase::init_name_array(const string& prefix,
 			    const string& suffix)
 {
-  // ノード名の自動生成が必要なノード番号のリスト
-  vector<int> node_list;
-  node_list.reserve(mNetwork.node_num());
-
   // ノード名を管理するクラス
   NameMgr name_mgr(prefix, suffix);
 
@@ -51,34 +49,146 @@ WriterBase::init_name_array(const string& prefix,
   // もともと与えられた名前があればそれを使う．
   // ただし重複のチェックを行う．
 
-  // まず外部入力の名前を登録する．
+  // 外部ポート名
+  for ( int i: Range(mNetwork.port_num()) ) {
+    auto& port = mNetwork.port(i);
+    const string& name = port.name();
+    if ( name == string() ) {
+      // 名無しの場合はスキップ
+      continue;
+    }
+
+    int nb = port.bit_width();
+    if ( nb == 1 ) {
+      // 1ビットポートならポート名をノード名にする．
+      int id = port.bit(0);
+      reg_node_name(id, name, name_hash, name_mgr);
+    }
+    else {
+      // 多ビットポートの場合は '[' <ビット番号> ']' を後ろにつける．
+      for ( int b: Range(nb) ) {
+	int id = port.bit(b);
+	ostringstream buf;
+	buf << name << "[" << b << "]";
+	reg_node_name(id, buf.str(), name_hash, name_mgr);
+      }
+    }
+  }
+
+  // FF名
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    const string& name = dff.name();
+    if ( name == string() ) {
+      // 名無しの場合はスキップ
+      continue;
+    }
+    int id = dff.output();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // ラッチ名
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    const string& name = latch.name();
+    if ( name == string() ) {
+      // 名無しの場合はスキップ
+      continue;
+    }
+    int id = latch.output();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // 外部入力ノード名
   for ( int id: mNetwork.primary_input_id_list() ) {
-    reg_node_name(id, name_hash, name_mgr, node_list);
-  }
-
-  // FFの出力を登録する．
-  for ( int id: Range(network().dff_num()) ) {
-    auto& dff = network().dff(id);
-    reg_node_name(dff.output(), name_hash, name_mgr, node_list);
-  }
-
-  // 論理ノードを登録する．
-  for ( int id: mNetwork.logic_id_list() ) {
-    reg_node_name(id, name_hash, name_mgr, node_list);
-  }
-
-  // node_list のノードに名前を与える．
-  for ( int id: node_list ) {
-    string name = name_mgr.new_name(true);
-    mNameArray[id] = name;
-  }
-
-  // 出力ノードの名前をそのファンインの名前に付け替える．
-  for ( int i: Range(mNetwork.output_num()) ) {
-    int id = mNetwork.output_id(i);
-    int src_id = mNetwork.output_src_id(i);
     auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // FFの出力ノード名
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    int id = dff.output();
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // ラッチの出力ノード名
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    int id = latch.output();
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // 外部出力ノード名
+  for ( int id: mNetwork.primary_output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // FF の入力ノード名
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    int id = dff.input();
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // ラッチの入力ノード名
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    int id = latch.input();
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // 論理ノード名
+  for ( int id: mNetwork.logic_id_list() ) {
+    auto& node = mNetwork.node(id);
+    const string& name = node.name();
+    reg_node_name(id, name, name_hash, name_mgr);
+  }
+
+  // 名無しのノードに名前を与える．
+  for ( int id: Range(mNetwork.node_num()) ) {
+    if ( mNameArray[id] == string() ) {
+      string name = name_mgr.new_name(true);
+      mNameArray[id] = name;
+    }
+  }
+
+  // 外部出力ノードのファンインの名前を出力ノードの名前に付け替える．
+  for ( int id: mNetwork.primary_output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    int src_id = node.fanin_id(0);
     auto& src_node = mNetwork.node(src_id);
+    if ( !src_node.is_input() ) {
+      mNameArray[src_id] = mNameArray[id];
+    }
+  }
+
+  // FFの入力ノードの名前をそのファンインの名前に付け替える．
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    int id = dff.input();
+    auto& node = mNetwork.node(id);
+    int src_id = node.fanin_id(0);
+    mNameArray[id] = mNameArray[src_id];
+  }
+
+  // ラッチの入力ノードの名前をそのファンインの名前に付け替える．
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    int id = latch.input();
+    auto& node = mNetwork.node(id);
+    int src_id = node.fanin_id(0);
     mNameArray[id] = mNameArray[src_id];
   }
 
@@ -105,31 +215,32 @@ WriterBase::init_name_array(const string& prefix,
 
 // @brief ノード名の登録を行う．
 // @param[in] node_id ノード番号
+// @param[in] name 登録する名前
 // @param[in] name_hash ノード名のハッシュ
 // @param[in] name_mgr ノード名を管理するクラス
-// @param[out] node_list ノード名の生成が必要なノード番号のリスト
 void
 WriterBase::reg_node_name(int node_id,
+			  const string& name,
 			  HashSet<string>& name_hash,
-			  NameMgr& name_mgr,
-			  vector<int>& node_list)
+			  NameMgr& name_mgr)
 {
-  auto& node = mNetwork.node(node_id);
-  string name = node.name();
+  if ( mNameArray[node_id] != string() ) {
+    // すでに名前がついていた．
+    return;
+  }
   if ( name == string() ) {
     // 名前がなかった．
-    node_list.push_back(node_id);
+    return;
   }
-  else if ( name_hash.check(name) ) {
+  if ( name_hash.check(name) ) {
     // 名前が重複していた．
-    node_list.push_back(node_id);
+    return;
   }
-  else {
-    // 名前を登録する．
-    name_mgr.add(name.c_str());
-    name_hash.add(name);
-    mNameArray[node_id] = name;
-  }
+
+  // 名前を登録する．
+  name_mgr.add(name.c_str());
+  name_hash.add(name);
+  mNameArray[node_id] = name;
 }
 
 // @brief TFI のノードに印をつける．

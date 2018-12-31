@@ -86,6 +86,18 @@ BlifWriter::operator()(ostream& s)
     s << ".latch " << node_name(dff.input()) << " " << node_name(dff.output()) << endl;
   }
 
+  // 出力用の追加の .names 文
+  for ( int id: network().primary_output_id_list() ) {
+    auto& node = network().node(id);
+    int src_id = node.fanin_id(0);
+    string src_name = node_name(src_id);
+    string name = node_name(id);
+    if ( name != src_name ) {
+      s << ".names " << src_name << " " << name << endl
+	<< "1 1" << endl;
+    }
+  }
+
   // .names 文の出力
   for ( int id: network().logic_id_list() ) {
     if ( !is_data(id) ) {
