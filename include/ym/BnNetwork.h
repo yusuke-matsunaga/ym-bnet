@@ -808,6 +808,41 @@ public:
 		const string& prefix = "__node",
 		const string& suffix = "") const;
 
+  /// @brief 内容を Verilog-HDL 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  /// @param[in] port_prefix ポート自動生成名の接頭語
+  /// @param[in] port_suffix ポート自動生成名の接尾語
+  /// @param[in] node_prefix ノード自動生成名の接頭語
+  /// @param[in] node_suffix ノード自動生成名の接尾語
+  /// @param[in] instance_prefix インスタンス自動生成名の接頭語
+  /// @param[in] instance_suffix インスタンス自動生成名の接尾語
+  void
+  write_verilog(ostream& s,
+		const string& port_prefix = "__port",
+		const string& port_suffix = "",
+		const string& node_prefix = "__node",
+		const string& node_suffix = "",
+		const string& instance_prefix = "__U",
+		const string& instance_suffix = "") const;
+
+  /// @brief 内容を Verilog-HDL 形式で出力する．
+  /// @param[in] filename 出力先のファイル名
+  /// @param[in] port_prefix ポート自動生成名の接頭語
+  /// @param[in] port_suffix ポート自動生成名の接尾語
+  /// @param[in] node_prefix ノード自動生成名の接頭語
+  /// @param[in] node_suffix ノード自動生成名の接尾語
+  /// @param[in] instance_prefix インスタンス自動生成名の接頭語
+  /// @param[in] instance_suffix インスタンス自動生成名の接尾語
+  void
+  write_verilog(const string& filename,
+		const string& port_prefix = "__port",
+		const string& port_suffix = "",
+		const string& node_prefix = "__node",
+		const string& node_suffix = "",
+		const string& instance_prefix = "__U",
+		const string& instance_suffix = "") const;
+
+
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   ///

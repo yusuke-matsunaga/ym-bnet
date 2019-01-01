@@ -16,13 +16,17 @@ void
 write_network(const BnNetwork& network,
 	      ostream& s,
 	      bool blif,
-	      bool iscas89)
+	      bool iscas89,
+	      bool verilog)
 {
   if ( blif ) {
     network.write_blif(s);
   }
   else if ( iscas89 ) {
     network.write_iscas89(s);
+  }
+  else if ( verilog ) {
+    network.write_verilog(s);
   }
   else {
     network.write(s);
@@ -35,6 +39,7 @@ BnBlifReaderTest(int argc,
 {
   bool blif = false;
   bool iscas89 = false;
+  bool verilog = false;
   bool copy = false;
 
   int argbase = 1;
@@ -45,6 +50,10 @@ BnBlifReaderTest(int argc,
     }
     else if ( strcmp(argv[argbase], "--iscas89") == 0 ) {
       iscas89 = true;
+      ++ argbase;
+    }
+    else if ( strcmp(argv[argbase], "--verilog") == 0 ) {
+      verilog = true;
       ++ argbase;
     }
     else if ( strcmp(argv[argbase], "--copy") == 0 ) {
@@ -74,10 +83,10 @@ BnBlifReaderTest(int argc,
 
   if ( copy ) {
     BnNetwork network2{network};
-    write_network(network2, cout, blif, iscas89);
+    write_network(network2, cout, blif, iscas89, verilog);
   }
   else {
-    write_network(network, cout, blif, iscas89);
+    write_network(network, cout, blif, iscas89, verilog);
   }
 
   return 0;

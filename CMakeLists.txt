@@ -83,6 +83,7 @@ set ( bnet_SOURCES
   c++-src/bnet/BlifWriter.cc
   c++-src/bnet/Iscas89Writer.cc
   c++-src/bnet/WriterBase.cc
+  c++-src/bnet/VerilogWriter.cc
   c++-src/bnet/BnNodeEnc.cc
   )
 
