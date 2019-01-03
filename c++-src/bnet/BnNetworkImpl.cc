@@ -789,19 +789,11 @@ BnNetworkImpl::_new_expr(int id,
 BnNodeImpl*
 BnNetworkImpl::_new_tv(int id,
 		       const string& node_name,
-		       const TvFunc& tv,
-		       int cell_id)
+		       const TvFunc& tv)
 {
   int ni = tv.input_num();
-  BnNodeType logic_type = FuncAnalyzer::analyze(tv);
-  if ( logic_type != BnNodeType::TvFunc ) {
-    // 組み込み型だった．
-    return _new_primitive(id, node_name, ni, logic_type, cell_id);
-  }
-  else {
-    int func_id = _reg_tv(tv);
-    return new BnTvNode(id, node_name, ni, func_id, cell_id);
-  }
+  int func_id = _reg_tv(tv);
+  return new BnTvNode(id, node_name, ni, func_id, -1);
 }
 
 // @brief セル型の論理ノードを生成する．

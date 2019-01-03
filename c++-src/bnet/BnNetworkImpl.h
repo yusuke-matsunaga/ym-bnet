@@ -635,13 +635,11 @@ private:
   /// @param[in] id ノード番号
   /// @param[in] node_name ノード名
   /// @param[in] tv 真理値表
-  /// @param[in] cell_id 対応するセル番号．
   /// @return 生成した論理ノードを返す．
   BnNodeImpl*
   _new_tv(int id,
 	  const string& node_name,
-	  const TvFunc& tv,
-	  int cell_id);
+	  const TvFunc& tv);
 
   /// @brief セル型の論理ノードを生成する．
   /// @param[in] id ノード番号
@@ -1155,7 +1153,7 @@ BnNetworkImpl::new_tv(const string& node_name,
 		      const TvFunc& tv)
 {
   int id = mNodeList.size();
-  BnNodeImpl* node = _new_tv(id, node_name, tv, -1);
+  BnNodeImpl* node = _new_tv(id, node_name, tv);
   mNodeList.push_back(node);
 
   return id;
@@ -1303,7 +1301,7 @@ BnNetworkImpl::change_tv(int id,
   ASSERT_COND( id >= 0 && id < mNodeList.size() );
 
   BnNodeImpl* old_node = mNodeList[id];
-  BnNodeImpl* new_node = _new_tv(id, old_node->name(), tv, -1);
+  BnNodeImpl* new_node = _new_tv(id, old_node->name(), tv);
   mNodeList[id] = new_node;
   delete old_node;
 }
