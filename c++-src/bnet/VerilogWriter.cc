@@ -172,7 +172,6 @@ VerilogWriter::operator()(ostream& s)
 {
   // TODO
   // * ポート記述
-  // * エスケープが必要な識別子の処理
   // * DFF, latch 記述
   // * セル，UDP のチェック
 
@@ -391,6 +390,30 @@ VerilogWriter::init_name_array()
   }
 }
 
+BEGIN_NONAMESPACE
+
+// 名前を補正する．
+// 具体的には [a-zA-Z0-9_] 以外の文字を含んでいる場合にエスケープ識別子にする．
+string
+coerce_name(const string& name)
+{
+  bool need_escape = false;
+  for ( char c: name ) {
+    if ( !isalnum(c) && c != '_' ) {
+      need_escape = true;
+      break;
+    }
+  }
+  if ( need_escape ) {
+    return "\\" + name + " ";
+  }
+  else {
+    return name;
+  }
+}
+
+END_NONAMESPACE
+
 // @brief ポート名の登録を行う．
 // @param[in] port_id ポート番号
 // @param[in] name_hash ポート名のハッシュ
@@ -406,6 +429,7 @@ VerilogWriter::reg_port_name(int port_id,
     // ポート名がなかった．
     return;
   }
+  name = coerce_name(name);
   if ( name_hash.check(name) ) {
     // 名前が重複していた．
     return;
@@ -432,6 +456,7 @@ VerilogWriter::reg_node_name(int node_id,
     // 名前がなかった．
     return;
   }
+  name = coerce_name(name);
   if ( name_hash.check(name) ) {
     // 名前が重複していた．
     return;
