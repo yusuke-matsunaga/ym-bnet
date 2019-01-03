@@ -121,6 +121,10 @@ private:
 		HashSet<string>& name_hash,
 		NameMgr& name_mgr);
 
+  /// @brief ノード名をそのファンインのノード名に付け替える．
+  void
+  replace_node_name(int node_id);
+
 
 private:
   //////////////////////////////////////////////////////////////////////

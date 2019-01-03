@@ -108,13 +108,20 @@ write_udp(ostream& s,
 void
 write_op(ostream& s,
 	 const char* op_str,
+	 bool neg,
 	 const vector<string>& iname_array)
 {
+  if ( neg ) {
+    s << "~(";
+  }
   const char* tmp_str = "";
   for ( const string& name: iname_array ) {
     s << tmp_str;
     tmp_str = op_str;
     s << name;
+  }
+  if ( neg ) {
+    s << ")";
   }
 }
 
@@ -171,14 +178,39 @@ void
 VerilogWriter::operator()(ostream& s)
 {
   // TODO
-  // * ポート記述
-  // * DFF, latch 記述
+  // * ラッチ記述のチェック
   // * セル，UDP のチェック
 
   init_name_array();
 
   s << "module " << mNetwork.name() << "(";
-  // ...
+  const char* comma = "";
+  for ( int port_id: Range(mNetwork.port_num()) ) {
+    auto& port = mNetwork.port(port_id);
+    const string& port_name = mPortNameArray[port_id];
+    int nb = port.bit_width();
+    s << comma;
+    comma = ", ";
+    if ( nb == 1 ) {
+      int id = port.bit(0);
+      if ( port_name == mNodeNameArray[id] ) {
+	s << port_name;
+      }
+      else {
+	s << "." << port_name << "(" << mNodeNameArray[id] << ")";
+      }
+    }
+    else {
+      s << "." << port_name << "(";
+      const char* bit_comma = "";
+      for ( int i: Range(nb) ) {
+	int id = port.bit(i);
+	s << bit_comma << mNodeNameArray[id];
+	bit_comma = ", ";
+      }
+      s << ")";
+    }
+  }
   s << ");" << endl;
 
   // 外部入力
@@ -189,6 +221,7 @@ VerilogWriter::operator()(ostream& s)
   for ( int id: mNetwork.primary_output_src_id_list() ) {
     s << "  " << "output " << mNodeNameArray[id] << ";" << endl;
   }
+  s << endl;
 
   // このネットワークで使用されている TvFunc を UDP として定義しておく．
   for ( int i: Range(mNetwork.func_num()) ) {
@@ -196,6 +229,122 @@ VerilogWriter::operator()(ostream& s)
     write_udp(s, udp_name(i), func);
   }
 
+  // DFFの宣言
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    s << "  ";
+    if ( dff.cell_id() == -1 ) {
+      s << "reg    ";
+    }
+    else {
+      s << "wire   ";
+    }
+    s << mNodeNameArray[dff.output()] << ";" << endl;
+  }
+
+  // ラッチの宣言
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    s << "  ";
+    if ( latch.cell_id() == -1 ) {
+      s << "reg   ";
+    }
+    else {
+      s << "wire  ";
+    }
+    s << mNodeNameArray[latch.output()] << ";" << endl;
+  }
+
+  // 論理ノードの宣言
+  for ( int id: mNetwork.logic_id_list() ) {
+    s << "  " << "wire   " << mNodeNameArray[id] << ";" << endl;
+  }
+
+  s << endl;
+
+  // DFFの記述
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    const string& dff_output = mNodeNameArray[dff.output()];
+    const string& dff_input = mNodeNameArray[dff.input()];
+    int cell_id = dff.cell_id();
+    if ( cell_id == -1 ) {
+      s << "  " << "always @ ( posedge " << mNodeNameArray[dff.clock()];
+      int clear = dff.clear();
+      if ( clear != -1 ) {
+	s << " or posedge " << mNodeNameArray[clear];
+      }
+      int preset = dff.preset();
+      if ( preset != -1 ) {
+	s << " or posedge " << mNodeNameArray[preset];
+      }
+      s << " )" << endl;
+      const char* if_str = "if";
+      if ( clear != -1 ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[clear] << ")" << endl
+	  << "      " << dff_output << " <= 1'b0;" << endl;
+	if_str = "else if";
+      }
+      if ( preset != -1 ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[preset] << ")" << endl
+	  << "      " << dff_output << " <= 1'b1;" << endl;
+	if_str = "else if";
+      }
+      if ( clear != -1 || preset != -1 ) {
+	s << "    else" << endl
+	  << "      " << dff_output << " <= " << dff_input << ";" << endl;
+      }
+      else {
+	s << "    " << dff_output << " <= " << dff_input << ";" << endl;
+      }
+    }
+    else {
+      // 未完
+    }
+  }
+
+  // ラッチの記述
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    const string& latch_output = mNodeNameArray[latch.output()];
+    const string& latch_input = mNodeNameArray[latch.input()];
+    int cell_id = latch.cell_id();
+    if ( cell_id == -1 ) {
+      s << "  " << "always @ ( " << mNodeNameArray[latch.enable()];
+      int clear = latch.clear();
+      if ( clear != -1 ) {
+	s << " or " << mNodeNameArray[clear];
+      }
+      int preset = latch.preset();
+      if ( preset != -1 ) {
+	s << " or " << mNodeNameArray[preset];
+      }
+      s << " )" << endl;
+      const char* if_str = "if";
+      if ( clear != -1 ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[clear] << ")" << endl
+	  << "      " << latch_output << " = 1'b0;" << endl;
+	if_str = "else if";
+      }
+      if ( preset != -1 ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[preset] << ")" << endl
+	  << "      " << latch_output << " = 1'b1;" << endl;
+	if_str = "else if";
+      }
+      if ( clear != -1 || preset != -1 ) {
+	s << "    else" << endl
+	  << "      " << latch_output << " = " << latch_input << ";" << endl;
+      }
+      else {
+	s << "    " << latch_output << " = " << latch_input << ";" << endl;
+      }
+    }
+    else {
+      // 未完
+    }
+  }
+
+  // 論理ノードの記述
   for ( int id: mNetwork.logic_id_list() ) {
     auto& node = mNetwork.node(id);
     int ni = node.fanin_num();
@@ -203,76 +352,59 @@ VerilogWriter::operator()(ostream& s)
     for ( int i: Range(ni) ) {
       iname_array[i] = mNodeNameArray[node.fanin_id(i)];
     }
-    s << "  " << "wire   " << mNodeNameArray[id];
     int cell_id = node.cell_id();
     if ( cell_id == -1 ) {
-      switch ( node.type() ) {
-      case BnNodeType::C0:
-	s << " = 1'b0;" << endl;
-	break;
-      case BnNodeType::C1:
-	s << " = 1'b1;" << endl;
-	break;
-      case BnNodeType::Buff:
-	s << " = " << iname_array[0] << ";" << endl;
-	break;
-      case BnNodeType::Not:
-	s << " = ~" << iname_array[0] << ";" << endl;
-	break;
-      case BnNodeType::And:
-	s << " = ";
-	write_op(s, " & ", iname_array);
-	s << ";" << endl;
-	break;
-      case BnNodeType::Nand:
-	s << " = ";
-	s << "~(";
-	write_op(s, " & ", iname_array);
-	s << ")";
-	s << ";" << endl;
-	break;
-      case BnNodeType::Or:
-	s << " = ";
-	write_op(s, " | ", iname_array);
-	s << ";" << endl;
-	break;
-      case BnNodeType::Nor:
-	s << " = ";
-	s << "~(";
-	write_op(s, " | ", iname_array);
-	s << ")";
-	s << ";" << endl;
-	break;
-      case BnNodeType::Xor:
-	s << " = ";
-	write_op(s, " ^ ", iname_array);
-	s << ";" << endl;
-	break;
-      case BnNodeType::Xnor:
-	s << " = ";
-	s << "~(";
-	write_op(s, " ^ ", iname_array);
-	s << ")";
-	s << ";" << endl;
-	break;
-      case BnNodeType::Expr:
-	s << " = ";
-	write_expr(s, mNetwork.expr(node.expr_id()), iname_array);
-	s << ";" << endl;
-	break;
-      case BnNodeType::TvFunc:
+      if ( node.type() == BnNodeType::TvFunc ) {
 	// 予め mNetwork に登録されている TvFunc に対応する UDP を定義しておいて
 	// ここはそのインスタンス化だけを行う．
-	s << ";" << endl;
 	s << "  " << udp_name(node.func_id()) << "(";
 	for ( int i: Range(ni) ) {
 	  s << ".i" << i << "(" << iname_array[i] << "), ";
 	}
 	s << ".o(" << mNodeNameArray[id] << ")";
 	s << ");" << endl;
-	break;
-      default:
-	ASSERT_NOT_REACHED;
+      }
+      else {
+	// assign 文で内容を記述する．
+	s << "  " << "assign " << mNodeNameArray[id] << " = ";
+	switch ( node.type() ) {
+	case BnNodeType::C0:
+	  s << "1'b0";
+	  break;
+	case BnNodeType::C1:
+	  s << "1'b1";
+	  break;
+	case BnNodeType::Buff:
+	  s << iname_array[0];
+	  break;
+	case BnNodeType::Not:
+	  s << "~" << iname_array[0];
+	  break;
+	case BnNodeType::And:
+	  write_op(s, " & ", false, iname_array);
+	  break;
+	case BnNodeType::Nand:
+	  write_op(s, " & ", true, iname_array);
+	  break;
+	case BnNodeType::Or:
+	  write_op(s, " | ", false, iname_array);
+	  break;
+	case BnNodeType::Nor:
+	  write_op(s, " | ", true, iname_array);
+	  break;
+	case BnNodeType::Xor:
+	  write_op(s, " ^ ", false, iname_array);
+	  break;
+	case BnNodeType::Xnor:
+	  write_op(s, " ^ ", true, iname_array);
+	  break;
+	case BnNodeType::Expr:
+	  write_expr(s, mNetwork.expr(node.expr_id()), iname_array);
+	  break;
+	default:
+	  ASSERT_NOT_REACHED;
+	}
+	s << ";" << endl;
       }
     }
     else {
@@ -388,6 +520,41 @@ VerilogWriter::init_name_array()
       mLatchInstanceNameArray[id] = name;
     }
   }
+
+  // 外部出力ノードの名前をそのファンインの名前に付け替える．
+  for ( int id: mNetwork.primary_output_id_list() ) {
+    replace_node_name(id);
+  }
+
+  // FFの入力ノードの名前をそのファンインの名前に付け替える．
+  for ( int i: Range(mNetwork.dff_num()) ) {
+    auto& dff = mNetwork.dff(i);
+    replace_node_name(dff.input());
+    replace_node_name(dff.clock());
+    replace_node_name(dff.clear());
+    replace_node_name(dff.preset());
+  }
+
+  // ラッチの入力ノードの名前をそのファンインの名前に付け替える．
+  for ( int i: Range(mNetwork.latch_num()) ) {
+    auto& latch = mNetwork.latch(i);
+    replace_node_name(latch.input());
+    replace_node_name(latch.enable());
+    replace_node_name(latch.clear());
+    replace_node_name(latch.preset());
+  }
+}
+
+// @brief ノード名をそのファンインのノード名に付け替える．
+void
+VerilogWriter::replace_node_name(int node_id)
+{
+  if ( node_id == -1 ) {
+    return;
+  }
+  auto& node = mNetwork.node(node_id);
+  int src_id = node.fanin_id(0);
+  mNodeNameArray[node_id] = mNodeNameArray[src_id];
 }
 
 BEGIN_NONAMESPACE
