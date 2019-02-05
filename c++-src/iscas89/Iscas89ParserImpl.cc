@@ -142,6 +142,9 @@ Iscas89ParserImpl::read(const string& filename)
 	  }
 	  break;
 	case Iscas89Token::MUX:
+	  if ( !parse_name_list(iname_id_list, last_loc) ) {
+	    goto error;
+	  }
 	  if ( !read_mux(FileRegion(first_loc, last_loc),
 			 name_id, iname_id_list) ) {
 	    goto error;
