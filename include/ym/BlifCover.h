@@ -64,12 +64,12 @@ public:
   cube_num() const;
 
   /// @brief 入力パタンを返す．
-  /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
+  /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @return パタンを返す．
   SopPat
-  input_pat(int ipos,
-	    int cpos) const;
+  input_pat(int cpos,
+	    int ipos) const;
 
   /// @brief 出力パタンを返す．
   ///

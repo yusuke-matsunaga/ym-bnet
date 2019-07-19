@@ -108,7 +108,7 @@ TestBlifHandler::names(int onode_id,
   int ni = inode_id_array.size();
   for ( int c = 0; c < nc; ++ c ) {
     for ( int i = 0; i < ni; ++ i ) {
-      (*mStreamPtr) << cover.input_pat(i, c);
+      (*mStreamPtr) << cover.input_pat(c, i);
     }
     if ( ni > 0 ) {
       (*mStreamPtr) << ' ';
