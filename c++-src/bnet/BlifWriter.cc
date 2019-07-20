@@ -26,7 +26,15 @@ BlifWriter::BlifWriter(const BnNetwork& network,
 		       const string& suffix) :
   WriterBase(network)
 {
-  init_name_array(prefix, suffix);
+  string _prefix(prefix);
+  if ( _prefix == string() ) {
+    _prefix = "__node";
+  }
+  string _suffix(suffix);
+  if ( _suffix == string() ) {
+    _suffix = "";
+  }
+  init_name_array(_prefix, _suffix);
 }
 
 // @brief デストラクタ
