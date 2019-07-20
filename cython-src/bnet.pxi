@@ -16,7 +16,7 @@ from CXX_BnNode cimport BnNode as CXX_BnNode
 from CXX_BnNodeType cimport BnNodeType as CXX_BnNodeType
 from CXX_BnNodeType cimport __bnnodetype_to_int
 from CXX_ClibCellLibrary cimport ClibCellLibrary as CXX_ClibCellLibrary
-
+import os
 
 ### @brief BnPort クラスの Python バージョン
 ###
@@ -508,14 +508,55 @@ cdef class BnNetwork :
         return ans
 
     ### @brief blif ファイルの書き出し
-    def write_blif(self, str filename) :
+    def write_blif(self, str filename, *,
+                   prefix = None, suffix = None) :
         cdef string c_filename = filename.encode('UTF-8')
-        self._this.write_blif(c_filename)
+        cdef string c_prefix
+        cdef string c_suffix
+        if prefix :
+            c_prefix = prefix.encode('UTF-8')
+        if suffix :
+            c_suffix = suffix.encode('UTF-8')
+        self._this.write_blif(c_filename, c_prefix, c_suffix)
+
+    ### @brief iscas89 ファイルの書き出し
+    def write_iscas89(self, str filename, *,
+                      prefix = None, suffix = None) :
+        cdef string c_filename = filename.encode('UTF-8')
+        cdef string c_prefix
+        cdef string c_suffix
+        if prefix :
+            c_prefix = prefix.encode('UTF-8')
+        if suffix :
+            c_suffix = suffix.encode('UTF-8')
+        self._this.write_iscas89(c_filename, c_prefix, c_suffix)
+
+    ### @brief ファイルの拡張子から自動判別を行いファイルの書き込みを行う．
+    ### @param[in] filename ファイル名
+    ### @param[in] prefix 自動生成名の接頭語
+    ### @param[in] suffix 自動生成名の設備後
+    ### @retval True 拡張子からファイルタイプの自動判別が行われた．
+    ### @retval False 拡張子からファイルタイプの自動判別が行われなかった．
+    def write_network(self, str filename, *,
+                      prefix = None,
+                      suffix = None) :
+        dummy, ext = os.path.splitext(filename)
+        if ext == '.blif' :
+            self.write_blif(filename, prefix = prefix, suffix = suffix)
+            return True
+        elif ext == '.bench' :
+            self.write_iscas89(filename, prefix = prefix, suffix = suffix)
+            return True
+        else :
+            # 拡張子がおかしい
+            return False
 
     ### @blief blif ファイルの読み込み
     @staticmethod
-    def read_blif(str filename, CellLibrary cell_library = None,
-                  clock_name = None, reset_name = None) :
+    def read_blif(str filename, *,
+                  CellLibrary cell_library = None,
+                  clock_name = None,
+                  reset_name = None) :
         cdef string c_filename = filename.encode('UTF-8')
         cdef string c_clock
         cdef string c_reset
@@ -534,7 +575,8 @@ cdef class BnNetwork :
 
     ### @brief iscas89 ファイルの読み込み
     @staticmethod
-    def read_iscas89(str filename, clock_name = None) :
+    def read_iscas89(str filename, *,
+                     clock_name = None) :
         cdef string c_filename = filename.encode('UTF-8')
         cdef string c_clock
         cdef bool stat
@@ -543,3 +585,22 @@ cdef class BnNetwork :
         network = BnNetwork()
         network._this = CXX_BnNetwork.read_iscas89(c_filename, c_clock)
         return network
+
+    ### @brief ファイルの拡張子から自動判別を行ってファイルの読み込みを行う．
+    @staticmethod
+    def read_network(str filename, *,
+                     CellLibrary cell_library = None,
+                     clock_name = None,
+                     reset_name = None) :
+        dummy, ext = os.path.splitext(filename)
+        if ext == '.blif' :
+            return BnNetwork.read_blif(filename,
+                                       cell_library = cell_library,
+                                       clock_name = clock_name,
+                                       reset_name = reset_name)
+        elif ext == '.bench' :
+            return BnNetwork.read_iscas89(filename,
+                                          clock_name = clock_name)
+        else :
+            # 空のネットワークを返す．
+            return BnNetwork()
