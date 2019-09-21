@@ -68,7 +68,7 @@ BnIscas89Handler::read_input(const FileRegion& loc,
   auto port_id = mNetwork->new_input_port(name);
   auto& port = mNetwork->port(port_id);
   int id = port.bit(0);
-  mIdMap.add(name_id, id);
+  mIdMap[name_id] = id;
 
   return true;
 }
@@ -107,7 +107,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 {
   int ni = iname_list.size();
   int id = mNetwork->new_logic(oname, logic_type, ni);
-  mIdMap.add(oname_id, id);
+  mIdMap[oname_id] = id;
 
   add_fanin_info(id, iname_list);
 
@@ -164,7 +164,7 @@ BnIscas89Handler::read_mux(const FileRegion& loc,
   Expr mux_expr = Expr::make_or(or_fanins);
   int id = mNetwork->new_logic(oname, mux_expr);
 
-  mIdMap.add(oname_id, id);
+  mIdMap[oname_id] = id;
 
   add_fanin_info(id, iname_list);
 
@@ -190,7 +190,7 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
   const BnDff& dff = mNetwork->dff(dff_id);
 
   int output_id = dff.output();
-  mIdMap.add(oname_id, output_id);
+  mIdMap[oname_id] = output_id;
 
   int input_id = dff.input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
@@ -219,38 +219,37 @@ BnIscas89Handler::end()
 {
   // ノードのファンインを設定する．
   for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
-    if ( !mFaninInfoMap.check(node_id) ) {
+    if ( mFaninInfoMap.count(node_id) == 0 ) {
       continue;
     }
-    const FaninInfo& fanin_info = mFaninInfoMap[node_id];
+    const auto& fanin_info = mFaninInfoMap[node_id];
 
     const BnNode& node = mNetwork->node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.fanin_num();
       for ( int i: Range(ni) ) {
-	int inode_id;
-	bool stat1 = mIdMap.find(fanin_info.fanin(i), inode_id);
-	if ( !stat1 ) {
+	int iname_id = fanin_info.fanin(i);
+	if ( mIdMap.count(iname_id) == 0 ) {
 	  ostringstream buf;
-	  buf << id2str(fanin_info.fanin(i)) << " not found" << endl;
+	  buf << id2str(iname_id) << " not found" << endl;
 	  MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
 			  "ISCAS89_PARSER", buf.str());
 	  return false;
 	}
+	int inode_id = mIdMap[iname_id];
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
     else if ( node.is_output() ) {
       int iname_id = fanin_info.fanin(0);
-      int inode_id;
-      bool stat1 = mIdMap.find(iname_id, inode_id);
-      if ( !stat1 ) {
+      if ( mIdMap.count(iname_id) == 0 ) {
 	ostringstream buf;
 	buf << id2str(iname_id) << " not found" << endl;
 	MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
 			"ISCAS89_PARSER", buf.str());
 	return false;
       }
+      int inode_id = mIdMap[iname_id];
       mNetwork->connect(inode_id, node_id, 0);
     }
   }
@@ -278,7 +277,7 @@ void
 BnIscas89Handler::add_fanin_info(int id,
 				 int fanin)
 {
-  mFaninInfoMap.add(id, FaninInfo(fanin));
+  mFaninInfoMap[id] = FaninInfo(fanin);
 }
 
 // @brief ファンイン情報を追加する．
@@ -288,7 +287,7 @@ void
 BnIscas89Handler::add_fanin_info(int id,
 				 const vector<int>& fanin_list)
 {
-  mFaninInfoMap.add(id, FaninInfo(fanin_list));
+  mFaninInfoMap[id] = FaninInfo(fanin_list);
 }
 
 END_NAMESPACE_YM_BNET

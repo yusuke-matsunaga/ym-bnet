@@ -1133,11 +1133,14 @@ BnNetworkImpl::_reg_expr(const Expr& expr)
   if ( ni <= 10 ) {
     // 10入力以下の場合は一旦 TvFunc に変換する．
     TvFunc tv = expr.make_tv(ni);
-    if ( !mExprMap.find(tv, expr_id) ) {
+    if ( mExprMap.count(tv) == 0 ) {
       // 新たに登録する．
       expr_id = mExprList.size();
       mExprList.push_back(expr);
-      mExprMap.add(tv, expr_id);
+      mExprMap[tv] = expr_id;
+    }
+    else {
+      expr_id = mExprMap[tv];
     }
     return expr_id;
   }
@@ -1157,11 +1160,14 @@ BnNetworkImpl::_reg_tv(const TvFunc& tv)
 {
   // 同じ関数が登録されていないか調べる．
   int func_id;
-  if ( !mFuncMap.find(tv, func_id) ) {
+  if ( mFuncMap.count(tv) == 0 ) {
     // 新たに登録する．
     func_id = mFuncList.size();
     mFuncList.push_back(tv);
-    mFuncMap.add(tv, func_id);
+    mFuncMap[tv] = func_id;
+  }
+  else {
+    func_id = mFuncMap[tv];
   }
   return func_id;
 }

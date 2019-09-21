@@ -432,7 +432,7 @@ VerilogWriter::init_name_array()
   NameMgr port_name_mgr(mPortPrefix, mPortSuffix);
 
   // ポート名のハッシュ
-  HashSet<string> port_name_hash;
+  unordered_set<string> port_name_hash;
 
   // もともとポート名があればそれを使う．
   // ただし，重複していたら後ろのポート名を無効化する．
@@ -453,7 +453,7 @@ VerilogWriter::init_name_array()
   NameMgr node_name_mgr(mNodePrefix, mNodeSuffix);
 
   // インスタンス名のハッシュ
-  HashSet<string> name_hash;
+  unordered_set<string> name_hash;
 
   // 外部入力ノードの名前を登録する．
   for ( int id: mNetwork.primary_input_id_list() ) {
@@ -587,7 +587,7 @@ END_NONAMESPACE
 // @param[in] name_mgr ポート名を管理するクラス
 void
 VerilogWriter::reg_port_name(int port_id,
-			     HashSet<string>& name_hash,
+			     unordered_set<string>& name_hash,
 			     NameMgr& name_mgr)
 {
   auto& port = mNetwork.port(port_id);
@@ -597,14 +597,14 @@ VerilogWriter::reg_port_name(int port_id,
     return;
   }
   name = coerce_name(name);
-  if ( name_hash.check(name) ) {
+  if ( name_hash.count(name) > 0 ) {
     // 名前が重複していた．
     return;
   }
 
   // 名前を登録する．
   name_mgr.add(name);
-  name_hash.add(name);
+  name_hash.insert(name);
   mPortNameArray[port_id] = name;
 }
 
@@ -614,7 +614,7 @@ VerilogWriter::reg_port_name(int port_id,
 // @param[in] name_mgr ノード名を管理するクラス
 void
 VerilogWriter::reg_node_name(int node_id,
-			     HashSet<string>& name_hash,
+			     unordered_set<string>& name_hash,
 			     NameMgr& name_mgr)
 {
   auto& node = mNetwork.node(node_id);
@@ -624,14 +624,14 @@ VerilogWriter::reg_node_name(int node_id,
     return;
   }
   name = coerce_name(name);
-  if ( name_hash.check(name) ) {
+  if ( name_hash.count(name) > 0 ) {
     // 名前が重複していた．
     return;
   }
 
   // 名前を登録する．
   name_mgr.add(name);
-  name_hash.add(name);
+  name_hash.insert(name);
   mNodeNameArray[node_id] = name;
 }
 

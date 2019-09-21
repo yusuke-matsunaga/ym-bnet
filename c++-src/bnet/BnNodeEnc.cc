@@ -21,8 +21,9 @@ BEGIN_NAMESPACE_YM
 // @param[in] varmap 変数番号のマップ
 BnNodeEnc::BnNodeEnc(SatSolver& solver,
 		     const BnNetwork& network,
-		     const vector<SatVarId>& varmap) :
+		     const vector<SatLiteral>& varmap) :
   mSolver(solver),
+  mEnc(mSolver),
   mNetwork(network),
   mVarMap(varmap)
 {
@@ -185,7 +186,7 @@ void
 BnNodeEnc::make_buff(SatLiteral olit,
 		     SatLiteral ilit)
 {
-  mSolver.add_eq_rel(olit, ilit);
+  mEnc.add_buffgate(olit, ilit);
 }
 
 // @brief NOTのCNFを作る．
@@ -193,7 +194,7 @@ void
 BnNodeEnc::make_not(SatLiteral olit,
 		    SatLiteral ilit)
 {
-  mSolver.add_neq_rel(olit, ilit);
+  mEnc.add_notgate(olit, ilit);
 }
 
 // @brief AND論理のCNFを作る．
@@ -207,7 +208,7 @@ BnNodeEnc::make_and(SatLiteral olit,
     {
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
-      mSolver.add_andgate_rel( olit, ilit0, ilit1);
+      mEnc.add_andgate( olit, ilit0, ilit1);
     }
     break;
 
@@ -216,7 +217,7 @@ BnNodeEnc::make_and(SatLiteral olit,
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
-      mSolver.add_andgate_rel( olit, ilit0, ilit1, ilit2);
+      mEnc.add_andgate( olit, ilit0, ilit1, ilit2);
     }
     break;
 
@@ -226,12 +227,12 @@ BnNodeEnc::make_and(SatLiteral olit,
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
       SatLiteral ilit3 = ilit_array[3];
-      mSolver.add_andgate_rel( olit, ilit0, ilit1, ilit2, ilit3);
+      mEnc.add_andgate( olit, ilit0, ilit1, ilit2, ilit3);
     }
     break;
 
   default:
-    mSolver.add_andgate_rel( olit, ilit_array);
+    mEnc.add_andgate( olit, ilit_array);
     break;
   }
 }
@@ -247,7 +248,7 @@ BnNodeEnc::make_or(SatLiteral olit,
     {
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
-      mSolver.add_orgate_rel( olit, ilit0, ilit1);
+      mEnc.add_orgate( olit, ilit0, ilit1);
     }
     break;
 
@@ -256,7 +257,7 @@ BnNodeEnc::make_or(SatLiteral olit,
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
-      mSolver.add_orgate_rel( olit, ilit0, ilit1, ilit2);
+      mEnc.add_orgate( olit, ilit0, ilit1, ilit2);
     }
     break;
 
@@ -266,12 +267,12 @@ BnNodeEnc::make_or(SatLiteral olit,
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
       SatLiteral ilit3 = ilit_array[3];
-      mSolver.add_orgate_rel( olit, ilit0, ilit1, ilit2, ilit3);
+      mEnc.add_orgate( olit, ilit0, ilit1, ilit2, ilit3);
     }
     break;
 
   default:
-    mSolver.add_orgate_rel( olit, ilit_array);
+    mEnc.add_orgate( olit, ilit_array);
     break;
   }
 }
@@ -287,7 +288,7 @@ BnNodeEnc::make_xor(SatLiteral olit,
     {
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
-      mSolver.add_xorgate_rel( olit, ilit0, ilit1);
+      mEnc.add_xorgate( olit, ilit0, ilit1);
     }
     break;
 
@@ -296,7 +297,7 @@ BnNodeEnc::make_xor(SatLiteral olit,
       SatLiteral ilit0 = ilit_array[0];
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
-      mSolver.add_xorgate_rel( olit, ilit0, ilit1, ilit2);
+      mEnc.add_xorgate( olit, ilit0, ilit1, ilit2);
     }
     break;
 
@@ -306,12 +307,12 @@ BnNodeEnc::make_xor(SatLiteral olit,
       SatLiteral ilit1 = ilit_array[1];
       SatLiteral ilit2 = ilit_array[2];
       SatLiteral ilit3 = ilit_array[3];
-      mSolver.add_xorgate_rel( olit, ilit0, ilit1, ilit2, ilit3);
+      mEnc.add_xorgate( olit, ilit0, ilit1, ilit2, ilit3);
     }
     break;
 
   default:
-    mSolver.add_xorgate_rel( olit, ilit_array);
+    mEnc.add_xorgate( olit, ilit_array);
     break;
   }
 }
@@ -344,8 +345,7 @@ BnNodeEnc::make_expr(const Expr& expr,
     tmp_ilit_array[i] = make_expr(expr.child(i), ilit_array);
   }
 
-  SatVarId ovar = mSolver.new_variable();
-  SatLiteral olit(ovar);
+  SatLiteral olit{mSolver.new_variable()};
   if ( expr.is_and() ) {
     make_and(olit, tmp_ilit_array);
   }
@@ -366,7 +366,7 @@ BnNodeEnc::make_expr(const Expr& expr,
 SatLiteral
 BnNodeEnc::lit(int node_id)
 {
-  return SatLiteral(mVarMap[node_id]);
+  return mVarMap[node_id];
 }
 
 END_NAMESPACE_YM

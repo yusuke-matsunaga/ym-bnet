@@ -14,7 +14,6 @@
 #include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "ym/NameMgr.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -44,7 +43,7 @@ WriterBase::init_name_array(const string& prefix,
   NameMgr name_mgr(prefix, suffix);
 
   // ノード名のハッシュ
-  HashSet<string> name_hash;
+  unordered_set<string> name_hash;
 
   // もともと与えられた名前があればそれを使う．
   // ただし重複のチェックを行う．
@@ -221,7 +220,7 @@ WriterBase::init_name_array(const string& prefix,
 void
 WriterBase::reg_node_name(int node_id,
 			  const string& name,
-			  HashSet<string>& name_hash,
+			  unordered_set<string>& name_hash,
 			  NameMgr& name_mgr)
 {
   if ( mNameArray[node_id] != string() ) {
@@ -232,14 +231,14 @@ WriterBase::reg_node_name(int node_id,
     // 名前がなかった．
     return;
   }
-  if ( name_hash.check(name) ) {
+  if ( name_hash.count(name) > 0 ) {
     // 名前が重複していた．
     return;
   }
 
   // 名前を登録する．
   name_mgr.add(name.c_str());
-  name_hash.add(name);
+  name_hash.insert(name);
   mNameArray[node_id] = name;
 }
 

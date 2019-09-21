@@ -90,7 +90,7 @@ BnBlifHandler::inputs_elem(int name_id,
   auto port_id = mNetwork->new_input_port(name);
   const auto& port = mNetwork->port(port_id);
   int id = port.bit(0);
-  mIdMap.add(name_id, id);
+  mIdMap[name_id] = id;
 
   return true;
 }
@@ -105,7 +105,7 @@ BnBlifHandler::outputs_elem(int name_id,
   auto port_id = mNetwork->new_output_port(name);
   const auto& port = mNetwork->port(port_id);
   int id = port.bit(0);
-  mFaninInfoMap.add(id, vector<int>({name_id}));
+  mFaninInfoMap[id] = vector<int>({name_id});
 
   return true;
 }
@@ -129,9 +129,9 @@ BnBlifHandler::names(int oname_id,
   int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
   int node_id = mNetwork->new_logic(oname, expr);
-  mIdMap.add(oname_id, node_id);
+  mIdMap[oname_id] = node_id;
 
-  mFaninInfoMap.add(node_id, inode_id_array);
+  mFaninInfoMap[node_id] = inode_id_array;
 
   return true;
 }
@@ -153,9 +153,9 @@ BnBlifHandler::gate(int oname_id,
   const ClibCell& cell = mNetwork->library().cell(cell_id);
   ASSERT_COND( ni == cell.input_num() );
   int node_id = mNetwork->new_logic(oname, cell_id);
-  mIdMap.add(oname_id, node_id);
+  mIdMap[oname_id] = node_id;
 
-  mFaninInfoMap.add(node_id, inode_id_array);
+  mFaninInfoMap[node_id] = inode_id_array;
 
   return true;
 }
@@ -188,11 +188,11 @@ BnBlifHandler::latch(int oname_id,
   const auto& dff = mNetwork->dff(dff_id);
 
   int output_id = dff.output();
-  mIdMap.add(oname_id, output_id);
+  mIdMap[oname_id] = output_id;
 
   int input_id = dff.input();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  mFaninInfoMap.add(input_id, vector<int>(1, iname_id));
+  mFaninInfoMap[input_id] = vector<int>{iname_id};
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
@@ -236,27 +236,25 @@ BnBlifHandler::end(const FileRegion& loc)
 {
   // ノードのファンインを設定する．
   for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
-    vector<int> fanin_info;
-    bool stat = mFaninInfoMap.find(node_id, fanin_info);
-    if ( !stat ) {
+    if ( mFaninInfoMap.count(node_id) == 0 ) {
       continue;
     }
+    const auto& fanin_info = mFaninInfoMap.at(node_id);
 
     const BnNode& node = mNetwork->node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.size();
       for ( int i: Range(ni) ) {
-	int inode_id;
-	bool stat1 = mIdMap.find(fanin_info[i], inode_id);
-	ASSERT_COND( stat1 );
+	int iname_id = fanin_info[i];
+	ASSERT_COND( mIdMap.count(iname_id) > 0 );
+	int inode_id = mIdMap.at(iname_id);
 	mNetwork->connect(inode_id, node_id, i);
       }
     }
     else if ( node.is_output() ) {
       int iname_id = fanin_info[0];
-      int inode_id;
-      bool stat1 = mIdMap.find(iname_id, inode_id);
-      ASSERT_COND( stat1 );
+      ASSERT_COND( mIdMap.count(iname_id) > 0 );
+      int inode_id = mIdMap.at(iname_id);
       mNetwork->connect(inode_id, node_id, 0);
     }
   }

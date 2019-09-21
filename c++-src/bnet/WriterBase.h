@@ -10,7 +10,6 @@
 
 #include "ym/bnet.h"
 #include "ym/NameMgr.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -102,7 +101,7 @@ protected:
   void
   reg_node_name(int node_id,
 		const string& name,
-		HashSet<string>& name_hash,
+		unordered_set<string>& name_hash,
 		NameMgr& name_mgr);
 
   /// @brief TFI のノードに印をつける．

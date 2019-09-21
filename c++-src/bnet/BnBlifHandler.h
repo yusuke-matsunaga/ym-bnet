@@ -10,7 +10,6 @@
 
 
 #include "ym/BlifHandler.h"
-#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -164,10 +163,10 @@ private:
   string mResetName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  HashMap<int, int> mIdMap;
+  unordered_map<int, int> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  HashMap<int, vector<int> > mFaninInfoMap;
+  unordered_map<int, vector<int> > mFaninInfoMap;
 
   // クロック端子のノード番号
   int mClockId;

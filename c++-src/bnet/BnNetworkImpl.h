@@ -16,7 +16,6 @@
 #include "ym/ClibCell.h"
 #include "ym/ClibFFInfo.h"
 #include "ym/ClibLatchInfo.h"
-#include "ym/HashMap.h"
 #include "BnNodeImpl.h"
 
 
@@ -714,13 +713,13 @@ private:
   vector<TvFunc> mFuncList;
 
   // TvFunc をキーにして関数番号を入れるハッシュ表
-  HashMap<TvFunc, int> mFuncMap;
+  unordered_map<TvFunc, int> mFuncMap;
 
   // 論理式のリスト
   vector<Expr> mExprList;
 
   // TvFunc をキーにして論理式番号を入れるハッシュ表
-  HashMap<TvFunc, int> mExprMap;
+  unordered_map<TvFunc, int> mExprMap;
 
   // wrap_up() が実行後の時に true となるフラグ
   bool mSane;

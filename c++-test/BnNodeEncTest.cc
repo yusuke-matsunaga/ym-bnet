@@ -14,6 +14,7 @@
 #include "ym/BnPort.h"
 #include "ym/Range.h"
 #include "ym/SatSolver.h"
+#include "ym/SatModel.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -108,7 +109,7 @@ public:
   int mVarNum;
 
   // 変数のマップ
-  vector<SatVarId> mVarMap;
+  vector<SatLiteral> mVarMap;
 
   // エンコーダ
   BnNodeEnc mEnc;
@@ -149,7 +150,7 @@ BnNodeEncTest::make_inputs(int ni)
     auto& port = mNetwork.port(port_id);
     int id = port.bit(0);
     EXPECT_EQ( i, id );
-    SatVarId var = mSolver.new_variable();
+    SatLiteral var = mSolver.new_variable();
     mVarMap[i] = var;
   }
 }
@@ -159,7 +160,7 @@ BnNodeEncTest::make_inputs(int ni)
 void
 BnNodeEncTest::make_node_variable(int id)
 {
-  SatVarId var = mSolver.new_variable();
+  SatLiteral var = mSolver.new_variable();
   mVarMap[id] = var;
 }
 
@@ -195,7 +196,7 @@ BnNodeEncTest::check(int node_id,
 	else {
 	  assumptions.push_back(~olit);
 	}
-	vector<SatBool3> model;
+	SatModel model;
 	SatBool3 stat = mSolver.solve(assumptions, model);
 	SatBool3 exp_stat = ( vals[p] == b ) ? SatBool3::True : SatBool3::False;
 	EXPECT_EQ( exp_stat, stat );

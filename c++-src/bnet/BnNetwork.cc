@@ -15,7 +15,6 @@
 #include "BlifWriter.h"
 #include "Iscas89Writer.h"
 #include "VerilogWriter.h"
-#include <fstream>
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -28,14 +27,14 @@ BEGIN_NAMESPACE_YM_BNET
 //
 // 空の状態で初期化される．
 BnNetwork::BnNetwork() :
-  mImpl(new BnNetworkImpl())
+  mImpl{new BnNetworkImpl()}
 {
 }
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のオブジェクト
 BnNetwork::BnNetwork(const BnNetwork& src) :
-  mImpl(new BnNetworkImpl())
+  mImpl{new BnNetworkImpl()}
 {
   mImpl->copy(*src.mImpl);
 }
@@ -43,7 +42,7 @@ BnNetwork::BnNetwork(const BnNetwork& src) :
 // @brief ムーブコンストラクタ
 // @param[in] src ムーブ元のオブジェクト
 BnNetwork::BnNetwork(BnNetwork&& src) :
-  mImpl(std::move(src.mImpl))
+  mImpl{std::move(src.mImpl)}
 {
 }
 
@@ -53,6 +52,7 @@ BnNetwork&
 BnNetwork::operator=(const BnNetwork& src)
 {
   mImpl->copy(*src.mImpl);
+
   return *this;
 }
 
@@ -61,7 +61,8 @@ BnNetwork::operator=(const BnNetwork& src)
 BnNetwork&
 BnNetwork::operator=(BnNetwork&& src)
 {
-  mImpl = std::move(src.mImpl);
+  swap(mImpl, src.mImpl);
+
   return *this;
 }
 
@@ -104,7 +105,7 @@ BnNetwork::copy(const BnNetwork& src)
 void
 BnNetwork::move(BnNetwork&& src)
 {
-  mImpl = std::move(src.mImpl);
+  swap(mImpl, src.mImpl);
 }
 
 // @brief セルライブラリをセットする．

@@ -10,7 +10,6 @@
 
 #include "ym/bnet.h"
 #include "ym/NameMgr.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -108,7 +107,7 @@ private:
   /// @param[in] name_mgr ポート名を管理するクラス
   void
   reg_port_name(int port_id,
-		HashSet<string>& name_hash,
+		unordered_set<string>& name_hash,
 		NameMgr& name_mgr);
 
   /// @brief ノード名の登録を行う．
@@ -118,7 +117,7 @@ private:
   /// @param[out] node_list ノード名の生成が必要なノード番号のリスト
   void
   reg_node_name(int node_id,
-		HashSet<string>& name_hash,
+		unordered_set<string>& name_hash,
 		NameMgr& name_mgr);
 
   /// @brief ノード名をそのファンインのノード名に付け替える．

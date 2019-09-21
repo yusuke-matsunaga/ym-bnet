@@ -11,6 +11,7 @@
 #include "ym/bnet.h"
 #include "ym/Expr.h"
 #include "ym/SatSolver.h"
+#include "ym/SatTseitinEnc.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -29,7 +30,7 @@ public:
   /// @param[in] varmap 変数番号のマップ
   BnNodeEnc(SatSolver& solver,
 	    const BnNetwork& network,
-	    const vector<SatVarId>& varmap);
+	    const vector<SatLiteral>& varmap);
 
   /// @brief デストラクタ
   ~BnNodeEnc();
@@ -103,11 +104,14 @@ private:
   // SATソルバ
   SatSolver& mSolver;
 
+  // Tseitin 符号化器
+  SatTseitinEnc mEnc;
+
   // 対象のネットワーク
   const BnNetwork& mNetwork;
 
   // 変数番号のマップ
-  const vector<SatVarId>& mVarMap;
+  const vector<SatLiteral>& mVarMap;
 
 };
 
