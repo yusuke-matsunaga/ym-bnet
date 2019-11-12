@@ -14,7 +14,6 @@
 #include "ym/BnPort.h"
 #include "ym/Range.h"
 #include "ym/SatSolver.h"
-#include "ym/SatModel.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -196,8 +195,7 @@ BnNodeEncTest::check(int node_id,
 	else {
 	  assumptions.push_back(~olit);
 	}
-	SatModel model;
-	SatBool3 stat = mSolver.solve(assumptions, model);
+	SatBool3 stat = mSolver.solve(assumptions);
 	SatBool3 exp_stat = ( vals[p] == b ) ? SatBool3::True : SatBool3::False;
 	EXPECT_EQ( exp_stat, stat );
       }
