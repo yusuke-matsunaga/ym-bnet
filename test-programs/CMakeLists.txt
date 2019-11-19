@@ -24,11 +24,11 @@ set ( blifparser_test_SOURCES
 
 add_executable ( blifparser_test
   ${blifparser_test_SOURCES}
-  $<TARGET_OBJECTS:ym_bnet_obj_ad>
-  $<TARGET_OBJECTS:ym_cell_obj_ad>
-  $<TARGET_OBJECTS:ym_logic_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
 target_compile_options ( blifparser_test
@@ -50,11 +50,11 @@ set ( iscas89parser_test_SOURCES
 
 add_executable ( iscas89parser_test
   ${iscas89parser_test_SOURCES}
-  $<TARGET_OBJECTS:ym_bnet_obj_ad>
-  $<TARGET_OBJECTS:ym_cell_obj_ad>
-  $<TARGET_OBJECTS:ym_logic_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
 target_compile_options ( iscas89parser_test
@@ -76,11 +76,11 @@ set ( BnBlifReaderTest_SOURCES
 
 add_executable ( BnBlifReaderTest
   ${BnBlifReaderTest_SOURCES}
-  $<TARGET_OBJECTS:ym_bnet_obj_ad>
-  $<TARGET_OBJECTS:ym_cell_obj_ad>
-  $<TARGET_OBJECTS:ym_logic_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
 target_compile_options ( BnBlifReaderTest
@@ -102,11 +102,11 @@ set ( BnIscas89ReaderTest_SOURCES
 
 add_executable ( BnIscas89ReaderTest
   ${BnIscas89ReaderTest_SOURCES}
-  $<TARGET_OBJECTS:ym_bnet_obj_ad>
-  $<TARGET_OBJECTS:ym_cell_obj_ad>
-  $<TARGET_OBJECTS:ym_logic_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
 target_compile_options ( BnIscas89ReaderTest
@@ -128,11 +128,11 @@ set ( loop_test_SOURCES
 
 add_executable ( loop_test
   ${loop_test_SOURCES}
-  $<TARGET_OBJECTS:ym_bnet_obj_ad>
-  $<TARGET_OBJECTS:ym_cell_obj_ad>
-  $<TARGET_OBJECTS:ym_logic_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
 target_compile_options ( loop_test
