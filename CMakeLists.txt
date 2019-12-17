@@ -60,7 +60,6 @@ set ( blif_SOURCES
   c++-src/blif/BlifCoverMgr.cc
   c++-src/blif/BlifDic.cc
   c++-src/blif/BlifHandler.cc
-  c++-src/blif/BlifIdHash.cc
   c++-src/blif/BlifParserImpl.cc
   c++-src/blif/BlifScanner.cc
   )
@@ -89,7 +88,6 @@ set ( bnet_SOURCES
 
 set ( iscas89_SOURCES
   c++-src/iscas89/Iscas89Handler.cc
-  c++-src/iscas89/Iscas89IdHash.cc
   c++-src/iscas89/Iscas89Parser.cc
   c++-src/iscas89/Iscas89ParserImpl.cc
   c++-src/iscas89/Iscas89Scanner.cc

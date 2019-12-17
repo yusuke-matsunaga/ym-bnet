@@ -25,9 +25,11 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] ido 入力データ
-BlifScanner::BlifScanner(IDO& ido) :
-  Scanner(ido)
+// @param[in] s 入力ストリーム
+// @param[in] file_info ファイル情報
+BlifScanner::BlifScanner(istream& s,
+			 const FileInfo& file_info) :
+  Scanner{s, file_info}
 {
 }
 

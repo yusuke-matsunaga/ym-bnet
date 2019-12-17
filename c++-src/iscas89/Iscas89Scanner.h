@@ -27,8 +27,10 @@ class Iscas89Scanner :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] ido 入力データ
-  Iscas89Scanner(IDO& ido);
+  /// @param[in] s 入力ストリーム
+  /// @param[in] file_info ファイル情報
+  Iscas89Scanner(istream& s,
+		 const FileInfo& file_info);
 
   /// @brief デストラクタ
   ~Iscas89Scanner();

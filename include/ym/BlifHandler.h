@@ -176,10 +176,6 @@ protected:
   const FileRegion&
   id2loc(int id);
 
-  /// @brief ID番号からそれに関連した位置情報その2を得る．
-  const FileRegion&
-  id2def_loc(int id);
-
   /// @brief カバーの数を得る．
   int
   cover_num();

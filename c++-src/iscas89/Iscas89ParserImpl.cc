@@ -3,14 +3,12 @@
 /// @brief BlibParser の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "Iscas89ParserImpl.h"
-#include "Iscas89Scanner.h"
 #include "ym/Iscas89Handler.h"
-#include "ym/FileIDO.h"
 #include "ym/MsgMgr.h"
 
 
@@ -19,18 +17,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 // Iscas89ParserImpl
 //////////////////////////////////////////////////////////////////////
-
-// コンストラクタ
-Iscas89ParserImpl::Iscas89ParserImpl()
-{
-  mScanner = nullptr;
-}
-
-// デストラクタ
-Iscas89ParserImpl::~Iscas89ParserImpl()
-{
-  delete mScanner;
-}
 
 // 読み込みを行なう．
 //
@@ -57,22 +43,21 @@ bool
 Iscas89ParserImpl::read(const string& filename)
 {
   // ファイルをオープンする．
-  FileIDO ido;
-  if ( !ido.open(filename) ) {
+  ifstream fin{filename};
+  if ( !fin ) {
     // エラー
     ostringstream buf;
     buf << filename << " : No such file.";
     MsgMgr::put_msg(__FILE__, __LINE__, FileRegion(),
-		    MsgType::Failure, "BLIF_PARSER", buf.str());
+		    MsgType::Failure, "ISCAS89_PARSER", buf.str());
     return false;
   }
 
-  mScanner = new Iscas89Scanner(ido);
+  mScanner = unique_ptr<Iscas89Scanner>{new Iscas89Scanner{fin, {filename}}};
 
   for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {
-      delete mScanner;
-      mScanner = nullptr;
+      delete_scanner();
       return false;
     }
   }
@@ -81,10 +66,11 @@ Iscas89ParserImpl::read(const string& filename)
   bool go_on = true;
   bool has_error = false;
   while ( go_on ) {
+    Iscas89Token tok;
     int name_id;
     FileRegion first_loc;
     FileRegion last_loc;
-    Iscas89Token tok = read_token(name_id, first_loc);
+    tie(tok, name_id, first_loc) = read_token();
     switch ( tok ) {
     case Iscas89Token::INPUT:
       if ( !parse_name(name_id, last_loc) ) {
@@ -106,10 +92,9 @@ Iscas89ParserImpl::read(const string& filename)
 
     case Iscas89Token::NAME:
       {
-	int cur_lval;
-	FileRegion cur_loc;
-
-	if ( !expect(Iscas89Token::EQ, cur_lval, cur_loc) ) {
+	bool ok;
+	tie(ok, ignore, ignore) = expect(Iscas89Token::EQ);
+	if ( !ok ) {
 	  goto error;
 	}
 
@@ -180,7 +165,8 @@ Iscas89ParserImpl::read(const string& filename)
     has_error = true;
     // ')' まで読み進める．
     for ( ; ; ) {
-      Iscas89Token tok = read_token(name_id, first_loc);
+      Iscas89Token tok;
+      tie(tok, ignore, ignore) = read_token();
       if ( tok == Iscas89Token::RPAR || tok == Iscas89Token::_EOF ) {
 	break;
       }
@@ -189,11 +175,12 @@ Iscas89ParserImpl::read(const string& filename)
 
   // 出力文の処理を行う．
   for ( int i = 0; i < mOidArray.size(); ++ i ) {
-    int oid = mOidArray[i];
-    FileRegion loc = mOlocArray[i];
-    Iscas89IdCell* cell = id2cell(oid);
+    int oid;
+    FileRegion loc;
+    tie(oid, loc) = mOidArray[i];
+    IdCell& cell = id2cell(oid);
     for ( auto handler: mHandlerList ) {
-      if ( !handler->read_output(loc, oid, cell->str()) ) {
+      if ( !handler->read_output(loc, oid, cell.name()) ) {
 	has_error = true;
       }
     }
@@ -206,8 +193,7 @@ Iscas89ParserImpl::read(const string& filename)
     }
   }
 
-  delete mScanner;
-  mScanner = nullptr;
+  delete_scanner();
 
   if ( !has_error ) {
     // 成功
@@ -241,10 +227,9 @@ Iscas89ParserImpl::add_handler(Iscas89Handler* handler)
 Iscas89Token
 Iscas89ParserImpl::parse_gate_type()
 {
-  int cur_lval;
   FileRegion cur_loc;
-
-  Iscas89Token tok = read_token(cur_lval, cur_loc);
+  Iscas89Token tok;
+  tie(tok, ignore, cur_loc) = read_token();
   switch ( tok ) {
   case Iscas89Token::CONST0:
   case Iscas89Token::CONST1:
@@ -285,17 +270,19 @@ bool
 Iscas89ParserImpl::parse_name(int& name_id,
 			      FileRegion& last_loc)
 {
-  int cur_lval;
-  FileRegion cur_loc;
-
-  if ( !expect(Iscas89Token::LPAR, cur_lval, cur_loc) ) {
-    return false;
-  }
-  if ( !expect(Iscas89Token::NAME, name_id, cur_loc) ) {
+  bool ok;
+  tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
+  if ( !ok ) {
     return false;
   }
 
-  if ( !expect(Iscas89Token::RPAR, cur_lval, last_loc) ) {
+  tie(ok, name_id, ignore) = expect(Iscas89Token::NAME);
+  if ( !ok ) {
+    return false;
+  }
+
+  tie(ok, ignore, last_loc) = expect(Iscas89Token::RPAR);
+  if ( !ok ) {
     return false;
   }
 
@@ -313,24 +300,26 @@ bool
 Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
 				   FileRegion& last_loc)
 {
-  int cur_lval;
-  FileRegion cur_loc;
-
   name_id_list.clear();
 
-  if ( !expect(Iscas89Token::LPAR, cur_lval, cur_loc) ) {
+  bool ok;
+  tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
+  if ( !ok ) {
     // '(' を期待していたシンタックスエラー
     return false;
   }
 
   for ( ; ; ) {
-    if ( !expect(Iscas89Token::NAME, cur_lval, cur_loc) ) {
+    int name_id;
+    tie(ok, name_id, ignore) = expect(Iscas89Token::NAME);
+    if ( !ok ) {
       // NAME を期待したシンタックスエラー
       return false;
     }
-    name_id_list.push_back(cur_lval);
+    name_id_list.push_back(name_id);
 
-    Iscas89Token tok = read_token(cur_lval, last_loc);
+    Iscas89Token tok;
+    tie(tok, ignore, last_loc) = read_token();
     if ( tok == Iscas89Token::RPAR ) {
       break;
     }
@@ -338,7 +327,7 @@ Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
       // ')' か ',' を期待していたシンタックスエラー
       ostringstream buf;
       buf << "Syntax error: ')' or ',' are expected.";
-      MsgMgr::put_msg(__FILE__, __LINE__, cur_loc,
+      MsgMgr::put_msg(__FILE__, __LINE__, last_loc,
 		      MsgType::Error,
 		      "ER_SYNTAX03",
 		      buf.str());
@@ -357,21 +346,21 @@ bool
 Iscas89ParserImpl::read_input(const FileRegion& loc,
 			      int name_id)
 {
-  Iscas89IdCell* cell = id2cell(name_id);
-  if ( cell->is_defined() ) {
+  IdCell& cell = id2cell(name_id);
+  if ( cell.is_defined() ) {
     ostringstream buf;
-    buf << cell->str() << ": Defined more than once. Previous definition is "
-	<< cell->def_loc();
-    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+    buf << cell.name() << ": Defined more than once. Previous definition is "
+	<< cell.loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
-  cell->set_defined();
-  cell->set_input();
+  cell.set_defined(loc);
+  cell.set_input();
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_input(loc, name_id, cell->str()) ) {
+    if ( !handler->read_input(loc, name_id, cell.name()) ) {
       return false;
     }
   }
@@ -386,20 +375,19 @@ bool
 Iscas89ParserImpl::read_output(const FileRegion& loc,
 			       int name_id)
 {
-  Iscas89IdCell* cell = id2cell(name_id);
-  if ( cell->is_input() ) {
+  IdCell& cell = id2cell(name_id);
+  if ( cell.is_input() ) {
     ostringstream buf;
-    buf << cell->str() << ": Defined as both input and output. "
-	<< "Previous definition is "
-	<< cell->def_loc();
-    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+    buf << cell.name() << ": Defined as both input and output. "
+	<< "Previous definition is " << cell.loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Warning,
 		    "WR_MLTDEF02",
 		    buf.str());
   }
-  cell->set_output();
-  mOidArray.push_back(name_id);
-  mOlocArray.push_back(loc);
+  cell.set_output();
+  mOidArray.push_back(make_pair(name_id, loc));
+
   return true;
 }
 
@@ -414,23 +402,23 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     BnNodeType logic_type,
 			     const vector<int>& iname_id_list)
 {
-  Iscas89IdCell* cell = id2cell(oname_id);
-  if ( cell->is_defined() ) {
+  IdCell& cell = id2cell(oname_id);
+  if ( cell.is_defined() ) {
     // 二重定義
     ostringstream buf;
-    buf << cell->str() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell->def_loc();
-    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+    buf << cell.name() << ": Defined more than once. "
+	<< "Previsous Definition is " << cell.loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
 
-  cell->set_defined();
+  cell.set_defined(loc);
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_gate(loc, logic_type, oname_id, cell->str(), iname_id_list) ) {
+    if ( !handler->read_gate(loc, logic_type, oname_id, cell.name(), iname_id_list) ) {
       stat = false;
       break;
     }
@@ -447,19 +435,20 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
 			    int oname_id,
 			    const vector<int>& iname_id_list)
 {
-  Iscas89IdCell* cell = id2cell(oname_id);
-  if ( cell->is_defined() ) {
+  IdCell& cell = id2cell(oname_id);
+  if ( cell.is_defined() ) {
     // 二重定義
     ostringstream buf;
-    buf << cell->str() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell->def_loc();
-    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+    buf << cell.name() << ": Defined more than once. "
+	<< "Previsous Definition is " << cell.loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
-  cell->set_defined();
+
+  cell.set_defined(loc);
 
   { // 入力数をチェックする．
     int ni = iname_id_list.size();
@@ -472,8 +461,8 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
     if ( nc + nd != ni ) {
       // 引数の数が合わない．
       ostringstream buf;
-      buf << cell->str() << ": Wrong # of inputs for MUX-type.";
-      MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+      buf << cell.name() << ": Wrong # of inputs for MUX-type.";
+      MsgMgr::put_msg(__FILE__, __LINE__, cell.loc(),
 		      MsgType::Error,
 		      "ER_MUX01",
 		      buf.str());
@@ -483,7 +472,7 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
 
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_mux(loc, oname_id, cell->str(), iname_id_list) ) {
+    if ( !handler->read_mux(loc, oname_id, cell.name(), iname_id_list) ) {
       stat = false;
       break;
     }
@@ -501,22 +490,23 @@ Iscas89ParserImpl::read_dff(const FileRegion& loc,
 			    int oname_id,
 			    int iname_id)
 {
-  Iscas89IdCell* cell = id2cell(oname_id);
-  if ( cell->is_defined() ) {
+  IdCell& cell = id2cell(oname_id);
+  if ( cell.is_defined() ) {
     // 二重定義
     ostringstream buf;
-    buf << cell->str() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell->def_loc();
-    MsgMgr::put_msg(__FILE__, __LINE__, cell->loc(),
+    buf << cell.name() << ": Defined more than once. "
+	<< "Previsous Definition is " << cell.loc();
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
-  cell->set_defined();
+
+  cell.set_defined(loc);
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_dff(loc, oname_id, cell->str(), iname_id) ) {
+    if ( !handler->read_dff(loc, oname_id, cell.name(), iname_id) ) {
       stat = false;
       break;
     }
@@ -565,12 +555,14 @@ END_NONAMESPACE
 // @retval false トークンの方が一致しなかった．
 //
 // トークンの方が一致しなかった場合にはエラーメッセージをセットする．
-bool
-Iscas89ParserImpl::expect(Iscas89Token exp_token,
-			  int& lval,
-			  FileRegion& loc)
+tuple<bool, int, FileRegion>
+Iscas89ParserImpl::expect(Iscas89Token exp_token)
 {
-  if ( read_token(lval, loc) != exp_token ) {
+  Iscas89Token tok;
+  int name_id;
+  FileRegion loc;
+  tie(tok, name_id, loc) = read_token();
+  if ( tok != exp_token ) {
     // トークンが期待値と異なっていた
     ostringstream buf;
     buf << "Syntax error: '" << token_str(exp_token) << "' is expected.";
@@ -578,38 +570,41 @@ Iscas89ParserImpl::expect(Iscas89Token exp_token,
 		    MsgType::Error,
 		    "ER_SYNTAX01",
 		    buf.str());
-    return false;
+    return make_tuple(false, 0, loc);
   }
 
-  return true;
+  return make_tuple(true, name_id, loc);
 }
 
 // @brief yylex() 用の処理を行う．
-// @param[out] lval トークンの値を格納する変数
-// @param[out] lloc トークンの位置を格納する変数
 // @return トークンの型を返す．
-Iscas89Token
-Iscas89ParserImpl::read_token(int& lval,
-			      FileRegion& lloc)
+tuple<Iscas89Token, int, FileRegion>
+Iscas89ParserImpl::read_token()
 {
+  FileRegion lloc;
   Iscas89Token token = mScanner->read_token(lloc);
+  int id;
   if ( token == Iscas89Token::NAME ) {
-    lval = reg_str(mScanner->cur_string(), lloc);
+    const char* name = mScanner->cur_string();
+    if ( mIdHash.count(name) == 0 ) {
+      id = mIdArray.size();
+      mIdArray.push_back({id, name});
+      auto cell = &mIdArray[id];
+      mIdHash.emplace(cell->name(), cell);
+    }
+    else {
+      id = mIdHash.at(name)->id();
+    }
   }
-  return token;
+  return make_tuple(token, id, lloc);
 }
 
-// @brief 文字列用の領域を確保する．
-// @param[in] src_str ソース文字列
-// @param[in] loc 文字列の位置情報
-// @return 文字列の ID 番号
-int
-Iscas89ParserImpl::reg_str(const char* src_str,
-			   const FileRegion& loc)
+// @brief スキャナーを削除する．
+void
+Iscas89ParserImpl::delete_scanner()
 {
-  Iscas89IdCell* cell = mIdHash.find(src_str, true);
-  cell->set_loc(loc);
-  return cell->id();
+  unique_ptr<Iscas89Scanner> dummy;
+  mScanner.swap(dummy);
 }
 
 END_NAMESPACE_YM_BNET

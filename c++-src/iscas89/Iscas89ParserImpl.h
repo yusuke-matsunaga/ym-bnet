@@ -5,18 +5,17 @@
 /// @brief Iscas89ParserImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/bnet.h"
-#include "Iscas89IdHash.h"
+#include "ym/FileRegion.h"
+#include "Iscas89Scanner.h"
 #include "Iscas89Token.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-class Iscas89Scanner;
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89ParserImpl Iscas89ParserImpl.h "ym/Iscas89ParserImpl.h"
@@ -27,10 +26,10 @@ class Iscas89ParserImpl
 public:
 
   /// @brief コンストラクタ
-  Iscas89ParserImpl();
+  Iscas89ParserImpl() = default;
 
   /// @brief デストラクタ
-  ~Iscas89ParserImpl();
+  ~Iscas89ParserImpl() = default;
 
 
 public:
@@ -55,8 +54,84 @@ public:
   id2str(int id) const;
 
   /// @brief ID 番号から位置情報を得る．
-  FileRegion
+  const FileRegion&
   id2loc(int id) const;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 識別子を表すクラス
+  class IdCell
+  {
+  public:
+
+    /// @brief コンストラクタ
+    IdCell(int id,
+	   const char* name);
+
+    /// @brief デストラクタ
+    ~IdCell();
+
+    /// @brief ID番号を返す．
+    int
+    id() const;
+
+    /// @brief 定義済みシンボルのとき true を返す．
+    bool
+    is_defined() const;
+
+    /// @brief 入力として定義されている時 true を返す．
+    bool
+    is_input() const;
+
+    /// @brief 出力として定義されている時 true を返す．
+    bool
+    is_output() const;
+
+    /// @brief このシンボルの定義された位置を返す．
+    const FileRegion&
+    loc() const;
+
+    /// @brief このシンボルの名前を返す．
+    const char*
+    name() const;
+
+    /// @brief 定義済みフラグをセットする．
+    void
+    set_defined(const FileRegion& loc);
+
+    /// @brief 入力として定義されたことをセットする．
+    void
+    set_input();
+
+    void
+    set_output();
+
+
+  private:
+    //////////////////////////////////////////////////////////////////////
+    // データメンバ
+    //////////////////////////////////////////////////////////////////////
+
+    // ID 番号
+    int mId;
+
+    // この識別子を定義している位置情報
+    FileRegion mLoc;
+
+    // いくつかのフラグ
+    // 0: defined マーク
+    // 1: input マーク
+    // 2: output マーク
+    std::bitset<3> mFlags;
+
+    // 名前
+    char* mName;
+
+  };
 
 
 private:
@@ -141,29 +216,25 @@ private:
 
   /// @brief 次のトークンが期待されている型か調べる．
   /// @param[in] exp_token トークンの期待値
-  /// @param[out] lval トークンの値を格納する変数
-  /// @param[out] loc トークンのファイル位置を格納する変数．
-  /// @retval true トークンの型が一致した．
-  /// @retval false トークンの方が一致しなかった．
+  /// @return ok/ng, 識別子番号, ファイル位置のタプルを返す．
   ///
-  /// トークンの方が一致しなかった場合にはエラーメッセージをセットする．
-  bool
-  expect(Iscas89Token exp_token,
-	 int& lval,
-	 FileRegion& loc);
+  /// トークンが exp_token と同じなら ok/ng は true となる．
+  tuple<bool, int, FileRegion>
+  expect(Iscas89Token exp_token);
 
   /// @brief トークンを一つ読みだす．
-  /// @param[out] lval トークンの値を格納する変数
-  /// @param[out] lloc トークンの位置を格納する変数
-  /// @return トークンの型を返す．
+  /// @return 型，識別子番号，位置のタプルを返す．
   ///
-  /// lval に値が入るのはトークンが kIscas89_NAME の時だけ
-  Iscas89Token
-  read_token(int& lval,
-	     FileRegion& lloc);
+  /// 識別子番号に値が入るのはトークンが Iscas89Token::NAME の時だけ
+  tuple<Iscas89Token, int, FileRegion>
+  read_token();
 
-  /// @brief ID 番号から Iscas89IdCell を得る．
-  Iscas89IdCell*
+  /// @brief ID 番号から IdCell を得る．
+  IdCell&
+  id2cell(int id);
+
+  /// @brief ID 番号から IdCell を得る．
+  const IdCell&
   id2cell(int id) const;
 
   /// @brief 文字列用の領域を確保する．
@@ -171,8 +242,12 @@ private:
   /// @param[in] loc 文字列の位置情報
   /// @return 文字列の ID 番号
   int
-  reg_str(const char* src_str,
-	  const FileRegion& loc);
+  reg_id(const char* src_str,
+	 const FileRegion& loc);
+
+  /// @brief スキャナーを削除する．
+  void
+  delete_scanner();
 
 
 private:
@@ -181,19 +256,19 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 字句解析器
-  Iscas89Scanner* mScanner;
+  unique_ptr<Iscas89Scanner> mScanner;
 
   // イベントハンドラのリスト
-  list<Iscas89Handler*> mHandlerList;
+  vector<Iscas89Handler*> mHandlerList;
 
-  // 文字列のハッシュ
-  Iscas89IdHash mIdHash;
+  // 名前をキーにした識別子のハッシュ表
+  unordered_map<const char*, IdCell*> mIdHash;
 
-  // 出力の ID 番号のリスト
-  vector<int> mOidArray;
+  // 識別子の配列
+  vector<IdCell> mIdArray;
 
-  // 出力のファイル位置のリスト
-  vector<FileRegion> mOlocArray;
+  // 出力の ID番号とファイル位置のリスト
+  vector<pair<int, FileRegion>> mOidArray;
 
 };
 
@@ -204,10 +279,20 @@ private:
 
 // @brief ID 番号から Iscas89IdCell を得る．
 inline
-Iscas89IdCell*
+Iscas89ParserImpl::IdCell&
+Iscas89ParserImpl::id2cell(int id)
+{
+  ASSERT_COND( 0 <= id && id < mIdArray.size() );
+  return mIdArray[id];
+}
+
+// @brief ID 番号から Iscas89IdCell を得る．
+inline
+const Iscas89ParserImpl::IdCell&
 Iscas89ParserImpl::id2cell(int id) const
 {
-  return mIdHash.cell(id);
+  ASSERT_COND( 0 <= id && id < mIdArray.size() );
+  return mIdArray[id];
 }
 
 // @brief ID 番号から文字列を得る．
@@ -215,15 +300,106 @@ inline
 const char*
 Iscas89ParserImpl::id2str(int id) const
 {
-  return mIdHash.str(id);
+  return id2cell(id).name();
 }
 
 // @brief ID 番号から位置情報を得る．
 inline
-FileRegion
+const FileRegion&
 Iscas89ParserImpl::id2loc(int id) const
 {
-  return mIdHash.loc(id);
+  return id2cell(id).loc();
+}
+
+// @brief コンストラクタ
+inline
+Iscas89ParserImpl::IdCell::IdCell(int id,
+				  const char* name) :
+  mId{id},
+  mFlags{0}
+{
+  SizeType n = strlen(name) + 1;
+  mName = new char[n];
+  memcpy(mName, name, n);
+}
+
+// @brief デストラクタ
+inline
+Iscas89ParserImpl::IdCell::~IdCell()
+{
+  delete [] mName;
+}
+
+// @brief ID番号を返す．
+inline
+int
+Iscas89ParserImpl::IdCell::id() const
+{
+  return mId;
+}
+
+// @brief 定義済みシンボルのとき true を返す．
+inline
+bool
+Iscas89ParserImpl::IdCell::is_defined() const
+{
+  return mFlags[0];
+}
+
+// @brief 入力として定義されている時 true を返す．
+inline
+bool
+Iscas89ParserImpl::IdCell::is_input() const
+{
+  return mFlags[1];
+}
+
+// @brief 出力として定義されている時 true を返す．
+inline
+bool
+Iscas89ParserImpl::IdCell::is_output() const
+{
+  return mFlags[2];
+}
+
+// @brief このシンボルの定義された位置を返す．
+inline
+const FileRegion&
+Iscas89ParserImpl::IdCell::loc() const
+{
+  return mLoc;
+}
+
+// @brief このシンボルの名前を返す．
+inline
+const char*
+Iscas89ParserImpl::IdCell::name() const
+{
+  return mName;
+}
+
+// @brief 定義済みフラグをセットする．
+inline
+void
+Iscas89ParserImpl::IdCell::set_defined(const FileRegion& loc)
+{
+  mLoc = loc;
+  mFlags.set(0);
+}
+
+// @brief 入力として定義されたことをセットする．
+inline
+void
+Iscas89ParserImpl::IdCell::set_input()
+{
+  mFlags.set(1);
+}
+
+inline
+void
+Iscas89ParserImpl::IdCell::set_output()
+{
+  mFlags.set(2);
 }
 
 END_NAMESPACE_YM_BNET

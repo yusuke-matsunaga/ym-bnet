@@ -24,9 +24,11 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] ido 入力データ
-Iscas89Scanner::Iscas89Scanner(IDO& ido) :
-  Scanner(ido)
+// @param[in] s 入力ストリーム
+// @param[in] file_info ファイル情報
+Iscas89Scanner::Iscas89Scanner(istream& s,
+			       const FileInfo& file_info) :
+  Scanner{s, file_info}
 {
 }
 
