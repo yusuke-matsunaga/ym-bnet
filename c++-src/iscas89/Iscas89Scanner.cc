@@ -3,7 +3,7 @@
 /// @brief Iscas89Scanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -24,16 +24,9 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] s 入力ストリーム
-// @param[in] file_info ファイル情報
-Iscas89Scanner::Iscas89Scanner(istream& s,
-			       const FileInfo& file_info) :
-  Scanner{s, file_info}
-{
-}
-
-// @brief デストラクタ
-Iscas89Scanner::~Iscas89Scanner()
+// @param[in] in 入力ファイルオブジェクト
+Iscas89Scanner::Iscas89Scanner(InputFileObj& in) :
+  mIn{in}
 {
 }
 
@@ -42,8 +35,11 @@ Iscas89Scanner::~Iscas89Scanner()
 Iscas89Token
 Iscas89Scanner::read_token(FileRegion& loc)
 {
-  Iscas89Token token = scan();
-  loc = cur_loc();
+  auto token = scan();
+  if ( token == Iscas89Token::NAME ) {
+    token = check_word();
+  }
+  loc = FileRegion{mFirstLoc, mIn.cur_loc()};
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
@@ -90,8 +86,8 @@ Iscas89Scanner::scan()
   // 効率はよい．
 
  ST_INIT:
-  c = get();
-  set_first_loc();
+  c = mIn.get();
+  mFirstLoc = mIn.cur_loc();
   switch ( c ) {
   case EOF:
     return Iscas89Token::_EOF;
@@ -123,7 +119,7 @@ Iscas89Scanner::scan()
   }
 
  ST_SHARP: // 1行コメントの始まり
-  c = get();
+  c = mIn.get();
   if ( c == '\n' ) {
     goto ST_INIT;
   }
@@ -134,7 +130,7 @@ Iscas89Scanner::scan()
   goto ST_SHARP;
 
  ST_STR:
-  c = peek();
+  c = mIn.peek();
   switch ( c ) {
   case ' ':
   case '\t':
@@ -146,63 +142,71 @@ Iscas89Scanner::scan()
   case ',':
   case EOF:
     // 文字列の終わり
-
-    // 予約後の検索
-    if ( mCurString == "INPUT" || mCurString == "input" ) {
-      return Iscas89Token::INPUT;
-    }
-    if ( mCurString == "OUTPUT" || mCurString == "output" ) {
-      return Iscas89Token::OUTPUT;
-    }
-    if ( mCurString == "BUFF" || mCurString == "buff" ) {
-      return Iscas89Token::BUFF;
-    }
-    if ( mCurString == "BUF" || mCurString == "buf" ) {
-      return Iscas89Token::BUFF;
-    }
-    if ( mCurString == "NOT" || mCurString == "not" ) {
-      return Iscas89Token::NOT;
-    }
-    if ( mCurString == "INV" || mCurString == "inv" ) {
-      return Iscas89Token::NOT;
-    }
-    if ( mCurString == "AND" || mCurString == "and" ) {
-      return Iscas89Token::AND;
-    }
-    if ( mCurString == "NAND" || mCurString == "nand" ) {
-      return Iscas89Token::NAND;
-    }
-    if ( mCurString == "OR" || mCurString == "or" ) {
-      return Iscas89Token::OR;
-    }
-    if ( mCurString == "NOR" || mCurString == "nor" ) {
-      return Iscas89Token::NOR;
-    }
-    if ( mCurString == "XOR" || mCurString == "xor" ) {
-      return Iscas89Token::XOR;
-    }
-    if ( mCurString == "XNOR" || mCurString == "xnor" ) {
-      return Iscas89Token::XNOR;
-    }
-    if ( mCurString == "MUX" || mCurString == "mux" ) {
-      return Iscas89Token::MUX;
-    }
-    if ( mCurString == "CONST0" || mCurString == "const0" ) {
-      return Iscas89Token::CONST0;
-    }
-    if ( mCurString == "CONST1" || mCurString == "const1" ) {
-      return Iscas89Token::CONST1;
-    }
-    if ( mCurString == "DFF" || mCurString == "dff" ) {
-      return Iscas89Token::DFF;
-    }
     return Iscas89Token::NAME;
 
   default:
-    accept();
+    mIn.accept();
     mCurString.put_char(c);
     goto ST_STR;
   }
+}
+
+// @brief 予約語の検査を行う．
+// @return トークンを返す．
+//
+// 予約語でなければ NAME を返す．
+Iscas89Token
+Iscas89Scanner::check_word()
+{
+  if ( mCurString == "INPUT" || mCurString == "input" ) {
+    return Iscas89Token::INPUT;
+  }
+  if ( mCurString == "OUTPUT" || mCurString == "output" ) {
+    return Iscas89Token::OUTPUT;
+  }
+  if ( mCurString == "BUFF" || mCurString == "buff" ) {
+    return Iscas89Token::BUFF;
+  }
+  if ( mCurString == "BUF" || mCurString == "buf" ) {
+    return Iscas89Token::BUFF;
+  }
+  if ( mCurString == "NOT" || mCurString == "not" ) {
+    return Iscas89Token::NOT;
+  }
+  if ( mCurString == "INV" || mCurString == "inv" ) {
+    return Iscas89Token::NOT;
+  }
+  if ( mCurString == "AND" || mCurString == "and" ) {
+    return Iscas89Token::AND;
+  }
+  if ( mCurString == "NAND" || mCurString == "nand" ) {
+    return Iscas89Token::NAND;
+  }
+  if ( mCurString == "OR" || mCurString == "or" ) {
+    return Iscas89Token::OR;
+  }
+  if ( mCurString == "NOR" || mCurString == "nor" ) {
+    return Iscas89Token::NOR;
+  }
+  if ( mCurString == "XOR" || mCurString == "xor" ) {
+    return Iscas89Token::XOR;
+  }
+  if ( mCurString == "XNOR" || mCurString == "xnor" ) {
+    return Iscas89Token::XNOR;
+  }
+  if ( mCurString == "MUX" || mCurString == "mux" ) {
+    return Iscas89Token::MUX;
+  }
+  if ( mCurString == "CONST0" || mCurString == "const0" ) {
+    return Iscas89Token::CONST0;
+  }
+  if ( mCurString == "CONST1" || mCurString == "const1" ) {
+    return Iscas89Token::CONST1;
+  }
+  if ( mCurString == "DFF" || mCurString == "dff" ) {
+    return Iscas89Token::DFF;
+  }
+  return Iscas89Token::NAME;
 }
 
 END_NAMESPACE_YM_BNET

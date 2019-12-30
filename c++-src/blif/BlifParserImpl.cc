@@ -101,17 +101,6 @@ END_NONAMESPACE
 // クラス BlifParserImpl
 //////////////////////////////////////////////////////////////////////
 
-
-// @brief コンストラクタ
-BlifParserImpl::BlifParserImpl()
-{
-}
-
-// @brief デストラクタ
-BlifParserImpl::~BlifParserImpl()
-{
-}
-
 // @brief 読み込みを行う．
 bool
 BlifParserImpl::read(const string& filename,
@@ -131,7 +120,8 @@ BlifParserImpl::read(const string& filename,
   mCellLibrary = cell_library;
 
   // 初期化を行う．
-  mScanner = unique_ptr<BlifScanner>{new BlifScanner(fin, {filename})};
+  InputFileObj in{fin, {filename}};
+  mScanner = unique_ptr<BlifScanner>{new BlifScanner(in)};
   mIdHash.clear();
   mUngetToken = BlifToken::_EOF;
 

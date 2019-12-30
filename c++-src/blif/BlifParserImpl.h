@@ -29,10 +29,10 @@ class BlifParserImpl
 public:
 
   /// @brief コンストラクタ
-  BlifParserImpl();
+  BlifParserImpl() = default;
 
   /// @brief デストラクタ
-  ~BlifParserImpl();
+  ~BlifParserImpl() = default;
 
 
 public:

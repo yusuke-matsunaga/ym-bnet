@@ -53,7 +53,8 @@ Iscas89ParserImpl::read(const string& filename)
     return false;
   }
 
-  mScanner = unique_ptr<Iscas89Scanner>{new Iscas89Scanner{fin, {filename}}};
+  InputFileObj in{fin, {filename}};
+  mScanner = unique_ptr<Iscas89Scanner>{new Iscas89Scanner{in}};
 
   for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {

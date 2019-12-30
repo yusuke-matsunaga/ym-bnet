@@ -5,12 +5,12 @@
 /// @brief Iscas89Scanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/bnet.h"
-#include "ym/Scanner.h"
+#include "ym/InputFileObj.h"
 #include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
@@ -21,19 +21,16 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
 /// @brief iscas89 用の字句解析器
 //////////////////////////////////////////////////////////////////////
-class Iscas89Scanner :
-  public Scanner
+class Iscas89Scanner
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] s 入力ストリーム
-  /// @param[in] file_info ファイル情報
-  Iscas89Scanner(istream& s,
-		 const FileInfo& file_info);
+  /// @param[in] in 入力ファイルオブジェクト
+  Iscas89Scanner(InputFileObj& in);
 
   /// @brief デストラクタ
-  ~Iscas89Scanner();
+  ~Iscas89Scanner() = default;
 
 
 public:
@@ -61,14 +58,27 @@ private:
   Iscas89Token
   scan();
 
+  /// @brief 予約語の検査を行う．
+  /// @return トークンを返す．
+  ///
+  /// 予約語でなければ NAME を返す．
+  Iscas89Token
+  check_word();
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // 入力ファイルオブジェクト
+  InputFileObj& mIn;
+
   // 文字列バッファ
   StrBuff mCurString;
+
+  // 文字列の先頭の位置
+  FileLoc mFirstLoc;
 
 };
 

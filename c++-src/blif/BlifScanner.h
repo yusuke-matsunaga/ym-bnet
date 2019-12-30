@@ -10,7 +10,7 @@
 
 
 #include "ym/bnet.h"
-#include "ym/Scanner.h"
+#include "ym/InputFileObj.h"
 #include "ym/StrBuff.h"
 #include "BlifDic.h"
 
@@ -21,19 +21,16 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
 /// @brief blif 用の字句解析器
 //////////////////////////////////////////////////////////////////////
-class BlifScanner :
-  public Scanner
+class BlifScanner
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] s 入力ストリーム
-  /// @param[in] file_info ファイル情報
-  BlifScanner(istream& s,
-	      const FileInfo& file_info);
+  /// @param[in] in 入力ファイルオブジェクト
+  BlifScanner(InputFileObj& in);
 
   /// @brief デストラクタ
-  ~BlifScanner();
+  ~BlifScanner() = default;
 
 
 public:
@@ -72,6 +69,9 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // 入力ファイルオブジェクト
+  InputFileObj& mIn;
 
   // 予約語テーブル
   BlifDic mDic;

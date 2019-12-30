@@ -3,7 +3,7 @@
 /// @brief BlibScanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_YM_BNET
 BEGIN_NONAMESPACE
 
 // read_token() の動作をデバッグするときに true にする．
-const bool debug_read_token = false;
+const bool debug_read_token = true;
 
 END_NONAMESPACE
 
@@ -25,16 +25,9 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] s 入力ストリーム
-// @param[in] file_info ファイル情報
-BlifScanner::BlifScanner(istream& s,
-			 const FileInfo& file_info) :
-  Scanner{s, file_info}
-{
-}
-
-// @brief デストラクタ
-BlifScanner::~BlifScanner()
+// @param[in] in 入力ファイルオブジェクト
+BlifScanner::BlifScanner(InputFileObj& in) :
+  mIn{in}
 {
 }
 
@@ -44,7 +37,7 @@ BlifToken
 BlifScanner::read_token(FileRegion& loc)
 {
   BlifToken token = scan();
-  loc = cur_loc();
+  loc = mIn.cur_loc();
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
@@ -72,8 +65,8 @@ BlifScanner::scan()
   // 効率はよい．
 
  ST_INIT:
-  c = get();
-  set_first_loc();
+  c = mIn.get();
+  auto from_loc = mIn.cur_loc();
 
   switch ( c ) {
   case EOF:
@@ -98,8 +91,8 @@ BlifScanner::scan()
     goto ST_SHARP;
 
   case '/':
-    if ( peek() == '*' ) {
-      accept();
+    if ( mIn.peek() == '*' ) {
+      mIn.accept();
       // ここまでで "/*" を読んでいる．
       goto ST_CM1;
     }
@@ -115,7 +108,7 @@ BlifScanner::scan()
   }
 
  ST_SHARP:
-  c = get();
+  c = mIn.get();
   if ( c == '\n' ) {
     return BlifToken::NL;
   }
@@ -126,7 +119,7 @@ BlifScanner::scan()
   goto ST_SHARP;
 
  ST_CM1:
-  c = get();
+  c = mIn.get();
   if ( c == '*' ) {
     goto ST_CM2;
   }
@@ -137,7 +130,7 @@ BlifScanner::scan()
   goto ST_CM1;
 
  ST_CM2:
-  c = get();
+  c = mIn.get();
   if ( c == '/' ) {
     // コメントは空白扱いにする．
     goto ST_INIT;
@@ -148,7 +141,7 @@ BlifScanner::scan()
   goto ST_CM1;
 
  ST_ESC:
-  c = get();
+  c = mIn.get();
   if ( c == '\n' ) {
     // エスケープされた改行は空白扱いにする．
     goto ST_INIT;
@@ -162,7 +155,7 @@ BlifScanner::scan()
   goto ST_STR;
 
  ST_STR:
-  c = peek();
+  c = mIn.peek();
   switch ( c ) {
   case ' ':
   case '\t':
@@ -175,7 +168,7 @@ BlifScanner::scan()
     return check_word(StartWithDot);
 
   default:
-    accept();
+    mIn.accept();
     mCurString.put_char(c);
     goto ST_STR;
   }
