@@ -68,7 +68,7 @@ BEGIN_NONAMESPACE
 int
 str_to_01(const StrBuff& str)
 {
-  const char* strptr = str.c_str();
+  auto strptr = str.c_str();
   if ( strptr[1] != '\0' ) {
     return -1;
   }
@@ -185,7 +185,7 @@ BlifParserImpl::read(const string& filename,
 		      "String expected after '.model'.");
       goto ST_ERROR_EXIT;
     }
-    const char* name = mScanner->cur_string();
+    string name{mScanner->cur_string()};
     for ( auto handler: mHandlerList ) {
       if ( !handler->model(mLoc1, loc, name) ) {
 	stat = false;
@@ -303,7 +303,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
+      string name{mScanner->cur_string()};
       auto id_cell = find_id(name);
       if ( id_cell->is_defined() ) {
 	ostringstream buf;
@@ -351,7 +351,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
+      string name{mScanner->cur_string()};
       auto id_cell = find_id(name);
       if ( id_cell->is_output() ) {
 	ostringstream buf;
@@ -396,7 +396,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      auto name = mScanner->cur_string();
+      string name = mScanner->cur_string();
       auto id_cell = find_id(name);
       mCurIdArray.push_back({id_cell, loc});
       goto ST_NAMES;
@@ -578,9 +578,13 @@ BlifParserImpl::read(const string& filename,
 
     // ハンドラを呼び出す．
     vector<int> id_array(ni);
+    cout << "id_array = ";
+
     for ( int i: Range(ni) ) {
       id_array[i] = mCurIdArray[i].first->id();
+      cout << " " << id_array[i];
     }
+    cout << endl;
     for ( auto handler: mHandlerList ) {
       if ( !handler->names(oid, id_cell->name(), id_array, cover_id) ) {
 	stat = false;
@@ -651,8 +655,8 @@ BlifParserImpl::read(const string& filename,
     BlifToken tk= get_token(loc1);
     if ( tk == BlifToken::STRING ) {
       mName1 = mScanner->cur_string();
-      const char* name1 = mName1.c_str();
       const ClibCell& cell = mCellLibrary.cell(mCellId);
+      auto name1 = mName1.c_str();
       int pin_id = cell.pin_id(name1);
       if ( pin_id == -1 ) {
 	ostringstream buf;
@@ -673,7 +677,7 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc2;
 	goto ST_GATE_SYNERROR;
       }
-      auto name2{mScanner->cur_string()};
+      string name2{mScanner->cur_string()};
       auto id_cell = find_id(name2);
       const ClibCellPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
@@ -740,7 +744,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc2;
     BlifToken tk= get_token(loc2);
     if ( tk == BlifToken::STRING ) {
-      auto name1{mScanner->cur_string()};
+      string name1{mScanner->cur_string()};
       auto id_cell1 = find_id(name1);
 
       FileRegion loc3;
@@ -749,7 +753,7 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc3;
 	goto ST_LATCH_SYNERROR;
       }
-      auto name2{mScanner->cur_string()};
+      string name2{mScanner->cur_string()};
       auto id_cell2 = find_id(name2);
 
       if ( id_cell2->is_defined() ) {
@@ -947,7 +951,7 @@ BlifParserImpl::get_token(FileRegion& loc)
 //
 // 未登録の場合には新たに作る．
 BlifParserImpl::IdCell*
-BlifParserImpl::find_id(const char* name)
+BlifParserImpl::find_id(const string& name)
 {
   if ( mIdHash.find(name) == mIdHash.end() ) {
     // 未定義だった．

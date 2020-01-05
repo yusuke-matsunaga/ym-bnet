@@ -75,7 +75,7 @@ public:
   bool
   model(const FileRegion& loc1,
 	const FileRegion& loc2,
-	const char* name) = 0;
+	const string& name) = 0;
 
   /// @brief .inputs 文中の文字列の処理
   /// @param[in] name_id 文字列のID番号
@@ -85,7 +85,7 @@ public:
   virtual
   bool
   inputs_elem(int name_id,
-	      const char* name) = 0;
+	      const string& name) = 0;
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name_id 文字列のID番号
@@ -95,7 +95,7 @@ public:
   virtual
   bool
   outputs_elem(int name_id,
-	       const char* name) = 0;
+	       const string& name) = 0;
 
   /// @brief .names 文の処理
   /// @param[in] onode_id ノード名のID番号
@@ -110,7 +110,7 @@ public:
   virtual
   bool
   names(int onode_id,
-	const char* oname,
+	const string& oname,
 	const vector<int>& inode_id_array,
 	int cover_id) = 0;
 
@@ -124,7 +124,7 @@ public:
   virtual
   bool
   gate(int onode_id,
-       const char* oname,
+       const string& oname,
        const vector<int>& inode_id_array,
        int cell_id)  = 0;
 
@@ -139,7 +139,7 @@ public:
   virtual
   bool
   latch(int onode_id,
-	const char* oname,
+	const string& oname,
 	int inode_id,
 	const FileRegion& loc4,
 	char rval) = 0;
@@ -169,7 +169,7 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号から文字列を得る．
-  const char*
+  const string&
   id2str(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．

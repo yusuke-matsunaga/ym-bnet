@@ -34,7 +34,7 @@ BlifHandler::~BlifHandler()
 }
 
 // @brief ID番号から文字列を得る．
-const char*
+const string&
 BlifHandler::id2str(int id)
 {
   return mParser.id2str(id);

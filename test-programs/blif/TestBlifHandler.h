@@ -54,7 +54,7 @@ public:
   bool
   model(const FileRegion& loc1,
 	const FileRegion& loc2,
-	const char* name) override;
+	const string& name) override;
 
   /// @brief .inputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
@@ -63,7 +63,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   inputs_elem(int name_id,
-	      const char* name) override;
+	      const string& name) override;
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name 文字列の情報
@@ -72,7 +72,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   outputs_elem(int name_id,
-	       const char* name) override;
+	       const string& name) override;
 
   /// @brief .names 文の処理
   /// @param[in] onode_id 出力ノードのID番号
@@ -86,7 +86,7 @@ public:
   /// @note opat は '0' か '1' のどちらか
   bool
   names(int onode_id,
-	const char* oname,
+	const string& oname,
 	const vector<int>& inode_id_array,
 	int cover_id) override;
 
@@ -99,7 +99,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   gate(int onode_id,
-       const char* oname,
+       const string& oname,
        const vector<int>& inode_id_array,
        int cell_id) override;
 
@@ -113,7 +113,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   latch(int onode_id,
-	const char* oname,
+	const string& oname,
 	int inode_id,
 	const FileRegion& loc4,
 	char rval) override;

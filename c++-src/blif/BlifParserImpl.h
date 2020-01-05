@@ -61,7 +61,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号から文字列を得る．
-  const char*
+  const string&
   id2str(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．
@@ -89,10 +89,10 @@ private:
 
     /// @brief コンストラクタ
     IdCell(int id,
-	   const char* name);
+	   const string& name);
 
     /// @brief デストラクタ
-    ~IdCell();
+    ~IdCell() = default;
 
     /// @brief ID番号を返す．
     int
@@ -115,7 +115,7 @@ private:
     loc() const;
 
     /// @brief このシンボルの名前を返す．
-    const char*
+    const string&
     name() const;
 
     /// @brief 定義済みフラグをセットする．
@@ -149,7 +149,7 @@ private:
     std::bitset<3> mFlags;
 
     // 名前
-    char* mName;
+    string mName;
 
   };
 
@@ -175,7 +175,7 @@ private:
   ///
   /// 未登録の場合には新たに作る．
   IdCell*
-  find_id(const char* name);
+  find_id(const string& name);
 
   /// @brief スキャナーを削除する．
   void
@@ -203,7 +203,7 @@ private:
   vector<BlifHandler*> mHandlerList;
 
   // 名前をキーにした識別子のハッシュ表
-  unordered_map<const char*, IdCell*> mIdHash;
+  unordered_map<string, IdCell*> mIdHash;
 
   // 識別本体の配列
   vector<IdCell> mIdArray;
@@ -247,9 +247,12 @@ private:
 
 // @brief ID番号から文字列を得る．
 inline
-const char*
+const string&
 BlifParserImpl::id2str(int id)
 {
+  cout << "id2str(" << id << ") => ";
+  cout.flush();
+  cout << mIdArray[id].name() << endl;
   return mIdArray[id].name();
 }
 
@@ -290,20 +293,11 @@ BlifParserImpl::unget_token(BlifToken token,
 // @brief コンストラクタ
 inline
 BlifParserImpl::IdCell::IdCell(int id,
-			       const char* name) :
+			       const string& name) :
   mId{id},
-  mFlags{0}
+  mFlags{0},
+  mName{name}
 {
-  SizeType n = strlen(name) + 1;
-  mName = new char[n];
-  memcpy(mName, name, n);
-}
-
-// @brief デストラクタ
-inline
-BlifParserImpl::IdCell::~IdCell()
-{
-  delete [] mName;
 }
 
 // @brief ID番号を返す．
@@ -348,7 +342,7 @@ BlifParserImpl::IdCell::loc() const
 
 // @brief このシンボルの名前を返す．
 inline
-const char*
+const string&
 BlifParserImpl::IdCell::name() const
 {
   return mName;

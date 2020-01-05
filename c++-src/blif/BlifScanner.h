@@ -5,14 +5,14 @@
 /// @brief BlibScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/bnet.h"
 #include "ym/InputFileObj.h"
 #include "ym/StrBuff.h"
-#include "BlifDic.h"
+#include "BlifToken.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -74,10 +74,13 @@ private:
   InputFileObj& mIn;
 
   // 予約語テーブル
-  BlifDic mDic;
+  unordered_map<string, BlifToken> mDic;
 
   // 文字列バッファ
   StrBuff mCurString;
+
+  // 現在のトークンの始まりの位置
+  FileLoc mFirstLoc;
 
 };
 

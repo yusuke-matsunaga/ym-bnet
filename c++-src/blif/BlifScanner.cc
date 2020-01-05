@@ -27,7 +27,41 @@ END_NONAMESPACE
 // @brief コンストラクタ
 // @param[in] in 入力ファイルオブジェクト
 BlifScanner::BlifScanner(InputFileObj& in) :
-  mIn{in}
+  mIn{in},
+  mDic{ {"model", BlifToken::MODEL},
+	{"inputs", BlifToken::INPUTS},
+	{"outputs", BlifToken::OUTPUTS},
+	{"clock", BlifToken::CLOCK},
+	{"end", BlifToken::END},
+	{"names", BlifToken::NAMES},
+	{"exdc", BlifToken::EXDC},
+	{"latch", BlifToken::LATCH},
+	{"gate", BlifToken::GATE},
+	{"mlatch", BlifToken::MLATCH},
+	{"subckt", BlifToken::SUBCKT},
+	{"search", BlifToken::SEARCH},
+	{"start_kiss", BlifToken::START_KISS},
+	{"i", BlifToken::I},
+	{"o", BlifToken::O},
+	{"p", BlifToken::P},
+	{"r", BlifToken::R},
+	{"end_kiss", BlifToken::END_KISS},
+	{"latch_order", BlifToken::LATCH_ORDER},
+	{"code", BlifToken::CODE},
+	{"cycle", BlifToken::CYCLE},
+	{"clock_event", BlifToken::CLOCK_EVENT},
+	{"area", BlifToken::AREA},
+	{"delay", BlifToken::DELAY},
+	{"wire_load_slope", BlifToken::WIRE_LOAD_SLOPE},
+	{"wire", BlifToken::WIRE},
+	{"input_arrival", BlifToken::INPUT_ARRIVAL},
+	{"default_input_arrival", BlifToken::DEFAULT_INPUT_ARRIVAL},
+	{"output_required", BlifToken::OUTPUT_REQUIRED},
+	{"default_output_required", BlifToken::DEFAULT_OUTPUT_REQUIRED},
+	{"input_drive", BlifToken::INPUT_DRIVE},
+	{"default_input_drive", BlifToken::DEFAULT_INPUT_DRIVE},
+	{"output_load", BlifToken::OUTPUT_LOAD},
+	{"default_output_load", BlifToken::DEFAULT_OUTPUT_LOAD} }
 {
 }
 
@@ -36,8 +70,8 @@ BlifScanner::BlifScanner(InputFileObj& in) :
 BlifToken
 BlifScanner::read_token(FileRegion& loc)
 {
-  BlifToken token = scan();
-  loc = mIn.cur_loc();
+  auto token = scan();
+  loc = FileRegion{mFirstLoc, mIn.cur_loc()};
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
@@ -66,7 +100,7 @@ BlifScanner::scan()
 
  ST_INIT:
   c = mIn.get();
-  auto from_loc = mIn.cur_loc();
+  mFirstLoc = mIn.cur_loc();
 
   switch ( c ) {
   case EOF:
@@ -182,9 +216,9 @@ BlifScanner::check_word(bool start_with_dot)
 {
   if ( start_with_dot ) {
     // 予約後の検索
-    BlifToken token = mDic.get_token(cur_string());
-    if ( token != BlifToken::_EOF ) {
-      return token;
+    auto p = mDic.find(string{cur_string()});
+    if ( p != mDic.end() ) {
+      return p->second;
     }
   }
   return BlifToken::STRING;
