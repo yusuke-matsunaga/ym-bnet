@@ -44,7 +44,7 @@ public:
   read_token(FileRegion& loc);
 
   /// @brief 最後の get_token() で読み出した字句の文字列を返す．
-  const char*
+  string
   cur_string();
 
 
@@ -77,7 +77,7 @@ private:
   unordered_map<string, BlifToken> mDic;
 
   // 文字列バッファ
-  StrBuff mCurString;
+  string mCurString;
 
   // 現在のトークンの始まりの位置
   FileLoc mFirstLoc;
@@ -91,10 +91,10 @@ private:
 
 // @brief 最後の get_token() で読み出した字句の文字列を返す．
 inline
-const char*
+string
 BlifScanner::cur_string()
 {
-  return mCurString.c_str();
+  return mCurString;
 }
 
 END_NAMESPACE_YM_BNET

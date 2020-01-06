@@ -14,7 +14,6 @@
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibCellPin.h"
-#include "ym/FileIDO.h"
 #include "ym/MsgMgr.h"
 #include "ym/Range.h"
 
@@ -185,7 +184,7 @@ BlifParserImpl::read(const string& filename,
 		      "String expected after '.model'.");
       goto ST_ERROR_EXIT;
     }
-    string name{mScanner->cur_string()};
+    auto name{mScanner->cur_string()};
     for ( auto handler: mHandlerList ) {
       if ( !handler->model(mLoc1, loc, name) ) {
 	stat = false;
@@ -303,7 +302,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      string name{mScanner->cur_string()};
+      auto name{mScanner->cur_string()};
       auto id_cell = find_id(name);
       if ( id_cell->is_defined() ) {
 	ostringstream buf;
@@ -351,7 +350,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      string name{mScanner->cur_string()};
+      auto name{mScanner->cur_string()};
       auto id_cell = find_id(name);
       if ( id_cell->is_output() ) {
 	ostringstream buf;
@@ -396,7 +395,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      string name = mScanner->cur_string();
+      auto name{mScanner->cur_string()};
       auto id_cell = find_id(name);
       mCurIdArray.push_back({id_cell, loc});
       goto ST_NAMES;
@@ -604,7 +603,7 @@ BlifParserImpl::read(const string& filename,
       error_loc = loc;
       goto ST_GATE_SYNERROR;
     }
-    auto name = mScanner->cur_string();
+    auto name{mScanner->cur_string()};
     mCellId = mCellLibrary.cell_id(name);
     if ( mCellId == -1 ) {
       ostringstream buf;
@@ -677,7 +676,7 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc2;
 	goto ST_GATE_SYNERROR;
       }
-      string name2{mScanner->cur_string()};
+      auto name2{mScanner->cur_string()};
       auto id_cell = find_id(name2);
       const ClibCellPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
@@ -744,7 +743,7 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc2;
     BlifToken tk= get_token(loc2);
     if ( tk == BlifToken::STRING ) {
-      string name1{mScanner->cur_string()};
+      auto name1{mScanner->cur_string()};
       auto id_cell1 = find_id(name1);
 
       FileRegion loc3;
@@ -753,7 +752,7 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc3;
 	goto ST_LATCH_SYNERROR;
       }
-      string name2{mScanner->cur_string()};
+      auto name2{mScanner->cur_string()};
       auto id_cell2 = find_id(name2);
 
       if ( id_cell2->is_defined() ) {
