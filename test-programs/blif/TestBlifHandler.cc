@@ -52,7 +52,7 @@ TestBlifHandler::set_cell_library(const ClibCellLibrary& library)
 bool
 TestBlifHandler::model(const FileRegion& loc1,
 		       const FileRegion& loc2,
-		       const char* name)
+		       const string& name)
 {
   (*mStreamPtr) << ".model " << name << endl
 		<< "\t[" << loc1 << "]" << endl
@@ -63,7 +63,7 @@ TestBlifHandler::model(const FileRegion& loc1,
 // @brief .inputs 文中の文字列の処理
 bool
 TestBlifHandler::inputs_elem(int name_id,
-			     const char* name)
+			     const string& name)
 {
   (*mStreamPtr) << "  inputs elem: " << name << endl
 		<< "\t[" << id2loc(name_id) << "]" << endl;
@@ -73,7 +73,7 @@ TestBlifHandler::inputs_elem(int name_id,
 // @brief .outputs 文中の文字列の処理
 bool
 TestBlifHandler::outputs_elem(int name_id,
-			      const char* name)
+			      const string& name)
 {
   (*mStreamPtr) << "  outputs elem: " << name_id << endl
 		<< "\t[" << id2loc(name_id) << "]" << endl;
@@ -91,7 +91,7 @@ TestBlifHandler::outputs_elem(int name_id,
 // @note opat は '0' か '1' のどちらか
 bool
 TestBlifHandler::names(int onode_id,
-		       const char* oname,
+		       const string& oname,
 		       const vector<int>& inode_id_array,
 		       int cover_id)
 {
@@ -126,7 +126,7 @@ TestBlifHandler::names(int onode_id,
 // @retval false エラーが起こった．
 bool
 TestBlifHandler::gate(int onode_id,
-		      const char* oname,
+		      const string& oname,
 		      const vector<int>& inode_id_array,
 		      int cell_id)
 {
@@ -150,7 +150,7 @@ TestBlifHandler::gate(int onode_id,
 // @retval false エラーが起こった．
 bool
 TestBlifHandler::latch(int onode_id,
-		       const char* oname,
+		       const string& oname,
 		       int inode_id,
 		       const FileRegion& loc4,
 		       char rval)

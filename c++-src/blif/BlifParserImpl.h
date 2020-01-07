@@ -61,7 +61,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号から文字列を得る．
-  const char*
+  const string&
   id2str(int id);
 
   /// @brief ID番号からそれに関連した位置情報を得る．
@@ -89,10 +89,10 @@ private:
 
     /// @brief コンストラクタ
     IdCell(int id,
-	   const char* name);
+	   const string& name);
 
     /// @brief デストラクタ
-    ~IdCell();
+    ~IdCell() = default;
 
     /// @brief ID番号を返す．
     int
@@ -115,7 +115,7 @@ private:
     loc() const;
 
     /// @brief このシンボルの名前を返す．
-    const char*
+    const string&
     name() const;
 
     /// @brief 定義済みフラグをセットする．
@@ -149,7 +149,7 @@ private:
     std::bitset<3> mFlags;
 
     // 名前
-    char* mName;
+    string mName;
 
   };
 
@@ -171,11 +171,51 @@ private:
 
   /// @brief name に対応する IdCell を取り出す．
   /// @param[in] name 名前
-  /// @return 対応する IdCell を返す．
+  /// @return 対応するID番号を返す．
   ///
   /// 未登録の場合には新たに作る．
-  IdCell*
-  find_id(const char* name);
+  int
+  find_id(const string& name);
+
+  /// @brief 対応する識別子がすでに定義済みか調べる．
+  /// @param[in] id 識別子番号
+  /// @retval true 定義済み
+  /// @retval false 未定義
+  bool
+  is_defined(int id) const;
+
+  /// @brief 対応する識別子が入力用か調べる．
+  /// @param[in] id 識別子番号
+  /// @retval true 入力
+  /// @retval false 入力以外
+  bool
+  is_input(int id) const;
+
+  /// @brief 対応する識別子が出力用か調べる．
+  /// @param[in] id 識別子番号
+  /// @retval true 出力
+  /// @retval false 出力以外
+  bool
+  is_output(int id) const;
+
+  /// @brief 対応する識別子に定義済みの印をつける．
+  /// @param[in] id 識別子番号
+  /// @param[in] loc 定義している場所．
+  void
+  set_defined(int id,
+	      const FileRegion& loc);
+
+  /// @brief 対応する識別子に入力用の印を付ける．
+  /// @param[in] id 識別子番号
+  /// @param[in] loc 定義している場所．
+  void
+  set_input(int id,
+	    const FileRegion& loc);
+
+  /// @brief 対応する識別子に出力用の印を付ける．
+  /// @param[in] id 識別子番号
+  void
+  set_output(int id);
 
   /// @brief スキャナーを削除する．
   void
@@ -202,14 +242,11 @@ private:
   // イベントハンドラのリスト
   vector<BlifHandler*> mHandlerList;
 
-  // 名前をキーにした識別子のハッシュ表
-  unordered_map<const char*, IdCell*> mIdHash;
+  // 名前をキーにした識別子番号のハッシュ表
+  unordered_map<string, int> mIdHash;
 
-  // 識別本体の配列
-  vector<IdCell> mIdArray;
-
-  // 現在処理中のIdCellとFileRegionのペアの配列
-  vector<pair<IdCell*, FileRegion>> mCurIdArray;
+  // IdCell本体の配列
+  vector<IdCell> mCellArray;
 
   // 出力の ID 番号のリスト
   vector<int> mOidArray;
@@ -247,10 +284,11 @@ private:
 
 // @brief ID番号から文字列を得る．
 inline
-const char*
+const string&
 BlifParserImpl::id2str(int id)
 {
-  return mIdArray[id].name();
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  return mCellArray[id].name();
 }
 
 // @brief ID番号からそれに関連した位置情報を得る．
@@ -258,7 +296,8 @@ inline
 const FileRegion&
 BlifParserImpl::id2loc(int id)
 {
-  return mIdArray[id].loc();
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  return mCellArray[id].loc();
 }
 
 // @brief カバーの数を得る．
@@ -290,20 +329,11 @@ BlifParserImpl::unget_token(BlifToken token,
 // @brief コンストラクタ
 inline
 BlifParserImpl::IdCell::IdCell(int id,
-			       const char* name) :
+			       const string& name) :
   mId{id},
-  mFlags{0}
+  mFlags{0},
+  mName{name}
 {
-  SizeType n = strlen(name) + 1;
-  mName = new char[n];
-  memcpy(mName, name, n);
-}
-
-// @brief デストラクタ
-inline
-BlifParserImpl::IdCell::~IdCell()
-{
-  delete [] mName;
 }
 
 // @brief ID番号を返す．
@@ -348,7 +378,7 @@ BlifParserImpl::IdCell::loc() const
 
 // @brief このシンボルの名前を返す．
 inline
-const char*
+const string&
 BlifParserImpl::IdCell::name() const
 {
   return mName;

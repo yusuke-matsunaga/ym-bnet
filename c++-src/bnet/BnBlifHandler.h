@@ -5,7 +5,7 @@
 /// @brief BnBlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -63,7 +63,7 @@ public:
   bool
   model(const FileRegion& loc1,
 	const FileRegion& loc2,
-	const char* name);
+	const string& name);
 
   /// @brief .inputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
@@ -73,7 +73,7 @@ public:
   virtual
   bool
   inputs_elem(int name_id,
-	      const char* name);
+	      const string& name);
 
   /// @brief .outputs 文中の文字列の処理
   /// @param[in] name_id 文字列の情報
@@ -83,7 +83,7 @@ public:
   virtual
   bool
   outputs_elem(int name_id,
-	       const char* name);
+	       const string& name);
 
   /// @brief .names 文の処理
   /// @param[in] oname_id ノード名のID番号
@@ -95,7 +95,7 @@ public:
   virtual
   bool
   names(int oname_id,
-	const char* oname,
+	const string& oname,
 	const vector<int>& inode_id_array,
 	int cover_id);
 
@@ -109,7 +109,7 @@ public:
   virtual
   bool
   gate(int oname_id,
-       const char* oname,
+       const string& oname,
        const vector<int>& inode_id_array,
        int cell_id);
 
@@ -124,7 +124,7 @@ public:
   virtual
   bool
   latch(int oname_id,
-	const char* oname,
+	const string& oname,
 	int inode_id,
 	const FileRegion& loc4,
 	char rval);

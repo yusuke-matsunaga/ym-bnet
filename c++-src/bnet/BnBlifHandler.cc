@@ -72,7 +72,7 @@ BnBlifHandler::set_cell_library(const ClibCellLibrary& library)
 bool
 BnBlifHandler::model(const FileRegion& loc1,
 		     const FileRegion& loc2,
-		     const char* name)
+		     const string& name)
 {
   mNetwork->set_name(name);
 
@@ -85,7 +85,7 @@ BnBlifHandler::model(const FileRegion& loc1,
 // @param[in] name 入力ピン名
 bool
 BnBlifHandler::inputs_elem(int name_id,
-			   const char* name)
+			   const string& name)
 {
   auto port_id = mNetwork->new_input_port(name);
   const auto& port = mNetwork->port(port_id);
@@ -100,7 +100,7 @@ BnBlifHandler::inputs_elem(int name_id,
 // @param[in] name 出力ピン名
 bool
 BnBlifHandler::outputs_elem(int name_id,
-			    const char* name)
+			    const string& name)
 {
   auto port_id = mNetwork->new_output_port(name);
   const auto& port = mNetwork->port(port_id);
@@ -119,7 +119,7 @@ BnBlifHandler::outputs_elem(int name_id,
 // @retval false エラーが起こった．
 bool
 BnBlifHandler::names(int oname_id,
-		     const char* oname,
+		     const string& oname,
 		     const vector<int>& inode_id_array,
 		     int cover_id)
 {
@@ -145,7 +145,7 @@ BnBlifHandler::names(int oname_id,
 // @retval false エラーが起こった．
 bool
 BnBlifHandler::gate(int oname_id,
-		    const char* oname,
+		    const string& oname,
 		    const vector<int>& inode_id_array,
 		    int cell_id)
 {
@@ -170,7 +170,7 @@ BnBlifHandler::gate(int oname_id,
 // @retval false エラーが起こった．
 bool
 BnBlifHandler::latch(int oname_id,
-		     const char* oname,
+		     const string& oname,
 		     int iname_id,
 		     const FileRegion& loc4,
 		     char rval)

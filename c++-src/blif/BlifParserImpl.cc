@@ -14,7 +14,6 @@
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibCellPin.h"
-#include "ym/FileIDO.h"
 #include "ym/MsgMgr.h"
 #include "ym/Range.h"
 
@@ -130,7 +129,17 @@ BlifParserImpl::read(const string& filename,
   // 一つの .inputs/.outputs 文中のトークンの数
   int n_token = 0;
 
+  // エラー箇所
   FileRegion error_loc;
+
+  // .names 文に現れる識別子番号のリスト
+  vector<int> names_id_list;
+
+  // .names 文の最後の識別子の定義場所
+  FileRegion names_loc;
+
+  // .gate 文に現れる識別子番号のハッシュ表
+  unordered_map<int, int> pin_id_hash;
 
   bool stat = true;
   for ( auto handler: mHandlerList ) {
@@ -235,7 +244,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_OUTPUTS;
 
     case BlifToken::NAMES:
-      mCurIdArray.clear();
+      names_id_list.clear();
       mNc = 0;
       mCoverPat.clear();
       mOpatChar = '-';
@@ -304,27 +313,29 @@ BlifParserImpl::read(const string& filename,
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
       auto name{mScanner->cur_string()};
-      auto id_cell = find_id(name);
-      if ( id_cell->is_defined() ) {
+      int id = find_id(name);
+      if ( is_defined(id) ) {
+	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
 	buf << name << ": Defined more than once. Previous definition is "
-	    << id_cell->loc() << ".";
+	    << def_loc << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
 			MsgType::Error,
 			"MLTDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
-      if ( id_cell->is_output() ) {
+      if ( is_output(id) ) {
+	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
 	buf << name << ": Defined as both input and output."
-	    << " Previous difinition is " << id_cell->loc() << ".";
+	    << " Previous difinition is " << def_loc << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
 			MsgType::Warning,
 			"MLTDEF02", buf.str().c_str());
       }
-      id_cell->set_input(loc);
+      set_input(id, loc);
       for ( auto handler: mHandlerList ) {
-	if ( !handler->inputs_elem(id_cell->id(), id_cell->name()) ) {
+	if ( !handler->inputs_elem(id, name) ) {
 	  stat = false;
 	}
       }
@@ -352,27 +363,29 @@ BlifParserImpl::read(const string& filename,
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
       auto name{mScanner->cur_string()};
-      auto id_cell = find_id(name);
-      if ( id_cell->is_output() ) {
+      int id = find_id(name);
+      if ( is_output(id) ) {
+	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
-	buf << name << ": Defined more than once. Previous definition is "
-	    << id_cell->loc();
+	buf << name << ": Defined more than once. Previous definition is at "
+	    << def_loc;
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
 			MsgType::Error,
 			"MLTDEF03", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
-      if ( id_cell->is_input() ) {
+      if ( is_input(id) ) {
+	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
 	buf << name << ": Defined as both input and output. "
-	    << "Previous definition is "
-	    << id_cell->loc() << ".";
+	    << "Previous definition is at "
+	    << def_loc << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
 			MsgType::Warning,
 			"MLTDEF02", buf.str().c_str());
       }
-      id_cell->set_output();
-      mOidArray.push_back(id_cell->id());
+      set_output(id);
+      mOidArray.push_back(id);
       if ( !stat ) {
 	goto ST_ERROR_EXIT;
       }
@@ -396,13 +409,14 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc;
     BlifToken tk= get_token(loc);
     if ( tk == BlifToken::STRING ) {
-      auto name = mScanner->cur_string();
-      auto id_cell = find_id(name);
-      mCurIdArray.push_back({id_cell, loc});
+      auto name{mScanner->cur_string()};
+      int id = find_id(name);
+      names_id_list.push_back(id);
+      names_loc = loc;
       goto ST_NAMES;
     }
     if ( tk == BlifToken::NL ) {
-      int n = mCurIdArray.size();
+      int n = names_id_list.size();
       if ( n == 0 ) {
 	// 名前が1つもない場合
 	MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -477,7 +491,7 @@ BlifParserImpl::read(const string& filename,
     BlifToken tk= get_token(loc1);
     if ( tk == BlifToken::STRING ) {
       mName1 = mScanner->cur_string();
-      if ( mName1.size() != mCurIdArray.size() - 1 ) {
+      if ( mName1.size() != names_id_list.size() - 1 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			MsgType::Error,
 			"SYN12",
@@ -555,34 +569,30 @@ BlifParserImpl::read(const string& filename,
 
  ST_NAMES_END:
   {
-    int n = mCurIdArray.size();
+    int n = names_id_list.size();
     int ni = n - 1;
-    IdCell* id_cell;
-    FileRegion loc;
-    tie(id_cell, loc) = mCurIdArray[ni];
-    if ( id_cell->is_defined() ) {
+    int id = names_id_list[ni];
+    if ( is_defined(id) ) {
       // 二重定義
+      FileRegion def_loc{id2loc(id)};
       ostringstream buf;
-      buf << id_cell->name() << ": Defined more than once. "
-	  << "Previsous Definition is " << id_cell->loc() << ".";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
+      buf << id2str(id) << ": Defined more than once. "
+	  << "Previsous Definition is at " << def_loc << ".";
+      MsgMgr::put_msg(__FILE__, __LINE__, names_loc,
 		      MsgType::Error,
 		      "MLTDEF01", buf.str());
       goto ST_ERROR_EXIT;
     }
-    id_cell->set_defined(loc);
-    int oid = id_cell->id();
+    set_defined(id, names_loc);
+    int oid = id;
     string ipat_str = mCoverPat.c_str();
     const BlifCover& cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
     int cover_id = cover.id();
 
     // ハンドラを呼び出す．
-    vector<int> id_array(ni);
-    for ( int i: Range(ni) ) {
-      id_array[i] = mCurIdArray[i].first->id();
-    }
+    names_id_list.pop_back();
     for ( auto handler: mHandlerList ) {
-      if ( !handler->names(oid, id_cell->name(), id_array, cover_id) ) {
+      if ( !handler->names(oid, id2str(id), names_id_list, cover_id) ) {
 	stat = false;
       }
     }
@@ -639,8 +649,7 @@ BlifParserImpl::read(const string& filename,
 		      MsgType::Error, "BNetBlifReader", buf.str());
       return false;
     }
-    mCurIdArray.clear();
-    mCurIdArray.resize(cell.pin_num(), {nullptr, FileRegion()});
+    pin_id_hash.clear();
     n_token = 0;
     goto ST_GATE1;
   }
@@ -674,22 +683,23 @@ BlifParserImpl::read(const string& filename,
 	goto ST_GATE_SYNERROR;
       }
       auto name2{mScanner->cur_string()};
-      auto id_cell = find_id(name2);
+      int id2 = find_id(name2);
       const ClibCellPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
-	if ( id_cell->is_defined() ) {
+	if ( is_defined(id2) ) {
 	  // 二重定義
+	  FileRegion def_loc{id2loc(id2)};
 	  ostringstream buf;
-	  buf << id_cell->name() << ": Defined more than once. "
-	      << "Previous definition is " << id_cell->loc() << ".";
+	  buf << name2 << ": Defined more than once. "
+	      << "Previous definition is at " << def_loc << ".";
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
 			  MsgType::Error,
 			  "MLTDEF01", buf.str());
 	  goto ST_ERROR_EXIT;
 	}
-	id_cell->set_defined(loc2);
+	set_defined(id2, loc2);
       }
-      if ( mCurIdArray[pin.pin_id()].first != nullptr ) {
+      if ( pin_id_hash.count(pin.pin_id()) > 0 ) {
 	ostringstream buf;
 	buf << name2 << ": Appears more than once.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc2,
@@ -697,7 +707,7 @@ BlifParserImpl::read(const string& filename,
 			"MLTDEF02", buf.str());
 	goto ST_ERROR_EXIT;
       }
-      mCurIdArray[pin.pin_id()] = make_pair(id_cell, loc2);
+      pin_id_hash.emplace(pin.pin_id(), id2);
       ++ n_token;
       goto ST_GATE1;
     }
@@ -708,17 +718,15 @@ BlifParserImpl::read(const string& filename,
       }
       const ClibCell& cell = mCellLibrary.cell(mCellId);
       const ClibCellPin& opin = cell.output(0);
-      IdCell* oid_cell;
-      tie(oid_cell, ignore) = mCurIdArray[opin.pin_id()];
-      int onode_id = oid_cell->id();
+      int oid = pin_id_hash.at(opin.pin_id());
       int ni = cell.input_num();
       vector<int> id_array(ni);
       for ( int i: Range(ni) ) {
 	auto& ipin = cell.input(i);
-	id_array[i] = mCurIdArray[ipin.pin_id()].first->id();
+	id_array[i] = pin_id_hash.at(ipin.pin_id());
       }
       for ( auto handler: mHandlerList ) {
-	if ( !handler->gate(onode_id, oid_cell->name(), id_array, mCellId) ) {
+	if ( !handler->gate(oid, id2str(oid), id_array, mCellId) ) {
 	  stat = false;
 	}
       }
@@ -741,7 +749,7 @@ BlifParserImpl::read(const string& filename,
     BlifToken tk= get_token(loc2);
     if ( tk == BlifToken::STRING ) {
       auto name1{mScanner->cur_string()};
-      auto id_cell1 = find_id(name1);
+      int id1 = find_id(name1);
 
       FileRegion loc3;
       tk = get_token(loc3);
@@ -750,19 +758,19 @@ BlifParserImpl::read(const string& filename,
 	goto ST_LATCH_SYNERROR;
       }
       auto name2{mScanner->cur_string()};
-      auto id_cell2 = find_id(name2);
-
-      if ( id_cell2->is_defined() ) {
+      int id2 = find_id(name2);
+      if ( is_defined(id2) ) {
 	// 二重定義
+	FileRegion def_loc{id2loc(id2)};
 	ostringstream buf;
-	buf << id_cell2->name() << ": Defined more than once. "
-	    << "Previsous Definition is " << id_cell2->loc() << ".";
+	buf << name2 << ": Defined more than once. "
+	    << "Previsous Definition is at " << def_loc << ".";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc3,
 			MsgType::Error,
 			"MLTDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
       }
-      id_cell2->set_defined(loc3);
+      set_defined(id2, loc3);
 
       FileRegion loc4;
       tk = get_token(loc4);
@@ -784,8 +792,7 @@ BlifParserImpl::read(const string& filename,
       }
 
       for ( auto handler: mHandlerList ) {
-	if ( !handler->latch(id_cell2->id(), id_cell2->name(), id_cell1->id(),
-			     loc4, rval) ) {
+	if ( !handler->latch(id2, name2, id1, loc4, rval) ) {
 	  stat = false;
 	}
       }
@@ -861,7 +868,7 @@ BlifParserImpl::read(const string& filename,
 
  ST_NORMAL_EXIT:
   {
-    for ( auto& id_cell: mIdArray ) {
+    for ( auto& id_cell: mCellArray ) {
       if ( !id_cell.is_defined() ) {
 	ostringstream buf;
 	buf << id_cell.name() << ": Undefined.";
@@ -873,7 +880,7 @@ BlifParserImpl::read(const string& filename,
     }
 
     for ( auto oid: mOidArray ) {
-      auto& id_cell = mIdArray[oid];
+      auto& id_cell = mCellArray[oid];
       for ( auto handler: mHandlerList ) {
 	if ( !handler->outputs_elem(id_cell.id(), id_cell.name()) ) {
 	  stat = false;
@@ -940,27 +947,89 @@ BlifParserImpl::get_token(FileRegion& loc)
   return tk;
 }
 
-// @brief name に対応する IdCell を取り出す．
+// @brief name に対応する識別子番号を返す．
 // @param[in] name 名前
-// @param[in] create true なら未登録の場合に新規に追加する．
-// @return 対応する IdCell を返す．
 //
 // 未登録の場合には新たに作る．
-BlifParserImpl::IdCell*
-BlifParserImpl::find_id(const char* name)
+int
+BlifParserImpl::find_id(const string& name)
 {
   if ( mIdHash.find(name) == mIdHash.end() ) {
     // 未定義だった．
     // 新しく作る．
-    int id = mIdArray.size();
-    mIdArray.push_back({id, name});
-    auto cell = &mIdArray[id];
-    mIdHash.emplace(cell->name(), cell);
-    return cell;
+    int id = mCellArray.size();
+    mCellArray.push_back({id, name});
+    auto cell = &mCellArray[id];
+    mIdHash.emplace(cell->name(), id);
+    return id;
   }
   else {
     return mIdHash.at(name);
   }
+}
+
+// @brief 対応する識別子がすでに定義済みか調べる．
+// @param[in] id 識別子番号
+// @retval true 定義済み
+// @retval false 未定義
+bool
+BlifParserImpl::is_defined(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  return mCellArray[id].is_defined();
+}
+
+// @brief 対応する識別子が入力用か調べる．
+// @param[in] id 識別子番号
+// @retval true 入力
+// @retval false 入力以外
+bool
+BlifParserImpl::is_input(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  return mCellArray[id].is_input();
+}
+
+// @brief 対応する識別子が出力用か調べる．
+// @param[in] id 識別子番号
+// @retval true 出力
+// @retval false 出力以外
+bool
+BlifParserImpl::is_output(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  return mCellArray[id].is_output();
+}
+
+// @brief 対応する識別子に定義済みの印をつける．
+// @param[in] id 識別子番号
+// @param[in] loc 定義している場所．
+void
+BlifParserImpl::set_defined(int id,
+			    const FileRegion& loc)
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  mCellArray[id].set_defined(loc);
+}
+
+// @brief 対応する識別子に入力用の印を付ける．
+// @param[in] id 識別子番号
+// @param[in] loc 定義している場所．
+void
+BlifParserImpl::set_input(int id,
+			  const FileRegion& loc)
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  mCellArray[id].set_input(loc);
+}
+
+// @brief 対応する識別子に出力用の印を付ける．
+// @param[in] id 識別子番号
+void
+BlifParserImpl::set_output(int id)
+{
+  ASSERT_COND( 0 <= id && id < mCellArray.size() );
+  mCellArray[id].set_output();
 }
 
 // @brief スキャナーを削除する．

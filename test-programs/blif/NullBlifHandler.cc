@@ -51,7 +51,7 @@ NullBlifHandler::set_cell_library(const ClibCellLibrary& library)
 bool
 NullBlifHandler::model(const FileRegion& loc1,
 		       const FileRegion& loc2,
-		       const char* name)
+		       const string& name)
 {
   return true;
 }
@@ -63,7 +63,7 @@ NullBlifHandler::model(const FileRegion& loc1,
 // @retval false エラーが起こった．
 bool
 NullBlifHandler::inputs_elem(int name_id,
-			     const char* name)
+			     const string& name)
 {
   return true;
 }
@@ -75,7 +75,7 @@ NullBlifHandler::inputs_elem(int name_id,
 // @retval false エラーが起こった．
 bool
 NullBlifHandler::outputs_elem(int name_id,
-			      const char* name)
+			      const string& name)
 {
   return true;
 }
@@ -92,7 +92,7 @@ NullBlifHandler::outputs_elem(int name_id,
 // @note opat は '0' か '1' のどちらか
 bool
 NullBlifHandler::names(int onode_id,
-		       const char* oname,
+		       const string& oname,
 		       const vector<int>& inode_id_array,
 		       int cover_id)
 {
@@ -108,7 +108,7 @@ NullBlifHandler::names(int onode_id,
 // @retval false エラーが起こった．
 bool
 NullBlifHandler::gate(int onode_id,
-		      const char* oname,
+		      const string& oname,
 		      const vector<int>& inode_id_array,
 		      int cell_id)
 {
@@ -125,7 +125,7 @@ NullBlifHandler::gate(int onode_id,
 // @retval false エラーが起こった．
 bool
 NullBlifHandler::latch(int onode_id,
-		       const char* oname,
+		       const string& oname,
 		       int inode_id,
 		       const FileRegion& loc4,
 		       char rval)
