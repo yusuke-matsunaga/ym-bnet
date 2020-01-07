@@ -179,9 +179,9 @@ Iscas89ParserImpl::read(const string& filename)
     int oid;
     FileRegion loc;
     tie(oid, loc) = mOidArray[i];
-    IdCell& cell = id2cell(oid);
+    auto oname{id2str(oid)};
     for ( auto handler: mHandlerList ) {
-      if ( !handler->read_output(loc, oid, cell.name()) ) {
+      if ( !handler->read_output(loc, oid, oname) ) {
 	has_error = true;
       }
     }
@@ -347,21 +347,21 @@ bool
 Iscas89ParserImpl::read_input(const FileRegion& loc,
 			      int name_id)
 {
-  IdCell& cell = id2cell(name_id);
-  if ( cell.is_defined() ) {
+  auto name{id2str(name_id)};
+  if ( is_defined(name_id) ) {
+    auto def_loc{id2loc(name_id)};
     ostringstream buf;
-    buf << cell.name() << ": Defined more than once. Previous definition is "
-	<< cell.loc();
+    buf << name << ": Defined more than once. Previous definition is at "
+	<< def_loc;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
-  cell.set_defined(loc);
-  cell.set_input();
+  set_input(name_id, loc);
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_input(loc, name_id, cell.name()) ) {
+    if ( !handler->read_input(loc, name_id, name) ) {
       return false;
     }
   }
@@ -376,17 +376,18 @@ bool
 Iscas89ParserImpl::read_output(const FileRegion& loc,
 			       int name_id)
 {
-  IdCell& cell = id2cell(name_id);
-  if ( cell.is_input() ) {
+  if ( is_input(name_id) ) {
+    auto name{id2str(name_id)};
+    auto def_loc{id2loc(name_id)};
     ostringstream buf;
-    buf << cell.name() << ": Defined as both input and output. "
-	<< "Previous definition is " << cell.loc();
+    buf << name << ": Defined as both input and output. "
+	<< "Previous definition is at " << def_loc;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Warning,
 		    "WR_MLTDEF02",
 		    buf.str());
   }
-  cell.set_output();
+  set_output(name_id);
   mOidArray.push_back(make_pair(name_id, loc));
 
   return true;
@@ -403,12 +404,13 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 			     BnNodeType logic_type,
 			     const vector<int>& iname_id_list)
 {
-  IdCell& cell = id2cell(oname_id);
-  if ( cell.is_defined() ) {
+  auto oname{id2str(oname_id)};
+  if ( is_defined(oname_id) ) {
     // 二重定義
+    auto def_loc{id2loc(oname_id)};
     ostringstream buf;
-    buf << cell.name() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell.loc();
+    buf << oname << ": Defined more than once. "
+	<< "Previsous Definition is at " << def_loc;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -416,10 +418,10 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
     return false;
   }
 
-  cell.set_defined(loc);
+  set_defined(oname_id, loc);
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_gate(loc, logic_type, oname_id, cell.name(), iname_id_list) ) {
+    if ( !handler->read_gate(loc, logic_type, oname_id, oname, iname_id_list) ) {
       stat = false;
       break;
     }
@@ -436,12 +438,13 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
 			    int oname_id,
 			    const vector<int>& iname_id_list)
 {
-  IdCell& cell = id2cell(oname_id);
-  if ( cell.is_defined() ) {
+  auto oname{id2str(oname_id)};
+  if ( is_defined(oname_id) ) {
     // 二重定義
+    auto def_loc{id2loc(oname_id)};
     ostringstream buf;
-    buf << cell.name() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell.loc();
+    buf << oname << ": Defined more than once. "
+	<< "Previsous Definition is at " << def_loc;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -449,7 +452,7 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
     return false;
   }
 
-  cell.set_defined(loc);
+  set_defined(oname_id, loc);
 
   { // 入力数をチェックする．
     int ni = iname_id_list.size();
@@ -462,8 +465,8 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
     if ( nc + nd != ni ) {
       // 引数の数が合わない．
       ostringstream buf;
-      buf << cell.name() << ": Wrong # of inputs for MUX-type.";
-      MsgMgr::put_msg(__FILE__, __LINE__, cell.loc(),
+      buf << oname << ": Wrong # of inputs for MUX-type.";
+      MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		      MsgType::Error,
 		      "ER_MUX01",
 		      buf.str());
@@ -473,7 +476,7 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
 
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_mux(loc, oname_id, cell.name(), iname_id_list) ) {
+    if ( !handler->read_mux(loc, oname_id, oname, iname_id_list) ) {
       stat = false;
       break;
     }
@@ -491,12 +494,13 @@ Iscas89ParserImpl::read_dff(const FileRegion& loc,
 			    int oname_id,
 			    int iname_id)
 {
-  IdCell& cell = id2cell(oname_id);
-  if ( cell.is_defined() ) {
+  auto oname{id2str(oname_id)};
+  if ( is_defined(oname_id) ) {
     // 二重定義
+    auto def_loc{id2loc(oname_id)};
     ostringstream buf;
-    buf << cell.name() << ": Defined more than once. "
-	<< "Previsous Definition is " << cell.loc();
+    buf << oname << ": Defined more than once. "
+	<< "Previsous Definition is " << def_loc;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -504,10 +508,10 @@ Iscas89ParserImpl::read_dff(const FileRegion& loc,
     return false;
   }
 
-  cell.set_defined(loc);
+  set_defined(oname_id, loc);
   bool stat = true;
   for ( auto handler: mHandlerList ) {
-    if ( !handler->read_dff(loc, oname_id, cell.name(), iname_id) ) {
+    if ( !handler->read_dff(loc, oname_id, oname, iname_id) ) {
       stat = false;
       break;
     }
@@ -586,15 +590,14 @@ Iscas89ParserImpl::read_token()
   Iscas89Token token = mScanner->read_token(lloc);
   int id;
   if ( token == Iscas89Token::NAME ) {
-    const char* name = mScanner->cur_string();
+    auto name{mScanner->cur_string()};
     if ( mIdHash.count(name) == 0 ) {
-      id = mIdArray.size();
-      mIdArray.push_back({id, name});
-      auto cell = &mIdArray[id];
-      mIdHash.emplace(cell->name(), cell);
+      id = mIdCellArray.size();
+      mIdCellArray.push_back({name});
+      mIdHash.emplace(name, id);
     }
     else {
-      id = mIdHash.at(name)->id();
+      id = mIdHash.at(name);
     }
   }
   return make_tuple(token, id, lloc);

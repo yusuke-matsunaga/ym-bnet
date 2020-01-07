@@ -48,7 +48,7 @@ public:
   bool
   read_input(const FileRegion& loc,
 	     int name_id,
-	     const char* name) override;
+	     const string& name) override;
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
@@ -59,7 +59,7 @@ public:
   bool
   read_output(const FileRegion& loc,
 	      int name_id,
-	      const char* name) override;
+	      const string& name) override;
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -72,7 +72,7 @@ public:
   read_gate(const FileRegion& loc,
 	    BnNodeType type,
 	    int oname_id,
-	    const char* oname,
+	    const string& oname,
 	    const vector<int>& iname_list) override;
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -85,7 +85,7 @@ public:
   bool
   read_dff(const FileRegion& loc,
 	   int oname_id,
-	   const char* oname,
+	   const string& oname,
 	   int iname_id) override;
 
   /// @brief 通常終了時の処理
@@ -134,7 +134,7 @@ TestIscas89Handler::init()
 bool
 TestIscas89Handler::read_input(const FileRegion& loc,
 			       int name_id,
-			       const char* name)
+			       const string& name)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_input()" << endl
 		<< "    " << loc << endl;
@@ -152,7 +152,7 @@ TestIscas89Handler::read_input(const FileRegion& loc,
 bool
 TestIscas89Handler::read_output(const FileRegion& loc,
 				int name_id,
-				const char* name)
+				const string& name)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_output()" << endl
 		<< "    " << loc << endl;
@@ -172,7 +172,7 @@ bool
 TestIscas89Handler::read_gate(const FileRegion& loc,
 			      BnNodeType type,
 			      int oname_id,
-			      const char* oname,
+			      const string& oname,
 			      const vector<int>& iname_list)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_gate()" << endl
@@ -211,7 +211,7 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 bool
 TestIscas89Handler::read_dff(const FileRegion& loc,
 			     int oname_id,
-			     const char* oname,
+			     const string& oname,
 			     int iname_id)
 {
   (*mStreamPtr) << "TestIscas89Handler::read_dff()" << endl

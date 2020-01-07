@@ -60,7 +60,7 @@ public:
   bool
   read_input(const FileRegion& loc,
 	     int name_id,
-	     const char* name);
+	     const string& name);
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
@@ -72,7 +72,7 @@ public:
   bool
   read_output(const FileRegion& loc,
 	      int name_id,
-	      const char* name);
+	      const string& name);
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -87,7 +87,7 @@ public:
   read_gate(const FileRegion& loc,
 	    BnNodeType logic_type,
 	    int oname_id,
-	    const char* oname,
+	    const string& oname,
 	    const vector<int>& iname_list);
 
   /// @brief ゲート文(MUX)を読み込む．
@@ -103,7 +103,7 @@ public:
   bool
   read_mux(const FileRegion& loc,
 	   int oname_id,
-	   const char* oname,
+	   const string& oname,
 	   const vector<int>& iname_list);
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -117,7 +117,7 @@ public:
   bool
   read_dff(const FileRegion& loc,
 	   int oname_id,
-	   const char* oname,
+	   const string& oname,
 	   int iname_id);
 
   /// @brief 終了操作
@@ -144,7 +144,7 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID 番号から文字列を得る．
-  const char*
+  const string&
   id2str(int id) const;
 
   /// @brief ID 番号から位置情報を得る．

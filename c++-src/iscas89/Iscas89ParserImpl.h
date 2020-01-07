@@ -50,7 +50,7 @@ public:
   add_handler(Iscas89Handler* handler);
 
   /// @brief ID 番号から文字列を得る．
-  const char*
+  const string&
   id2str(int id) const;
 
   /// @brief ID 番号から位置情報を得る．
@@ -69,15 +69,10 @@ private:
   public:
 
     /// @brief コンストラクタ
-    IdCell(int id,
-	   const char* name);
+    IdCell(const string& name);
 
     /// @brief デストラクタ
-    ~IdCell();
-
-    /// @brief ID番号を返す．
-    int
-    id() const;
+    ~IdCell() = default;
 
     /// @brief 定義済みシンボルのとき true を返す．
     bool
@@ -96,7 +91,7 @@ private:
     loc() const;
 
     /// @brief このシンボルの名前を返す．
-    const char*
+    const string&
     name() const;
 
     /// @brief 定義済みフラグをセットする．
@@ -116,9 +111,6 @@ private:
     // データメンバ
     //////////////////////////////////////////////////////////////////////
 
-    // ID 番号
-    int mId;
-
     // この識別子を定義している位置情報
     FileRegion mLoc;
 
@@ -129,7 +121,7 @@ private:
     std::bitset<3> mFlags;
 
     // 名前
-    char* mName;
+    string mName;
 
   };
 
@@ -229,21 +221,49 @@ private:
   tuple<Iscas89Token, int, FileRegion>
   read_token();
 
-  /// @brief ID 番号から IdCell を得る．
-  IdCell&
-  id2cell(int id);
-
-  /// @brief ID 番号から IdCell を得る．
-  const IdCell&
-  id2cell(int id) const;
-
   /// @brief 文字列用の領域を確保する．
   /// @param[in] src_str ソース文字列
   /// @param[in] loc 文字列の位置情報
   /// @return 文字列の ID 番号
   int
-  reg_id(const char* src_str,
+  reg_id(const string& src_str,
 	 const FileRegion& loc);
+
+  /// @brief 該当の識別子が定義済みか調べる．
+  /// @param[in] id ID番号
+  bool
+  is_defined(int id) const;
+
+  /// @brief 該当の識別子が入力か調べる．
+  /// @param[in] id ID番号
+  bool
+  is_input(int id) const;
+
+  /// @brief 該当の識別子が出力か調べる．
+  /// @param[in] id ID番号
+  bool
+  is_output(int id) const;
+
+  /// @brief 識別子に定義済みの印を付ける．
+  /// @param[in] id ID番号
+  /// @param[in] loc 定義している場所
+  void
+  set_defined(int id,
+	      const FileRegion& loc);
+
+  /// @brief 識別子に入力の印を付ける．
+  /// @param[in] id ID番号
+  /// @param[in] loc 定義している場所
+  ///
+  /// 同時に定義済みになる．
+  void
+  set_input(int id,
+	    const FileRegion& loc);
+
+  /// @brief 識別子に出力の印を付ける．
+  /// @param[in] id ID番号
+  void
+  set_output(int id);
 
   /// @brief スキャナーを削除する．
   void
@@ -262,10 +282,10 @@ private:
   vector<Iscas89Handler*> mHandlerList;
 
   // 名前をキーにした識別子のハッシュ表
-  unordered_map<const char*, IdCell*> mIdHash;
+  unordered_map<string, int> mIdHash;
 
   // 識別子の配列
-  vector<IdCell> mIdArray;
+  vector<IdCell> mIdCellArray;
 
   // 出力の ID番号とファイル位置のリスト
   vector<pair<int, FileRegion>> mOidArray;
@@ -277,30 +297,13 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief ID 番号から Iscas89IdCell を得る．
-inline
-Iscas89ParserImpl::IdCell&
-Iscas89ParserImpl::id2cell(int id)
-{
-  ASSERT_COND( 0 <= id && id < mIdArray.size() );
-  return mIdArray[id];
-}
-
-// @brief ID 番号から Iscas89IdCell を得る．
-inline
-const Iscas89ParserImpl::IdCell&
-Iscas89ParserImpl::id2cell(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdArray.size() );
-  return mIdArray[id];
-}
-
 // @brief ID 番号から文字列を得る．
 inline
-const char*
+const string&
 Iscas89ParserImpl::id2str(int id) const
 {
-  return id2cell(id).name();
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  return mIdCellArray[id].name();
 }
 
 // @brief ID 番号から位置情報を得る．
@@ -308,34 +311,83 @@ inline
 const FileRegion&
 Iscas89ParserImpl::id2loc(int id) const
 {
-  return id2cell(id).loc();
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  return mIdCellArray[id].loc();
+}
+
+// @brief 該当の識別子が定義済みか調べる．
+// @param[in] id ID番号
+inline
+bool
+Iscas89ParserImpl::is_defined(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  return mIdCellArray[id].is_defined();
+}
+
+// @brief 該当の識別子が入力か調べる．
+// @param[in] id ID番号
+inline
+bool
+Iscas89ParserImpl::is_input(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  return mIdCellArray[id].is_input();
+}
+
+// @brief 該当の識別子が出力か調べる．
+// @param[in] id ID番号
+inline
+bool
+Iscas89ParserImpl::is_output(int id) const
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  return mIdCellArray[id].is_output();
+}
+
+// @brief 識別子に定義済みの印を付ける．
+// @param[in] id ID番号
+// @param[in] loc 定義している場所
+inline
+void
+Iscas89ParserImpl::set_defined(int id,
+			       const FileRegion& loc)
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  mIdCellArray[id].set_defined(loc);
+}
+
+// @brief 識別子に入力の印を付ける．
+// @param[in] id ID番号
+// @param[in] loc 定義している場所
+//
+// 同時に定義済みになる．
+inline
+void
+Iscas89ParserImpl::set_input(int id,
+			     const FileRegion& loc)
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  mIdCellArray[id].set_input();
+  mIdCellArray[id].set_defined(loc);
+}
+
+// @brief 識別子に出力の印を付ける．
+// @param[in] id ID番号
+inline
+void
+Iscas89ParserImpl::set_output(int id)
+{
+  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+  mIdCellArray[id].set_output();
 }
 
 // @brief コンストラクタ
 inline
-Iscas89ParserImpl::IdCell::IdCell(int id,
-				  const char* name) :
-  mId{id},
-  mFlags{0}
+Iscas89ParserImpl::IdCell::IdCell(const string& name) :
+  mFlags{0},
+  mName{name}
 {
-  SizeType n = strlen(name) + 1;
-  mName = new char[n];
-  memcpy(mName, name, n);
-}
-
-// @brief デストラクタ
-inline
-Iscas89ParserImpl::IdCell::~IdCell()
-{
-  delete [] mName;
-}
-
-// @brief ID番号を返す．
-inline
-int
-Iscas89ParserImpl::IdCell::id() const
-{
-  return mId;
 }
 
 // @brief 定義済みシンボルのとき true を返す．
@@ -372,7 +424,7 @@ Iscas89ParserImpl::IdCell::loc() const
 
 // @brief このシンボルの名前を返す．
 inline
-const char*
+const string&
 Iscas89ParserImpl::IdCell::name() const
 {
   return mName;

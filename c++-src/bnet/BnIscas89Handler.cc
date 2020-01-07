@@ -63,7 +63,7 @@ BnIscas89Handler::init()
 bool
 BnIscas89Handler::read_input(const FileRegion& loc,
 			     int name_id,
-			     const char* name)
+			     const string& name)
 {
   auto port_id = mNetwork->new_input_port(name);
   auto& port = mNetwork->port(port_id);
@@ -81,7 +81,7 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 bool
 BnIscas89Handler::read_output(const FileRegion& loc,
 			      int name_id,
-			      const char* name)
+			      const string& name)
 {
   auto port_id = mNetwork->new_output_port(name);
   auto& port = mNetwork->port(port_id);
@@ -102,7 +102,7 @@ bool
 BnIscas89Handler::read_gate(const FileRegion& loc,
 			    BnNodeType logic_type,
 			    int oname_id,
-			    const char* oname,
+			    const string& oname,
 			    const vector<int>& iname_list)
 {
   int ni = iname_list.size();
@@ -126,7 +126,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 bool
 BnIscas89Handler::read_mux(const FileRegion& loc,
 			   int oname_id,
-			   const char* oname,
+			   const string& oname,
 			   const vector<int>& iname_list)
 {
   int ni = iname_list.size();
@@ -181,7 +181,7 @@ BnIscas89Handler::read_mux(const FileRegion& loc,
 bool
 BnIscas89Handler::read_dff(const FileRegion& loc,
 			   int oname_id,
-			   const char* oname,
+			   const string& oname,
 			   int iname_id)
 {
   // この形式ではクロック以外の制御端子はない．

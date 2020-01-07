@@ -47,7 +47,7 @@ Iscas89Handler::init()
 bool
 Iscas89Handler::read_input(const FileRegion& loc,
 			   int name_id,
-			   const char* name)
+			   const string& name)
 {
   return true;
 }
@@ -61,7 +61,7 @@ Iscas89Handler::read_input(const FileRegion& loc,
 bool
 Iscas89Handler::read_output(const FileRegion& loc,
 			    int name_id,
-			    const char* name)
+			    const string& name)
 {
   return true;
 }
@@ -78,7 +78,7 @@ bool
 Iscas89Handler::read_gate(const FileRegion& loc,
 			  BnNodeType logic_type,
 			  int oname_id,
-			  const char* oname,
+			  const string& oname,
 			  const vector<int>& iname_list)
 {
   return true;
@@ -94,7 +94,7 @@ Iscas89Handler::read_gate(const FileRegion& loc,
 bool
 Iscas89Handler::read_mux(const FileRegion& loc,
 			 int oname_id,
-			 const char* oname,
+			 const string& oname,
 			 const vector<int>& iname_list)
 {
   return true;
@@ -110,7 +110,7 @@ Iscas89Handler::read_mux(const FileRegion& loc,
 bool
 Iscas89Handler::read_dff(const FileRegion& loc,
 			 int oname_id,
-			 const char* oname,
+			 const string& oname,
 			 int iname_id)
 {
   return true;
@@ -138,7 +138,7 @@ Iscas89Handler::error_exit()
 }
 
 // @brief ID 番号から文字列を得る．
-const char*
+const string&
 Iscas89Handler::id2str(int id) const
 {
   return mParser.id2str(id);
