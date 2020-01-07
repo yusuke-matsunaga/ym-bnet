@@ -55,7 +55,7 @@ public:
   bool
   read_input(const FileRegion& loc,
 	     int name_id,
-	     const char* name) override;
+	     const string& name) override;
 
   /// @brief OUTPUT 文を読み込む．
   /// @param[in] loc ファイル位置
@@ -66,7 +66,7 @@ public:
   bool
   read_output(const FileRegion& loc,
 	      int name_id,
-	      const char* name) override;
+	      const string& name) override;
 
   /// @brief ゲート文を読み込む．
   /// @param[in] loc ファイル位置
@@ -80,7 +80,7 @@ public:
   read_gate(const FileRegion& loc,
 	    BnNodeType logic_type,
 	    int oname_id,
-	    const char* name,
+	    const string& name,
 	    const vector<int>& iname_list) override;
 
   /// @brief ゲート文(MUX)を読み込む．
@@ -95,7 +95,7 @@ public:
   bool
   read_mux(const FileRegion& loc,
 	   int oname_id,
-	   const char* oname,
+	   const string& oname,
 	   const vector<int>& iname_list) override;
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -108,7 +108,7 @@ public:
   bool
   read_dff(const FileRegion& loc,
 	   int oname_id,
-	   const char* oname,
+	   const string& oname,
 	   int iname_id) override;
 
   /// @brief 終了操作
