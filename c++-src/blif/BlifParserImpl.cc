@@ -127,10 +127,13 @@ BlifParserImpl::read(const string& filename,
   mOidArray.clear();
 
   // 一つの .inputs/.outputs 文中のトークンの数
-  int n_token = 0;
+  int n_token{0};
 
   // エラー箇所
   FileRegion error_loc;
+
+  // .model 文の位置
+  FileRegion model_loc;
 
   // .names 文に現れる識別子番号のリスト
   vector<int> names_id_list;
@@ -138,8 +141,24 @@ BlifParserImpl::read(const string& filename,
   // .names 文の最後の識別子の定義場所
   FileRegion names_loc;
 
+  // .names 文のキューブ数
+  int cube_num{0};
+
+  // .names 文のキューブパタンを表す文字列
+  string ipat_str;
+
+  // .names 文のキューブパタンの出力部分
+  // 複数行ある場合も同一のはずなので１文字で十分
+  char opat_char{'\0'};
+
+  // .gate 文のセル番号
+  int gate_id{-1};
+
   // .gate 文に現れる識別子番号のハッシュ表
   unordered_map<int, int> pin_id_hash;
+
+  // .end 文の位置
+  FileRegion end_loc;
 
   bool stat = true;
   for ( auto handler: mHandlerList ) {
@@ -163,18 +182,20 @@ BlifParserImpl::read(const string& filename,
  ST_INIT:
   // 読込開始
   {
-    BlifToken tk= get_token(mLoc1);
+    FileRegion loc;
+    BlifToken tk= get_token(loc);
     if ( tk == BlifToken::NL ) {
       // 読み飛ばす
       goto ST_INIT;
     }
     if ( tk == BlifToken::MODEL ) {
       // .model 文の開始
+      model_loc = loc;
       goto ST_MODEL;
     }
     // それ以外はエラー
     MsgMgr::put_msg(__FILE__, __LINE__,
-		    mLoc1,
+		    loc,
 		    MsgType::Error,
 		    "SYN01",
 		    "No '.model' statement.");
@@ -196,7 +217,7 @@ BlifParserImpl::read(const string& filename,
     }
     auto name{mScanner->cur_string()};
     for ( auto handler: mHandlerList ) {
-      if ( !handler->model(mLoc1, loc, name) ) {
+      if ( !handler->model(model_loc, loc, name) ) {
 	stat = false;
       }
     }
@@ -219,17 +240,19 @@ BlifParserImpl::read(const string& filename,
  ST_NEUTRAL:
   // 本体の処理
   {
-    BlifToken tk= get_token(mLoc1);
+    FileRegion loc;
+    BlifToken tk= get_token(loc);
     switch (tk) {
     case BlifToken::NL:
       goto ST_NEUTRAL;
 
     case BlifToken::_EOF:
+      error_loc = loc;
       goto ST_AFTER_EOF;
 
     case BlifToken::MODEL:
       MsgMgr::put_msg(__FILE__, __LINE__,
-		      mLoc1,
+		      loc,
 		      MsgType::Error,
 		      "SYN04",
 		      "Multiple '.model' statements.");
@@ -245,15 +268,15 @@ BlifParserImpl::read(const string& filename,
 
     case BlifToken::NAMES:
       names_id_list.clear();
-      mNc = 0;
-      mCoverPat.clear();
-      mOpatChar = '-';
+      cube_num = 0;
+      ipat_str = "";
+      opat_char = '-'; // 未定義
       goto ST_NAMES;
 
     case BlifToken::GATE:
       if ( mCellLibrary.cell_num() == 0 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__,
-			mLoc1,
+			loc,
 			MsgType::Error,
 			"NOCELL01",
 			"No cell-library is specified.");
@@ -265,6 +288,7 @@ BlifParserImpl::read(const string& filename,
       goto ST_LATCH;
 
     case BlifToken::END:
+      end_loc = loc;
       goto ST_AFTER_END;
 
     case BlifToken::EXDC:
@@ -301,10 +325,10 @@ BlifParserImpl::read(const string& filename,
       goto ST_DUMMY_READ1;
 
     default:
-      break;
+      error_loc = loc;
+      goto ST_SYNTAX_ERROR;
     }
-    error_loc = mLoc1;
-    goto ST_SYNTAX_ERROR;
+    ASSERT_NOT_REACHED;
   }
 
  ST_INPUTS:
@@ -443,8 +467,8 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc1;
     BlifToken tk= get_token(loc1);
     if ( tk == BlifToken::STRING ) {
-      mName1 = mScanner->cur_string();
-      char ochar = mName1[0];
+      auto tmp_str{mScanner->cur_string()};
+      char ochar = tmp_str[0];
       switch ( ochar ) {
       case '0':	break;
       case '1': break;
@@ -455,10 +479,10 @@ BlifParserImpl::read(const string& filename,
 			"Illegal character in output cube.");
 	goto ST_ERROR_EXIT;
       }
-      if ( mOpatChar == '-' ) {
-	mOpatChar = ochar;
+      if ( opat_char == '-' ) {
+	opat_char = ochar;
       }
-      else if ( mOpatChar != ochar ) {
+      else if ( opat_char != ochar ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			MsgType::Error,
 			"SYN10",
@@ -466,7 +490,7 @@ BlifParserImpl::read(const string& filename,
 	goto ST_ERROR_EXIT;
       }
       if ( get_token(loc1) == BlifToken::NL ) {
-	++ mNc;
+	++ cube_num;
 	goto ST_NAMES0;
       }
       MsgMgr::put_msg(__FILE__, __LINE__, loc1,
@@ -490,8 +514,9 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc1;
     BlifToken tk= get_token(loc1);
     if ( tk == BlifToken::STRING ) {
-      mName1 = mScanner->cur_string();
-      if ( mName1.size() != names_id_list.size() - 1 ) {
+      auto tmp_str{mScanner->cur_string()};
+      int n = tmp_str.size();
+      if ( n != names_id_list.size() - 1 ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			MsgType::Error,
 			"SYN12",
@@ -499,18 +524,15 @@ BlifParserImpl::read(const string& filename,
 			"with the number of fanins.");
 	goto ST_ERROR_EXIT;
       }
-      int n = mName1.size();
-      mCoverPat.reserve(mCoverPat.size() + n);
-      for ( int i: Range(n) ) {
-	char c = mName1[i];
+      for ( char c: tmp_str ) {
 	if ( c == '1' ) {
-	  mCoverPat.put_char('1');
+	  ipat_str += '1';
 	}
 	else if ( c == '0' ) {
-	  mCoverPat.put_char('0');
+	  ipat_str += '0';
 	}
 	else if ( c == '-' ) {
-	  mCoverPat.put_char('-');
+	  ipat_str += '-';
 	}
 	else {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
@@ -520,10 +542,12 @@ BlifParserImpl::read(const string& filename,
 	  goto ST_ERROR_EXIT;
 	}
       }
+
       FileRegion loc2;
       tk = get_token(loc2);
       if ( tk == BlifToken::STRING ) {
-	char ochar = mScanner->cur_string()[0];
+	auto tmp_str{mScanner->cur_string()};
+	char ochar = tmp_str[0];
 	switch ( ochar ) {
 	case '0': break;
 	case '1': break;
@@ -534,10 +558,10 @@ BlifParserImpl::read(const string& filename,
 			  "Illegal character in output cube.");
 	  goto ST_ERROR_EXIT;
 	}
-	if ( mOpatChar == '-' ) {
-	  mOpatChar = ochar;
+	if ( opat_char == '-' ) {
+	  opat_char = ochar;
 	}
-	else if ( mOpatChar != ochar ) {
+	else if ( opat_char != ochar ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
 			  MsgType::Error, "SYN10",
 			  "Outpat pattern mismatch.");
@@ -549,7 +573,7 @@ BlifParserImpl::read(const string& filename,
 			  "Newline is expected.");
 	  goto ST_ERROR_EXIT;
 	}
-	++ mNc;
+	++ cube_num;
 	goto ST_NAMES1;
       }
       MsgMgr::put_msg(__FILE__, __LINE__, loc1,
@@ -585,8 +609,7 @@ BlifParserImpl::read(const string& filename,
     }
     set_defined(id, names_loc);
     int oid = id;
-    string ipat_str = mCoverPat.c_str();
-    const BlifCover& cover = mCoverMgr.pat2cover(ni, mNc, ipat_str, mOpatChar);
+    auto& cover = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
     int cover_id = cover.id();
 
     // ハンドラを呼び出す．
@@ -611,8 +634,8 @@ BlifParserImpl::read(const string& filename,
       goto ST_GATE_SYNERROR;
     }
     auto name{mScanner->cur_string()};
-    mCellId = mCellLibrary.cell_id(name);
-    if ( mCellId == -1 ) {
+    gate_id = mCellLibrary.cell_id(name);
+    if ( gate_id == -1 ) {
       ostringstream buf;
       buf << name << ": No such cell.";
       MsgMgr::put_msg(__FILE__, __LINE__, loc,
@@ -620,7 +643,7 @@ BlifParserImpl::read(const string& filename,
 		      "NOCELL02", buf.str());
       goto ST_ERROR_EXIT;
     }
-    const ClibCell& cell = mCellLibrary.cell(mCellId);
+    auto& cell{mCellLibrary.cell(gate_id)};
     if ( !cell.is_logic() ) {
       ostringstream buf;
       buf << name << " : Not a logic cell.";
@@ -659,18 +682,18 @@ BlifParserImpl::read(const string& filename,
     FileRegion loc1;
     BlifToken tk= get_token(loc1);
     if ( tk == BlifToken::STRING ) {
-      mName1 = mScanner->cur_string();
-      const ClibCell& cell = mCellLibrary.cell(mCellId);
-      auto name1 = mName1.c_str();
-      int pin_id = cell.pin_id(name1);
+      auto pin_name{mScanner->cur_string()};
+      auto& cell{mCellLibrary.cell(gate_id)};
+      int pin_id = cell.pin_id(pin_name);
       if ( pin_id == -1 ) {
 	ostringstream buf;
-	buf << name1 << ": No such pin.";
+	buf << pin_name << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
 			MsgType::Error,
 			"NOPIN01", buf.str());
 	goto ST_ERROR_EXIT;
       }
+
       FileRegion loc2;
       tk = get_token(loc2);
       if ( tk != BlifToken::EQ ) {
@@ -682,6 +705,7 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc2;
 	goto ST_GATE_SYNERROR;
       }
+
       auto name2{mScanner->cur_string()};
       int id2 = find_id(name2);
       const ClibCellPin& pin = cell.pin(pin_id);
@@ -716,8 +740,9 @@ BlifParserImpl::read(const string& filename,
 	error_loc = loc1;
 	goto ST_GATE_SYNERROR;
       }
-      const ClibCell& cell = mCellLibrary.cell(mCellId);
-      const ClibCellPin& opin = cell.output(0);
+      auto& cell{mCellLibrary.cell(gate_id)};
+#warning "TODO: 要確認：0番目のピンが出力ピンって決め打ちしていいの？"
+      auto& opin{cell.output(0)};
       int oid = pin_id_hash.at(opin.pin_id());
       int ni = cell.input_num();
       vector<int> id_array(ni);
@@ -726,7 +751,7 @@ BlifParserImpl::read(const string& filename,
 	id_array[i] = pin_id_hash.at(ipin.pin_id());
       }
       for ( auto handler: mHandlerList ) {
-	if ( !handler->gate(oid, id2str(oid), id_array, mCellId) ) {
+	if ( !handler->gate(oid, id2str(oid), id_array, gate_id) ) {
 	  stat = false;
 	}
       }
@@ -851,12 +876,12 @@ BlifParserImpl::read(const string& filename,
 
  ST_AFTER_EOF:
   {
-    MsgMgr::put_msg(__FILE__, __LINE__, mLoc1,
+    MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
 		    MsgType::Warning,
 		    "SYN05",
 		    "unexpected EOF. '.end' is assumed.");
     for ( auto handler: mHandlerList ) {
-      if ( !handler->end(mLoc1) ) {
+      if ( !handler->end(error_loc) ) {
 	stat = false;
       }
     }
@@ -882,7 +907,7 @@ BlifParserImpl::read(const string& filename,
     for ( auto oid: mOidArray ) {
       auto& id_cell = mCellArray[oid];
       for ( auto handler: mHandlerList ) {
-	if ( !handler->outputs_elem(id_cell.id(), id_cell.name()) ) {
+	if ( !handler->outputs_elem(oid, id_cell.name()) ) {
 	  stat = false;
 	}
       }
@@ -892,7 +917,7 @@ BlifParserImpl::read(const string& filename,
     }
 
     for ( auto handler: mHandlerList ) {
-      if ( !handler->end(mLoc1) ) {
+      if ( !handler->end(end_loc) ) {
 	stat = false;
       }
     }
@@ -958,9 +983,8 @@ BlifParserImpl::find_id(const string& name)
     // 未定義だった．
     // 新しく作る．
     int id = mCellArray.size();
-    mCellArray.push_back({id, name});
-    auto cell = &mCellArray[id];
-    mIdHash.emplace(cell->name(), id);
+    mCellArray.push_back({name});
+    mIdHash.emplace(name, id);
     return id;
   }
   else {

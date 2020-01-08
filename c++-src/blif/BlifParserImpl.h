@@ -88,15 +88,10 @@ private:
   public:
 
     /// @brief コンストラクタ
-    IdCell(int id,
-	   const string& name);
+    IdCell(const string& name);
 
     /// @brief デストラクタ
     ~IdCell() = default;
-
-    /// @brief ID番号を返す．
-    int
-    id() const;
 
     /// @brief 定義済みシンボルのとき true を返す．
     bool
@@ -136,9 +131,6 @@ private:
     // データメンバ
     //////////////////////////////////////////////////////////////////////
 
-    // ID 番号
-    int mId;
-
     // この識別子を定義している位置情報
     FileRegion mLoc;
 
@@ -146,7 +138,7 @@ private:
     // 0: defined マーク
     // 1: input マーク
     // 2: output マーク
-    std::bitset<3> mFlags;
+    std::bitset<3> mFlags{0};
 
     // 名前
     string mName;
@@ -254,27 +246,6 @@ private:
   // BlifCover を管理するオブジェクト
   BlifCoverMgr mCoverMgr;
 
-  // キューブ数
-  int mNc;
-
-  // パタンのバッファ
-  StrBuff mCoverPat;
-
-  // 出力の極性を表す文字
-  char mOpatChar;
-
-  // 現在のセル番号
-  int mCellId;
-
-  // 位置情報バッファ
-  FileRegion mLoc1;
-
-  // 文字列バッファ1
-  StrBuff mName1;
-
-  // 文字列バッファ2
-  StrBuff mName2;
-
 };
 
 
@@ -328,20 +299,9 @@ BlifParserImpl::unget_token(BlifToken token,
 
 // @brief コンストラクタ
 inline
-BlifParserImpl::IdCell::IdCell(int id,
-			       const string& name) :
-  mId{id},
-  mFlags{0},
+BlifParserImpl::IdCell::IdCell(const string& name) :
   mName{name}
 {
-}
-
-// @brief ID番号を返す．
-inline
-int
-BlifParserImpl::IdCell::id() const
-{
-  return mId;
 }
 
 // @brief 定義済みシンボルのとき true を返す．
