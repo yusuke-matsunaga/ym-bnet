@@ -151,6 +151,71 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief .model 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_model();
+
+  /// @brief .inputs 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_inputs();
+
+  /// @brief .outputs 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_outputs();
+
+  /// @brief .names 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_names();
+
+  /// @brief .gate 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_gate();
+
+  /// @brief .latch 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_latch();
+
+  /// @brief .exdc 文の読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_exdc();
+
+  /// @brief ダミーの１行読み込みを行う．
+  /// @retval true 正しく読み込んだ．
+  /// @retval false エラーが起こった．
+  bool
+  read_dummy1();
+
+  /// @brief 次のトークンを読み出す．
+  void
+  next_token();
+
+  /// @brief 直前に読み出したトークンを返す．
+  BlifToken
+  cur_token() const;
+
+  /// @brief 直前に読み出したトークンが文字列の場合にその文字列を返す．
+  string
+  cur_string() const;
+
+  /// @brief 直前に読み出したトークンの位置を返す．
+  FileRegion
+  cur_loc() const;
+
+#if 0
   /// @brief トークンを一つ読み出す．
   /// @param[out] loc トークンの位置を格納する変数
   BlifToken
@@ -160,6 +225,7 @@ private:
   void
   unget_token(BlifToken token,
 	      const FileRegion& loc);
+#endif
 
   /// @brief name に対応する IdCell を取り出す．
   /// @param[in] name 名前
@@ -287,6 +353,7 @@ BlifParserImpl::id2cover(int id)
   return mCoverMgr.cover(id);
 }
 
+#if 0
 // @brief トークンを戻す．
 inline
 void
@@ -296,6 +363,7 @@ BlifParserImpl::unget_token(BlifToken token,
   mUngetToken = token;
   mUngetTokenLoc = loc;
 }
+#endif
 
 // @brief コンストラクタ
 inline

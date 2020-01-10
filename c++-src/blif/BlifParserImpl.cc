@@ -105,6 +105,20 @@ bool
 BlifParserImpl::read(const string& filename,
 		     const ClibCellLibrary& cell_library)
 {
+  // blif ファイル読み込みの状態遷移
+  //
+  // init:    .model <モデル名> NL     -> neutral
+  //          otherwise                -> error
+  //
+  // neutral: .inputs <入力名> ... NL  -> neutral
+  //          .outputs <出力名> ... NL -> neutral
+  //          .names <ネット名> ... NL -> names
+  //          .gate <ピン名>=<ネット名> ... NL -> neutral
+  //          .latch <ネット名> <ネット名> [<リセット値>] NL -> neutral
+  //
+  // names:   <入力キューブ> <出力キューブ> -> names
+  //          otherwise                     -> neutral
+
   // ファイルをオープンする．
   ifstream fin{filename};
   if ( !fin ) {
@@ -126,36 +140,11 @@ BlifParserImpl::read(const string& filename,
 
   mOidArray.clear();
 
-  // 一つの .inputs/.outputs 文中のトークンの数
-  int n_token{0};
-
   // エラー箇所
   FileRegion error_loc;
 
-  // .model 文の位置
-  FileRegion model_loc;
-
-  // .names 文に現れる識別子番号のリスト
-  vector<int> names_id_list;
-
-  // .names 文の最後の識別子の定義場所
-  FileRegion names_loc;
-
-  // .names 文のキューブ数
-  int cube_num{0};
-
-  // .names 文のキューブパタンを表す文字列
-  string ipat_str;
-
-  // .names 文のキューブパタンの出力部分
-  // 複数行ある場合も同一のはずなので１文字で十分
-  char opat_char{'\0'};
-
   // .gate 文のセル番号
   int gate_id{-1};
-
-  // .gate 文に現れる識別子番号のハッシュ表
-  unordered_map<int, int> pin_id_hash;
 
   // .end 文の位置
   FileRegion end_loc;
@@ -179,72 +168,18 @@ BlifParserImpl::read(const string& filename,
 
   // ハードコーディングした状態遷移
 
- ST_INIT:
-  // 読込開始
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::NL ) {
-      // 読み飛ばす
-      goto ST_INIT;
-    }
-    if ( tk == BlifToken::MODEL ) {
-      // .model 文の開始
-      model_loc = loc;
-      goto ST_MODEL;
-    }
-    // それ以外はエラー
-    MsgMgr::put_msg(__FILE__, __LINE__,
-		    loc,
-		    MsgType::Error,
-		    "SYN01",
-		    "No '.model' statement.");
+  if ( !read_model() ) {
     goto ST_ERROR_EXIT;
   }
 
- ST_MODEL:
-  // .model 文の処理
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk != BlifToken::STRING ) {
-      MsgMgr::put_msg(__FILE__, __LINE__,
-		      loc,
-		      MsgType::Error,
-		      "SYN02",
-		      "String expected after '.model'.");
-      goto ST_ERROR_EXIT;
-    }
-    auto name{mScanner->cur_string()};
-    for ( auto handler: mHandlerList ) {
-      if ( !handler->model(model_loc, loc, name) ) {
-	stat = false;
-      }
-    }
-    if ( !stat ) {
-      goto ST_ERROR_EXIT;
-    }
-
-    if ( get_token(loc) != BlifToken::NL ) {
-      MsgMgr::put_msg(__FILE__, __LINE__,
-		      loc,
-		      MsgType::Error,
-		      "SYN03",
-		      "Newline expected.");
-      goto ST_ERROR_EXIT;
-    }
-
-    goto ST_NEUTRAL;
-  }
-
- ST_NEUTRAL:
   // 本体の処理
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
+  for ( ; ; ) {
+    next_token();
+    BlifToken tk= cur_token();
     switch (tk) {
     case BlifToken::NL:
-      goto ST_NEUTRAL;
+      // スキップ
+      break;
 
     case BlifToken::_EOF:
       error_loc = loc;
@@ -259,19 +194,22 @@ BlifParserImpl::read(const string& filename,
       goto ST_ERROR_EXIT;
 
     case BlifToken::INPUTS:
-      n_token = 0;
-      goto ST_INPUTS;
+      if ( !read_inputs() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::OUTPUTS:
-      n_token = 0;
-      goto ST_OUTPUTS;
+      if ( !read_outputs() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::NAMES:
-      names_id_list.clear();
-      cube_num = 0;
-      ipat_str = "";
-      opat_char = '-'; // 未定義
-      goto ST_NAMES;
+      if ( !read_names() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::GATE:
       if ( mCellLibrary.cell_num() == 0 ) {
@@ -282,47 +220,86 @@ BlifParserImpl::read(const string& filename,
 			"No cell-library is specified.");
 	goto ST_ERROR_EXIT;
       }
-      goto ST_GATE;
+      if ( !read_gate() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::LATCH:
-      goto ST_LATCH;
+      if ( !read_latch()) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::END:
       end_loc = loc;
       goto ST_AFTER_END;
 
     case BlifToken::EXDC:
-      goto ST_EXDC;
+      if ( !read_exdc() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::WIRE_LOAD_SLOPE:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::WIRE:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::INPUT_ARRIVAL:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::DEFAULT_INPUT_ARRIVAL:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::OUTPUT_REQUIRED:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::DEFAULT_OUTPUT_REQUIRED:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::INPUT_DRIVE:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::DEFAULT_INPUT_DRIVE:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::OUTPUT_LOAD:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     case BlifToken::DEFAULT_OUTPUT_LOAD:
-      goto ST_DUMMY_READ1;
+      if ( !read_dummy1() ) {
+	goto ST_ERROR_EXIT;
+      }
+      break;
 
     default:
       error_loc = loc;
@@ -331,547 +308,19 @@ BlifParserImpl::read(const string& filename,
     ASSERT_NOT_REACHED;
   }
 
- ST_INPUTS:
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
-      int id = find_id(name);
-      if ( is_defined(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined more than once. Previous definition is "
-	    << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Error,
-			"MLTDEF01", buf.str().c_str());
-	goto ST_ERROR_EXIT;
-      }
-      if ( is_output(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined as both input and output."
-	    << " Previous difinition is " << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Warning,
-			"MLTDEF02", buf.str().c_str());
-      }
-      set_input(id, loc);
-      for ( auto handler: mHandlerList ) {
-	if ( !handler->inputs_elem(id, name) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto ST_ERROR_EXIT;
-      }
-      ++ n_token;
-      goto ST_INPUTS;
-    }
-    if ( tk == BlifToken::NL ) {
-      if ( n_token == 0 ) {
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Warning,
-			"SYN07", "Empty '.inputs' statement. Ignored.");
-      }
-      goto ST_NEUTRAL;
-    }
-    error_loc = loc;
-    goto ST_SYNTAX_ERROR;
-  }
-
- ST_OUTPUTS:
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
-      int id = find_id(name);
-      if ( is_output(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined more than once. Previous definition is at "
-	    << def_loc;
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Error,
-			"MLTDEF03", buf.str().c_str());
-	goto ST_ERROR_EXIT;
-      }
-      if ( is_input(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined as both input and output. "
-	    << "Previous definition is at "
-	    << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Warning,
-			"MLTDEF02", buf.str().c_str());
-      }
-      set_output(id);
-      mOidArray.push_back(id);
-      if ( !stat ) {
-	goto ST_ERROR_EXIT;
-      }
-      ++ n_token;
-      goto ST_OUTPUTS;
-    }
-    if ( tk == BlifToken::NL ) {
-      if ( n_token == 0 ) {
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Warning,
-			"SYN08", "Empty '.outputs' statement. Ignored.");
-      }
-      goto ST_NEUTRAL;
-    }
-    error_loc = loc;
-    goto ST_SYNTAX_ERROR;
-  }
-
- ST_NAMES:
-  { // str* nl
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
-      int id = find_id(name);
-      names_id_list.push_back(id);
-      names_loc = loc;
-      goto ST_NAMES;
-    }
-    if ( tk == BlifToken::NL ) {
-      int n = names_id_list.size();
-      if ( n == 0 ) {
-	// 名前が1つもない場合
-	MsgMgr::put_msg(__FILE__, __LINE__, loc,
-			MsgType::Error,
-			"SYN09",
-			"Empty '.names' statement.");
-	goto ST_ERROR_EXIT;
-      }
-      else if ( n == 1 ) {
-	// 名前が1つしかない場合
-	goto ST_NAMES0;
-      }
-      else {
-	// 通常の場合
-	goto ST_NAMES1;
-      }
-    }
-    error_loc = loc;
-    goto ST_SYNTAX_ERROR;
-  }
-
- ST_NAMES0:
-  { // str nl
-    FileRegion loc1;
-    BlifToken tk= get_token(loc1);
-    if ( tk == BlifToken::STRING ) {
-      auto tmp_str{mScanner->cur_string()};
-      char ochar = tmp_str[0];
-      switch ( ochar ) {
-      case '0':	break;
-      case '1': break;
-      default:
-	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			MsgType::Error,
-			"SYN15",
-			"Illegal character in output cube.");
-	goto ST_ERROR_EXIT;
-      }
-      if ( opat_char == '-' ) {
-	opat_char = ochar;
-      }
-      else if ( opat_char != ochar ) {
-	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			MsgType::Error,
-			"SYN10",
-			"Outpat pattern mismatch.");
-	goto ST_ERROR_EXIT;
-      }
-      if ( get_token(loc1) == BlifToken::NL ) {
-	++ cube_num;
-	goto ST_NAMES0;
-      }
-      MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-		      MsgType::Error,
-		      "SYN14",
-		      "Newline is expected.");
-      goto ST_ERROR_EXIT;
-    }
-    else if ( tk == BlifToken::NL ) {
-      // 空行はスキップ
-      goto ST_NAMES0;
-    }
-    else {
-      unget_token(tk, loc1);
-      goto ST_NAMES_END;
-    }
-  }
-
- ST_NAMES1:
-  { // str str nl
-    FileRegion loc1;
-    BlifToken tk= get_token(loc1);
-    if ( tk == BlifToken::STRING ) {
-      auto tmp_str{mScanner->cur_string()};
-      int n = tmp_str.size();
-      if ( n != names_id_list.size() - 1 ) {
-	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			MsgType::Error,
-			"SYN12",
-			"Input pattern does not fit "
-			"with the number of fanins.");
-	goto ST_ERROR_EXIT;
-      }
-      for ( char c: tmp_str ) {
-	if ( c == '1' ) {
-	  ipat_str += '1';
-	}
-	else if ( c == '0' ) {
-	  ipat_str += '0';
-	}
-	else if ( c == '-' ) {
-	  ipat_str += '-';
-	}
-	else {
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			  MsgType::Error,
-			  "SYN11",
-			  "Illegal character in input cube.");
-	  goto ST_ERROR_EXIT;
-	}
-      }
-
-      FileRegion loc2;
-      tk = get_token(loc2);
-      if ( tk == BlifToken::STRING ) {
-	auto tmp_str{mScanner->cur_string()};
-	char ochar = tmp_str[0];
-	switch ( ochar ) {
-	case '0': break;
-	case '1': break;
-	default:
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			  MsgType::Error,
-			  "SYN15",
-			  "Illegal character in output cube.");
-	  goto ST_ERROR_EXIT;
-	}
-	if ( opat_char == '-' ) {
-	  opat_char = ochar;
-	}
-	else if ( opat_char != ochar ) {
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			  MsgType::Error, "SYN10",
-			  "Outpat pattern mismatch.");
-	  goto ST_ERROR_EXIT;
-	}
-	if ( get_token(loc2) != BlifToken::NL ) {
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			  MsgType::Error, "SYN14",
-			  "Newline is expected.");
-	  goto ST_ERROR_EXIT;
-	}
-	++ cube_num;
-	goto ST_NAMES1;
-      }
-      MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-		      MsgType::Error, "SYN13",
-		      "No output cube.");
-      goto ST_ERROR_EXIT;
-    }
-    else if ( tk == BlifToken::NL ) {
-      // 空行はスキップ
-      goto ST_NAMES1;
-    }
-    else {
-      unget_token(tk, loc1);
-      goto ST_NAMES_END;
-    }
-  }
-
- ST_NAMES_END:
-  {
-    int n = names_id_list.size();
-    int ni = n - 1;
-    int id = names_id_list[ni];
-    if ( is_defined(id) ) {
-      // 二重定義
-      FileRegion def_loc{id2loc(id)};
-      ostringstream buf;
-      buf << id2str(id) << ": Defined more than once. "
-	  << "Previsous Definition is at " << def_loc << ".";
-      MsgMgr::put_msg(__FILE__, __LINE__, names_loc,
-		      MsgType::Error,
-		      "MLTDEF01", buf.str());
-      goto ST_ERROR_EXIT;
-    }
-    set_defined(id, names_loc);
-    int oid = id;
-    auto& cover = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
-    int cover_id = cover.id();
-
-    // ハンドラを呼び出す．
-    names_id_list.pop_back();
-    for ( auto handler: mHandlerList ) {
-      if ( !handler->names(oid, id2str(id), names_id_list, cover_id) ) {
-	stat = false;
-      }
-    }
-    if ( !stat ) {
-      goto ST_ERROR_EXIT;
-    }
-    goto ST_NEUTRAL;
-  }
-
- ST_GATE:
-  { // str -> ST_GATE1
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk != BlifToken::STRING ) {
-      error_loc = loc;
-      goto ST_GATE_SYNERROR;
-    }
-    auto name{mScanner->cur_string()};
-    gate_id = mCellLibrary.cell_id(name);
-    if ( gate_id == -1 ) {
-      ostringstream buf;
-      buf << name << ": No such cell.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error,
-		      "NOCELL02", buf.str());
-      goto ST_ERROR_EXIT;
-    }
-    auto& cell{mCellLibrary.cell(gate_id)};
-    if ( !cell.is_logic() ) {
-      ostringstream buf;
-      buf << name << " : Not a logic cell.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error, "BNetBlifReader", buf.str());
-      return false;
-    }
-    if ( cell.output_num() != 1 ) {
-      ostringstream buf;
-      buf << name << " : Not a single output cell.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error, "BNetBlifReader", buf.str());
-      return false;
-    }
-    if ( cell.has_tristate(0) ) {
-      ostringstream buf;
-      buf << name << " : Is a tri-state cell.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error, "BNetBlifReader", buf.str());
-      return false;
-    }
-    if ( cell.inout_num() > 0 ) {
-      ostringstream buf;
-      buf << name << " : Has inout pins.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error, "BNetBlifReader", buf.str());
-      return false;
-    }
-    pin_id_hash.clear();
-    n_token = 0;
-    goto ST_GATE1;
-  }
-
- ST_GATE1:
-  { // (str '=' str)* nl
-    FileRegion loc1;
-    BlifToken tk= get_token(loc1);
-    if ( tk == BlifToken::STRING ) {
-      auto pin_name{mScanner->cur_string()};
-      auto& cell{mCellLibrary.cell(gate_id)};
-      int pin_id = cell.pin_id(pin_name);
-      if ( pin_id == -1 ) {
-	ostringstream buf;
-	buf << pin_name << ": No such pin.";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc1,
-			MsgType::Error,
-			"NOPIN01", buf.str());
-	goto ST_ERROR_EXIT;
-      }
-
-      FileRegion loc2;
-      tk = get_token(loc2);
-      if ( tk != BlifToken::EQ ) {
-	error_loc = loc2;
-	goto ST_GATE_SYNERROR;
-      }
-      tk = get_token(loc2);
-      if ( tk != BlifToken::STRING ) {
-	error_loc = loc2;
-	goto ST_GATE_SYNERROR;
-      }
-
-      auto name2{mScanner->cur_string()};
-      int id2 = find_id(name2);
-      const ClibCellPin& pin = cell.pin(pin_id);
-      if ( pin.is_output() ) {
-	if ( is_defined(id2) ) {
-	  // 二重定義
-	  FileRegion def_loc{id2loc(id2)};
-	  ostringstream buf;
-	  buf << name2 << ": Defined more than once. "
-	      << "Previous definition is at " << def_loc << ".";
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			  MsgType::Error,
-			  "MLTDEF01", buf.str());
-	  goto ST_ERROR_EXIT;
-	}
-	set_defined(id2, loc2);
-      }
-      if ( pin_id_hash.count(pin.pin_id()) > 0 ) {
-	ostringstream buf;
-	buf << name2 << ": Appears more than once.";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc2,
-			MsgType::Error,
-			"MLTDEF02", buf.str());
-	goto ST_ERROR_EXIT;
-      }
-      pin_id_hash.emplace(pin.pin_id(), id2);
-      ++ n_token;
-      goto ST_GATE1;
-    }
-    else if ( tk == BlifToken::NL ) {
-      if ( n_token == 0 ) {
-	error_loc = loc1;
-	goto ST_GATE_SYNERROR;
-      }
-      auto& cell{mCellLibrary.cell(gate_id)};
-#warning "TODO: 要確認：0番目のピンが出力ピンって決め打ちしていいの？"
-      auto& opin{cell.output(0)};
-      int oid = pin_id_hash.at(opin.pin_id());
-      int ni = cell.input_num();
-      vector<int> id_array(ni);
-      for ( int i: Range(ni) ) {
-	auto& ipin = cell.input(i);
-	id_array[i] = pin_id_hash.at(ipin.pin_id());
-      }
-      for ( auto handler: mHandlerList ) {
-	if ( !handler->gate(oid, id2str(oid), id_array, gate_id) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto ST_ERROR_EXIT;
-      }
-      goto ST_NEUTRAL;
-    }
-  }
-
- ST_GATE_SYNERROR:
-  MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
-		  MsgType::Error,
-		  "SYN16", "Syntax error in '.gate' statement.");
-  goto ST_ERROR_EXIT;
-
- ST_LATCH:
-  {
-    FileRegion loc2;
-    BlifToken tk= get_token(loc2);
-    if ( tk == BlifToken::STRING ) {
-      auto name1{mScanner->cur_string()};
-      int id1 = find_id(name1);
-
-      FileRegion loc3;
-      tk = get_token(loc3);
-      if ( tk != BlifToken::STRING ) {
-	error_loc = loc3;
-	goto ST_LATCH_SYNERROR;
-      }
-      auto name2{mScanner->cur_string()};
-      int id2 = find_id(name2);
-      if ( is_defined(id2) ) {
-	// 二重定義
-	FileRegion def_loc{id2loc(id2)};
-	ostringstream buf;
-	buf << name2 << ": Defined more than once. "
-	    << "Previsous Definition is at " << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, loc3,
-			MsgType::Error,
-			"MLTDEF01", buf.str().c_str());
-	goto ST_ERROR_EXIT;
-      }
-      set_defined(id2, loc3);
-
-      FileRegion loc4;
-      tk = get_token(loc4);
-      char rval = ' ';
-      if ( tk == BlifToken::STRING ) {
-	rval = mScanner->cur_string()[0];
-	if ( rval != '0' && rval != '1' ) {
-	  MsgMgr::put_msg(__FILE__, __LINE__, loc4,
-			  MsgType::Error,
-			  "SYN18",
-			  "Illegal character for reset value.");
-	  goto ST_ERROR_EXIT;
-	}
-	tk = get_token(loc4);
-      }
-      if ( tk != BlifToken::NL ) {
-	error_loc = loc4;
-	goto ST_LATCH_SYNERROR;
-      }
-
-      for ( auto handler: mHandlerList ) {
-	if ( !handler->latch(id2, name2, id1, loc4, rval) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto ST_ERROR_EXIT;
-      }
-      goto ST_NEUTRAL;
-    }
-    else {
-      error_loc = loc2;
-      goto ST_LATCH_SYNERROR;
-    }
-  }
-
- ST_LATCH_SYNERROR:
-  MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
-		  MsgType::Error,
-		  "SYN17", "Syntax error in '.latch' statement.");
-  goto ST_ERROR_EXIT;
-
  ST_AFTER_END:
   {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
+    BlifToken tk= cur_token();
     if ( tk == BlifToken::_EOF ) {
       goto ST_NORMAL_EXIT;
     }
-    if ( tk != BlifToken::NL ) {
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
+    else if ( tk != BlifToken::NL ) {
+      MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 		      MsgType::Warning,
 		      "SYN06",
 		      "Statement after '.end' is ignored.");
     }
     goto ST_AFTER_END;
-  }
-
- ST_EXDC:
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::END ) {
-      goto ST_NEUTRAL;
-    }
-    goto ST_EXDC;
-  }
-
- ST_DUMMY_READ1:
-  {
-    FileRegion loc;
-    BlifToken tk= get_token(loc);
-    if ( tk == BlifToken::NL ) {
-      goto ST_NEUTRAL;
-    }
-    goto ST_DUMMY_READ1;
   }
 
  ST_AFTER_EOF:
@@ -957,6 +406,690 @@ BlifParserImpl::add_handler(BlifHandler* handler)
   mHandlerList.push_back(handler);
 }
 
+// @brief .model 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_model()
+{
+  // .model を探す．
+  FileRegion model_loc;
+  bool go_on = true;
+  while ( go_on ) {
+    BlifToken tk= read_token();
+    switch ( tk ) {
+    case BlifToken::NL:
+      // 読み飛ばす
+      next_token();
+      break;
+
+    case BlifToken::MODEL:
+      // .model 文の開始
+      model_loc = cur_loc();
+      go_on = false;
+      next_token();
+      break;
+
+    default:
+      // それ以外はエラー
+      MsgMgr::put_msg(__FILE__, __LINE__,
+		      cur_loc(),
+		      MsgType::Error,
+		      "SYN01",
+		      "No '.model' statement.");
+      return false;
+    }
+  }
+
+  // モデル名の読み込み
+  BlifToken tk= read_token();
+  FileRegion name_loc = cur_loc();
+  if ( tk != BlifToken::STRING ) {
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    name_loc,
+		    MsgType::Error,
+		    "SYN02",
+		    "String expected after '.model'.");
+    return false;
+  }
+
+  bool ok = true;
+  auto name{mScanner->cur_string()};
+  for ( auto handler: mHandlerList ) {
+    if ( !handler->model(model_loc, name_loc, name) ) {
+      ok = false;
+    }
+  }
+  if ( !ok ) {
+    return false;
+  }
+
+  // NL を待つ．
+  if ( read_token() != BlifToken::NL ) {
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    cur_loc(),
+		    MsgType::Error,
+		    "SYN03",
+		    "Newline expected.");
+    return false;
+  }
+
+  return true;
+}
+
+// @brief .inputs 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_inputs()
+{
+  int n_token = 0;
+  bool ok = false;
+  for ( ; ; ) {
+    BlifToken tk= read_token();
+    if ( tk == BlifToken::STRING ) {
+      auto name{mScanner->cur_string()};
+      FileRegion name_loc{cur_loc()};
+      int id = find_id(name);
+      if ( is_defined(id) ) {
+	FileRegion def_loc{id2loc(id)};
+	ostringstream buf;
+	buf << name << ": Defined more than once. Previous definition is at "
+	    << def_loc << ".";
+	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+			MsgType::Error,
+			"MLTDEF01", buf.str().c_str());
+	ok = false;
+      }
+      if ( is_output(id) ) {
+	FileRegion def_loc{id2loc(id)};
+	ostringstream buf;
+	buf << name << ": Defined as both input and output."
+	    << " Previous difinition is at " << def_loc << ".";
+	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+			MsgType::Warning,
+			"MLTDEF02", buf.str().c_str());
+      }
+      set_input(id, name_loc);
+      for ( auto handler: mHandlerList ) {
+	if ( !handler->inputs_elem(id, name) ) {
+	  ok = false;
+	}
+      }
+      ++ n_token;
+    }
+    else if ( tk == BlifToken::NL ) {
+      if ( n_token == 0 ) {
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Warning,
+			"SYN07", "Empty '.inputs' statement. Ignored.");
+      }
+      return ok;
+    }
+    else {
+      error_loc = cur_loc();
+      return false;
+    }
+  }
+}
+
+// @brief .outputs 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_outputs()
+{
+  int n_token = 0;
+  bool ok = true;
+  for ( ; ; ) {
+    BlifToken tk= read_token();
+    if ( tk == BlifToken::STRING ) {
+      auto name{mScanner->cur_string()};
+      FileRegion name_loc{cur_loc()};
+      int id = find_id(name);
+      if ( is_output(id) ) {
+	FileRegion def_loc{id2loc(id)};
+	ostringstream buf;
+	buf << name << ": Defined more than once. Previous definition is at "
+	    << def_loc;
+	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+			MsgType::Error,
+			"MLTDEF03", buf.str().c_str());
+	ok = false;
+      }
+      if ( is_input(id) ) {
+	FileRegion def_loc{id2loc(id)};
+	ostringstream buf;
+	buf << name << ": Defined as both input and output. "
+	    << "Previous definition is at "
+	    << def_loc << ".";
+	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+			MsgType::Warning,
+			"MLTDEF02", buf.str().c_str());
+      }
+      set_output(id);
+      mOidArray.push_back(id);
+      ++ n_token;
+    }
+    else if ( tk == BlifToken::NL ) {
+      if ( n_token == 0 ) {
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Warning,
+			"SYN08", "Empty '.outputs' statement. Ignored.");
+      }
+      return ok;
+    }
+    else {
+      error_loc = cur_loc();
+      return false;
+    }
+  }
+}
+
+// @brief .names 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_names()
+{
+  // .names 文に現れる識別子番号のリスト
+  vector<int> names_id_list;
+
+  // .names 文の最後の識別子の定義場所
+  FileRegion names_loc;
+
+  // .names 文のキューブ数
+  int cube_num{0};
+
+  // .names 文のキューブパタンを表す文字列
+  string ipat_str;
+
+  // .names 文のキューブパタンの出力部分
+  // 複数行ある場合も同一のはずなので１文字で十分
+  char opat_char{'\0'};
+
+  // str* nl
+  for ( ; ; ) {
+    next_token();
+    BlifToken tk= cur_token();
+    if ( tk == BlifToken::STRING ) {
+      auto name{cur_string()};
+      int id = find_id(name);
+      names_id_list.push_back(id);
+      names_loc = cur_loc();
+    }
+    else if ( tk == BlifToken::NL ) {
+      int n = names_id_list.size();
+      if ( n == 0 ) {
+	// 名前が1つもない場合
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"SYN09",
+			"Empty '.names' statement.");
+	return false;
+      }
+      break;
+    }
+    else {
+      error_loc = cur_loc();
+      goto ST_SYNTAX_ERROR;
+    }
+  }
+
+  // 入力数
+  int ni = names_id_list.size() - 1;
+  if ( ni == 0 ) {
+    // 入力のキューブがない場合
+    for ( ; ; ) {
+      next_token();
+      BlifToken tk= cur_token();
+      if ( tk == BlifToken::STRING ) {
+	auto tmp_str{cur_string()};
+	char ochar = tmp_str[0];
+	switch ( ochar ) {
+	case '0':	break;
+	case '1': break;
+	default:
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error,
+			  "SYN15",
+			  "Illegal character in output cube.");
+	  return false;
+	}
+	if ( opat_char == '-' ) {
+	  opat_char = ochar;
+	}
+	else if ( opat_char != ochar ) {
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error,
+			  "SYN10",
+			  "Outpat pattern mismatch.");
+	  return false;
+	}
+	next_token();
+	if ( cur_token() == BlifToken::NL ) {
+	  ++ cube_num;
+	}
+	else {
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error,
+			  "SYN14",
+			  "Newline is expected.");
+	  return false;
+	}
+      }
+      else if ( tk == BlifToken::NL ) {
+	// 空行はスキップ
+	;
+      }
+      else {
+	// それ以外のトークンの場合には
+	// 読み込まずに終わる．
+	break;
+      }
+    }
+  }
+  else {
+    // 入力と出力のキューブを持つ場合．
+    for ( ; ; ) {
+      next_token();
+      BlifToken tk= cur_token();
+      if ( tk == BlifToken::STRING ) {
+	auto tmp_str{cur_string()};
+	int n = tmp_str.size();
+	if ( n != names_id_list.size() - 1 ) {
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error,
+			  "SYN12",
+			  "Input pattern does not fit "
+			  "with the number of fanins.");
+	  return false;
+	}
+	for ( char c: tmp_str ) {
+	  if ( c == '1' ) {
+	    ipat_str += '1';
+	  }
+	  else if ( c == '0' ) {
+	    ipat_str += '0';
+	  }
+	  else if ( c == '-' ) {
+	    ipat_str += '-';
+	  }
+	  else {
+	    MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			    MsgType::Error,
+			    "SYN11",
+			    "Illegal character in input cube.");
+	    return false;
+	  }
+	}
+
+	// 出力のキューブ
+	next_token();
+	tk = cur_token();
+	if ( tk == BlifToken::STRING ) {
+	  auto tmp_str{cur_string()};
+	  char ochar = tmp_str[0];
+	  switch ( ochar ) {
+	  case '0': break;
+	  case '1': break;
+	  default:
+	    MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			    MsgType::Error,
+			    "SYN15",
+			    "Illegal character in output cube.");
+	    return false;
+	  }
+	  if ( opat_char == '-' ) {
+	    opat_char = ochar;
+	  }
+	  else if ( opat_char != ochar ) {
+	    MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			    MsgType::Error, "SYN10",
+			    "Outpat pattern mismatch.");
+	    return false;
+	  }
+
+	  next_token();
+	  if ( cur_token() == BlifToken::NL ) {
+	    ++ cube_num;
+	  }
+	  else {
+	    MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			    MsgType::Error, "SYN14",
+			    "Newline is expected.");
+	    return false;
+	  }
+	}
+	else {
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error, "SYN13",
+			  "No output cube.");
+	  return false;
+	}
+      }
+      else if ( tk == BlifToken::NL ) {
+	// 空行はスキップ
+	;
+      }
+      else {
+	// それ以外のトークンの場合には
+	// 読み込まずに終わる．
+	break;
+      }
+    }
+  }
+
+  int oid = names_id_list[ni];
+  if ( is_defined(oid) ) {
+    // 二重定義
+    FileRegion def_loc{id2loc(oid)};
+    ostringstream buf;
+    buf << id2str(oid) << ": Defined more than once. "
+	<< "Previsous Definition is at " << def_loc << ".";
+    MsgMgr::put_msg(__FILE__, __LINE__, names_loc,
+		    MsgType::Error,
+		    "MLTDEF01", buf.str());
+    return false;
+  }
+  set_defined(oid, names_loc);
+
+  auto& cover = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
+  int cover_id = cover.id();
+
+  // ハンドラを呼び出す．
+  bool ok = true;
+  names_id_list.pop_back();
+  for ( auto handler: mHandlerList ) {
+    if ( !handler->names(oid, id2str(oid), names_id_list, cover_id) ) {
+      ok = false;
+    }
+  }
+
+  return ok;
+}
+
+/// @brief .gate 文の読み込みを行う．
+/// @retval true 正しく読み込んだ．
+/// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_gate()
+{
+  // 最初のトークンは文字列
+  next_token();
+  BlifToken tk= cur_token();
+  if ( tk != BlifToken::STRING ) {
+    goto ST_GATE_SYNERROR;
+  }
+
+  auto name{cur_string()};
+  auto name_loc{cur_loc()};
+  int gate_id = mCellLibrary.cell_id(name);
+  if ( gate_id == -1 ) {
+    ostringstream buf;
+    buf << name << ": No such cell.";
+    MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+		    MsgType::Error,
+		    "NOCELL02", buf.str());
+    return false;
+  }
+
+  auto& cell{mCellLibrary.cell(gate_id)};
+  if ( !cell.is_logic() ) {
+    ostringstream buf;
+    buf << name << " : Not a logic cell.";
+    MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+		    MsgType::Error, "BNetBlifReader", buf.str());
+    return false;
+  }
+  if ( cell.output_num() != 1 ) {
+    ostringstream buf;
+    buf << name << " : Not a single output cell.";
+    MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+		    MsgType::Error, "BNetBlifReader", buf.str());
+    return false;
+  }
+  if ( cell.has_tristate(0) ) {
+    ostringstream buf;
+    buf << name << " : Is a tri-state cell.";
+    MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+		    MsgType::Error, "BNetBlifReader", buf.str());
+    return false;
+  }
+  if ( cell.inout_num() > 0 ) {
+    ostringstream buf;
+    buf << name << " : Has inout pins.";
+    MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
+		    MsgType::Error, "BNetBlifReader", buf.str());
+    return false;
+  }
+
+  // .gate 文に現れる識別子番号のハッシュ表
+  unordered_map<int, int> pin_id_hash;
+
+  int n_pins = 0;
+
+  // (str '=' str)* nl
+  for ( ; ; ) {
+    next_token();
+    BlifToken tk= cur_token();
+    if ( tk == BlifToken::STRING ) {
+      auto pin_name{cur_string()};
+      int pin_id = cell.pin_id(pin_name);
+      if ( pin_id == -1 ) {
+	ostringstream buf;
+	buf << pin_name << ": No such pin.";
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"NOPIN01", buf.str());
+	return false;
+      }
+
+      next_token();
+      tk = cur_token();
+      if ( tk != BlifToken::EQ ) {
+	goto ST_GATE_SYNERROR;
+      }
+
+      next_token();
+      tk = cur_token();
+      if ( tk != BlifToken::STRING ) {
+	goto ST_GATE_SYNERROR;
+      }
+
+      auto name2{cur_string()};
+      int id2 = find_id(name2);
+      const ClibCellPin& pin = cell.pin(pin_id);
+      if ( pin.is_output() ) {
+	pin_id = pin_id;
+	if ( is_defined(id2) ) {
+	  // 二重定義
+	  FileRegion def_loc{id2loc(id2)};
+	  ostringstream buf;
+	  buf << name2 << ": Defined more than once. "
+	      << "Previous definition is at " << def_loc << ".";
+	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			  MsgType::Error,
+			  "MLTDEF01", buf.str());
+	  return false;
+	}
+	set_defined(id2, cur_loc());
+      }
+      if ( pin_id_hash.count(pin.pin_id()) > 0 ) {
+	ostringstream buf;
+	buf << name2 << ": Appears more than once.";
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"MLTDEF02", buf.str());
+	return false;
+      }
+      pin_id_hash.emplace(pin.pin_id(), id2);
+      ++ n_pins;
+    }
+    else if ( tk == BlifToken::NL ) {
+      if ( n_pins == 0 ) {
+	goto ST_GATE_SYNERROR;
+      }
+      auto& opin{cell.output(0)};
+      int oid = pin_id_hash.at(opin.pin_id());
+      int ni = cell.input_num();
+      vector<int> id_array(ni);
+      for ( int i: Range(ni) ) {
+	auto& ipin = cell.input(i);
+	id_array[i] = pin_id_hash.at(ipin.pin_id());
+      }
+      for ( auto handler: mHandlerList ) {
+	if ( !handler->gate(oid, id2str(oid), id_array, gate_id) ) {
+	  ok = false;
+	}
+      }
+      return ok;
+    }
+  }
+
+ ST_GATE_SYNERROR:
+  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+		  MsgType::Error,
+		  "SYN16", "Syntax error in '.gate' statement.");
+  return false;
+}
+
+// @brief .latch 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_latch()
+{
+  bool ok = true;
+  FileRegion error_loc;
+  BlifToken tk= read_token();
+  if ( tk == BlifToken::STRING ) {
+    auto name1{mScanner->cur_string()};
+    int id1 = find_id(name1);
+
+    tk = read_token();
+    if ( tk != BlifToken::STRING ) {
+      error_loc = cur_loc();
+      goto ST_LATCH_SYNERROR;
+    }
+
+    auto name2{mScanner->cur_string()};
+    auto loc2{cur_loc()};
+    int id2 = find_id(name2);
+    if ( is_defined(id2) ) {
+      // 二重定義
+      FileRegion def_loc{id2loc(id2)};
+      ostringstream buf;
+      buf << name2 << ": Defined more than once. "
+	  << "Previsous Definition is at " << def_loc << ".";
+      MsgMgr::put_msg(__FILE__, __LINE__, loc2,
+		      MsgType::Error,
+		      "MLTDEF01", buf.str().c_str());
+      return false;
+    }
+    set_defined(id2, loc2);
+
+    tk = read_token();
+    auto loc3{cur_loc()};
+    char rval = ' ';
+    if ( tk == BlifToken::STRING ) {
+      rval = mScanner->cur_string()[0];
+      if ( rval != '0' && rval != '1' ) {
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"SYN18",
+			"Illegal character for reset value.");
+	return false;
+      }
+      tk = read_token();
+      loc3 = cur_loc();
+    }
+    if ( tk != BlifToken::NL ) {
+      error_loc = loc3;
+      goto ST_LATCH_SYNERROR;
+    }
+
+    for ( auto handler: mHandlerList ) {
+      if ( !handler->latch(id2, name2, id1, loc3, rval) ) {
+	ok = false;
+      }
+    }
+
+    return ok;
+  }
+  else {
+    error_loc = cur_loc();
+    goto ST_LATCH_SYNERROR;
+  }
+
+ ST_LATCH_SYNERROR:
+  MsgMgr::put_msg(__FILE__, __LINE__, error_loc,
+		  MsgType::Error,
+		  "SYN17", "Syntax error in '.latch' statement.");
+  return false;
+}
+
+// @brief .exdc 文の読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_exdc()
+{
+  for ( ; ; ) {
+    next_token();
+    BlifToken tk= cur_token();
+    if ( tk == BlifToken::END ) {
+      return true;
+    }
+    else if ( tk == BlifToken::_EOF ) {
+      return false;
+    }
+  }
+}
+
+// @brief ダミーの１行読み込みを行う．
+// @retval true 正しく読み込んだ．
+// @retval false エラーが起こった．
+bool
+BlifParserImpl::read_dummy1()
+{
+  for ( ; ; ) {
+    next_token();
+    BlifToken tk= cur_token();
+    if ( tk == BlifToken::NL ) {
+      return true;
+    }
+    else if ( tk == BlifToken::_EOF ) {
+      return false;
+    }
+  }
+}
+
+// @brief トークンを読み出す．
+BlifToken
+BlirParserImpl::read_token()
+{
+  if ( mCurToken == BlifToken::_EOF ) {
+    mCurToken = mScanner->read_token(mCurLoc);
+  }
+  return mCurToken;
+}
+
+// @brief 直前に読み出したトークンの位置を返す．
+FileRegion
+BlifParserImpl::cur_loc() const
+{
+  return mCurLoc;
+}
+
+// @brief 直前の read_token() を確定させる．
+void
+BlifParserImpl::next_token()
+{
+  mCurToken = BlifToken::_EOF;
+}
+
+#if 0
 // @brief トークンを一つ読み出す．
 // @param[out] loc トークンの位置を格納する変数
 BlifToken
@@ -971,6 +1104,7 @@ BlifParserImpl::get_token(FileRegion& loc)
   loc = mUngetTokenLoc;
   return tk;
 }
+#endif
 
 // @brief name に対応する識別子番号を返す．
 // @param[in] name 名前
