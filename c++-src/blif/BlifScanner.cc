@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_YM_BNET
 BEGIN_NONAMESPACE
 
 // read_token() の動作をデバッグするときに true にする．
-const bool debug_read_token = true;
+const bool debug_read_token = false;
 
 END_NONAMESPACE
 

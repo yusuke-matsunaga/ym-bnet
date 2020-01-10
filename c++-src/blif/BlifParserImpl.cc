@@ -136,15 +136,11 @@ BlifParserImpl::read(const string& filename,
   InputFileObj in{fin, {filename}};
   mScanner = unique_ptr<BlifScanner>{new BlifScanner(in)};
   mIdHash.clear();
-  mUngetToken = BlifToken::_EOF;
 
   mOidArray.clear();
 
   // エラー箇所
   FileRegion error_loc;
-
-  // .gate 文のセル番号
-  int gate_id{-1};
 
   // .end 文の位置
   FileRegion end_loc;
@@ -174,20 +170,20 @@ BlifParserImpl::read(const string& filename,
 
   // 本体の処理
   for ( ; ; ) {
-    next_token();
     BlifToken tk= cur_token();
     switch (tk) {
     case BlifToken::NL:
       // スキップ
+      next_token();
       break;
 
     case BlifToken::_EOF:
-      error_loc = loc;
+      error_loc = cur_loc();
       goto ST_AFTER_EOF;
 
     case BlifToken::MODEL:
       MsgMgr::put_msg(__FILE__, __LINE__,
-		      loc,
+		      cur_loc(),
 		      MsgType::Error,
 		      "SYN04",
 		      "Multiple '.model' statements.");
@@ -212,14 +208,6 @@ BlifParserImpl::read(const string& filename,
       break;
 
     case BlifToken::GATE:
-      if ( mCellLibrary.cell_num() == 0 ) {
-	MsgMgr::put_msg(__FILE__, __LINE__,
-			loc,
-			MsgType::Error,
-			"NOCELL01",
-			"No cell-library is specified.");
-	goto ST_ERROR_EXIT;
-      }
       if ( !read_gate() ) {
 	goto ST_ERROR_EXIT;
       }
@@ -232,7 +220,7 @@ BlifParserImpl::read(const string& filename,
       break;
 
     case BlifToken::END:
-      end_loc = loc;
+      end_loc = cur_loc();
       goto ST_AFTER_END;
 
     case BlifToken::EXDC:
@@ -302,10 +290,9 @@ BlifParserImpl::read(const string& filename,
       break;
 
     default:
-      error_loc = loc;
+      error_loc = cur_loc();
       goto ST_SYNTAX_ERROR;
     }
-    ASSERT_NOT_REACHED;
   }
 
  ST_AFTER_END:
@@ -416,18 +403,17 @@ BlifParserImpl::read_model()
   FileRegion model_loc;
   bool go_on = true;
   while ( go_on ) {
-    BlifToken tk= read_token();
+    next_token();
+    BlifToken tk= cur_token();
     switch ( tk ) {
     case BlifToken::NL:
       // 読み飛ばす
-      next_token();
       break;
 
     case BlifToken::MODEL:
       // .model 文の開始
       model_loc = cur_loc();
       go_on = false;
-      next_token();
       break;
 
     default:
@@ -442,7 +428,8 @@ BlifParserImpl::read_model()
   }
 
   // モデル名の読み込み
-  BlifToken tk= read_token();
+  next_token();
+  BlifToken tk= cur_token();
   FileRegion name_loc = cur_loc();
   if ( tk != BlifToken::STRING ) {
     MsgMgr::put_msg(__FILE__, __LINE__,
@@ -454,7 +441,7 @@ BlifParserImpl::read_model()
   }
 
   bool ok = true;
-  auto name{mScanner->cur_string()};
+  auto name{cur_string()};
   for ( auto handler: mHandlerList ) {
     if ( !handler->model(model_loc, name_loc, name) ) {
       ok = false;
@@ -465,7 +452,8 @@ BlifParserImpl::read_model()
   }
 
   // NL を待つ．
-  if ( read_token() != BlifToken::NL ) {
+  next_token();
+  if ( cur_token() != BlifToken::NL ) {
     MsgMgr::put_msg(__FILE__, __LINE__,
 		    cur_loc(),
 		    MsgType::Error,
@@ -473,6 +461,9 @@ BlifParserImpl::read_model()
 		    "Newline expected.");
     return false;
   }
+
+  // 次のトークンを読んでおく．
+  next_token();
 
   return true;
 }
@@ -486,9 +477,10 @@ BlifParserImpl::read_inputs()
   int n_token = 0;
   bool ok = false;
   for ( ; ; ) {
-    BlifToken tk= read_token();
+    next_token();
+    BlifToken tk= cur_token();
     if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
+      auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
       int id = find_id(name);
       if ( is_defined(id) ) {
@@ -524,10 +516,11 @@ BlifParserImpl::read_inputs()
 			MsgType::Warning,
 			"SYN07", "Empty '.inputs' statement. Ignored.");
       }
+      // 次のトークンを読んでおく
+      next_token();
       return ok;
     }
     else {
-      error_loc = cur_loc();
       return false;
     }
   }
@@ -542,9 +535,10 @@ BlifParserImpl::read_outputs()
   int n_token = 0;
   bool ok = true;
   for ( ; ; ) {
-    BlifToken tk= read_token();
+    next_token();
+    BlifToken tk= cur_token();
     if ( tk == BlifToken::STRING ) {
-      auto name{mScanner->cur_string()};
+      auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
       int id = find_id(name);
       if ( is_output(id) ) {
@@ -577,10 +571,11 @@ BlifParserImpl::read_outputs()
 			MsgType::Warning,
 			"SYN08", "Empty '.outputs' statement. Ignored.");
       }
+      // 次のトークンを読んでおく
+      next_token();
       return ok;
     }
     else {
-      error_loc = cur_loc();
       return false;
     }
   }
@@ -631,8 +626,11 @@ BlifParserImpl::read_names()
       break;
     }
     else {
-      error_loc = cur_loc();
-      goto ST_SYNTAX_ERROR;
+      MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+		      MsgType::Error,
+		      "SYN00",
+		      "Syntax error.");
+      return false;
     }
   }
 
@@ -815,11 +813,24 @@ BlifParserImpl::read_names()
 bool
 BlifParserImpl::read_gate()
 {
+  if ( mCellLibrary.cell_num() == 0 ) {
+    MsgMgr::put_msg(__FILE__, __LINE__,
+		    cur_loc(),
+		    MsgType::Error,
+		    "NOCELL01",
+		    "No cell-library is specified.");
+    return false;
+  }
+
   // 最初のトークンは文字列
   next_token();
   BlifToken tk= cur_token();
   if ( tk != BlifToken::STRING ) {
-    goto ST_GATE_SYNERROR;
+    MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+		    MsgType::Error,
+		    "SYN??",
+		    "Syntax error: string is expected after '.gate'");
+    return false;
   }
 
   auto name{cur_string()};
@@ -839,28 +850,36 @@ BlifParserImpl::read_gate()
     ostringstream buf;
     buf << name << " : Not a logic cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-		    MsgType::Error, "BNetBlifReader", buf.str());
+		    MsgType::Error,
+		    "BNetBlifReader",// TODO 直す
+		    buf.str());
     return false;
   }
   if ( cell.output_num() != 1 ) {
     ostringstream buf;
     buf << name << " : Not a single output cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-		    MsgType::Error, "BNetBlifReader", buf.str());
+		    MsgType::Error,
+		    "BNetBlifReader",
+		    buf.str());
     return false;
   }
   if ( cell.has_tristate(0) ) {
     ostringstream buf;
     buf << name << " : Is a tri-state cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-		    MsgType::Error, "BNetBlifReader", buf.str());
+		    MsgType::Error,
+		    "BNetBlifReader",
+		    buf.str());
     return false;
   }
   if ( cell.inout_num() > 0 ) {
     ostringstream buf;
     buf << name << " : Has inout pins.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-		    MsgType::Error, "BNetBlifReader", buf.str());
+		    MsgType::Error,
+		    "BNetBlifReader",
+		    buf.str());
     return false;
   }
 
@@ -888,13 +907,21 @@ BlifParserImpl::read_gate()
       next_token();
       tk = cur_token();
       if ( tk != BlifToken::EQ ) {
-	goto ST_GATE_SYNERROR;
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"NOPIN01",
+			"Syntax error: '=' is expected.");
+	return false;
       }
 
       next_token();
       tk = cur_token();
       if ( tk != BlifToken::STRING ) {
-	goto ST_GATE_SYNERROR;
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"NOPIN01",
+			"Syntax error: string is expected.");
+	return false;
       }
 
       auto name2{cur_string()};
@@ -928,7 +955,11 @@ BlifParserImpl::read_gate()
     }
     else if ( tk == BlifToken::NL ) {
       if ( n_pins == 0 ) {
-	goto ST_GATE_SYNERROR;
+	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+			MsgType::Error,
+			"GATEXX",
+			"Syntax error: pin assiments expected.");
+	return false;
       }
       auto& opin{cell.output(0)};
       int oid = pin_id_hash.at(opin.pin_id());
@@ -938,19 +969,17 @@ BlifParserImpl::read_gate()
 	auto& ipin = cell.input(i);
 	id_array[i] = pin_id_hash.at(ipin.pin_id());
       }
+      bool ok = true;
       for ( auto handler: mHandlerList ) {
 	if ( !handler->gate(oid, id2str(oid), id_array, gate_id) ) {
 	  ok = false;
 	}
       }
+      // 次のトークンを読み込んでおく
+      next_token();
       return ok;
     }
   }
-
- ST_GATE_SYNERROR:
-  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
-		  MsgType::Error,
-		  "SYN16", "Syntax error in '.gate' statement.");
   return false;
 }
 
@@ -962,18 +991,20 @@ BlifParserImpl::read_latch()
 {
   bool ok = true;
   FileRegion error_loc;
-  BlifToken tk= read_token();
+  next_token();
+  BlifToken tk= cur_token();
   if ( tk == BlifToken::STRING ) {
-    auto name1{mScanner->cur_string()};
+    auto name1{cur_string()};
     int id1 = find_id(name1);
 
-    tk = read_token();
+    next_token();
+    tk = cur_token();
     if ( tk != BlifToken::STRING ) {
       error_loc = cur_loc();
       goto ST_LATCH_SYNERROR;
     }
 
-    auto name2{mScanner->cur_string()};
+    auto name2{cur_string()};
     auto loc2{cur_loc()};
     int id2 = find_id(name2);
     if ( is_defined(id2) ) {
@@ -989,11 +1020,12 @@ BlifParserImpl::read_latch()
     }
     set_defined(id2, loc2);
 
-    tk = read_token();
+    next_token();
+    tk = cur_token();
     auto loc3{cur_loc()};
     char rval = ' ';
     if ( tk == BlifToken::STRING ) {
-      rval = mScanner->cur_string()[0];
+      rval = cur_string()[0];
       if ( rval != '0' && rval != '1' ) {
 	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 			MsgType::Error,
@@ -1001,7 +1033,9 @@ BlifParserImpl::read_latch()
 			"Illegal character for reset value.");
 	return false;
       }
-      tk = read_token();
+
+      next_token();
+      tk = cur_token();
       loc3 = cur_loc();
     }
     if ( tk != BlifToken::NL ) {
@@ -1065,14 +1099,25 @@ BlifParserImpl::read_dummy1()
   }
 }
 
-// @brief トークンを読み出す．
-BlifToken
-BlirParserImpl::read_token()
+// @brief 次のトークンを読み出す．
+void
+BlifParserImpl::next_token()
 {
-  if ( mCurToken == BlifToken::_EOF ) {
-    mCurToken = mScanner->read_token(mCurLoc);
-  }
+  mCurToken = mScanner->read_token(mCurLoc);
+}
+
+// @brief 直前に読み出したトークンを返す．
+BlifToken
+BlifParserImpl::cur_token() const
+{
   return mCurToken;
+}
+
+// @brief 直前に読み出したトークンが文字列の場合にその文字列を返す．
+string
+BlifParserImpl::cur_string() const
+{
+  return mScanner->cur_string();
 }
 
 // @brief 直前に読み出したトークンの位置を返す．
@@ -1081,30 +1126,6 @@ BlifParserImpl::cur_loc() const
 {
   return mCurLoc;
 }
-
-// @brief 直前の read_token() を確定させる．
-void
-BlifParserImpl::next_token()
-{
-  mCurToken = BlifToken::_EOF;
-}
-
-#if 0
-// @brief トークンを一つ読み出す．
-// @param[out] loc トークンの位置を格納する変数
-BlifToken
-BlifParserImpl::get_token(FileRegion& loc)
-{
-  if ( mUngetToken == BlifToken::_EOF ) {
-    return mScanner->read_token(loc);
-  }
-  // トークンバッファに値がある場合にはそれを返す．
-  BlifToken tk = mUngetToken;
-  mUngetToken = BlifToken::_EOF;
-  loc = mUngetTokenLoc;
-  return tk;
-}
-#endif
 
 // @brief name に対応する識別子番号を返す．
 // @param[in] name 名前

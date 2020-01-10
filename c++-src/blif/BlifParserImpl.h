@@ -215,18 +215,6 @@ private:
   FileRegion
   cur_loc() const;
 
-#if 0
-  /// @brief トークンを一つ読み出す．
-  /// @param[out] loc トークンの位置を格納する変数
-  BlifToken
-  get_token(FileRegion& loc);
-
-  /// @brief トークンを戻す．
-  void
-  unget_token(BlifToken token,
-	      const FileRegion& loc);
-#endif
-
   /// @brief name に対応する IdCell を取り出す．
   /// @param[in] name 名前
   /// @return 対応するID番号を返す．
@@ -291,12 +279,6 @@ private:
   // 字句解析器
   unique_ptr<BlifScanner> mScanner;
 
-  // 読み戻されたトークン
-  BlifToken mUngetToken;
-
-  // mUngetToken に対応する位置情報
-  FileRegion mUngetTokenLoc;
-
   // イベントハンドラのリスト
   vector<BlifHandler*> mHandlerList;
 
@@ -311,6 +293,12 @@ private:
 
   // BlifCover を管理するオブジェクト
   BlifCoverMgr mCoverMgr;
+
+  // 現在のトークン
+  BlifToken mCurToken;
+
+  // 現在のトークンの位置
+  FileRegion mCurLoc;
 
 };
 
@@ -352,18 +340,6 @@ BlifParserImpl::id2cover(int id)
 {
   return mCoverMgr.cover(id);
 }
-
-#if 0
-// @brief トークンを戻す．
-inline
-void
-BlifParserImpl::unget_token(BlifToken token,
-			    const FileRegion& loc)
-{
-  mUngetToken = token;
-  mUngetTokenLoc = loc;
-}
-#endif
 
 // @brief コンストラクタ
 inline
