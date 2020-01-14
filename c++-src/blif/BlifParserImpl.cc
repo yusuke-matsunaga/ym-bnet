@@ -299,7 +299,7 @@ BlifParserImpl::read(const string& filename,
       if ( !id_cell.is_defined() ) {
 	ostringstream buf;
 	buf << id_cell.name() << ": Undefined.";
-	MsgMgr::put_msg(__FILE__, __LINE__, id_cell.loc(),
+	MsgMgr::put_msg(__FILE__, __LINE__, id_cell.ref_loc(),
 			MsgType::Error,
 			"UNDEF01", buf.str().c_str());
 	goto ST_ERROR_EXIT;
@@ -448,7 +448,7 @@ BlifParserImpl::read_inputs()
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
-      int id = find_id(name);
+      int id = find_id(name, name_loc);
       if ( is_defined(id) ) {
 	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
@@ -506,7 +506,7 @@ BlifParserImpl::read_outputs()
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
-      int id = find_id(name);
+      int id = find_id(name, name_loc);
       if ( is_output(id) ) {
 	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
@@ -517,7 +517,7 @@ BlifParserImpl::read_outputs()
 			"MLTDEF03", buf.str().c_str());
 	ok = false;
       }
-      if ( is_input(id) ) {
+      else if ( is_input(id) ) {
 	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
 	buf << name << ": Defined as both input and output. "
@@ -575,9 +575,9 @@ BlifParserImpl::read_names()
     BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
-      int id = find_id(name);
-      names_id_list.push_back(id);
       names_loc = cur_loc();
+      int id = find_id(name, names_loc);
+      names_id_list.push_back(id);
     }
     else if ( tk == BlifToken::NL ) {
       int n = names_id_list.size();
@@ -891,7 +891,8 @@ BlifParserImpl::read_gate()
       }
 
       auto name2{cur_string()};
-      int id2 = find_id(name2);
+      auto name2_loc{cur_loc()};
+      int id2 = find_id(name2, name2_loc);
       const ClibCellPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
 	pin_id = pin_id;
@@ -901,17 +902,17 @@ BlifParserImpl::read_gate()
 	  ostringstream buf;
 	  buf << name2 << ": Defined more than once. "
 	      << "Previous definition is at " << def_loc << ".";
-	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+	  MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
 			  MsgType::Error,
 			  "MLTDEF01", buf.str());
 	  return false;
 	}
-	set_defined(id2, cur_loc());
+	set_defined(id2, name2_loc);
       }
       if ( pin_id_hash.count(pin.pin_id()) > 0 ) {
 	ostringstream buf;
 	buf << name2 << ": Appears more than once.";
-	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+	MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
 			MsgType::Error,
 			"MLTDEF02", buf.str());
 	return false;
@@ -961,7 +962,8 @@ BlifParserImpl::read_latch()
   BlifToken tk = cur_token();
   if ( tk == BlifToken::STRING ) {
     auto name1{cur_string()};
-    int id1 = find_id(name1);
+    auto name1_loc{cur_loc()};
+    int id1 = find_id(name1, name1_loc);
 
     next_token();
     tk = cur_token();
@@ -971,20 +973,20 @@ BlifParserImpl::read_latch()
     }
 
     auto name2{cur_string()};
-    auto loc2{cur_loc()};
-    int id2 = find_id(name2);
+    auto name2_loc{cur_loc()};
+    int id2 = find_id(name2, name2_loc);
     if ( is_defined(id2) ) {
       // 二重定義
       FileRegion def_loc{id2loc(id2)};
       ostringstream buf;
       buf << name2 << ": Defined more than once. "
 	  << "Previsous Definition is at " << def_loc << ".";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc2,
+      MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
 		      MsgType::Error,
 		      "MLTDEF01", buf.str().c_str());
       return false;
     }
-    set_defined(id2, loc2);
+    set_defined(id2, name2_loc);
 
     next_token();
     tk = cur_token();
@@ -993,7 +995,7 @@ BlifParserImpl::read_latch()
     if ( tk == BlifToken::STRING ) {
       rval = cur_string()[0];
       if ( rval != '0' && rval != '1' ) {
-	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
+	MsgMgr::put_msg(__FILE__, __LINE__, loc3,
 			MsgType::Error,
 			"SYN18",
 			"Illegal character for reset value.");
@@ -1095,16 +1097,18 @@ BlifParserImpl::cur_loc() const
 
 // @brief name に対応する識別子番号を返す．
 // @param[in] name 名前
+// @param[in] loc name の位置
 //
 // 未登録の場合には新たに作る．
 int
-BlifParserImpl::find_id(const string& name)
+BlifParserImpl::find_id(const string& name,
+			const FileRegion& loc)
 {
   if ( mIdHash.find(name) == mIdHash.end() ) {
     // 未定義だった．
     // 新しく作る．
     int id = mCellArray.size();
-    mCellArray.push_back({name});
+    mCellArray.push_back({name, loc});
     mIdHash.emplace(name, id);
     return id;
   }

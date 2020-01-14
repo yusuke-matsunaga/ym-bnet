@@ -88,7 +88,8 @@ private:
   public:
 
     /// @brief コンストラクタ
-    IdCell(const string& name);
+    IdCell(const string& name,
+	   const FileRegion& loc);
 
     /// @brief デストラクタ
     ~IdCell() = default;
@@ -105,9 +106,13 @@ private:
     bool
     is_output() const;
 
+    /// @brief このシンボルを参照している位置を返す．
+    const FileRegion&
+    ref_loc() const;
+
     /// @brief このシンボルの定義された位置を返す．
     const FileRegion&
-    loc() const;
+    def_loc() const;
 
     /// @brief このシンボルの名前を返す．
     const string&
@@ -131,8 +136,11 @@ private:
     // データメンバ
     //////////////////////////////////////////////////////////////////////
 
+    // この識別子を参照している位置情報
+    FileRegion mRefLoc;
+
     // この識別子を定義している位置情報
-    FileRegion mLoc;
+    FileRegion mDefLoc;
 
     // いくつかのフラグ
     // 0: defined マーク
@@ -217,11 +225,13 @@ private:
 
   /// @brief name に対応する IdCell を取り出す．
   /// @param[in] name 名前
+  /// @param[in] loc name の位置
   /// @return 対応するID番号を返す．
   ///
   /// 未登録の場合には新たに作る．
   int
-  find_id(const string& name);
+  find_id(const string& name,
+	  const FileRegion& loc);
 
   /// @brief 対応する識別子がすでに定義済みか調べる．
   /// @param[in] id 識別子番号
@@ -322,7 +332,7 @@ const FileRegion&
 BlifParserImpl::id2loc(int id)
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
-  return mCellArray[id].loc();
+  return mCellArray[id].def_loc();
 }
 
 // @brief カバーの数を得る．
@@ -343,8 +353,10 @@ BlifParserImpl::id2cover(int id)
 
 // @brief コンストラクタ
 inline
-BlifParserImpl::IdCell::IdCell(const string& name) :
-  mName{name}
+BlifParserImpl::IdCell::IdCell(const string& name,
+			       const FileRegion& loc) :
+  mName{name},
+  mRefLoc{loc}
 {
 }
 
@@ -372,12 +384,20 @@ BlifParserImpl::IdCell::is_output() const
   return mFlags[2];
 }
 
+// @brief このシンボルを参照している位置を返す．
+inline
+const FileRegion&
+BlifParserImpl::IdCell::ref_loc() const
+{
+  return mRefLoc;
+}
+
 // @brief このシンボルの定義された位置を返す．
 inline
 const FileRegion&
-BlifParserImpl::IdCell::loc() const
+BlifParserImpl::IdCell::def_loc() const
 {
-  return mLoc;
+  return mDefLoc;
 }
 
 // @brief このシンボルの名前を返す．
@@ -393,7 +413,7 @@ inline
 void
 BlifParserImpl::IdCell::set_defined(const FileRegion& loc)
 {
-  mLoc = loc;
+  mDefLoc = loc;
   mFlags.set(0);
 }
 
