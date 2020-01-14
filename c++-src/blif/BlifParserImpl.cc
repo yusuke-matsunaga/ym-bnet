@@ -60,42 +60,6 @@ BlifParser::read(const string& filename,
 }
 
 
-BEGIN_NONAMESPACE
-
-// 文字列を 0/1 に変換する
-// それ以外の文字なら -1 を返す．
-int
-str_to_01(const StrBuff& str)
-{
-  auto strptr = str.c_str();
-  if ( strptr[1] != '\0' ) {
-    return -1;
-  }
-  if ( strptr[0] == '0' ) {
-    return 0;
-  }
-  if ( strptr[0] == '1' ) {
-    return 1;
-  }
-  return -1;
-}
-
-// カバーのシグネチャ文字列を作る．
-string
-make_signature(int ni,
-	       const StrBuff& ipat_str,
-	       char opat_char)
-{
-  ostringstream buf;
-  buf << ni << ":"
-      << opat_char << ":"
-      << ipat_str;
-  return buf.str();
-}
-
-END_NONAMESPACE
-
-
 //////////////////////////////////////////////////////////////////////
 // クラス BlifParserImpl
 //////////////////////////////////////////////////////////////////////
@@ -170,7 +134,7 @@ BlifParserImpl::read(const string& filename,
 
   // 本体の処理
   for ( ; ; ) {
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     switch (tk) {
     case BlifToken::NL:
       // スキップ
@@ -221,6 +185,7 @@ BlifParserImpl::read(const string& filename,
 
     case BlifToken::END:
       end_loc = cur_loc();
+      next_token();
       goto ST_AFTER_END;
 
     case BlifToken::EXDC:
@@ -297,7 +262,7 @@ BlifParserImpl::read(const string& filename,
 
  ST_AFTER_END:
   {
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::_EOF ) {
       goto ST_NORMAL_EXIT;
     }
@@ -307,6 +272,7 @@ BlifParserImpl::read(const string& filename,
 		      "SYN06",
 		      "Statement after '.end' is ignored.");
     }
+    next_token();
     goto ST_AFTER_END;
   }
 
@@ -404,7 +370,7 @@ BlifParserImpl::read_model()
   bool go_on = true;
   while ( go_on ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     switch ( tk ) {
     case BlifToken::NL:
       // 読み飛ばす
@@ -429,7 +395,7 @@ BlifParserImpl::read_model()
 
   // モデル名の読み込み
   next_token();
-  BlifToken tk= cur_token();
+  BlifToken tk = cur_token();
   FileRegion name_loc = cur_loc();
   if ( tk != BlifToken::STRING ) {
     MsgMgr::put_msg(__FILE__, __LINE__,
@@ -475,10 +441,10 @@ bool
 BlifParserImpl::read_inputs()
 {
   int n_token = 0;
-  bool ok = false;
+  bool ok = true;
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
@@ -536,7 +502,7 @@ BlifParserImpl::read_outputs()
   bool ok = true;
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
@@ -601,12 +567,12 @@ BlifParserImpl::read_names()
 
   // .names 文のキューブパタンの出力部分
   // 複数行ある場合も同一のはずなので１文字で十分
-  char opat_char{'\0'};
+  char opat_char{'-'};
 
   // str* nl
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       int id = find_id(name);
@@ -640,7 +606,7 @@ BlifParserImpl::read_names()
     // 入力のキューブがない場合
     for ( ; ; ) {
       next_token();
-      BlifToken tk= cur_token();
+      BlifToken tk = cur_token();
       if ( tk == BlifToken::STRING ) {
 	auto tmp_str{cur_string()};
 	char ochar = tmp_str[0];
@@ -661,7 +627,7 @@ BlifParserImpl::read_names()
 	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 			  MsgType::Error,
 			  "SYN10",
-			  "Outpat pattern mismatch.");
+			  "Output pattern mismatch.");
 	  return false;
 	}
 	next_token();
@@ -691,7 +657,7 @@ BlifParserImpl::read_names()
     // 入力と出力のキューブを持つ場合．
     for ( ; ; ) {
       next_token();
-      BlifToken tk= cur_token();
+      BlifToken tk = cur_token();
       if ( tk == BlifToken::STRING ) {
 	auto tmp_str{cur_string()};
 	int n = tmp_str.size();
@@ -824,7 +790,7 @@ BlifParserImpl::read_gate()
 
   // 最初のトークンは文字列
   next_token();
-  BlifToken tk= cur_token();
+  BlifToken tk = cur_token();
   if ( tk != BlifToken::STRING ) {
     MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 		    MsgType::Error,
@@ -891,7 +857,7 @@ BlifParserImpl::read_gate()
   // (str '=' str)* nl
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto pin_name{cur_string()};
       int pin_id = cell.pin_id(pin_name);
@@ -992,7 +958,7 @@ BlifParserImpl::read_latch()
   bool ok = true;
   FileRegion error_loc;
   next_token();
-  BlifToken tk= cur_token();
+  BlifToken tk = cur_token();
   if ( tk == BlifToken::STRING ) {
     auto name1{cur_string()};
     int id1 = find_id(name1);
@@ -1071,7 +1037,7 @@ BlifParserImpl::read_exdc()
 {
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::END ) {
       return true;
     }
@@ -1089,7 +1055,7 @@ BlifParserImpl::read_dummy1()
 {
   for ( ; ; ) {
     next_token();
-    BlifToken tk= cur_token();
+    BlifToken tk = cur_token();
     if ( tk == BlifToken::NL ) {
       return true;
     }
