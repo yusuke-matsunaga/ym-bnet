@@ -31,7 +31,7 @@ public:
 		const string& suffix);
 
   /// @brief デストラクタ
-  ~Iscas89Writer();
+  ~Iscas89Writer() = default;
 
 
 public:

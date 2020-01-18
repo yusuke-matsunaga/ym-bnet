@@ -31,7 +31,7 @@ public:
 	     const string& suffix);
 
   /// @brief デストラクタ
-  ~BlifWriter();
+  ~BlifWriter() = default;
 
 
 public:

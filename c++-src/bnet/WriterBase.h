@@ -49,7 +49,7 @@ public:
   WriterBase(const BnNetwork& network);
 
   /// @brief デストラクタ
-  ~WriterBase();
+  ~WriterBase() = default;
 
 
 public:

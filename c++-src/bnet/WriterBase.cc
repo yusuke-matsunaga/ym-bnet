@@ -27,11 +27,6 @@ WriterBase::WriterBase(const BnNetwork& network) :
 {
 }
 
-// @brief デストラクタ
-WriterBase::~WriterBase()
-{
-}
-
 // @brief ノード名の解決を行う．
 // @param[in] prefix 自動生成名の接頭語
 // @param[in] suffix 自動生成名の接尾語

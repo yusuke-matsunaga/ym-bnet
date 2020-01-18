@@ -37,11 +37,6 @@ BlifWriter::BlifWriter(const BnNetwork& network,
   init_name_array(_prefix, _suffix);
 }
 
-// @brief デストラクタ
-BlifWriter::~BlifWriter()
-{
-}
-
 // @brief blif 形式で出力する．
 // @param[in] s 出力先のストリーム
 void
@@ -72,7 +67,7 @@ BlifWriter::operator()(ostream& s)
 
   // .outputs 文の出力
   count = 0;
-  for ( int id: network().primary_output_id_list() ) {
+  for ( int id: network().primary_output_src_id_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }

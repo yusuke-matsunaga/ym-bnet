@@ -38,11 +38,6 @@ Iscas89Writer::Iscas89Writer(const BnNetwork& network,
   init_name_array(_prefix, _suffix);
 }
 
-// @brief デストラクタ
-Iscas89Writer::~Iscas89Writer()
-{
-}
-
 // @brief blif 形式で出力する．
 // @param[in] s 出力先のストリーム
 void
@@ -58,7 +53,7 @@ Iscas89Writer::operator()(ostream& s)
   s << endl;
 
   // OUTPUT 文の出力
-  for ( int id: network().primary_output_id_list() ) {
+  for ( int id: network().primary_output_src_id_list() ) {
     s << "OUTPUT(" << node_name(id) << ")" << endl;
   }
   s << endl;
