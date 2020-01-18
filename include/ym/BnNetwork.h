@@ -253,7 +253,7 @@ public:
   int
   new_logic(const string& node_name,
 	    const Expr& expr,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+	    const vector<int>& fanin_id_list = vector<int>{});
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
@@ -266,7 +266,7 @@ public:
   int
   new_logic(const string& node_name,
 	    const TvFunc& tv,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+	    const vector<int>& fanin_id_list = vector<int>{});
 
   /// @brief 論理セルを追加する．
   /// @param[in] node_name ノード名
@@ -279,7 +279,7 @@ public:
   int
   new_logic(const string& node_name,
 	    int cell_id,
-	    const vector<int>& fanin_id_list = vector<int>(0));
+	    const vector<int>& fanin_id_list = vector<int>{});
 
   /// @brief C0型(定数０)の論理ノードを追加する．
   /// @param[in] node_name ノード名
