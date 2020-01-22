@@ -282,9 +282,13 @@ public:
 	    const vector<int>& fanin_id_list = vector<int>{});
 
   /// @brief 与えられたノードと同型の論理ノードを追加する．
+  /// @param[in] node_name ノード名
+  /// @param[in] node_id コピー元のノード番号
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  /// @return 生成した論理ノードの番号を返す．
   int
-  new_logic(const string& node_node,
-	    const BnNode& ref_node,
+  dup_logic(const string& node_name,
+	    int node_id,
 	    const vector<int>& fanin_id_list = vector<int>{});
 
   /// @brief C0型(定数０)の論理ノードを追加する．

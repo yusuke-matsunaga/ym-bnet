@@ -36,7 +36,6 @@ BEGIN_NAMESPACE_YM_BNET
 // 空の状態で初期化される．
 BnNetworkImpl::BnNetworkImpl()
 {
-  mSane = false;
 }
 
 // @brief デストラクタ
@@ -217,28 +216,18 @@ BnNetworkImpl::import_subnetwork(const BnNetworkImpl& src_network,
 
   // DFFを作る．
   for ( auto src_dff_p: src_network.mDffList ) {
-    _dup_dff(*src_dff_p, id_map);
+    _copy_dff(*src_dff_p, id_map);
   }
 
   // ラッチを作る．
   for ( auto src_latch_p: src_network.mLatchList ) {
-    _dup_latch(*src_latch_p, id_map);
-  }
-
-  // 関数情報の生成
-  for ( auto& func: src_network.mFuncList ) {
-    int func_id = _reg_tv(func);
-  }
-
-  // 論理式情報の生成
-  for ( auto& expr: src_network.mExprList ) {
-    int expr_id = _reg_expr(expr);
+    _copy_latch(*src_latch_p, id_map);
   }
 
   // 論理ノードの生成
   for ( int src_id: src_network.logic_id_list() ) {
     auto& src_node = src_network.node(src_id);
-    int dst_id = _dup_logic(src_node, src_network, id_map);
+    int dst_id = _copy_logic(src_node, src_network, id_map);
   }
 
   // src_network の外部出力のファンインに対応するノード番号を
@@ -254,8 +243,8 @@ BnNetworkImpl::import_subnetwork(const BnNetworkImpl& src_network,
 // @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成した DFF を返す．
 int
-BnNetworkImpl::_dup_dff(const BnDff& src_dff,
-			vector<int>& id_map)
+BnNetworkImpl::_copy_dff(const BnDff& src_dff,
+			 vector<int>& id_map)
 {
   string dff_name = src_dff.name();
   bool has_clear = (src_dff.clear() != kBnNullId);
@@ -298,8 +287,8 @@ BnNetworkImpl::_dup_dff(const BnDff& src_dff,
 // @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成したラッチを返す．
 int
-BnNetworkImpl::_dup_latch(const BnLatch& src_latch,
-			  vector<int>& id_map)
+BnNetworkImpl::_copy_latch(const BnLatch& src_latch,
+			   vector<int>& id_map)
 {
   string latch_name = src_latch.name();
   bool has_clear = (src_latch.clear() != kBnNullId);
@@ -342,11 +331,11 @@ BnNetworkImpl::_dup_latch(const BnLatch& src_latch,
 // @param[out] id_map 生成したノードの対応関係を記録する配列
 // @return 生成したノードのノード番号を返す．
 //
-// ノード間の接続は行わない．
+// id_map の内容の基づいてファンイン間の接続を行う．
 int
-BnNetworkImpl::_dup_logic(const BnNode& src_node,
-			  const BnNetworkImpl& src_network,
-			  vector<int>& id_map)
+BnNetworkImpl::_copy_logic(const BnNode& src_node,
+			   const BnNetworkImpl& src_network,
+			   vector<int>& id_map)
 {
   ASSERT_COND( src_node.is_logic() );
 
@@ -354,23 +343,17 @@ BnNetworkImpl::_dup_logic(const BnNode& src_node,
   string name = src_node.name();
   BnNodeType logic_type = src_node.type();
   int cell_id = src_node.cell_id();
-  int dst_id = mNodeList.size();
-  BnNodeImpl* node = nullptr;
+  int expr_id = -1;
+  int func_id = -1;
   if ( logic_type == BnNodeType::Expr ) {
     const Expr& expr = src_network.expr(src_node.expr_id());
-    int expr_id = _reg_expr(expr);
-    node = new BnExprNode(dst_id, name, nfi, expr_id, cell_id);
+    expr_id = _reg_expr(expr);
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
     const TvFunc& func = src_network.func(src_node.func_id());
-    int func_id = _reg_tv(func);
-    node = new BnTvNode(dst_id, name, nfi, func_id, cell_id);
+    func_id = _reg_tv(func);
   }
-  else {
-    node = _new_primitive(dst_id, name, nfi, logic_type, cell_id);
-  }
-  ASSERT_COND( node != nullptr );
-  mNodeList.push_back(node);
+  int dst_id = _new_logic(name, nfi, logic_type, expr_id, func_id, cell_id);
   id_map[src_node.id()] = dst_id;
 
   vector<int> fanin_id_list(nfi);
@@ -381,6 +364,41 @@ BnNetworkImpl::_dup_logic(const BnNode& src_node,
   }
   connect_fanins(dst_id, fanin_id_list);
 
+  return dst_id;
+}
+
+// @brief 論理ノードを作る最も低レベルの関数
+// @param[in] name ノード名
+// @param[in] fanin_num ファンイン数
+// @param[in] logic_type 論理ノードの型
+// @param[in] expr_id 論理式番号
+// @param[in] func_id 論理関数番号
+// @param[in] cell_id セル番号
+// @return 生成したノード番号を返す．
+//
+// expr_id, func_id, cell_id は場合によっては無効な値が入る．
+int
+BnNetworkImpl::_new_logic(const string& name,
+			  int fanin_num,
+			  BnNodeType logic_type,
+			  int expr_id,
+			  int func_id,
+			  int cell_id)
+{
+  int dst_id = mNodeList.size();
+  BnNodeImpl* node = nullptr;
+  if ( logic_type == BnNodeType::Expr ) {
+    node = new BnExprNode(dst_id, name, fanin_num, expr_id, cell_id);
+  }
+  else if ( logic_type == BnNodeType::TvFunc ) {
+    node = new BnTvNode(dst_id, name, fanin_num, func_id, cell_id);
+  }
+  else {
+    node = _new_primitive(dst_id, name, fanin_num, logic_type, cell_id);
+  }
+  ASSERT_COND( node != nullptr );
+
+  mNodeList.push_back(node);
   return dst_id;
 }
 

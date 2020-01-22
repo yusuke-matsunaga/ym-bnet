@@ -521,15 +521,15 @@ private:
   /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
   /// @return 生成した DFF 番号を返す．
   int
-  _dup_dff(const BnDff& src_dff,
-	   vector<int>& id_map);
+  _copy_dff(const BnDff& src_dff,
+	    vector<int>& id_map);
 
   /// @brief ラッチを複製する．
   /// @param[in] src_latch 元のラッチ
   /// @param[out] id_map 生成したノードの対応関係を記録するハッシュ表
   /// @return 生成したラッチ番号を返す．
   int
-  _dup_latch(const BnLatch& src_latch,
+  _copy_latch(const BnLatch& src_latch,
 	     vector<int>& id_map);
 
   /// @brief 論理ノードを複製する．
@@ -540,9 +540,27 @@ private:
   ///
   /// id_map の内容の基づいてファンイン間の接続を行う．
   int
-  _dup_logic(const BnNode& src_node,
-	     const BnNetworkImpl& src_network,
-	     vector<int>& id_map);
+  _copy_logic(const BnNode& src_node,
+	      const BnNetworkImpl& src_network,
+	      vector<int>& id_map);
+
+  /// @brief 論理ノードを作る最も低レベルの関数
+  /// @param[in] name ノード名
+  /// @param[in] fanin_num ファンイン数
+  /// @param[in] logic_type 論理ノードの型
+  /// @param[in] expr_id 論理式番号
+  /// @param[in] func_id 論理関数番号
+  /// @param[in] cell_id セル番号
+  /// @return 生成したノード番号を返す．
+  ///
+  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
+  int
+  _new_logic(const string& name,
+	     int fanin_num,
+	     BnNodeType logic_type,
+	     int expr_id,
+	     int func_id,
+	     int cell_id);
 
   /// @brief 論理式型のノードを分解する．
   /// @param[in] id ノード番号
@@ -722,7 +740,7 @@ private:
   unordered_map<TvFunc, int> mExprMap;
 
   // wrap_up() が実行後の時に true となるフラグ
-  bool mSane;
+  bool mSane{false};
 
 };
 
