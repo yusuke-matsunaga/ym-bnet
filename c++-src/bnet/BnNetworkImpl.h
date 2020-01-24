@@ -168,17 +168,20 @@ public:
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] expr 論理式
+  /// @param[in] cell_id セル番号
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は expr.input_num() を用いる．
   int
   new_expr(const string& node_name,
-	   const Expr& expr);
+	   const Expr& expr,
+	   int cell_id = -1);
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] expr 論理式
+  /// @param[in] cell_id セル番号
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
   /// @return 生成した論理ノードの番号を返す．
   ///
@@ -192,17 +195,20 @@ public:
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] tv 真理値表
+  /// @param[in] cell_id セル番号
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は tv.input_num() を用いる．
   int
   new_tv(const string& node_name,
-	 const TvFunc& tv);
+	 const TvFunc& tv,
+	 int cell_id = -1);
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @param[in] node_name ノード名
   /// @param[in] tv 真理値表
+  /// @param[in] cell_id セル番号
   /// @param[in] fanin_id_list ファンインのノード番号のリスト
   /// @return 生成した論理ノードの番号を返す．
   ///
@@ -262,7 +268,8 @@ public:
   /// 入力数は expr.input_size() を用いる．
   void
   change_expr(int id,
-	      const Expr& expr);
+	      const Expr& expr,
+	      int cell_id = -1);
 
   /// @brief 論理式型の論理ノードに変更する．
   /// @param[in] id ノード番号
@@ -282,7 +289,8 @@ public:
   /// - 入力数は tv.input_num() を用いる．
   void
   change_tv(int id,
-	    const TvFunc& tv);
+	    const TvFunc& tv,
+	    int cell_id = -1);
 
   /// @brief 真理値表型の論理ノードに変更する．
   /// @param[in] id ノード番号
@@ -316,6 +324,23 @@ public:
   change_cell(int id,
 	      int cell_id,
 	      const vector<int>& fanin_id_list);
+
+  /// @brief ノードを複製する．
+  /// @param[in] node_name ノード名
+  /// @param[in] src_id もとのノード番号
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  int
+  dup_logic(const string& node_name,
+	    int src_id);
+
+  /// @brief ノードを複製する．
+  /// @param[in] node_name ノード名
+  /// @param[in] src_id もとのノード番号
+  /// @param[in] fanin_id_list ファンインのノード番号のリスト
+  int
+  dup_logic(const string& node_name,
+	    int src_id,
+	    const vector<int>& fanin_id_list);
 
   /// @brief ファンアウトをつなぎ替える．
   /// @param[in] old_id もとのノード番号
@@ -544,7 +569,24 @@ private:
 	      const BnNetworkImpl& src_network,
 	      vector<int>& id_map);
 
-  /// @brief 論理ノードを作る最も低レベルの関数
+  /// @brief 既存の論理ノードを変更する最も低レベルの関数
+  /// @param[in] node_id ノード番号
+  /// @param[in] fanin_num ファンイン数
+  /// @param[in] logic_type 論理ノードの型
+  /// @param[in] expr_id 論理式番号
+  /// @param[in] func_id 論理関数番号
+  /// @param[in] cell_id セル番号
+  ///
+  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
+  void
+  _change_logic(int node_id,
+		int fanin_num,
+		BnNodeType logic_type,
+		int expr_id,
+		int func_id,
+		int cell_id);
+
+  /// @brief 新しい論理ノードを作って登録する．
   /// @param[in] name ノード名
   /// @param[in] fanin_num ファンイン数
   /// @param[in] logic_type 論理ノードの型
@@ -555,7 +597,27 @@ private:
   ///
   /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
   int
-  _new_logic(const string& name,
+  _reg_logic(const string& name,
+	     int fanin_num,
+	     BnNodeType logic_type,
+	     int expr_id,
+	     int func_id,
+	     int cell_id);
+
+  /// @brief 論理ノードを作る最も低レベルの関数
+  /// @param[in] node_id ノード番号
+  /// @param[in] name ノード名
+  /// @param[in] fanin_num ファンイン数
+  /// @param[in] logic_type 論理ノードの型
+  /// @param[in] expr_id 論理式番号
+  /// @param[in] func_id 論理関数番号
+  /// @param[in] cell_id セル番号
+  /// @return 生成したノード番号を返す．
+  ///
+  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
+  BnNodeImpl*
+  _new_logic(int node_id,
+	     const string& name,
 	     int fanin_num,
 	     BnNodeType logic_type,
 	     int expr_id,
@@ -622,57 +684,17 @@ private:
 	     bool has_preset,
 	     int cell_id);
 
-  /// @brief プリミティブ型の論理ノードを生成する．
-  /// @param[in] id ノード番号
-  /// @param[in] node_name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] logic_type 論理型
-  /// @param[in] cell_id 対応するセル番号．
-  /// @return 生成した論理ノードを返す．
-  BnNodeImpl*
-  _new_primitive(int id,
-		 const string& node_name,
-		 int ni,
-		 BnNodeType logic_type,
-		 int cell_id);
-
-  /// @brief 論理式型の論理ノードを生成する．
-  /// @param[in] id ノード番号
-  /// @param[in] node_name ノード名
+  /// @brief 論理式を解析する．
   /// @param[in] expr 論理式
-  /// @param[in] cell_id 対応するセル番号．
-  /// @return 生成した論理ノードを返す．
-  BnNodeImpl*
-  _new_expr(int id,
-	    const string& node_name,
-	    const Expr& expr,
-	    int cell_id);
-
-  /// @brief 真理値表型の論理ノードを生成する．
-  /// @param[in] id ノード番号
-  /// @param[in] node_name ノード名
-  /// @param[in] tv 真理値表
-  /// @return 生成した論理ノードを返す．
-  BnNodeImpl*
-  _new_tv(int id,
-	  const string& node_name,
-	  const TvFunc& tv);
-
-  /// @brief セル型の論理ノードを生成する．
-  /// @param[in] id ノード番号
-  /// @param[in] node_name ノード名
-  /// @param[in] cell_id セル番号
-  /// @return 生成した論理ノードを返す．
+  /// @return 入力数，ノードタイプ, 論理式番号のタプルを返す．
   ///
-  /// - セル名に合致するセルがない場合と論理セルでない場合には nullptr を返す．
-  BnNodeImpl*
-  _new_cell(int id,
-	    const string& node_name,
-	    int cell_id);
+  /// 場合によってはプリミティブ型となる．
+  tuple<int, BnNodeType, int>
+  _analyze_expr(const Expr& expr);
 
   /// @brief 論理式を登録する．
   /// @param[in] expr 論理式
-  /// @return 関数番号を返す．
+  /// @return 論理式番号を返す．
   int
   _reg_expr(const Expr& expr);
 
@@ -1097,11 +1119,7 @@ BnNetworkImpl::new_primitive(const string& node_name,
 			     int ni,
 			     BnNodeType logic_type)
 {
-  int id = mNodeList.size();
-  BnNodeImpl* node = _new_primitive(id, node_name, ni, logic_type, -1);
-  mNodeList.push_back(node);
-
-  return id;
+  return _reg_logic(node_name, ni, logic_type, -1, -1, -1);
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -1124,24 +1142,27 @@ BnNetworkImpl::new_primitive(const string& node_name,
 // @brief 論理式型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] expr 論理式
+// @param[in] cell_id セル番号
 // @return 生成した論理ノードの番号を返す．
 //
 // - ノード名の重複に関しては感知しない．
 inline
 int
 BnNetworkImpl::new_expr(const string& node_name,
-			const Expr& expr)
+			const Expr& expr,
+			int cell_id)
 {
-  int id = mNodeList.size();
-  BnNodeImpl* node = _new_expr(id, node_name, expr, -1);
-  mNodeList.push_back(node);
-
-  return id;
+  int ni;
+  BnNodeType logic_type;
+  int expr_id;
+  tie(ni, logic_type, expr_id) = _analyze_expr(expr);
+  return _reg_logic(node_name, ni, logic_type, expr_id, -1, cell_id);
 }
 
 // @brief 論理式型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] expr 論理式
+// @param[in] cell_id セル番号
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
@@ -1161,24 +1182,25 @@ BnNetworkImpl::new_expr(const string& node_name,
 // @brief 真理値表型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] tv 真理値表
+// @param[in] cell_id セル番号
 // @return 生成した論理ノードを返す．
 //
 // ノード名の重複に関しては感知しない．
 inline
 int
 BnNetworkImpl::new_tv(const string& node_name,
-		      const TvFunc& tv)
+		      const TvFunc& tv,
+		      int cell_id)
 {
-  int id = mNodeList.size();
-  BnNodeImpl* node = _new_tv(id, node_name, tv);
-  mNodeList.push_back(node);
-
-  return id;
+  int ni = tv.input_num();
+  int func_id = _reg_tv(tv);
+  return _reg_logic(node_name, ni, BnNodeType::TvFunc, -1, func_id, cell_id);
 }
 
 // @brief 真理値表型の論理ノードを追加する．
 // @param[in] node_name ノード名
 // @param[in] tv 真理値表
+// @param[in] cell_id セル番号
 // @param[in] fanin_id_list ファンインのノード番号のリスト
 // @return 生成した論理ノードの番号を返す．
 //
@@ -1207,14 +1229,13 @@ int
 BnNetworkImpl::new_cell(const string& node_name,
 			int cell_id)
 {
-  int id = mNodeList.size();
-  BnNodeImpl* node = _new_cell(id, node_name, cell_id);
-  if ( node == nullptr ) {
+  auto& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_logic() || cell.output_num() != 1 ) {
     return kBnNullId;
   }
-  mNodeList.push_back(node);
 
-  return id;
+  Expr expr = cell.logic_expr(0);
+  return new_expr(node_name, expr, cell_id);
 }
 
 // @brief 論理セルを追加する．
@@ -1246,12 +1267,7 @@ BnNetworkImpl::change_primitive(int id,
 				BnNodeType logic_type,
 				int ni)
 {
-  ASSERT_COND( id >= 0 && id < mNodeList.size() );
-
-  BnNodeImpl* old_node = mNodeList[id];
-  BnNodeImpl* new_node = _new_primitive(id, old_node->name(), ni, logic_type, -1);
-  mNodeList[id] = new_node;
-  delete old_node;
+  _change_logic(id, ni, logic_type, -1, -1, -1);
 }
 
 // @brief プリミティブ型の論理ノードに変更する．
@@ -1277,14 +1293,14 @@ BnNetworkImpl::change_primitive(int id,
 inline
 void
 BnNetworkImpl::change_expr(int id,
-			   const Expr& expr)
+			   const Expr& expr,
+			   int cell_id)
 {
-  ASSERT_COND( id >= 0 && id < mNodeList.size() );
-
-  BnNodeImpl* old_node = mNodeList[id];
-  BnNodeImpl* new_node = _new_expr(id, old_node->name(), expr, -1);
-  mNodeList[id] = new_node;
-  delete old_node;
+  int ni;
+  BnNodeType logic_type;
+  int expr_id;
+  tie(ni, logic_type, expr_id) = _analyze_expr(expr);
+  _change_logic(id, ni, logic_type, expr_id, -1, cell_id);
 }
 
 // @brief 論理式型の論理ノードに変更する．
@@ -1313,14 +1329,12 @@ BnNetworkImpl::change_expr(int id,
 inline
 void
 BnNetworkImpl::change_tv(int id,
-			 const TvFunc& tv)
+			 const TvFunc& tv,
+			 int cell_id)
 {
-  ASSERT_COND( id >= 0 && id < mNodeList.size() );
-
-  BnNodeImpl* old_node = mNodeList[id];
-  BnNodeImpl* new_node = _new_tv(id, old_node->name(), tv);
-  mNodeList[id] = new_node;
-  delete old_node;
+  int ni = tv.input_num();
+  int func_id = _reg_tv(tv);
+  _change_logic(id, ni, BnNodeType::TvFunc, -1, func_id, cell_id);
 }
 
 // @brief 真理値表型の論理ノードに変更する．
@@ -1352,14 +1366,13 @@ void
 BnNetworkImpl::change_cell(int id,
 			   int cell_id)
 {
-  ASSERT_COND( id >= 0 && id < mNodeList.size() );
-
-  BnNodeImpl* old_node = mNodeList[id];
-  BnNodeImpl* new_node = _new_cell(id, old_node->name(), cell_id);
-  if ( new_node != nullptr ) {
-    mNodeList[id] = new_node;
-    delete old_node;
+  auto& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_logic() || cell.output_num() != 1 ) {
+    return;
   }
+
+  Expr expr = cell.logic_expr(0);
+  change_expr(id, expr, cell_id);
 }
 
 // @brief セル型の論理ノードに変更する．
@@ -1377,6 +1390,21 @@ BnNetworkImpl::change_cell(int id,
 {
   change_cell(id, cell_id);
   connect_fanins(id, fanin_id_list);
+}
+
+// @brief ノードを複製する．
+// @param[in] node_name ノード名
+// @param[in] src_id もとのノード番号
+// @param[in] fanin_id_list ファンインのノード番号のリスト
+inline
+int
+BnNetworkImpl::dup_logic(const string& node_name,
+			 int src_id,
+			 const vector<int>& fanin_id_list)
+{
+  int id = dup_logic(node_name, src_id);
+  connect_fanins(id, fanin_id_list);
+  return id;
 }
 
 END_NAMESPACE_YM_BNET

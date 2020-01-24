@@ -374,7 +374,8 @@ BnNetwork::dup_logic(const string& node_name,
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return 0;
+  int id = mImpl->dup_logic(node_name, node_id, fanin_id_list);
+  return id;
 }
 
 // @brief C0型(定数０)の論理ノードを追加する．
