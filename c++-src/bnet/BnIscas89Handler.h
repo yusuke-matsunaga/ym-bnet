@@ -128,106 +128,6 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられるデータ構造
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ファンイン情報
-  class FaninInfo
-  {
-  public:
-
-    /// @brief 空のコンストラクタ
-    FaninInfo()
-    {
-      mNi = 0;
-      mFaninArray = nullptr;
-    }
-
-    /// @brief コンストラクタ
-    /// @param[in] fanin ファンイン番号
-    FaninInfo(int fanin) :
-      mNi(1)
-    {
-      mFaninArray = new int[mNi];
-      mFaninArray[0] = fanin;
-    }
-
-    /// @brief コンストラクタ
-    /// @param[in] fanin_list ファンイン番号のリスト
-    FaninInfo(const vector<int>& fanin_list) :
-      mNi(fanin_list.size())
-    {
-      mFaninArray = new int[mNi];
-      for (int i = 0; i < mNi; ++ i) {
-	mFaninArray[i] = fanin_list[i];
-      }
-    }
-
-    /// @brief コピーコンストラクタ
-    /// @param[in] src コピー元
-    FaninInfo(const FaninInfo& src) :
-      mNi(src.mNi)
-    {
-      mFaninArray = new int[mNi];
-      for (int i = 0; i < mNi; ++ i) {
-	mFaninArray[i] = src.mFaninArray[i];
-      }
-    }
-
-    /// @brief 代入演算子
-    const FaninInfo&
-    operator=(const FaninInfo& src)
-    {
-      if ( &src != this ) {
-	delete [] mFaninArray;
-	mNi = src.mNi;
-	mFaninArray = new int[mNi];
-	for (int i = 0; i < mNi; ++ i) {
-	  mFaninArray[i] = src.mFaninArray[i];
-	}
-      }
-      return *this;
-    }
-
-    /// @brief デストラクタ
-    ~FaninInfo()
-    {
-      delete [] mFaninArray;
-    }
-
-    /// @brief ファンイン数を返す．
-    int
-    fanin_num() const
-    {
-      return mNi;
-    }
-
-    /// @brief ファンインのノード番号を返す．
-    /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-    int
-    fanin(int pos) const
-    {
-      ASSERT_COND( pos < fanin_num() );
-      return mFaninArray[pos];
-    }
-
-
-  private:
-    //////////////////////////////////////////////////////////////////////
-    // データメンバ
-    //////////////////////////////////////////////////////////////////////
-
-    // ファンイン数
-    int mNi;
-
-    // ファンイン番号の配列
-    int* mFaninArray;
-
-  };
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
@@ -262,7 +162,7 @@ private:
   unordered_map<int, int> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<int, FaninInfo> mFaninInfoMap;
+  unordered_map<int, vector<int>> mFaninInfoMap;
 
   // クロック端子のノード番号
   int mClockId;
