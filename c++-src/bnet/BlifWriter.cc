@@ -17,6 +17,49 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+//////////////////////////////////////////////////////////////////////
+// クラス BnNetwork
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を blif 形式で出力する．
+// @param[in] filename 出力先のファイル名
+// @param[in] network ネットワーク
+// @param[in] prefix 自動生成名の接頭語
+// @param[in] suffix 自動生成名の接尾語
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_blif(const string& filename,
+		      const string& prefix,
+		      const string& suffix) const
+{
+  ofstream ofs(filename);
+  if ( ofs ) {
+    write_blif(ofs, prefix, suffix);
+  }
+}
+
+// @brief 内容を blif 形式で出力する．
+// @param[in] s 出力先のストリーム
+// @param[in] network ネットワーク
+// @param[in] prefix 自動生成名の接頭語
+// @param[in] suffix 自動生成名の接尾語
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_blif(ostream& s,
+		      const string& prefix,
+		      const string& suffix) const
+{
+  BlifWriter writer(*this, prefix, suffix);
+  writer(s);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BlifWriter
+//////////////////////////////////////////////////////////////////////
+
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
 // @param[in] prefix 自動生成名の接頭語

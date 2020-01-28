@@ -76,11 +76,9 @@ set ( bnet_SOURCES
   c++-src/bnet/BnLogicNode.cc
   c++-src/bnet/BnPortImpl.cc
   c++-src/bnet/FuncAnalyzer.cc
-  c++-src/bnet/read_blif.cc
-  c++-src/bnet/read_iscas89.cc
+  c++-src/bnet/WriterBase.cc
   c++-src/bnet/BlifWriter.cc
   c++-src/bnet/Iscas89Writer.cc
-  c++-src/bnet/WriterBase.cc
   c++-src/bnet/VerilogWriter.cc
   c++-src/bnet/BnNodeEnc.cc
   )

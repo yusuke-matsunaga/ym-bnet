@@ -29,7 +29,7 @@ public:
   /// @param[in] clock_name クロック端子名
   /// @param[in] reset_name リセット端子名
   BnBlifHandler(BlifParser& parser,
-		BnNetwork* network,
+		BnNetwork& network,
 		const string& clock_name = "clock",
 		const string& reset_name = "reset");
 
@@ -143,7 +143,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ネットワーク
-  BnNetwork* mNetwork;
+  BnNetwork& mNetwork;
 
   // クロック端子名
   string mClockName;
@@ -155,7 +155,7 @@ private:
   unordered_map<int, int> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<int, vector<int> > mFaninInfoMap;
+  unordered_map<int, vector<int>> mFaninInfoMap;
 
   // クロック端子のノード番号
   int mClockId;

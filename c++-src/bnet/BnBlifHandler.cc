@@ -8,6 +8,7 @@
 
 
 #include "BnBlifHandler.h"
+#include "ym/BlifParser.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
@@ -20,13 +21,60 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+//////////////////////////////////////////////////////////////////////
+// クラス BnNetwork
+//////////////////////////////////////////////////////////////////////
+
+// @brief blif ファイルを読み込む．
+// @param[in] filename ファイル名
+// @param[in] clock_name クロック端子名
+// @param[in] reset_name リセット端子名
+// @return ネットワークを返す．
+BnNetwork
+BnNetwork::read_blif(const string& filename,
+		     const string& clock_name,
+		     const string& reset_name)
+{
+  return read_blif(filename, ClibCellLibrary(), clock_name, reset_name);
+}
+
+// @brief blif ファイルを読み込む．
+// @param[in] filename ファイル名
+// @param[in] cell_library セルライブラリ
+// @param[in] clock_name クロック端子名
+// @param[in] reset_name リセット端子名
+// @return ネットワークを返す．
+BnNetwork
+BnNetwork::read_blif(const string& filename,
+		     const ClibCellLibrary& cell_library,
+		     const string& clock_name,
+		     const string& reset_name)
+{
+  BnNetwork network;
+
+  BlifParser parser;
+  BnBlifHandler handler(parser, network, clock_name, reset_name);
+
+  bool stat = parser.read(filename, cell_library);
+  if ( !stat ) {
+    network.clear();
+  }
+
+  return network;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnBlifHandler
+//////////////////////////////////////////////////////////////////////
+
 // @brief コンストラクタ
 // @param[in] parser パーサー
 // @param[in] network ネットワーク
 // @param[in] clock_name クロック端子名
 // @param[in] reset_name リセット端子名
 BnBlifHandler::BnBlifHandler(BlifParser& parser,
-			     BnNetwork* network,
+			     BnNetwork& network,
 			     const string& clock_name,
 			     const string& reset_name) :
   BlifHandler(parser),
@@ -45,7 +93,7 @@ BnBlifHandler::~BnBlifHandler()
 bool
 BnBlifHandler::init()
 {
-  mNetwork->clear();
+  mNetwork.clear();
 
   mIdMap.clear();
   mFaninInfoMap.clear();
@@ -63,7 +111,7 @@ BnBlifHandler::init()
 void
 BnBlifHandler::set_cell_library(const ClibCellLibrary& library)
 {
-  mNetwork->set_library(library);
+  mNetwork.set_library(library);
 }
 
 // @brief .model 文の読み込み
@@ -74,7 +122,7 @@ BnBlifHandler::model(const FileRegion& loc1,
 		     const FileRegion& loc2,
 		     const string& name)
 {
-  mNetwork->set_name(name);
+  mNetwork.set_name(name);
 
   return true;
 }
@@ -87,8 +135,8 @@ bool
 BnBlifHandler::inputs_elem(int name_id,
 			   const string& name)
 {
-  auto port_id = mNetwork->new_input_port(name);
-  const auto& port = mNetwork->port(port_id);
+  auto port_id = mNetwork.new_input_port(name);
+  const auto& port = mNetwork.port(port_id);
   int id = port.bit(0);
   mIdMap[name_id] = id;
 
@@ -102,8 +150,8 @@ bool
 BnBlifHandler::outputs_elem(int name_id,
 			    const string& name)
 {
-  auto port_id = mNetwork->new_output_port(name);
-  const auto& port = mNetwork->port(port_id);
+  auto port_id = mNetwork.new_output_port(name);
+  const auto& port = mNetwork.port(port_id);
   int id = port.bit(0);
   mFaninInfoMap[id] = vector<int>({name_id});
 
@@ -128,7 +176,7 @@ BnBlifHandler::names(int oname_id,
 
   int ni = inode_id_array.size();
   ASSERT_COND( ni == expr.input_size() );
-  int node_id = mNetwork->new_logic(oname, expr);
+  int node_id = mNetwork.new_logic(oname, expr);
   mIdMap[oname_id] = node_id;
 
   mFaninInfoMap[node_id] = inode_id_array;
@@ -150,9 +198,9 @@ BnBlifHandler::gate(int oname_id,
 		    int cell_id)
 {
   int ni = inode_id_array.size();
-  const ClibCell& cell = mNetwork->library().cell(cell_id);
+  const ClibCell& cell = mNetwork.library().cell(cell_id);
   ASSERT_COND( ni == cell.input_num() );
-  int node_id = mNetwork->new_logic(oname, cell_id);
+  int node_id = mNetwork.new_logic(oname, cell_id);
   mIdMap[oname_id] = node_id;
 
   mFaninInfoMap[node_id] = inode_id_array;
@@ -184,8 +232,8 @@ BnBlifHandler::latch(int oname_id,
     has_preset = true;
   }
   bool has_xoutput = false;
-  int dff_id = mNetwork->new_dff(oname, has_xoutput, has_clear, has_preset);
-  const auto& dff = mNetwork->dff(dff_id);
+  int dff_id = mNetwork.new_dff(oname, has_xoutput, has_clear, has_preset);
+  const auto& dff = mNetwork.dff(dff_id);
 
   int output_id = dff.output();
   mIdMap[oname_id] = output_id;
@@ -196,21 +244,21 @@ BnBlifHandler::latch(int oname_id,
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
-    auto port_id = mNetwork->new_input_port(mClockName);
-    const auto& clock_port = mNetwork->port(port_id);
+    auto port_id = mNetwork.new_input_port(mClockName);
+    const auto& clock_port = mNetwork.port(port_id);
     // クロックの入力ノード番号を記録する．
     mClockId = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
   int clock_id = dff.clock();
-  mNetwork->connect(mClockId, clock_id, 0);
+  mNetwork.connect(mClockId, clock_id, 0);
 
   if ( has_clear || has_preset ) {
     if ( mResetId == kBnNullId ) {
       // リセット端子のポートを作る．
-      auto port_id = mNetwork->new_input_port(mResetName);
-      const auto& reset_port = mNetwork->port(port_id);
+      auto port_id = mNetwork.new_input_port(mResetName);
+      const auto& reset_port = mNetwork.port(port_id);
       // リセット端子の入力ノードを記録する．
       mResetId = reset_port.bit(0);
     }
@@ -218,12 +266,12 @@ BnBlifHandler::latch(int oname_id,
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
     int clear_id = dff.clear();
-    mNetwork->connect(mResetId, clear_id, 0);
+    mNetwork.connect(mResetId, clear_id, 0);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
     int preset_id = dff.preset();
-    mNetwork->connect(mResetId, preset_id, 0);
+    mNetwork.connect(mResetId, preset_id, 0);
   }
 
   return true;
@@ -235,31 +283,31 @@ bool
 BnBlifHandler::end(const FileRegion& loc)
 {
   // ノードのファンインを設定する．
-  for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
+  for ( int node_id = 1; node_id <= mNetwork.node_num(); ++ node_id ) {
     if ( mFaninInfoMap.count(node_id) == 0 ) {
       continue;
     }
     const auto& fanin_info = mFaninInfoMap.at(node_id);
 
-    const BnNode& node = mNetwork->node(node_id);
+    const BnNode& node = mNetwork.node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.size();
       for ( int i: Range(ni) ) {
 	int iname_id = fanin_info[i];
 	ASSERT_COND( mIdMap.count(iname_id) > 0 );
 	int inode_id = mIdMap.at(iname_id);
-	mNetwork->connect(inode_id, node_id, i);
+	mNetwork.connect(inode_id, node_id, i);
       }
     }
     else if ( node.is_output() ) {
       int iname_id = fanin_info[0];
       ASSERT_COND( mIdMap.count(iname_id) > 0 );
       int inode_id = mIdMap.at(iname_id);
-      mNetwork->connect(inode_id, node_id, 0);
+      mNetwork.connect(inode_id, node_id, 0);
     }
   }
 
-  bool stat = mNetwork->wrap_up();
+  bool stat = mNetwork.wrap_up();
 
   return stat;
 }
@@ -274,7 +322,7 @@ BnBlifHandler::normal_exit()
 void
 BnBlifHandler::error_exit()
 {
-  mNetwork->clear();
+  mNetwork.clear();
 }
 
 END_NAMESPACE_YM_BNET

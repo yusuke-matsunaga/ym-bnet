@@ -8,6 +8,7 @@
 
 
 #include "BnIscas89Handler.h"
+#include "ym/Iscas89Parser.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
@@ -18,12 +19,42 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+//////////////////////////////////////////////////////////////////////
+// クラス BnNetwork
+//////////////////////////////////////////////////////////////////////
+
+// @brief blif ファイルを読み込む．
+// @param[in] filename ファイル名
+// @param[in] clock_name クロック端子名
+// @return ネットワークを返す．
+BnNetwork
+BnNetwork::read_iscas89(const string& filename,
+			const string& clock_name)
+{
+  BnNetwork network;
+
+  Iscas89Parser parser;
+  BnIscas89Handler handler(parser, network, clock_name);
+
+  bool stat = parser.read(filename);
+  if ( !stat ) {
+    network.clear();
+  }
+
+  return network;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnIscas89Handler
+//////////////////////////////////////////////////////////////////////
+
 // @brief コンストラクタ
 // @param[in] parser パーサー
 // @param[in] network 設定対象のネットワーク
 // @param[in] clock_name クロック端子名
 BnIscas89Handler::BnIscas89Handler(Iscas89Parser& parser,
-				   BnNetwork* network,
+				   BnNetwork& network,
 				   const string& clock_name) :
   Iscas89Handler(parser),
   mNetwork(network),
@@ -42,9 +73,9 @@ BnIscas89Handler::~BnIscas89Handler()
 bool
 BnIscas89Handler::init()
 {
-  mNetwork->clear();
+  mNetwork.clear();
 
-  mNetwork->set_name("iscas89_network");
+  mNetwork.set_name("iscas89_network");
 
   mIdMap.clear();
   mFaninInfoMap.clear();
@@ -65,8 +96,8 @@ BnIscas89Handler::read_input(const FileRegion& loc,
 			     int name_id,
 			     const string& name)
 {
-  auto port_id = mNetwork->new_input_port(name);
-  auto& port = mNetwork->port(port_id);
+  auto port_id = mNetwork.new_input_port(name);
+  auto& port = mNetwork.port(port_id);
   int id = port.bit(0);
   mIdMap[name_id] = id;
 
@@ -83,8 +114,8 @@ BnIscas89Handler::read_output(const FileRegion& loc,
 			      int name_id,
 			      const string& name)
 {
-  auto port_id = mNetwork->new_output_port(name);
-  auto& port = mNetwork->port(port_id);
+  auto port_id = mNetwork.new_output_port(name);
+  auto& port = mNetwork.port(port_id);
   int id = port.bit(0);
   add_fanin_info(id, name_id);
   return true;
@@ -106,7 +137,7 @@ BnIscas89Handler::read_gate(const FileRegion& loc,
 			    const vector<int>& iname_list)
 {
   int ni = iname_list.size();
-  int id = mNetwork->new_logic(oname, logic_type, ni);
+  int id = mNetwork.new_logic(oname, logic_type, ni);
   mIdMap[oname_id] = id;
 
   add_fanin_info(id, iname_list);
@@ -162,7 +193,7 @@ BnIscas89Handler::read_mux(const FileRegion& loc,
     or_fanins[p] = Expr::make_and(and_fanins);
   }
   Expr mux_expr = Expr::make_or(or_fanins);
-  int id = mNetwork->new_logic(oname, mux_expr);
+  int id = mNetwork.new_logic(oname, mux_expr);
 
   mIdMap[oname_id] = id;
 
@@ -186,8 +217,8 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 {
   // この形式ではクロック以外の制御端子はない．
 
-  int dff_id = mNetwork->new_dff(oname);
-  const BnDff& dff = mNetwork->dff(dff_id);
+  int dff_id = mNetwork.new_dff(oname);
+  const BnDff& dff = mNetwork.dff(dff_id);
 
   int output_id = dff.output();
   mIdMap[oname_id] = output_id;
@@ -198,15 +229,15 @@ BnIscas89Handler::read_dff(const FileRegion& loc,
 
   if ( mClockId == kBnNullId ) {
     // クロックのポートを作る．
-    auto port_id = mNetwork->new_input_port(mClockName);
-    auto& clock_port = mNetwork->port(port_id);
+    auto port_id = mNetwork.new_input_port(mClockName);
+    auto& clock_port = mNetwork.port(port_id);
     // クロックの入力ノード番号を記録する．
     mClockId = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
   int clock_id = dff.clock();
-  mNetwork->connect(mClockId, clock_id, 0);
+  mNetwork.connect(mClockId, clock_id, 0);
 
   return true;
 }
@@ -218,13 +249,13 @@ bool
 BnIscas89Handler::end()
 {
   // ノードのファンインを設定する．
-  for ( int node_id = 1; node_id <= mNetwork->node_num(); ++ node_id ) {
+  for ( int node_id = 1; node_id <= mNetwork.node_num(); ++ node_id ) {
     if ( mFaninInfoMap.count(node_id) == 0 ) {
       continue;
     }
     const auto& fanin_info = mFaninInfoMap[node_id];
 
-    const BnNode& node = mNetwork->node(node_id);
+    const BnNode& node = mNetwork.node(node_id);
     if ( node.is_logic() ) {
       int ni = fanin_info.fanin_num();
       for ( int i: Range(ni) ) {
@@ -237,7 +268,7 @@ BnIscas89Handler::end()
 	  return false;
 	}
 	int inode_id = mIdMap[iname_id];
-	mNetwork->connect(inode_id, node_id, i);
+	mNetwork.connect(inode_id, node_id, i);
       }
     }
     else if ( node.is_output() ) {
@@ -250,10 +281,10 @@ BnIscas89Handler::end()
 	return false;
       }
       int inode_id = mIdMap[iname_id];
-      mNetwork->connect(inode_id, node_id, 0);
+      mNetwork.connect(inode_id, node_id, 0);
     }
   }
-  bool stat = mNetwork->wrap_up();
+  bool stat = mNetwork.wrap_up();
   return stat;
 }
 
@@ -267,7 +298,7 @@ BnIscas89Handler::normal_exit()
 void
 BnIscas89Handler::error_exit()
 {
-  mNetwork->clear();
+  mNetwork.clear();
 }
 
 // @brief ファンイン情報を追加する．

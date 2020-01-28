@@ -28,7 +28,7 @@ public:
   /// @param[in] network 設定対象のネットワーク
   /// @param[in] clock_name クロック端子名
   BnIscas89Handler(Iscas89Parser& parser,
-		   BnNetwork* network,
+		   BnNetwork& network,
 		   const string& clock_name = "clock");
 
   /// @brief デストラクタ
@@ -253,7 +253,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ネットワーク
-  BnNetwork* mNetwork;
+  BnNetwork& mNetwork;
 
   // クロック端子名
   string mClockName;

@@ -18,6 +18,81 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+//////////////////////////////////////////////////////////////////////
+// クラス BnNetwork
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を ISCAS89(.bench) 形式で出力する．
+// @param[in] filename 出力先のファイル名
+// @param[in] network ネットワーク
+// @param[in] prefix 自動生成名の接頭語
+// @param[in] suffix 自動生成名の接尾語
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_iscas89(const string& filename,
+			 const string& prefix,
+			 const string& suffix) const
+{
+  ofstream ofs(filename);
+  if ( ofs ) {
+    write_iscas89(ofs, prefix, suffix);
+  }
+}
+
+// @brief 内容を ISCAS89(.bench) 形式で出力する．
+// @param[in] s 出力先のストリーム
+// @param[in] network ネットワーク
+// @param[in] prefix 自動生成名の接頭語
+// @param[in] suffix 自動生成名の接尾語
+//
+// ポートの情報は無視される．
+void
+BnNetwork::write_iscas89(ostream& s,
+			 const string& prefix,
+			 const string& suffix) const
+{
+  // 個々のノードが単純なゲートか調べる．
+  bool ng = false;
+  for ( auto id: logic_id_list() ) {
+    auto& node = this->node(id);
+    switch ( node.type() ) {
+    case BnNodeType::C0:
+    case BnNodeType::C1:
+    case BnNodeType::Buff:
+    case BnNodeType::Not:
+    case BnNodeType::And:
+    case BnNodeType::Nand:
+    case BnNodeType::Or:
+    case BnNodeType::Nor:
+    case BnNodeType::Xor:
+    case BnNodeType::Xnor:
+      break;
+    default:
+      // 上記以外は .bench では受け付けない．
+      ng = true;
+      break;
+    }
+  }
+  if ( ng ) {
+    // iscas89 フォーマットに合うように変形する
+    BnNetwork network(*this);
+    network.simple_decomp();
+    Iscas89Writer writer(network, prefix, suffix);
+    writer(s);
+    return;
+  }
+  else {
+    Iscas89Writer writer(*this, prefix, suffix);
+    writer(s);
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス Iscas89Writer
+//////////////////////////////////////////////////////////////////////
+
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
 // @param[in] prefix 自動生成名の接頭語

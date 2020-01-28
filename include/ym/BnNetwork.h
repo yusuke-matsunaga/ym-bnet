@@ -49,7 +49,8 @@ class BnNetworkImpl;
 ///
 /// ポートの名前空間はノードとは別に設ける．
 /// このような細かな指定が可能なのは Verilog-HDL のような本格的な HDL のみ．
-/// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，ポートは1つのノードに対応する．
+/// 通常の blif ファイルや .bench(iscas89) ファイルを読んだ場合，
+/// ポートは1つのノードに対応する．
 /// この場合，ポート名は外部入力ノード，外部出力ノードの名前と同じになる．
 /// ただし，blifやiscas89で記述可能な外部入力と外部出力に同名の信号がある場合には
 /// 同名の外部入力ポートと外部出力ポートが出来てしまうため，どちらかが自動生成名
@@ -57,6 +58,10 @@ class BnNetworkImpl;
 ///
 /// 回路構造を作るには new_XXXX() でノードを作り，connect() で接続を作る．
 /// 最後に wrap_up() で最終処理を行う．
+///
+/// ノード番号は変化しない．また，ノードを削除することもできない．
+/// ただし，内容をファイルに書き出す際に出力ノードへ到達しないノードは削除される
+/// ので，そのファイルを読み込んだネットワークではノード番号が異なる可能性がある．
 //////////////////////////////////////////////////////////////////////
 class BnNetwork
 {
@@ -531,20 +536,11 @@ public:
   ///
   /// * src_network は wrap_up() されている必要がある．
   /// * src_network のポートの情報は失われる．
-  /// * 矛盾しない限りセルライブラリの情報も引く継がれる．
+  /// * 矛盾しない限りセルライブラリの情報も引継がれる．
   void
   import_subnetwork(const BnNetwork& src_network,
 		    const vector<int>& input_list,
 		    vector<int>& output_list);
-
-  /// @brief ノード間を接続する．
-  /// @param[in] src_node ファンアウト元のノード番号
-  /// @param[in] dst_node ファンイン先のノード番号
-  /// @param[in] ipos ファンインの位置
-  void
-  connect(int src_node,
-	  int dst_node,
-	  int ipos);
 
   /// @brief 単純なノードに分解する．
   ///
@@ -561,6 +557,15 @@ public:
   /// * BnNodeType::Xnor
   void
   simple_decomp();
+
+  /// @brief ノード間を接続する．
+  /// @param[in] src_node ファンアウト元のノード番号
+  /// @param[in] dst_node ファンイン先のノード番号
+  /// @param[in] ipos ファンインの位置
+  void
+  connect(int src_node,
+	  int dst_node,
+	  int ipos);
 
   /// @brief ファンアウトをつなぎ替える．
   /// @param[in] old_id もとのノード番号
@@ -751,7 +756,6 @@ public:
 	    const string& reset_name = "reset");
 
   /// @brief blif ファイルを読み込む(セルライブラリ付き)．
-  /// @param[in] network 設定対象のネットワーク
   /// @param[in] filename ファイル名
   /// @param[in] cell_library セルライブラリ
   /// @param[in] clock_name クロック端子名
@@ -765,7 +769,6 @@ public:
 	    const string& reset_name = "reset");
 
   /// @brief iscas89 ファイルを読み込む．
-  /// @param[in] network 設定対象のネットワーク
   /// @param[in] filename ファイル名
   /// @param[in] clock_name クロック端子名
   /// @return ネットワークを返す．
@@ -773,17 +776,6 @@ public:
   BnNetwork
   read_iscas89(const string& filename,
 	       const string& clock_name = "clock");
-
-  /// @brief 内容を blif 形式で出力する．
-  /// @param[in] s 出力先のストリーム
-  /// @param[in] prefix 自動生成名の接頭語
-  /// @param[in] suffix 自動生成名の接尾語
-  ///
-  /// ポートの情報は無視される．
-  void
-  write_blif(ostream& s,
-	     const string& prefix = "__node",
-	     const string& suffix = "") const;
 
   /// @brief 内容を blif 形式で出力する．
   /// @param[in] filename 出力先のファイル名
@@ -797,17 +789,6 @@ public:
 	     const string& suffix = "") const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
-  /// @param[in] s 出力先のストリーム
-  /// @param[in] prefix 自動生成名の接頭語
-  /// @param[in] suffix 自動生成名の接尾語
-  ///
-  /// ポートの情報は無視される．
-  void
-  write_iscas89(ostream& s,
-		const string& prefix = "__node",
-		const string& suffix = "") const;
-
-  /// @brief 内容を ISCAS89(.bench) 形式で出力する．
   /// @param[in] filename 出力先のファイル名
   /// @param[in] prefix 自動生成名の接頭語
   /// @param[in] suffix 自動生成名の接尾語
@@ -815,6 +796,56 @@ public:
   /// ポートの情報は無視される．
   void
   write_iscas89(const string& filename,
+		const string& prefix = "__node",
+		const string& suffix = "") const;
+
+  /// @brief 内容を Verilog-HDL 形式で出力する．
+  /// @param[in] filename 出力先のファイル名
+  /// @param[in] port_prefix ポート自動生成名の接頭語
+  /// @param[in] port_suffix ポート自動生成名の接尾語
+  /// @param[in] node_prefix ノード自動生成名の接頭語
+  /// @param[in] node_suffix ノード自動生成名の接尾語
+  /// @param[in] instance_prefix インスタンス自動生成名の接頭語
+  /// @param[in] instance_suffix インスタンス自動生成名の接尾語
+  void
+  write_verilog(const string& filename,
+		const string& port_prefix = "__port",
+		const string& port_suffix = "",
+		const string& node_prefix = "__node",
+		const string& node_suffix = "",
+		const string& instance_prefix = "__U",
+		const string& instance_suffix = "") const;
+
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name ストリーム出力関数
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 内容を blif 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_blif(ostream& s,
+	     const string& prefix = "__node",
+	     const string& suffix = "") const;
+
+  /// @brief 内容を ISCAS89(.bench) 形式で出力する．
+  /// @param[in] s 出力先のストリーム
+  /// @param[in] prefix 自動生成名の接頭語
+  /// @param[in] suffix 自動生成名の接尾語
+  ///
+  /// ポートの情報は無視される．
+  void
+  write_iscas89(ostream& s,
 		const string& prefix = "__node",
 		const string& suffix = "") const;
 
@@ -835,30 +866,16 @@ public:
 		const string& instance_prefix = "__U",
 		const string& instance_suffix = "") const;
 
-  /// @brief 内容を Verilog-HDL 形式で出力する．
-  /// @param[in] filename 出力先のファイル名
-  /// @param[in] port_prefix ポート自動生成名の接頭語
-  /// @param[in] port_suffix ポート自動生成名の接尾語
-  /// @param[in] node_prefix ノード自動生成名の接頭語
-  /// @param[in] node_suffix ノード自動生成名の接尾語
-  /// @param[in] instance_prefix インスタンス自動生成名の接頭語
-  /// @param[in] instance_suffix インスタンス自動生成名の接尾語
-  void
-  write_verilog(const string& filename,
-		const string& port_prefix = "__port",
-		const string& port_suffix = "",
-		const string& node_prefix = "__node",
-		const string& node_suffix = "",
-		const string& instance_prefix = "__U",
-		const string& instance_suffix = "") const;
-
-
   /// @brief 内容を出力する．
   /// @param[in] s 出力先のストリーム
   ///
   /// - 形式は独自フォーマット
   void
   write(ostream& s) const;
+
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
 
 
 private:
@@ -883,6 +900,12 @@ private:
   unique_ptr<BnNetworkImpl> mImpl;
 
 };
+
+
+//////////////////////////////////////////////////////////////////////
+// インライン関数の定義
+//////////////////////////////////////////////////////////////////////
+
 
 END_NAMESPACE_YM_BNET
 

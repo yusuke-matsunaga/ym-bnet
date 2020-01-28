@@ -21,6 +21,62 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+//////////////////////////////////////////////////////////////////////
+// クラス BnNetwork
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を Verilog-HDL 形式で出力する．
+// @param[in] s 出力先のストリーム
+// @param[in] port_prefix ポート自動生成名の接頭語
+// @param[in] port_suffix ポート自動生成名の接尾語
+// @param[in] node_prefix ノード自動生成名の接頭語
+// @param[in] node_suffix ノード自動生成名の接尾語
+// @param[in] instance_prefix インスタンス自動生成名の接頭語
+// @param[in] instance_suffix インスタンス自動生成名の接尾語
+void
+BnNetwork::write_verilog(ostream& s,
+			 const string& port_prefix,
+			 const string& port_suffix,
+			 const string& node_prefix,
+			 const string& node_suffix,
+			 const string& instance_prefix,
+			 const string& instance_suffix) const
+{
+  VerilogWriter writer(*this,
+		       port_prefix, port_suffix,
+		       node_prefix, node_suffix,
+		       instance_prefix, instance_suffix);
+  writer(s);
+}
+
+// @brief 内容を Verilog-HDL 形式で出力する．
+// @param[in] filename 出力先のファイル名
+// @param[in] port_prefix ポート自動生成名の接頭語
+// @param[in] port_suffix ポート自動生成名の接尾語
+// @param[in] node_prefix ノード自動生成名の接頭語
+// @param[in] node_suffix ノード自動生成名の接尾語
+// @param[in] instance_prefix インスタンス自動生成名の接頭語
+// @param[in] instance_suffix インスタンス自動生成名の接尾語
+void
+BnNetwork::write_verilog(const string& filename,
+			 const string& port_prefix,
+			 const string& port_suffix,
+			 const string& node_prefix,
+			 const string& node_suffix,
+			 const string& instance_prefix,
+			 const string& instance_suffix) const
+{
+  ofstream ofs(filename);
+  if ( ofs ) {
+    write_verilog(ofs);
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス VerilogWriter
+//////////////////////////////////////////////////////////////////////
+
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
 VerilogWriter::VerilogWriter(const BnNetwork& network,
