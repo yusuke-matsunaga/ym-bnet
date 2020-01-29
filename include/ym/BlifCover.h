@@ -42,8 +42,10 @@ private:
 	    SopPat opat,
 	    const Expr& expr);
 
+public:
+
   /// @brief デストラクタ
-  ~BlifCover();
+  ~BlifCover() = default;
 
 
 public:
@@ -111,9 +113,6 @@ private:
   // 論理式
   Expr mExpr;
 
-  // 次の要素を指すリンクポインタ
-  BlifCover* mLink;
-
 };
 
 
@@ -136,14 +135,7 @@ BlifCover::BlifCover(int id,
   mId(id),
   mInputCover(ni, cube_list),
   mOutputPat(opat),
-  mExpr(expr),
-  mLink(nullptr)
-{
-}
-
-// @brief デストラクタ
-inline
-BlifCover::~BlifCover()
+  mExpr(expr)
 {
 }
 

@@ -25,10 +25,10 @@ class BlifCoverMgr
 public:
 
   /// @brief コンストラクタ
-  BlifCoverMgr();
+  BlifCoverMgr() = default;
 
   /// @brief デストラクタ
-  ~BlifCoverMgr();
+  ~BlifCoverMgr() = default;
 
 
 public:
@@ -67,16 +67,12 @@ private:
   /// @param[in] cube_num キューブ数
   /// @param[in] ipat_str 入力パタン文字列
   /// @param[in] opat 出力パタン
-  BlifCover*
+  /// @return 作成された BlifCover の ID 番号を返す．
+  int
   new_cover(int input_num,
 	    int cube_num,
 	    const string& ipat_str,
 	    char opat_char);
-
-  /// @brief ハッシュ表のメモリを確保する．
-  /// @param[in] req_size 要求サイズ
-  void
-  alloc_table(int req_size);
 
 
 private:
@@ -84,20 +80,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 登録されているカバー数
-  int mCoverNum;
-
-  // ハッシュテーブルのサイズ
-  int mHashSize;
-
-  // ハッシュテーブルを拡大する目安
-  int mNextLimit;
-
-  // ハッシュテーブル
-  BlifCover** mHashTable;
+  // カバーを表す文字列をキーにしてID番号を納める辞書
+  unordered_map<string, int> mCoverDict;
 
   // ID 番号をキーにしてカバーを格納する配列
-  vector<BlifCover*> mCoverArray;
+  vector<BlifCover> mCoverArray;
 
 };
 
@@ -105,25 +92,6 @@ private:
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
-
-// @brief 登録されているカバー数を返す．
-inline
-int
-BlifCoverMgr::cover_num() const
-{
-  return mCoverNum;
-}
-
-// @brief ID番号から BlifCover を返す．
-// @param[in] id ID番号
-inline
-const BlifCover&
-BlifCoverMgr::cover(int id) const
-{
-  ASSERT_COND( id >= 0 && id < cover_num() );
-
-  return *mCoverArray[id];
-}
 
 END_NAMESPACE_YM_BNET
 

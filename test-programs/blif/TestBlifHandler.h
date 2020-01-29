@@ -26,7 +26,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] parser
   TestBlifHandler(BlifParser& parser,
-		  ostream* stream);
+		  ostream& stream);
 
   /// @brief デストラクタ
   ~TestBlifHandler();
@@ -139,7 +139,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  ostream* mStreamPtr;
+  ostream& mStream;
 
 };
 

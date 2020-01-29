@@ -15,34 +15,23 @@ BEGIN_NAMESPACE_YM_BNET
 
 BEGIN_NONAMESPACE
 
-// 文字列からのハッシュ関数
-SizeType
-hash_func(const string& str)
-{
-  SizeType h = 0;
-  for ( int i = 0; i < str.size(); ++ i ) {
-    h = h * 33 + str[i];
-  }
-  return h;
-}
-
-// ハッシュ関数その1
-SizeType
-hash_func(int input_num,
-	  int cube_num,
-	  const string& ipat_str,
-	  char opat_char)
+// キー生成関数その１
+string
+key_func(int input_num,
+	 int cube_num,
+	 const string& ipat_str,
+	 char opat_char)
 {
   ostringstream buf;
   buf << input_num << ':'
       << opat_char << ':'
       << ipat_str;
-  return hash_func(buf.str());
+  return buf.str();
 }
 
-// ハッシュ関数その2
-SizeType
-hash_func(BlifCover* cover)
+// キー生成関数その2
+string
+key_func(const BlifCover* cover)
 {
   ostringstream buf;
   buf << cover->input_num() << ':'
@@ -54,7 +43,7 @@ hash_func(BlifCover* cover)
       buf << cover->input_pat(c, i);
     }
   }
-  return hash_func(buf.str());
+  return buf.str();
 }
 
 // char -> Pat
@@ -70,36 +59,6 @@ char2pat(char ch)
   cout << "ERROR: ch = " << ch << endl;
   ASSERT_NOT_REACHED;
   return SopPat::_X;
-}
-
-// 等価チェック
-bool
-check_equal(BlifCover* cover,
-	    int input_num,
-	    int cube_num,
-	    const string& ipat_str,
-	    char opat_char)
-{
-  if ( cover->input_num() != input_num ) {
-    return false;
-  }
-  if ( cover->cube_num() != cube_num ) {
-    return false;
-  }
-  if ( cover->output_pat() != char2pat(opat_char) ) {
-    return false;
-  }
-  int j = 0;
-  for ( int c = 0; c < cube_num; ++ c ) {
-    for ( int i = 0; i < input_num; ++ i, ++ j ) {
-      SopPat ipat = cover->input_pat(c, i);
-      SopPat ipat2 = char2pat(ipat_str[j]);
-      if ( ipat != ipat2 ) {
-	return false;
-      }
-    }
-  }
-  return true;
 }
 
 END_NONAMESPACE
@@ -129,26 +88,21 @@ BlifCover::print(ostream& s) const
 // クラス BlifCoverMgr
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-BlifCoverMgr::BlifCoverMgr()
+// @brief 登録されているカバー数を返す．
+int
+BlifCoverMgr::cover_num() const
 {
-  mCoverNum = 0;
-  mHashSize = 0;
-  mNextLimit = 0;
-  mHashTable = nullptr;
-  alloc_table(1024);
+  return mCoverArray.size();
 }
 
-// @brief デストラクタ
-BlifCoverMgr::~BlifCoverMgr()
+// @brief ID番号から BlifCover を返す．
+// @param[in] id ID番号
+const BlifCover&
+BlifCoverMgr::cover(int id) const
 {
-  for ( int i = 0; i < mHashSize; ++ i ) {
-    for ( BlifCover* cover = mHashTable[i]; cover != nullptr; ) {
-      BlifCover* cur_cover = cover;
-      cover = cur_cover->mLink;
-      delete cur_cover;
-    }
-  }
+  ASSERT_COND( 0 <= id && id < cover_num() );
+
+  return mCoverArray[id];
 }
 
 // @brief パタン文字列からカバーを返す．
@@ -162,17 +116,22 @@ BlifCoverMgr::pat2cover(int input_num,
 			const string& ipat_str,
 			char opat_char)
 {
+  // カバーを表す文字列を作る．
+  auto key_str{key_func(input_num, cube_num, ipat_str, opat_char)};
+
   // すでに登録されているか調べる．
-  SizeType h = hash_func(input_num, cube_num, ipat_str, opat_char) % mHashSize;
-  for ( BlifCover* cover = mHashTable[h];
-	cover != nullptr; cover = cover->mLink ) {
-    if ( check_equal(cover, input_num, cube_num, ipat_str, opat_char) ) {
-      return *cover;
-    }
+  if ( mCoverDict.count(key_str) > 0 ) {
+    int id = mCoverDict.at(key_str);
+    return cover(id);
   }
-  // 新しいカバーを登録する．
-  BlifCover* cover = new_cover(input_num, cube_num, ipat_str, opat_char);
-  return *cover;
+
+  // 新しいカバーを作る．
+  int id = new_cover(input_num, cube_num, ipat_str, opat_char);
+
+  // そのカバーを登録する．
+  mCoverDict.insert({key_str, id});
+
+  return cover(id);
 }
 
 // @brief BlifCover を作る．
@@ -180,14 +139,13 @@ BlifCoverMgr::pat2cover(int input_num,
 // @param[in] cube_num キューブ数
 // @param[in] ipat_str 入力パタン文字列
 // @param[in] opat 出力パタン
-BlifCover*
+int
 BlifCoverMgr::new_cover(int input_num,
 			int cube_num,
 			const string& ipat_str,
 			char opat_char)
 {
-  SopPat opat = char2pat(opat_char);
-
+  // ipat_str, opat_char から論理式を作る．
   int k = 0;
   vector<vector<Literal>> cube_list(cube_num);
   vector<Expr> prod_list(cube_num);
@@ -222,47 +180,15 @@ BlifCoverMgr::new_cover(int input_num,
     prod_list[c] = Expr::make_and(litexpr_list);
   }
   Expr expr = Expr::make_or(prod_list);
+  SopPat opat = char2pat(opat_char);
   if ( opat == SopPat::_0 ) {
     expr = ~expr;
   }
 
-  BlifCover* cover = new BlifCover(mCoverNum, input_num, cube_list, opat, expr);
-  mCoverArray.push_back(cover);
-  ++ mCoverNum;
-  if ( mCoverNum >= mNextLimit ) {
-    // ハッシュ表のサイズを2倍する．
-    alloc_table(mHashSize * 2);
-  }
-  SizeType h = hash_func(cover) % mHashSize;
-  cover->mLink = mHashTable[h];
-  mHashTable[h] = cover;
+  int id = cover_num();
+  mCoverArray.push_back({id, input_num, cube_list, opat, expr});
 
-  return cover;
-}
-
-// @brief ハッシュ表のメモリを確保する．
-// @param[in] req_size 要求サイズ
-void
-BlifCoverMgr::alloc_table(int req_size)
-{
-  int old_size = mHashSize;
-  BlifCover** old_table = mHashTable;
-  mHashSize = req_size;
-  mNextLimit = static_cast<int>(mHashSize * 1.8);
-  mHashTable = new BlifCover*[mHashSize];
-  for ( int i = 0; i < mHashSize; ++ i ) {
-    mHashTable[i] = nullptr;
-  }
-  for ( int i = 0; i < old_size; ++ i ) {
-    for ( BlifCover* cover = old_table[i]; cover != nullptr; ) {
-      BlifCover* next = cover->mLink;
-      SizeType h = hash_func(cover) % mHashSize;
-      cover->mLink = mHashTable[h];
-      mHashTable[h] = cover;
-      cover = next;
-    }
-  }
-  delete [] old_table;
+  return id;
 }
 
 END_NAMESPACE_YM_BNET

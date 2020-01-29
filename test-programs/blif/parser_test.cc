@@ -61,7 +61,7 @@ main(int argc,
       stat = parser.read(filename);
     }
     else {
-      TestBlifHandler __dummy(parser, &cout);
+      TestBlifHandler __dummy(parser, cout);
 
       stat = parser.read(filename);
     }

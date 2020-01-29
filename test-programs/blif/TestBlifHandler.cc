@@ -20,9 +20,9 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] parser パーサー
 TestBlifHandler::TestBlifHandler(BlifParser& parser,
-				 ostream* streamptr) :
-  BlifHandler(parser),
-  mStreamPtr(streamptr)
+				 ostream& stream) :
+  BlifHandler{parser},
+  mStream{stream}
 {
 }
 
@@ -45,7 +45,7 @@ TestBlifHandler::init()
 void
 TestBlifHandler::set_cell_library(const ClibCellLibrary& library)
 {
-  (*mStreamPtr) << "set_cell_library(" << library.name() << ")" << endl;
+  mStream << "set_cell_library(" << library.name() << ")" << endl;
 }
 
 // @brief .model 文の開始
@@ -54,9 +54,9 @@ TestBlifHandler::model(const FileRegion& loc1,
 		       const FileRegion& loc2,
 		       const string& name)
 {
-  (*mStreamPtr) << ".model " << name << endl
-		<< "\t[" << loc1 << "]" << endl
-		<< "\t[" << loc2 << "]" << endl;
+  mStream << ".model " << name << endl
+	  << "\t[" << loc1 << "]" << endl
+	  << "\t[" << loc2 << "]" << endl;
   return true;
 }
 
@@ -65,8 +65,8 @@ bool
 TestBlifHandler::inputs_elem(int name_id,
 			     const string& name)
 {
-  (*mStreamPtr) << "  inputs elem: " << name << endl
-		<< "\t[" << id2loc(name_id) << "]" << endl;
+  mStream << "  inputs elem: " << name << endl
+	  << "\t[" << id2loc(name_id) << "]" << endl;
   return true;
 }
 
@@ -75,8 +75,8 @@ bool
 TestBlifHandler::outputs_elem(int name_id,
 			      const string& name)
 {
-  (*mStreamPtr) << "  outputs elem: " << name_id << endl
-		<< "\t[" << id2loc(name_id) << "]" << endl;
+  mStream << "  outputs elem: " << name_id << endl
+	  << "\t[" << id2loc(name_id) << "]" << endl;
   return true;
 }
 
@@ -95,25 +95,25 @@ TestBlifHandler::names(int onode_id,
 		       const vector<int>& inode_id_array,
 		       int cover_id)
 {
-  (*mStreamPtr) << ".names" << endl;
+  mStream << ".names" << endl;
   for ( auto id: inode_id_array ) {
-    (*mStreamPtr) << id2str(id) << endl
-		  << "\t[" << id2loc(id) << "]" << endl;
+    mStream << id2str(id) << endl
+	    << "\t[" << id2loc(id) << "]" << endl;
   }
-  (*mStreamPtr) << oname << endl
-		<< "\t[" << id2loc(onode_id) << "]" << endl;
-  (*mStreamPtr) << "Cover#" << cover_id << endl;
+  mStream << oname << endl
+	  << "\t[" << id2loc(onode_id) << "]" << endl;
+  mStream << "Cover#" << cover_id << endl;
   const BlifCover& cover = id2cover(cover_id);
   int nc = cover.cube_num();
   int ni = inode_id_array.size();
   for ( int c = 0; c < nc; ++ c ) {
     for ( int i = 0; i < ni; ++ i ) {
-      (*mStreamPtr) << cover.input_pat(c, i);
+      mStream << cover.input_pat(c, i);
     }
     if ( ni > 0 ) {
-      (*mStreamPtr) << ' ';
+      mStream << ' ';
     }
-    (*mStreamPtr) << cover.output_pat() << endl;
+    mStream << cover.output_pat() << endl;
   }
   return true;
 }
@@ -130,13 +130,13 @@ TestBlifHandler::gate(int onode_id,
 		      const vector<int>& inode_id_array,
 		      int cell_id)
 {
-  (*mStreamPtr) << ".gate " << cell_id << " " << oname
-		<< "\t[" << id2loc(onode_id) << "]" << endl;
+  mStream << ".gate " << cell_id << " " << oname
+	  << "\t[" << id2loc(onode_id) << "]" << endl;
   int ni = inode_id_array.size();
   for ( int i = 0; i < ni; ++ i ) {
     int id = inode_id_array[i];
-    (*mStreamPtr) << "  #" << i << ": " << id2str(id)
-		  << "\t[" << id2loc(id) << "]" << endl;
+    mStream << "  #" << i << ": " << id2str(id)
+	    << "\t[" << id2loc(id) << "]" << endl;
   }
   return true;
 }
@@ -155,12 +155,12 @@ TestBlifHandler::latch(int onode_id,
 		       const FileRegion& loc4,
 		       char rval)
 {
-  (*mStreamPtr) << ".latch "
-		<< id2str(inode_id) << " "
-		<< oname << " " << rval << endl
-		<< "\t[" << id2loc(inode_id) << "]" << endl
-		<< "\t[" << id2loc(onode_id) << "]" << endl
-		<< "\t[" << loc4 << "]" << endl;
+  mStream << ".latch "
+	  << id2str(inode_id) << " "
+	  << oname << " " << rval << endl
+	  << "\t[" << id2loc(inode_id) << "]" << endl
+	  << "\t[" << id2loc(onode_id) << "]" << endl
+	  << "\t[" << loc4 << "]" << endl;
   return true;
 }
 
@@ -168,8 +168,8 @@ TestBlifHandler::latch(int onode_id,
 bool
 TestBlifHandler::end(const FileRegion& loc)
 {
-  (*mStreamPtr) << ".end" << endl
-		<< "\t[" << loc << "]" << endl;
+  mStream << ".end" << endl
+	  << "\t[" << loc << "]" << endl;
   return true;
 }
 
@@ -177,14 +177,14 @@ TestBlifHandler::end(const FileRegion& loc)
 void
 TestBlifHandler::normal_exit()
 {
-  (*mStreamPtr) << "normal_exit" << endl;
+  mStream << "normal_exit" << endl;
 }
 
 // @brief エラー終了時の処理
 void
 TestBlifHandler::error_exit()
 {
-  (*mStreamPtr) << "error_exit" << endl;
+  mStream << "error_exit" << endl;
 }
 
 END_NAMESPACE_YM_BNET
