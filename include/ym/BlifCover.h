@@ -10,7 +10,6 @@
 
 
 #include "ym/bnet.h"
-#include "ym/Sop.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -27,9 +26,12 @@ public:
   /// @param[in] ni 入力数
   /// @param[in] ipat_list 入力のパタンベクタ
   /// @param[in] opat 出力のパタン
+  ///
+  /// - ipat_list の要素は '0', '1', '-' のいずれか
+  /// - opat は '0', '1' のいずれか
   BlifCover(int ni,
-	    const vector<vector<SopPat>>& ipat_list,
-	    SopPat opat);
+	    const vector<string>& ipat_list,
+	    char opat);
 
   /// @brief デストラクタ
   ~BlifCover() = default;
@@ -52,7 +54,7 @@ public:
   /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
   /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
   /// @return パタンを返す．
-  SopPat
+  char
   input_pat(int cpos,
 	    int ipos) const;
 
@@ -60,7 +62,7 @@ public:
   ///
   /// - すべてのキューブに対して同一のパタンとなる．
   /// - ドントケアはない．
-  SopPat
+  char
   output_pat() const;
 
   /// @brief 内容を出力する．
@@ -84,10 +86,10 @@ private:
   int mInputNum;
 
   // 入力パタンのリスト
-  vector<vector<SopPat>> mInputPatList;
+  vector<string> mInputPatList;
 
   // 出力パタン
-  SopPat mOutputPat;
+  char mOutputPat;
 
 };
 
@@ -102,8 +104,8 @@ private:
 // @param[in] opat 出力のパタン
 inline
 BlifCover::BlifCover(int ni,
-		     const vector<vector<SopPat>>& ipat_list,
-		     SopPat opat) :
+		     const vector<string>& ipat_list,
+		     char opat) :
   mInputNum{ni},
   mInputPatList{ipat_list},
   mOutputPat{opat}
@@ -131,7 +133,7 @@ BlifCover::cube_num() const
 // @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
 // @return パタンを返す．
 inline
-SopPat
+char
 BlifCover::input_pat(int cpos,
 		     int ipos) const
 {
@@ -145,7 +147,7 @@ BlifCover::input_pat(int cpos,
 // - すべてのキューブに対して同一のパタンとなる．
 // - ドントケアはない．
 inline
-SopPat
+char
 BlifCover::output_pat() const
 {
   return mOutputPat;

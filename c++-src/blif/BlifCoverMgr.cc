@@ -18,7 +18,6 @@ BEGIN_NONAMESPACE
 // キー生成関数その１
 string
 key_func(int input_num,
-	 int cube_num,
 	 const string& ipat_str,
 	 char opat_char)
 {
@@ -44,21 +43,6 @@ key_func(const BlifCover* cover)
     }
   }
   return buf.str();
-}
-
-// char -> Pat
-inline
-SopPat
-char2pat(char ch)
-{
-  switch ( ch ) {
-  case '0': return SopPat::_0;
-  case '1': return SopPat::_1;
-  case '-': return SopPat::_X;
-  }
-  cout << "ERROR: ch = " << ch << endl;
-  ASSERT_NOT_REACHED;
-  return SopPat::_X;
 }
 
 END_NONAMESPACE
@@ -117,7 +101,7 @@ BlifCoverMgr::pat2cover(int input_num,
 			char opat_char)
 {
   // カバーを表す文字列を作る．
-  auto key_str{key_func(input_num, cube_num, ipat_str, opat_char)};
+  auto key_str{key_func(input_num, ipat_str, opat_char)};
 
   // すでに登録されているか調べる．
   if ( mCoverDict.count(key_str) > 0 ) {
@@ -143,33 +127,14 @@ int
 BlifCoverMgr::new_cover(int input_num,
 			int cube_num,
 			const string& ipat_str,
-			char opat_char)
+			char opat)
 {
-  vector<vector<SopPat>> ipat_list;
+  vector<string> ipat_list;
   ipat_list.reserve(cube_num);
   for ( int c = 0; c < cube_num; ++ c ) {
-    vector<SopPat> ipat(input_num);
-    for ( int i = 0; i < input_num; ++ i ) {
-      switch ( ipat_str[c * input_num + i] ) {
-      case '0':
-	ipat[i] = SopPat::_0;
-	break;
-
-      case '1':
-	ipat[i] = SopPat::_1;
-	break;
-
-      case '-':
-	ipat[i] = SopPat::_X;
-	break;
-
-      default:
-	ASSERT_NOT_REACHED;
-      }
-    }
+    string ipat = ipat_str.substr(c * input_num, (c + 1) * input_num);
     ipat_list.push_back(ipat);
   }
-  SopPat opat = char2pat(opat_char);
 
   int id = cover_num();
   mCoverArray.push_back({input_num, ipat_list, opat});

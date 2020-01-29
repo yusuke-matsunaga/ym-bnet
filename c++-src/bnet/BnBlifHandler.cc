@@ -174,15 +174,15 @@ cover2expr(const BlifCover& cover)
     for ( int i = 0; i < input_num; ++ i ) {
       VarId var(i);
       switch ( cover.input_pat(c, i) ) {
-      case SopPat::_0:
+      case '0':
 	litexpr_list.push_back(Expr::nega_literal(var));
 	break;
 
-      case SopPat::_1:
+      case '1':
 	litexpr_list.push_back(Expr::posi_literal(var));
 	break;
 
-      case SopPat::_X:
+      case '-':
 	break;
 
       default:
@@ -192,8 +192,8 @@ cover2expr(const BlifCover& cover)
     prod_list.push_back(Expr::make_and(litexpr_list));
   }
   Expr expr = Expr::make_or(prod_list);
-  SopPat opat = cover.output_pat();
-  if ( opat == SopPat::_0 ) {
+  char opat = cover.output_pat();
+  if ( opat == '0' ) {
     expr = ~expr;
   }
 
