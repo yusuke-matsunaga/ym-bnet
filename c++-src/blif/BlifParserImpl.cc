@@ -758,8 +758,7 @@ BlifParserImpl::read_names()
   }
   set_defined(oid, names_loc);
 
-  auto& cover = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
-  int cover_id = cover.id();
+  int cover_id = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
 
   // ハンドラを呼び出す．
   bool ok = true;

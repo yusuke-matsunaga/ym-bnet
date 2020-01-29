@@ -158,6 +158,50 @@ BnBlifHandler::outputs_elem(int name_id,
   return true;
 }
 
+BEGIN_NONAMESPACE
+
+Expr
+cover2expr(const BlifCover& cover)
+{
+
+  int input_num = cover.input_num();
+  int cube_num = cover.cube_num();
+  vector<Expr> prod_list;
+  prod_list.reserve(cube_num);
+  for ( int c = 0; c < cube_num; ++ c ) {
+    vector<Expr> litexpr_list;
+    litexpr_list.reserve(input_num);
+    for ( int i = 0; i < input_num; ++ i ) {
+      VarId var(i);
+      switch ( cover.input_pat(c, i) ) {
+      case SopPat::_0:
+	litexpr_list.push_back(Expr::nega_literal(var));
+	break;
+
+      case SopPat::_1:
+	litexpr_list.push_back(Expr::posi_literal(var));
+	break;
+
+      case SopPat::_X:
+	break;
+
+      default:
+	ASSERT_NOT_REACHED;
+      }
+    }
+    prod_list.push_back(Expr::make_and(litexpr_list));
+  }
+  Expr expr = Expr::make_or(prod_list);
+  SopPat opat = cover.output_pat();
+  if ( opat == SopPat::_0 ) {
+    expr = ~expr;
+  }
+
+  return expr;
+}
+
+END_NONAMESPACE
+
 // @brief .names 文の処理
 // @param[in] oname_id ノード名のID番号
 // @param[in] oname 出力名
@@ -171,11 +215,10 @@ BnBlifHandler::names(int oname_id,
 		     const vector<int>& inode_id_array,
 		     int cover_id)
 {
-  const BlifCover& cover = id2cover(cover_id);
-  const Expr& expr = cover.expr();
+  auto& cover = id2cover(cover_id);
+  auto expr = cover2expr(cover);
+  ASSERT_COND( inode_id_array.size() == expr.input_size() );
 
-  int ni = inode_id_array.size();
-  ASSERT_COND( ni == expr.input_size() );
   int node_id = mNetwork.new_logic(oname, expr);
   mIdMap[oname_id] = node_id;
 

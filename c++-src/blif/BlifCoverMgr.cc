@@ -110,7 +110,7 @@ BlifCoverMgr::cover(int id) const
 // @param[in] cube_num キューブ数
 // @param[in] ipat_str 入力パタン文字列
 // @param[in] opat 出力パタン
-const BlifCover&
+int
 BlifCoverMgr::pat2cover(int input_num,
 			int cube_num,
 			const string& ipat_str,
@@ -122,16 +122,16 @@ BlifCoverMgr::pat2cover(int input_num,
   // すでに登録されているか調べる．
   if ( mCoverDict.count(key_str) > 0 ) {
     int id = mCoverDict.at(key_str);
-    return cover(id);
+    return id;
   }
+  else {
+    // 新しいカバーを作る．
+    int id = new_cover(input_num, cube_num, ipat_str, opat_char);
 
-  // 新しいカバーを作る．
-  int id = new_cover(input_num, cube_num, ipat_str, opat_char);
-
-  // そのカバーを登録する．
-  mCoverDict.insert({key_str, id});
-
-  return cover(id);
+    // そのカバーを登録する．
+    mCoverDict.insert({key_str, id});
+    return id;
+  }
 }
 
 // @brief BlifCover を作る．
@@ -145,48 +145,34 @@ BlifCoverMgr::new_cover(int input_num,
 			const string& ipat_str,
 			char opat_char)
 {
-  // ipat_str, opat_char から論理式を作る．
-  int k = 0;
-  vector<vector<Literal>> cube_list(cube_num);
-  vector<Expr> prod_list(cube_num);
+  vector<vector<SopPat>> ipat_list;
+  ipat_list.reserve(cube_num);
   for ( int c = 0; c < cube_num; ++ c ) {
-    int shift = 0;
-    vector<Literal> lit_list;
-    vector<Expr> litexpr_list;
-    lit_list.reserve(input_num);
-    litexpr_list.reserve(input_num);
-    for ( int i = 0; i < input_num; ++ i, ++ k ) {
-      VarId var(i);
-      Literal lit(var);
-      switch ( ipat_str[k] ) {
+    vector<SopPat> ipat(input_num);
+    for ( int i = 0; i < input_num; ++ i ) {
+      switch ( ipat_str[c * input_num + i] ) {
       case '0':
-	lit_list.push_back(~lit);
-	litexpr_list.push_back(Expr::nega_literal(var));
+	ipat[i] = SopPat::_0;
 	break;
 
       case '1':
-	lit_list.push_back(lit);
-	litexpr_list.push_back(Expr::posi_literal(var));
+	ipat[i] = SopPat::_1;
 	break;
 
       case '-':
+	ipat[i] = SopPat::_X;
 	break;
 
       default:
 	ASSERT_NOT_REACHED;
       }
     }
-    cube_list[c].swap(lit_list);
-    prod_list[c] = Expr::make_and(litexpr_list);
+    ipat_list.push_back(ipat);
   }
-  Expr expr = Expr::make_or(prod_list);
   SopPat opat = char2pat(opat_char);
-  if ( opat == SopPat::_0 ) {
-    expr = ~expr;
-  }
 
   int id = cover_num();
-  mCoverArray.push_back({id, input_num, cube_list, opat, expr});
+  mCoverArray.push_back({input_num, ipat_list, opat});
 
   return id;
 }

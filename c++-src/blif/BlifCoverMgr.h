@@ -40,12 +40,12 @@ public:
   int
   cover_num() const;
 
-  /// @brief パタン文字列からカバーを返す．
+  /// @brief パタン文字列からカバー番号を返す．
   /// @param[in] input_num 入力数
   /// @param[in] cube_num キューブ数
   /// @param[in] ipat_str 入力パタン文字列
   /// @param[in] opat 出力パタン
-  const BlifCover&
+  int
   pat2cover(int input_num,
 	    int cube_num,
 	    const string& ipat_str,
