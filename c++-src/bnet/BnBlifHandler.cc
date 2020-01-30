@@ -175,11 +175,11 @@ cover2expr(const BlifCover& cover)
       VarId var(i);
       switch ( cover.input_pat(c, i) ) {
       case '0':
-	litexpr_list.push_back(Expr::nega_literal(var));
+	litexpr_list.push_back(Expr::make_nega_literal(var));
 	break;
 
       case '1':
-	litexpr_list.push_back(Expr::posi_literal(var));
+	litexpr_list.push_back(Expr::make_posi_literal(var));
 	break;
 
       case '-':

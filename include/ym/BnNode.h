@@ -13,7 +13,6 @@
 #include "ym/logic.h"
 #include "ym/clib.h"
 #include "ym/BnNodeType.h"
-#include "ym/Array.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -276,16 +275,10 @@ public:
   int
   fanin_id(int pos) const = 0;
 
-#if 0
   /// @brief ファンインのノード番号のリストを返す．
-  virtual
-  Array<int>
-  fanin_id_list() const = 0;
-#else
   virtual
   const vector<int>&
   fanin_id_list() const = 0;
-#endif
 
   /// @brief 論理式番号を返す．
   ///

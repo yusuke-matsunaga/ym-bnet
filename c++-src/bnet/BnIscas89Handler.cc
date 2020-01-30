@@ -171,11 +171,11 @@ BnIscas89Handler::read_mux(const FileRegion& loc,
 
   vector<Expr> cinputs(nc);
   for ( int i: Range(nc) ) {
-    cinputs[i] = Expr::posi_literal(VarId(i));
+    cinputs[i] = Expr::make_posi_literal(VarId(i));
   }
   vector<Expr> dinputs(nd);
   for ( int i: Range(nd) ) {
-    dinputs[i] = Expr::posi_literal(VarId(i + nc));
+    dinputs[i] = Expr::make_posi_literal(VarId(i + nc));
   }
 
   vector<Expr> or_fanins(nd);

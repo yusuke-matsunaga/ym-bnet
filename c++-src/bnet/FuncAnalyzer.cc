@@ -23,16 +23,16 @@ BEGIN_NONAMESPACE
 BnNodeType
 tv2logic_type(const TvFunc& tv)
 {
-  if ( tv == TvFunc::zero(0) ) {
+  if ( tv == TvFunc::make_zero(0) ) {
     return BnNodeType::C0;
   }
-  else if ( tv == TvFunc::one(0) ) {
+  else if ( tv == TvFunc::make_one(0) ) {
     return BnNodeType::C1;
   }
-  else if ( tv == TvFunc::posi_literal(1, VarId(0)) ) {
+  else if ( tv == TvFunc::make_posi_literal(1, VarId(0)) ) {
     return BnNodeType::Buff;
   }
-  else if ( tv == TvFunc::nega_literal(1, VarId(0)) ) {
+  else if ( tv == TvFunc::make_nega_literal(1, VarId(0)) ) {
     return BnNodeType::Not;
   }
   else {

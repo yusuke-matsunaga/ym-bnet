@@ -37,9 +37,9 @@ TEST(SimpleDecompTest, test1)
   VarId var0{0};
   VarId var1{1};
   VarId var2{2};
-  Expr lit0{Expr::posi_literal(var0)};
-  Expr lit1{Expr::posi_literal(var1)};
-  Expr lit2{Expr::posi_literal(var2)};
+  Expr lit0{Expr::make_posi_literal(var0)};
+  Expr lit1{Expr::make_posi_literal(var1)};
+  Expr lit2{Expr::make_posi_literal(var2)};
 
   Expr expr = (lit0 & ~lit1) | (~lit1 & lit2);
   vector<int> fanin_id_list{input1, input2, input3};
