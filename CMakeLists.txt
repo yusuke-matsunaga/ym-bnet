@@ -32,7 +32,6 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/ym-base/include
   ${PROJECT_SOURCE_DIR}/ym-logic/include
   ${PROJECT_SOURCE_DIR}/ym-cell/include
-  ${PROJECT_SOURCE_DIR}/ym-sat/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/private_include
   )
@@ -80,7 +79,6 @@ set ( bnet_SOURCES
   c++-src/bnet/BlifWriter.cc
   c++-src/bnet/Iscas89Writer.cc
   c++-src/bnet/VerilogWriter.cc
-  c++-src/bnet/BnNodeEnc.cc
   )
 
 set ( iscas89_SOURCES

@@ -34,15 +34,6 @@ ym_add_gtest ( bnet_FuncAnalyzer_test
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   )
 
-ym_add_gtest ( bnet_BnNodeEnc_test
-  BnNodeEncTest.cc
-  $<TARGET_OBJECTS:ym_base_obj_d>
-  $<TARGET_OBJECTS:ym_logic_obj_d>
-  $<TARGET_OBJECTS:ym_sat_obj_d>
-  $<TARGET_OBJECTS:ym_cell_obj_d>
-  $<TARGET_OBJECTS:ym_bnet_obj_d>
-  )
-
 ym_add_gtest ( bnet_read_blif_test
   read_blif_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>

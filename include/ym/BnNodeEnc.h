@@ -13,6 +13,7 @@
 #include "ym/SatSolver.h"
 #include "ym/SatTseitinEnc.h"
 
+#error "Don't use me"
 
 BEGIN_NAMESPACE_YM
 
