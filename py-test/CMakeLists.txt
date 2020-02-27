@@ -43,7 +43,6 @@ cython_add_module ( pym_bnet
   ${CYTHON_SOURCES}
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
-  $<TARGET_OBJECTS:ym_sat_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   )
