@@ -99,8 +99,8 @@ Iscas89ParserImpl::read(const string& filename)
 	  goto error;
 	}
 
-	Iscas89Token gate_type = parse_gate_type();
-	BnNodeType type = BnNodeType::None;
+	auto gate_type{parse_gate_type()};
+	auto type{BnNodeType::None};
 	vector<int> iname_id_list;
 	switch ( gate_type ) {
 	case Iscas89Token::CONST0: type = BnNodeType::C0; break;
@@ -119,7 +119,12 @@ Iscas89ParserImpl::read(const string& filename)
 	  }
 	  if ( iname_id_list.size() != 1 ) {
 	    // 引数の数が合わない．
-#warning "TODO: ちゃんとしたエラーメッセージを出す．"
+	    ostringstream buf;
+	    buf << "Syntax error: dff should have exact one input.";
+	    MsgMgr::put_msg(__FILE__, __LINE__, last_loc,
+			    MsgType::Error,
+			    "ER_SYNTAX04",
+			    buf.str());
 	    goto error;
 	  }
 	  if ( !read_dff(FileRegion(first_loc, last_loc),
@@ -548,6 +553,7 @@ token_str(Iscas89Token token)
   case Iscas89Token::ERROR:  return "__error__";
   }
   ASSERT_NOT_REACHED;
+  return "";
 }
 
 END_NONAMESPACE
