@@ -63,7 +63,7 @@ target_link_libraries ( pym_bnet
 
 set ( RUN_PYM_BNET
   env PYTHONPATH=${PROJECT_BINARY_DIR}/ym-bnet/py-test
-  ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pym_bnet_test.py)
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/pym_bnet_test.py)
 
 add_test ( bnet_py_read_blif_test
   ${RUN_PYM_BNET} ReadBlifTest
