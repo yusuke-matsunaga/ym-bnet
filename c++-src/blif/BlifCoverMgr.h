@@ -8,7 +8,6 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/bnet.h"
 
 
@@ -41,20 +40,15 @@ public:
   cover_num() const;
 
   /// @brief パタン文字列からカバー番号を返す．
-  /// @param[in] input_num 入力数
-  /// @param[in] cube_num キューブ数
-  /// @param[in] ipat_str 入力パタン文字列
-  /// @param[in] opat 出力パタン
   int
-  pat2cover(int input_num,
-	    int cube_num,
-	    const string& ipat_str,
-	    char opat_char);
+  pat2cover(int input_num,          ///< [in] 入力数
+	    int cube_num,           ///< [in] キューブ数
+	    const string& ipat_str, ///< [in] 入力パタン文字列
+	    char opat_char);        ///< [in] 出力パタン
 
   /// @brief ID番号から BlifCover を返す．
-  /// @param[in] id ID番号
   const BlifCover&
-  cover(int id) const;
+  cover(int id) const; ///< [in] ID番号
 
 
 private:
@@ -63,16 +57,12 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief BlifCover を作る．
-  /// @param[in] input_num 入力数
-  /// @param[in] cube_num キューブ数
-  /// @param[in] ipat_str 入力パタン文字列
-  /// @param[in] opat 出力パタン
   /// @return 作成された BlifCover の ID 番号を返す．
   int
-  new_cover(int input_num,
-	    int cube_num,
-	    const string& ipat_str,
-	    char opat_char);
+  new_cover(int input_num,          ///< [in] 入力数
+	    int cube_num,           ///< [in] キューブ数
+	    const string& ipat_str, ///< [in] 入力パタン文字列
+	    char opat_char);        ///< [in] 出力パタン
 
 
 private:

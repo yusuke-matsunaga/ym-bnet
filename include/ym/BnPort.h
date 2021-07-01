@@ -5,9 +5,8 @@
 /// @brief BnPort のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 
@@ -30,7 +29,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~BnPort() { }
+  ~BnPort() = default;
 
 
 public:
@@ -54,11 +53,11 @@ public:
   bit_width() const = 0;
 
   /// @brief pos ビット目のノード番号を得る．
-  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
   virtual
   int
-  bit(int pos) const = 0;
+  bit(int pos) const ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+  = 0;
 
 };
 

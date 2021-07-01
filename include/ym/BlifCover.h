@@ -5,9 +5,8 @@
 /// @brief BlifCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 
@@ -23,15 +22,17 @@ class BlifCover
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] ni 入力数
-  /// @param[in] ipat_list 入力のパタンベクタ
-  /// @param[in] opat 出力のパタン
   ///
   /// - ipat_list の要素は '0', '1', '-' のいずれか
   /// - opat は '0', '1' のいずれか
-  BlifCover(int ni,
-	    const vector<string>& ipat_list,
-	    char opat);
+  BlifCover(int ni,                          ///< [in] 入力数
+	    const vector<string>& ipat_list, ///< [in] 入力のパタンベクタ
+	    char opat)                       ///< [in] 出力のパタン
+    : mInputNum{ni},
+      mInputPatList{ipat_list},
+      mOutputPat{opat}
+  {
+  }
 
   /// @brief デストラクタ
   ~BlifCover() = default;
@@ -44,37 +45,33 @@ public:
 
   /// @brief 入力数を返す．
   int
-  input_num() const;
+  input_num() const { return mInputNum; }
 
   /// @brief キューブ数を返す．
   int
-  cube_num() const;
+  cube_num() const { return mInputPatList.size(); }
 
   /// @brief 入力パタンを返す．
-  /// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
-  /// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
-  /// @return パタンを返す．
+  /// @return パタンを返す．('0', '1', '-')
   char
-  input_pat(int cpos,
-	    int ipos) const;
+  input_pat(int cpos,       ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
+	    int ipos) const ///< [in] 入力番号 ( 0 <= ipos < input_num() )
+  {
+    ASSERT_COND( 0 <= cpos && cpos < cube_num() );
+    ASSERT_COND( 0 <= ipos && ipos < input_num() );
+    return mInputPatList[cpos][ipos];
+  }
 
   /// @brief 出力パタンを返す．
   ///
   /// - すべてのキューブに対して同一のパタンとなる．
   /// - ドントケアはない．
   char
-  output_pat() const;
+  output_pat() const { return mOutputPat; }
 
   /// @brief 内容を出力する．
-  /// @param[in] s 出力先のストリーム
   void
-  print(ostream& s) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  print(ostream& s) const; ///< [in] 出力先のストリーム
 
 
 private:
@@ -92,66 +89,6 @@ private:
   char mOutputPat;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] ni 入力数
-// @param[in] ipat_list 入力のパタンベクタ
-// @param[in] opat 出力のパタン
-inline
-BlifCover::BlifCover(int ni,
-		     const vector<string>& ipat_list,
-		     char opat) :
-  mInputNum{ni},
-  mInputPatList{ipat_list},
-  mOutputPat{opat}
-{
-}
-
-// @brief 入力数を返す．
-inline
-int
-BlifCover::input_num() const
-{
-  return mInputNum;
-}
-
-// @brief キューブ数を返す．
-inline
-int
-BlifCover::cube_num() const
-{
-  return mInputPatList.size();
-}
-
-// @brief 入力パタンを返す．
-// @param[in] cpos キューブ番号 ( 0 <= cpos < cube_num() )
-// @param[in] ipos 入力番号 ( 0 <= ipos < input_num() )
-// @return パタンを返す．
-inline
-char
-BlifCover::input_pat(int cpos,
-		     int ipos) const
-{
-  ASSERT_COND( 0 <= cpos && cpos < cube_num() );
-  ASSERT_COND( 0 <= ipos && ipos < input_num() );
-  return mInputPatList[cpos][ipos];
-}
-
-// @brief 出力パタンを返す．
-//
-// - すべてのキューブに対して同一のパタンとなる．
-// - ドントケアはない．
-inline
-char
-BlifCover::output_pat() const
-{
-  return mOutputPat;
-}
 
 END_NAMESPACE_YM_BNET
 

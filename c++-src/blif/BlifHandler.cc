@@ -23,14 +23,9 @@ BEGIN_NAMESPACE_YM_BNET
 //
 // 生成されたハンドラは自動的に parser に登録される．
 BlifHandler::BlifHandler(BlifParser& parser) :
-  mParser(*parser.mImpl.get())
+  mParser{*parser.mImpl.get()}
 {
   mParser.add_handler(this);
-}
-
-// @brief デストラクタ
-BlifHandler::~BlifHandler()
-{
 }
 
 // @brief ID番号から文字列を得る．

@@ -5,9 +5,8 @@
 /// @brief BnNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 #include "ym/logic.h"
@@ -56,7 +55,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~BnNode() { }
+  ~BnNode() = default;
 
 
 public:
@@ -106,10 +105,10 @@ public:
   fanout_num() const = 0;
 
   /// @brief ファンアウトのノード番号を返す．
-  /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   virtual
   int
-  fanout_id(int pos) const = 0;
+  fanout_id(int pos) const ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
+  = 0;
 
   /// @brief ファンアウトのノード番号のリストを返す．
   virtual
@@ -268,12 +267,12 @@ public:
   fanin_num() const = 0;
 
   /// @brief ファンインのノード番号を返す．
-  /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   ///
   /// - is_logic() == false の時の動作は不定
   virtual
   int
-  fanin_id(int pos) const = 0;
+  fanin_id(int pos) const ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+  = 0;
 
   /// @brief ファンインのノード番号のリストを返す．
   virtual

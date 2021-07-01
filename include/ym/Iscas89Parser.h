@@ -5,9 +5,8 @@
 /// @brief Iscas89Parser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 
@@ -41,11 +40,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
-  /// @param[in] filename ファイル名
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename);
+  read(const string& filename); ///< [in] ファイル名
 
 
 private:

@@ -5,9 +5,8 @@
 /// @brief ym/BlifParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 #include "ym/clib.h"
@@ -44,20 +43,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
-  /// @param[in] filename ファイル名
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename);
+  read(const string& filename); ///< [in] ファイル名
 
   /// @brief 読み込みを行う(セルライブラリ付き)．
-  /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリ
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename,
-       const ClibCellLibrary& cell_library);
+  read(const string& filename,               ///< [in] ファイル名
+       const ClibCellLibrary& cell_library); ///< [in] セルライブラリ
 
 
 private:

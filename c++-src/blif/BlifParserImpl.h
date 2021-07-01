@@ -5,9 +5,8 @@
 /// @brief BlifParserImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 #include "ym/ClibCellLibrary.h"
@@ -41,18 +40,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
-  /// @param[in] filename ファイル名
-  /// @param[in] cell_library セルライブラリ
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename,
-       const ClibCellLibrary& cell_library);
+  read(const string& filename,               ///< [in] ファイル名
+       const ClibCellLibrary& cell_library); ///< [in] セルライブラリ
 
   /// @brief イベントハンドラの登録
-  /// @param[in] handler 登録するハンドラ
   void
-  add_handler(BlifHandler* handler);
+  add_handler(BlifHandler* handler); ///< [in] 登録するハンドラ
 
 
 public:
@@ -62,19 +58,33 @@ public:
 
   /// @brief ID番号から文字列を得る．
   const string&
-  id2str(int id);
+  id2str(int id) ///< [in] ID番号
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    return mCellArray[id].name();
+  }
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2loc(int id);
+  id2loc(int id) ///< [in] ID番号
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    return mCellArray[id].def_loc();
+  }
 
   /// @brief カバーの数を得る．
   int
-  cover_num();
+  cover_num()
+  {
+    return mCoverMgr.cover_num();
+  }
 
   /// @brief カバーIDから BlifCover を得る．
   const BlifCover&
-  id2cover(int id);
+  id2cover(int id) ///< [in] ID番号
+  {
+    return mCoverMgr.cover(id);
+  }
 
 
 private:
@@ -89,46 +99,61 @@ private:
 
     /// @brief コンストラクタ
     IdCell(const string& name,
-	   const FileRegion& loc);
+	   const FileRegion& loc)
+      : mName{name},
+	mRefLoc{loc}
+    {
+    }
 
     /// @brief デストラクタ
     ~IdCell() = default;
 
     /// @brief 定義済みシンボルのとき true を返す．
     bool
-    is_defined() const;
+    is_defined() const { return mFlags[0]; }
 
     /// @brief 入力として定義されている時 true を返す．
     bool
-    is_input() const;
+    is_input() const { return mFlags[1]; }
 
     /// @brief 出力として定義されている時 true を返す．
     bool
-    is_output() const;
+    is_output() const { return mFlags[2]; }
 
     /// @brief このシンボルを参照している位置を返す．
     const FileRegion&
-    ref_loc() const;
+    ref_loc() const { return mRefLoc; }
 
     /// @brief このシンボルの定義された位置を返す．
     const FileRegion&
-    def_loc() const;
+    def_loc() const { return mDefLoc; }
 
     /// @brief このシンボルの名前を返す．
     const string&
-    name() const;
+    name() const { return mName; }
 
     /// @brief 定義済みフラグをセットする．
     void
-    set_defined(const FileRegion& loc);
+    set_defined(const FileRegion& loc)
+    {
+      mDefLoc = loc;
+      mFlags.set(0);
+    }
 
     /// @brief 入力として定義されたことをセットする．
     void
-    set_input(const FileRegion& loc);
+    set_input(const FileRegion& loc)
+    {
+      set_defined(loc);
+      mFlags.set(1);
+    }
 
     /// @brief 出力として用いられていることをセットする．
     void
-    set_output();
+    set_output()
+    {
+      mFlags.set(2);
+    }
 
 
   private:
@@ -311,127 +336,6 @@ private:
   FileRegion mCurLoc;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief ID番号から文字列を得る．
-inline
-const string&
-BlifParserImpl::id2str(int id)
-{
-  ASSERT_COND( 0 <= id && id < mCellArray.size() );
-  return mCellArray[id].name();
-}
-
-// @brief ID番号からそれに関連した位置情報を得る．
-inline
-const FileRegion&
-BlifParserImpl::id2loc(int id)
-{
-  ASSERT_COND( 0 <= id && id < mCellArray.size() );
-  return mCellArray[id].def_loc();
-}
-
-// @brief カバーの数を得る．
-inline
-int
-BlifParserImpl::cover_num()
-{
-  return mCoverMgr.cover_num();
-}
-
-// @brief カバーIDから BlifCover を得る．
-inline
-const BlifCover&
-BlifParserImpl::id2cover(int id)
-{
-  return mCoverMgr.cover(id);
-}
-
-// @brief コンストラクタ
-inline
-BlifParserImpl::IdCell::IdCell(const string& name,
-			       const FileRegion& loc) :
-  mName{name},
-  mRefLoc{loc}
-{
-}
-
-// @brief 定義済みシンボルのとき true を返す．
-inline
-bool
-BlifParserImpl::IdCell::is_defined() const
-{
-  return mFlags[0];
-}
-
-// @brief 入力として定義されている時 true を返す．
-inline
-bool
-BlifParserImpl::IdCell::is_input() const
-{
-  return mFlags[1];
-}
-
-// @brief 出力として定義されている時 true を返す．
-inline
-bool
-BlifParserImpl::IdCell::is_output() const
-{
-  return mFlags[2];
-}
-
-// @brief このシンボルを参照している位置を返す．
-inline
-const FileRegion&
-BlifParserImpl::IdCell::ref_loc() const
-{
-  return mRefLoc;
-}
-
-// @brief このシンボルの定義された位置を返す．
-inline
-const FileRegion&
-BlifParserImpl::IdCell::def_loc() const
-{
-  return mDefLoc;
-}
-
-// @brief このシンボルの名前を返す．
-inline
-const string&
-BlifParserImpl::IdCell::name() const
-{
-  return mName;
-}
-
-// @brief 定義済みフラグをセットする．
-inline
-void
-BlifParserImpl::IdCell::set_defined(const FileRegion& loc)
-{
-  mDefLoc = loc;
-  mFlags.set(0);
-}
-
-// @brief 入力として定義されたことをセットする．
-inline
-void
-BlifParserImpl::IdCell::set_input(const FileRegion& loc)
-{
-  set_defined(loc);
-  mFlags.set(1);
-}
-
-inline
-void
-BlifParserImpl::IdCell::set_output()
-{
-  mFlags.set(2);
-}
 
 END_NAMESPACE_YM_BNET
 

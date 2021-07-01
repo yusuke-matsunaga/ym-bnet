@@ -5,9 +5,8 @@
 /// @brief BlibDic のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 
@@ -76,13 +75,13 @@ public:
 
   /// @brief str に対応したトークンを返す．
   BlifToken
-  get_token(const char* str);
+  get_token(const char* str); ///< [in] 対象の文字列
 
   /// @brief トークンの内容を出力する．
   static
   void
-  dump_token(ostream& s,
-	     BlifToken token);
+  dump_token(ostream& s,       ///< [in] 出力先のストリーム
+	     BlifToken token); ///< [in] トークン
 
 
 private:
@@ -119,11 +118,9 @@ private:
 
 /// @relates Token
 /// @brief トークンを出力する．
-/// @param[in] s 出力先のストリーム
-/// @param[in] token トークン
 ostream&
-operator<<(ostream& s,
-	   BlifToken token);
+operator<<(ostream& s,       ///< [in] 出力先のストリーム
+	   BlifToken token); ///< [in] トークン
 
 
 END_NAMESPACE_YM_BNET

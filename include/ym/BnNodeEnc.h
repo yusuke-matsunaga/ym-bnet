@@ -5,7 +5,7 @@
 /// @brief BnNodeEnc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -26,15 +26,12 @@ class BnNodeEnc
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] solver SATソルバ
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] varmap 変数番号のマップ
-  BnNodeEnc(SatSolver& solver,
-	    const BnNetwork& network,
-	    const vector<SatLiteral>& varmap);
+  BnNodeEnc(SatSolver& solver,                 ///< [in] SATソルバ
+	    const BnNetwork& network,          ///< [in] 対象のネットワーク
+	    const vector<SatLiteral>& varmap); ///< [in] 変数番号のマップ
 
   /// @brief デストラクタ
-  ~BnNodeEnc();
+  ~BnNodeEnc() = default;
 
 
 public:
@@ -43,9 +40,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードの入出力の関係を表すCNF式を作る．
-  /// @param[in] node 対象のノード
   void
-  make_cnf(const BnNode& node);
+  make_cnf(const BnNode& node); ///< [in] 対象のノード
 
 
 private:

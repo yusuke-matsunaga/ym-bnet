@@ -5,9 +5,8 @@
 /// @brief BlibScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 #include "ym/InputFileObj.h"
@@ -26,8 +25,7 @@ class BlifScanner
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] in 入力ファイルオブジェクト
-  BlifScanner(InputFileObj& in);
+  BlifScanner(InputFileObj& in); ///< [in] 入力ファイルオブジェクト
 
   /// @brief デストラクタ
   ~BlifScanner() = default;
@@ -39,13 +37,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief トークンを一つ読み出す．
-  /// @param[out] loc トークンの位置を格納する変数
   BlifToken
-  read_token(FileRegion& loc);
+  read_token(FileRegion& loc); ///< [out] トークンの位置を格納する変数
 
   /// @brief 最後の get_token() で読み出した字句の文字列を返す．
   string
-  cur_string();
+  cur_string() { return mCurString; }
 
 
 private:
@@ -59,10 +56,9 @@ private:
   scan();
 
   /// @brief 予約後の検査をする．
-  /// @param[in] start_with_dot '.' で始まっている時に true を渡す．
   /// @return トークンを返す．
   BlifToken
-  check_word(bool start_with_dot);
+  check_word(bool start_with_dot); ///< [in] '.' で始まっている時に true を渡す．
 
 
 private:
@@ -83,19 +79,6 @@ private:
   FileLoc mFirstLoc;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 最後の get_token() で読み出した字句の文字列を返す．
-inline
-string
-BlifScanner::cur_string()
-{
-  return mCurString;
-}
 
 END_NAMESPACE_YM_BNET
 
