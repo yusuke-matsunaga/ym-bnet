@@ -49,7 +49,7 @@ main(int argc,
   try {
 #endif
 
-    StreamMsgHandler msg_handler(&cerr);
+    StreamMsgHandler msg_handler(cerr);
     MsgMgr::attach_handler(&msg_handler);
 
     BlifParser parser;

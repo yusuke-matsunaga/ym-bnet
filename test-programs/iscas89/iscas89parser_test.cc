@@ -260,7 +260,7 @@ main(int argc,
     Iscas89Parser parser;
     TestIscas89Handler handler(parser, &cout);
 
-    StreamMsgHandler msg_handler(&cerr);
+    StreamMsgHandler msg_handler(cerr);
     MsgMgr::attach_handler(&msg_handler);
 
     if ( !parser.read(filename) ) {
