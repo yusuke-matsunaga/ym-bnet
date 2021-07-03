@@ -3,9 +3,8 @@
 /// @brief BlifCoverMgr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BlifCoverMgr.h"
 #include "ym/BlifCover.h"
@@ -47,6 +46,7 @@ key_func(const BlifCover* cover)
 
 END_NONAMESPACE
 
+
 //////////////////////////////////////////////////////////////////////
 // クラス BlifCover
 //////////////////////////////////////////////////////////////////////
@@ -80,9 +80,10 @@ BlifCoverMgr::cover_num() const
 }
 
 // @brief ID番号から BlifCover を返す．
-// @param[in] id ID番号
 const BlifCover&
-BlifCoverMgr::cover(int id) const
+BlifCoverMgr::cover(
+  int id
+) const
 {
   ASSERT_COND( 0 <= id && id < cover_num() );
 
@@ -90,15 +91,13 @@ BlifCoverMgr::cover(int id) const
 }
 
 // @brief パタン文字列からカバーを返す．
-// @param[in] input_num 入力数
-// @param[in] cube_num キューブ数
-// @param[in] ipat_str 入力パタン文字列
-// @param[in] opat 出力パタン
 int
-BlifCoverMgr::pat2cover(int input_num,
-			int cube_num,
-			const string& ipat_str,
-			char opat_char)
+BlifCoverMgr::pat2cover(
+  int input_num,
+  int cube_num,
+  const string& ipat_str,
+  char opat_char
+)
 {
   // カバーを表す文字列を作る．
   auto key_str{key_func(input_num, ipat_str, opat_char)};
@@ -119,15 +118,13 @@ BlifCoverMgr::pat2cover(int input_num,
 }
 
 // @brief BlifCover を作る．
-// @param[in] input_num 入力数
-// @param[in] cube_num キューブ数
-// @param[in] ipat_str 入力パタン文字列
-// @param[in] opat 出力パタン
 int
-BlifCoverMgr::new_cover(int input_num,
-			int cube_num,
-			const string& ipat_str,
-			char opat)
+BlifCoverMgr::new_cover(
+  int input_num,
+  int cube_num,
+  const string& ipat_str,
+  char opat
+)
 {
   vector<string> ipat_list;
   ipat_list.reserve(cube_num);

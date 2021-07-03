@@ -25,7 +25,9 @@ class BlifScanner
 public:
 
   /// @brief コンストラクタ
-  BlifScanner(InputFileObj& in); ///< [in] 入力ファイルオブジェクト
+  BlifScanner(
+    InputFileObj& in ///< [in] 入力ファイルオブジェクト
+  );
 
   /// @brief デストラクタ
   ~BlifScanner() = default;
@@ -38,7 +40,9 @@ public:
 
   /// @brief トークンを一つ読み出す．
   BlifToken
-  read_token(FileRegion& loc); ///< [out] トークンの位置を格納する変数
+  read_token(
+    FileRegion& loc ///< [out] トークンの位置を格納する変数
+  );
 
   /// @brief 最後の get_token() で読み出した字句の文字列を返す．
   string
@@ -58,7 +62,9 @@ private:
   /// @brief 予約後の検査をする．
   /// @return トークンを返す．
   BlifToken
-  check_word(bool start_with_dot); ///< [in] '.' で始まっている時に true を渡す．
+  check_word(
+    bool start_with_dot ///< [in] '.' で始まっている時に true を渡す．
+  );
 
 
 private:

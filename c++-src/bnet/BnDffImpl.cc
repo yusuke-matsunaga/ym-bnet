@@ -3,9 +3,8 @@
 /// @brief BnDffImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnDffImpl.h"
 #include "ym/ClibCell.h"
@@ -17,42 +16,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 // クラス BnDffImpl
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] input 入力端子のノード番号
-// @param[in] output 出力端子のノード番号
-// @param[in] xoutput 出力端子のノード番号
-// @param[in] clock クロック端子のノード番号
-// @param[in] clear クリア端子のノード番号
-// @param[in] preset プリセット端子のノード番号
-// @param[in] cell_id セル番号
-BnDffImpl::BnDffImpl(int id,
-		     const string& name,
-		     int input,
-		     int output,
-		     int xoutput,
-		     int clock,
-		     int clear,
-		     int preset,
-		     int cell_id) :
-  mId(id),
-  mName(name),
-  mInput(input),
-  mOutput(output),
-  mXOutput(xoutput),
-  mClock(clock),
-  mClear(clear),
-  mPreset(preset),
-  mCellId(cell_id)
-{
-}
-
-// @brief デストラクタ
-BnDffImpl::~BnDffImpl()
-{
-}
 
 // @brief ID 番号の取得
 // @return ID 番号を返す．

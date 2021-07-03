@@ -5,9 +5,8 @@
 /// @brief Iscas89ParserImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 #include "ym/FileRegion.h"
@@ -38,24 +37,38 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
-  /// @param[in] filename ファイル名
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename);
+  read(
+    const string& filename ///< [in] ファイル名
+  );
 
   /// @brief イベントハンドラの登録
-  /// @param[in] handler 登録するハンドラ
   void
-  add_handler(Iscas89Handler* handler);
+  add_handler(
+    Iscas89Handler* handler ///< [in] 登録するハンドラ
+  );
 
   /// @brief ID 番号から文字列を得る．
   const string&
-  id2str(int id) const;
+  id2str(
+    int id ///< [in] ID番号
+  ) const
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    return mIdCellArray[id].name();
+  }
 
   /// @brief ID 番号から位置情報を得る．
   const FileRegion&
-  id2loc(int id) const;
+  id2loc(
+    int id ///< [in] ID番号
+  ) const
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    return mIdCellArray[id].loc();
+  }
 
 
 private:
@@ -69,41 +82,58 @@ private:
   public:
 
     /// @brief コンストラクタ
-    IdCell(const string& name);
+    IdCell(
+      const string& name ///< [in] 名前
+    ) : mFlags{0},
+	mName{name}
+    {
+    }
 
     /// @brief デストラクタ
     ~IdCell() = default;
 
     /// @brief 定義済みシンボルのとき true を返す．
     bool
-    is_defined() const;
+    is_defined() const { return mFlags[0]; }
 
     /// @brief 入力として定義されている時 true を返す．
     bool
-    is_input() const;
+    is_input() const { return mFlags[1]; }
 
     /// @brief 出力として定義されている時 true を返す．
     bool
-    is_output() const;
+    is_output() const { return mFlags[2]; }
 
     /// @brief このシンボルの定義された位置を返す．
     const FileRegion&
-    loc() const;
+    loc() const { return mLoc; }
 
     /// @brief このシンボルの名前を返す．
     const string&
-    name() const;
+    name() const { return mName; }
 
     /// @brief 定義済みフラグをセットする．
     void
-    set_defined(const FileRegion& loc);
+    set_defined(
+      const FileRegion& loc ///< [in] ファイル上の位置
+    )
+    {
+      mLoc = loc;
+      mFlags.set(0);
+    }
 
     /// @brief 入力として定義されたことをセットする．
     void
-    set_input();
+    set_input()
+    {
+      mFlags.set(1);
+    }
 
     void
-    set_output();
+    set_output()
+    {
+      mFlags.set(2);
+    }
 
 
   private:
@@ -139,80 +169,79 @@ private:
   parse_gate_type();
 
   /// @brief '(' ')' で囲まれた名前を読み込む．
-  /// @param[in] name_id 名前の識別子番号を格納する変数．
-  /// @param[in] last_loc 末尾のファイル位置
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   ///
   /// エラーが起きたらエラーメッセージをセットする．
   bool
-  parse_name(int& name_id,
-	     FileRegion& last_loc);
+  parse_name(
+    int& name_id,        ///< [out] 名前の識別子番号を格納する変数．
+    FileRegion& last_loc ///< [in] 末尾のファイル位置
+  );
 
   /// @brief '(' ')' で囲まれた名前のリストを読み込む．
-  /// @param[in] name_id_list 名前の識別子番号を格納するリスト．
-  /// @param[in] last_loc 末尾のファイル位置
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   ///
   /// エラーが起きたらエラーメッセージをセットする．
   bool
-  parse_name_list(vector<int>& name_id_list,
-		  FileRegion& last_loc);
+  parse_name_list(
+    vector<int>& name_id_list, ///< [out] 名前の識別子番号を格納するリスト．
+    FileRegion& last_loc       ///< [in] 末尾のファイル位置
+  );
 
   /// @brief INPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 入力ピン名の ID 番号
   /// @return エラーが起きたら false を返す．
   bool
-  read_input(const FileRegion& loc,
-	     int name_id);
+  read_input(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int name_id            ///< [in] 入力ピン名の ID 番号
+  );
 
   /// @brief OUTPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 出力ピン名の ID 番号
   /// @return エラーが起きたら false を返す．
   bool
-  read_output(const FileRegion& loc,
-	      int name_id);
+  read_output(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int name_id            ///< [in] 出力ピン名の ID 番号
+  );
 
   /// @brief ゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] type ゲートタイプ
   /// @return エラーが起きたら false を返す．
   bool
-  read_gate(const FileRegion& loc,
-	    int oname_id,
-	    BnNodeType type,
-	    const vector<int>& iname_id_list);
+  read_gate(
+    const FileRegion& loc,           ///< [in] ファイル位置
+    int oname_id,                    ///< [in] 出力名の ID 番号
+    BnNodeType type,                 ///< [in] ゲートタイプ
+    const vector<int>& iname_id_list ///< [in] 入力名のID番号のリスト
+  );
 
   /// @brief ゲート文(MUX)を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
   /// @return エラーが起きたら false を返す．
   bool
-  read_mux(const FileRegion& loc,
-	   int oname_id,
-	   const vector<int>& iname_id_list);
+  read_mux(
+    const FileRegion& loc,           ///< [in] ファイル位置
+    int oname_id,                    ///< [in] 出力名の ID 番号
+    const vector<int>& iname_id_list ///< [in] 入力名のID番号のリスト
+  );
 
   /// @brief D-FF用のゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] type ゲートタイプ
   /// @return エラーが起きたら false を返す．
   bool
-  read_dff(const FileRegion& loc,
-	   int oname_id,
-	   int iname_id);
+  read_dff(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int oname_id,          ///< [in] 出力名の ID 番号
+    int iname_id           ///< [in] 入力名のID番号
+  );
 
   /// @brief 次のトークンが期待されている型か調べる．
-  /// @param[in] exp_token トークンの期待値
   /// @return ok/ng, 識別子番号, ファイル位置のタプルを返す．
   ///
   /// トークンが exp_token と同じなら ok/ng は true となる．
   tuple<bool, int, FileRegion>
-  expect(Iscas89Token exp_token);
+  expect(
+    Iscas89Token exp_token ///< [in] トークンの期待値
+  );
 
   /// @brief トークンを一つ読みだす．
   /// @return 型，識別子番号，位置のタプルを返す．
@@ -222,48 +251,77 @@ private:
   read_token();
 
   /// @brief 文字列用の領域を確保する．
-  /// @param[in] src_str ソース文字列
-  /// @param[in] loc 文字列の位置情報
   /// @return 文字列の ID 番号
   int
-  reg_id(const string& src_str,
-	 const FileRegion& loc);
+  reg_id(
+    const string& src_str, ///< [in] ソース文字列
+    const FileRegion& loc  ///< [in] 文字列の位置情報
+  );
 
   /// @brief 該当の識別子が定義済みか調べる．
-  /// @param[in] id ID番号
   bool
-  is_defined(int id) const;
+  is_defined(
+    int id ///< [in] ID番号
+  ) const
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    return mIdCellArray[id].is_defined();
+  }
 
   /// @brief 該当の識別子が入力か調べる．
-  /// @param[in] id ID番号
   bool
-  is_input(int id) const;
+  is_input(
+    int id ///< [in] ID番号
+  ) const
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    return mIdCellArray[id].is_input();
+  }
 
   /// @brief 該当の識別子が出力か調べる．
-  /// @param[in] id ID番号
   bool
-  is_output(int id) const;
+  is_output(
+    int id ///< [in] ID番号
+  ) const
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    return mIdCellArray[id].is_output();
+  }
 
   /// @brief 識別子に定義済みの印を付ける．
-  /// @param[in] id ID番号
-  /// @param[in] loc 定義している場所
   void
-  set_defined(int id,
-	      const FileRegion& loc);
+  set_defined(
+    int id,               ///< [in] ID番号
+    const FileRegion& loc ///< [in] 定義している場所
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    mIdCellArray[id].set_defined(loc);
+  }
 
   /// @brief 識別子に入力の印を付ける．
-  /// @param[in] id ID番号
-  /// @param[in] loc 定義している場所
   ///
   /// 同時に定義済みになる．
   void
-  set_input(int id,
-	    const FileRegion& loc);
+  set_input(
+    int id,               ///< [in] ID番号
+    const FileRegion& loc ///< [in] 定義している場所
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    mIdCellArray[id].set_input();
+    mIdCellArray[id].set_defined(loc);
+  }
 
   /// @brief 識別子に出力の印を付ける．
-  /// @param[in] id ID番号
   void
-  set_output(int id);
+  set_output(
+    int id ///< [in] ID番号
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
+    mIdCellArray[id].set_output();
+  }
 
   /// @brief スキャナーを削除する．
   void
@@ -291,168 +349,6 @@ private:
   vector<pair<int, FileRegion>> mOidArray;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief ID 番号から文字列を得る．
-inline
-const string&
-Iscas89ParserImpl::id2str(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  return mIdCellArray[id].name();
-}
-
-// @brief ID 番号から位置情報を得る．
-inline
-const FileRegion&
-Iscas89ParserImpl::id2loc(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  return mIdCellArray[id].loc();
-}
-
-// @brief 該当の識別子が定義済みか調べる．
-// @param[in] id ID番号
-inline
-bool
-Iscas89ParserImpl::is_defined(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  return mIdCellArray[id].is_defined();
-}
-
-// @brief 該当の識別子が入力か調べる．
-// @param[in] id ID番号
-inline
-bool
-Iscas89ParserImpl::is_input(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  return mIdCellArray[id].is_input();
-}
-
-// @brief 該当の識別子が出力か調べる．
-// @param[in] id ID番号
-inline
-bool
-Iscas89ParserImpl::is_output(int id) const
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  return mIdCellArray[id].is_output();
-}
-
-// @brief 識別子に定義済みの印を付ける．
-// @param[in] id ID番号
-// @param[in] loc 定義している場所
-inline
-void
-Iscas89ParserImpl::set_defined(int id,
-			       const FileRegion& loc)
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  mIdCellArray[id].set_defined(loc);
-}
-
-// @brief 識別子に入力の印を付ける．
-// @param[in] id ID番号
-// @param[in] loc 定義している場所
-//
-// 同時に定義済みになる．
-inline
-void
-Iscas89ParserImpl::set_input(int id,
-			     const FileRegion& loc)
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  mIdCellArray[id].set_input();
-  mIdCellArray[id].set_defined(loc);
-}
-
-// @brief 識別子に出力の印を付ける．
-// @param[in] id ID番号
-inline
-void
-Iscas89ParserImpl::set_output(int id)
-{
-  ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-  mIdCellArray[id].set_output();
-}
-
-// @brief コンストラクタ
-inline
-Iscas89ParserImpl::IdCell::IdCell(const string& name) :
-  mFlags{0},
-  mName{name}
-{
-}
-
-// @brief 定義済みシンボルのとき true を返す．
-inline
-bool
-Iscas89ParserImpl::IdCell::is_defined() const
-{
-  return mFlags[0];
-}
-
-// @brief 入力として定義されている時 true を返す．
-inline
-bool
-Iscas89ParserImpl::IdCell::is_input() const
-{
-  return mFlags[1];
-}
-
-// @brief 出力として定義されている時 true を返す．
-inline
-bool
-Iscas89ParserImpl::IdCell::is_output() const
-{
-  return mFlags[2];
-}
-
-// @brief このシンボルの定義された位置を返す．
-inline
-const FileRegion&
-Iscas89ParserImpl::IdCell::loc() const
-{
-  return mLoc;
-}
-
-// @brief このシンボルの名前を返す．
-inline
-const string&
-Iscas89ParserImpl::IdCell::name() const
-{
-  return mName;
-}
-
-// @brief 定義済みフラグをセットする．
-inline
-void
-Iscas89ParserImpl::IdCell::set_defined(const FileRegion& loc)
-{
-  mLoc = loc;
-  mFlags.set(0);
-}
-
-// @brief 入力として定義されたことをセットする．
-inline
-void
-Iscas89ParserImpl::IdCell::set_input()
-{
-  mFlags.set(1);
-}
-
-inline
-void
-Iscas89ParserImpl::IdCell::set_output()
-{
-  mFlags.set(2);
-}
 
 END_NAMESPACE_YM_BNET
 

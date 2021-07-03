@@ -75,20 +75,28 @@ public:
   BnNetwork();
 
   /// @brief コピーコンストラクタ
-  BnNetwork(const BnNetwork& src); ///< [in] コピー元のオブジェクト
+  BnNetwork(
+    const BnNetwork& src ///< [in] コピー元のオブジェクト
+  );
 
   /// @brief ムーブコンストラクタ
-  BnNetwork(BnNetwork&& src); ///< [in] ムーブ元のオブジェクト
+  BnNetwork(
+    BnNetwork&& src ///< [in] ムーブ元のオブジェクト
+  );
 
   /// @brief コピー代入演算子
   /// @return 代入後の自身への参照を返す．
   BnNetwork&
-  operator=(const BnNetwork& src); ///< [in] コピー元のオブジェクト
+  operator=(
+    const BnNetwork& src ///< [in] コピー元のオブジェクト
+  );
 
   /// @brief ムーブ代入演算子
   /// @return 代入後の自身への参照を返す．
   BnNetwork&
-  operator=(BnNetwork&& src); ///< [in] ムーブ元のオブジェクト
+  operator=(
+    BnNetwork&& src ///< [in] ムーブ元のオブジェクト
+  );
 
   /// @brief デストラクタ
   ~BnNetwork();
@@ -108,61 +116,81 @@ public:
 
   /// @brief 内容をコピーする．
   void
-  copy(const BnNetwork& src); ///< [in] コピー元のオブジェクト
+  copy(
+    const BnNetwork& src ///< [in] コピー元のオブジェクト
+  );
 
   /// @brief 内容をムーブする．
   ///
   /// src は破壊される．
   void
-  move(BnNetwork&& src); ///< [in] ムーブ元のオブジェクト
+  move(
+    BnNetwork&& src ///< [in] ムーブ元のオブジェクト
+  );
 
   /// @brief セルライブラリをセットする．
   void
-  set_library(const ClibCellLibrary& library); ///< [in] ライブラリ
+  set_library(
+    const ClibCellLibrary& library ///< [in] ライブラリ
+  );
 
   /// @brief ネットワーク名を設定する．
   void
-  set_name(const string& name); ///< [in] ネットワーク名
+  set_name(
+    const string& name ///< [in] ネットワーク名
+  );
 
   /// @brief 1ビットの入力ポートを作る．
   /// @return 生成したポート番号を返す．
   int
-  new_input_port(const string& port_name); ///< [in] ポート名
+  new_input_port(
+    const string& port_name ///< [in] ポート名
+  );
 
   /// @brief 多ビットの入力ポートを作る．
   /// @return 生成したポート番号を返す．
   int
-  new_input_port(const string& port_name, ///< [in] ポート名
-		 int bit_width);          ///< [in] ビット幅
+  new_input_port(
+    const string& port_name, ///< [in] ポート名
+    int bit_width            ///< [in] ビット幅
+  );
 
   /// @brief 1ビットの出力ポートを作る．
   /// @return 生成したポート番号を返す．
   int
-  new_output_port(const string& port_name); ///< [in] ポート名
+  new_output_port(
+    const string& port_name ///< [in] ポート名
+  );
 
   /// @brief 多ビットの出力ポートを作る．
   /// @return 生成したポート番号を返す．
   int
-  new_output_port(const string& port_name, ///< [in] ポート名
-		  int bit_width);          ///< [in] ビット幅
+  new_output_port(
+    const string& port_name, ///< [in] ポート名
+    int bit_width            ///< [in] ビット幅
+  );
 
   /// @brief 入出力混合のポートを作る．
   /// @return 生成したポート番号を返す．
   ///
   /// - dir_vect[i] == 0 の時，入力を表す．
   int
-  new_port(const string& port_name,      ///< [in] ポート名
-	   const vector<int>& dir_vect); ///< [in] 向きを表すベクタ
+  new_port(
+    const string& port_name,    ///< [in] ポート名
+    const vector<int>& dir_vect ///< [in] 向きを表すベクタ
+  );
 
   /// @brief DFFを追加する．
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   int
-  new_dff(const string& name,       ///< [in] DFF名
-	  bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
-	  bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-	  bool has_preset = false); ///< [in] プリセット端子を持つ時 true にする．
+  new_dff(
+    const string& name,       ///< [in] DFF名
+    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
+    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
+  );
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @return 生成したDFF番号を返す．
@@ -170,18 +198,22 @@ public:
   /// - 名前の重複に関しては感知しない．
   /// - FFセルでない場合には -1 を返す．
   int
-  new_dff(const string& name, ///< [in] DFF名
-	  int cell_id);       ///< [in] 対応するセル番号
+  new_dff(
+    const string& name, ///< [in] DFF名
+    int cell_id         ///< [in] 対応するセル番号
+  );
 
   /// @brief ラッチを追加する．
   /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   int
-  new_latch(const string& name,       ///< [in] ラッチ名
-	    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
-	    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-	    bool has_preset = false); ///< [in] プリセット端子を持つ時 true にする．
+  new_latch(
+    const string& name,       ///< [in] ラッチ名
+    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
+    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
+  );
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @return 生成したラッチ番号を返す．
@@ -189,8 +221,10 @@ public:
   /// - 名前の重複に関しては感知しない．
   /// - ラッチセルでない場合には -1 を返す．
   int
-  new_latch(const string& name, ///< [in] ラッチ名
-	    int cell_id);       ///< [in] 対応するセル番号
+  new_latch(
+    const string& name, ///< [in] ラッチ名
+    int cell_id         ///< [in] 対応するセル番号
+  );
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -198,9 +232,11 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   int
-  new_logic(const string& node_name, ///< [in] ノード名
-	    BnNodeType logic_type,   ///< [in] 論理型
-	    int ni);                 ///< [in] 入力数
+  new_logic(
+    const string& node_name, ///< [in] ノード名
+    BnNodeType logic_type,   ///< [in] 論理型
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -208,9 +244,11 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   int
-  new_logic(const string& node_name,           ///< [in] ノード名
-	    BnNodeType logic_type,             ///< [in] 論理型
-	    const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_logic(
+    const string& node_name,         ///< [in] ノード名
+    BnNodeType logic_type,           ///< [in] 論理型
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -218,9 +256,11 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は expr.input_num() を用いる．
   int
-  new_logic(const string& node_name, ///< [in] ノード名
-	    const Expr& expr,        ///< [in] 論理式
-	    const vector<int>& fanin_id_list = vector<int>{}); ///< [in] ファンインのノード番号のリスト
+  new_logic(
+    const string& node_name,                         ///< [in] ノード名
+    const Expr& expr,                                ///< [in] 論理式
+    const vector<int>& fanin_id_list = vector<int>{} ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -228,9 +268,11 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は tv.input_num() を用いる．
   int
-  new_logic(const string& node_name, ///< [in] ノード名
-	    const TvFunc& tv,        ///< [in] 真理値表
-	    const vector<int>& fanin_id_list = vector<int>{}); ///< [in] ファンインのノード番号のリスト
+  new_logic(
+    const string& node_name,                         ///< [in] ノード名
+    const TvFunc& tv,                                ///< [in] 真理値表
+    const vector<int>& fanin_id_list = vector<int>{} ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 論理セルを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -238,198 +280,250 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 論理セルでない場合には kBnNullId を返す．
   int
-  new_logic(const string& node_name, ///< [in] ノード名
-	    int cell_id,             ///< [in] セル番号
-	    const vector<int>& fanin_id_list = vector<int>{}); ///< [in] ファンインのノード番号のリスト
+  new_logic(
+    const string& node_name,                         ///< [in] ノード名
+    int cell_id,                                     ///< [in] セル番号
+    const vector<int>& fanin_id_list = vector<int>{} ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 与えられたノードと同型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   int
-  dup_logic(const string& node_name, ///< [in] ノード名
-	    int node_id,             ///< [in] コピー元のノード番号
-	    const vector<int>& fanin_id_list = vector<int>{}); ///< [in] ファンインのノード番号のリスト
+  dup_logic(
+    const string& node_name,                         ///< [in] ノード名
+    int node_id,                                     ///< [in] コピー元のノード番号
+    const vector<int>& fanin_id_list = vector<int>{} ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief C0型(定数０)の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_c0(const string& node_name); ///< [in] ノード名
+  new_c0(
+    const string& node_name ///< [in] ノード名
+  );
 
   /// @brief C1型(定数1)の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_c1(const string& node_name); ///< [in] ノード名
+  new_c1(
+    const string& node_name ///< [in] ノード名
+  );
 
   /// @brief BUFF型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_buff(const string& node_name,   ///< [in] ノード名
-	   int fanin_id = kBnNullId); ///< [in] ファンインのノード番号
+  new_buff(
+    const string& node_name, ///< [in] ノード名
+    int fanin_id = kBnNullId ///< [in] ファンインのノード番号
+  );
 
   /// @brief NOT型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_not(const string& node_name,   ///< [in] ノード名
-	  int fanin_id = kBnNullId); ///< [in] ファンインのノード番号
+  new_not(
+    const string& node_name, ///< [in] ノード名
+    int fanin_id = kBnNullId ///< [in] ファンインのノード番号
+  );
 
   /// @brief AND型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_and(const string& node_name, ///< [in] ノード名
-	  int ni);                 ///< [in] 入力数
+  new_and(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief AND型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_and(const string& node_name, ///< [in] ノード名
-	  const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_and(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief NAND型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_nand(const string& node_name, ///< [in] ノード名
-	   int ni);                 ///< [in] 入力数
+  new_nand(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief NAND型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_nand(const string& node_name,           ///< [in] ノード名
-	   const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_nand(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief OR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_or(const string& node_name, ///< [in] ノード名
-	 int ni);                 ///< [in] 入力数
+  new_or(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief OR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_or(const string& node_name,           ///< [in] ノード名
-	 const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_or(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief NOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_nor(const string& node_name, ///< [in] ノード名
-	  int ni);                 ///< [in] 入力数
+  new_nor(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief NOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_nor(const string& node_name,           ///< [in] ノード名
-	  const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_nor(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief XOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_xor(const string& node_name, ///< [in] ノード名
-	  int ni);                 ///< [in] 入力数
+  new_xor(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief XOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_xor(const string& node_name,           ///< [in] ノード名
-	  const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_xor(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief XNOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_xnor(const string& node_name, ///< [in] ノード名
-	   int ni);                 ///< [in] 入力数
+  new_xnor(
+    const string& node_name, ///< [in] ノード名
+    int ni                   ///< [in] 入力数
+  );
 
   /// @brief XNOR型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   int
-  new_xnor(const string& node_name,           ///< [in] ノード名
-	   const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  new_xnor(
+    const string& node_name,         ///< [in] ノード名
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief プリミティブ型の論理ノードに変更する．
   ///
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   void
-  change_primitive(int id,                ///< [in] ノード番号
-		   BnNodeType logic_type, ///< [in] 論理型
-		   int ni);               ///< [in] 入力数
+  change_primitive(
+    int id,                ///< [in] ノード番号
+    BnNodeType logic_type, ///< [in] 論理型
+    int ni                 ///< [in] 入力数
+  );
 
   /// @brief プリミティブ型の論理ノードに変更する．
   ///
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   void
-  change_primitive(int id,                            ///< [in] ノード番号
-		   BnNodeType logic_type,             ///< [in] 論理型
-		   const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  change_primitive(
+    int id,                          ///< [in] ノード番号
+    BnNodeType logic_type,           ///< [in] 論理型
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 論理式型の論理ノードに変更する．
   ///
   /// 入力数は expr.input_size() から得る．
   void
-  change_expr(int id,            ///< [in] ノード番号
-	      const Expr& expr); ///< [in] 論理式
+  change_expr(
+    int id,          ///< [in] ノード番号
+    const Expr& expr ///< [in] 論理式
+  );
 
   /// @brief 論理式型の論理ノードに変更する．
   void
-  change_expr(int id,                            ///< [in] ノード番号
-	      const Expr& expr,                  ///< [in] 論理式
-	      const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  change_expr(
+    int id,                          ///< [in] ノード番号
+    const Expr& expr,                ///< [in] 論理式
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 真理値表型の論理ノードに変更する．
   ///
   /// 入力数は tv.input_num() から得る．
   void
-  change_tv(int id,            ///< [in] ノード番号
-	    const TvFunc& tv); ///< [in] 真理値表
+  change_tv(
+    int id,          ///< [in] ノード番号
+    const TvFunc& tv ///< [in] 真理値表
+  );
 
   /// @brief 真理値表型の論理ノードに変更する．
   void
-  change_tv(int id,                            ///< [in] ノード番号
-	    const TvFunc& tv,                  ///< [in] 真理値表
-	    const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  change_tv(
+    int id,                          ///< [in] ノード番号
+    const TvFunc& tv,                ///< [in] 真理値表
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 論理セルに変更する．
   void
-  change_cell(int id,                            ///< [in] ノード番号
-	      int cell_id,                       ///< [in] セル番号
-	      const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  change_cell(
+    int id,                          ///< [in] ノード番号
+    int cell_id,                     ///< [in] セル番号
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
   /// @brief 論理セルに変更する．
   ///
   /// - 入力数はセルから取得する．
   /// - 論理セルでない場合にはなにもしない．
   void
-  change_cell(int id,       ///< [in] ノード番号
-	      int cell_id); ///< [in] セル番号
+  change_cell(
+    int id,     ///< [in] ノード番号
+    int cell_id ///< [in] セル番号
+  );
 
   /// @brief 部分回路を追加する．
   ///
@@ -437,9 +531,11 @@ public:
   /// * src_network のポートの情報は失われる．
   /// * 矛盾しない限りセルライブラリの情報も引継がれる．
   void
-  import_subnetwork(const BnNetwork& src_network,  ///< [in] 部分回路
-		    const vector<int>& input_list, ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
-		    vector<int>& output_list);     ///< [in] インポートした部分回路の出力ノード番号のリスト
+  import_subnetwork(
+    const BnNetwork& src_network,  ///< [in] 部分回路
+    const vector<int>& input_list, ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
+    vector<int>& output_list       ///< [in] インポートした部分回路の出力ノード番号のリスト
+  );
 
   /// @brief 単純なノードに分解する．
   ///
@@ -459,14 +555,18 @@ public:
 
   /// @brief ノード間を接続する．
   void
-  connect(int src_node, ///< [in] ファンアウト元のノード番号
-	  int dst_node, ///< [in] ファンイン先のノード番号
-	  int ipos);    ///< [in] ファンインの位置
+  connect(
+    int src_node, ///< [in] ファンアウト元のノード番号
+    int dst_node, ///< [in] ファンイン先のノード番号
+    int ipos      ///< [in] ファンインの位置
+  );
 
   /// @brief ファンアウトをつなぎ替える．
   void
-  substitute_fanout(int old_id,  ///< [in] もとのノード番号
-		    int new_id); ///< [in] つなぎ替える新しいノード番号
+  substitute_fanout(
+    int old_id, ///< [in] もとのノード番号
+    int new_id  ///< [in] つなぎ替える新しいノード番号
+  );
 
   /// @brief 整合性のチェックを行う．
   /// @return チェック結果を返す．
@@ -512,7 +612,9 @@ public:
 
   /// @brief ポートの情報を得る．
   const BnPort&
-  port(int pos) const; ///< [in] 位置番号 ( 0 <= pos < port_num() )
+  port(
+    int pos ///< [in] 位置番号 ( 0 <= pos < port_num() )
+  ) const;
 
   /// @brief DFF数を得る．
   int
@@ -520,7 +622,9 @@ public:
 
   /// @brief DFFを得る．
   const BnDff&
-  dff(int pos) const; ///< [in] 位置番号 ( 0 <= pos < dff_num() )
+  dff(
+    int pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
+  ) const;
 
   /// @brief ラッチ数を得る．
   int
@@ -528,7 +632,9 @@ public:
 
   /// @brief ラッチを得る．
   const BnLatch&
-  latch(int pos) const; ///< [in] 位置番号 ( 0 <= pos < latch_num() )
+  latch(
+    int pos ///< [in] 位置番号 ( 0 <= pos < latch_num() )
+  ) const;
 
   /// @brief ノード数を得る．
   int
@@ -539,7 +645,9 @@ public:
   /// const BnNode& node = BnNetwork::node(id);
   /// node.id() == id が成り立つ．
   const BnNode&
-  node(int id) const; ///< [in] ノード番号 ( 0 <= id < node_num() )
+  node(
+    int id ///< [in] ノード番号 ( 0 <= id < node_num() )
+  ) const;
 
   /// @brief 入力数を得る．
   int
@@ -547,7 +655,9 @@ public:
 
   /// @brief 入力ノードのノード番号を得る．
   int
-  input_id(int pos) const; ///< [in] 入力番号 ( 0 <= pos < input_num() )
+  input_id(
+    int pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
+  ) const;
 
   /// @brief 入力ノードのノード番号のリストを得る．
   const vector<int>&
@@ -563,7 +673,9 @@ public:
 
   /// @brief 出力ノードのノード番号を得る．
   int
-  output_id(int pos) const; ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  output_id(
+    int pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const;
 
   /// @brief 出力ノードのノード番号のリストを得る．
   const vector<int>&
@@ -573,7 +685,9 @@ public:
   ///
   /// ソースノードとは出力ノードのファンインのノード
   int
-  output_src_id(int pos) const; ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  output_src_id(
+    int pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const;
 
   /// @brief 出力ノードのソースノード番号のリストを得る．
   ///
@@ -595,7 +709,9 @@ public:
 
   /// @brief 論理ノードのノード番号を得る．
   int
-  logic_id(int pos) const; ///< [in] 位置番号 ( 0 <= pos < logic_num() )
+  logic_id(
+    int pos ///< [in] 位置番号 ( 0 <= pos < logic_num() )
+  ) const;
 
   /// @brief 論理ノードのノード番号のリストを得る．
   const vector<int>&
@@ -607,7 +723,9 @@ public:
 
   /// @brief 関数番号から関数を得る．
   const TvFunc&
-  func(int func_id) const; ///< [in] 関数番号 ( 0 <= func_id < func_num() )
+  func(
+    int func_id ///< [in] 関数番号 ( 0 <= func_id < func_num() )
+  ) const;
 
   /// @brief 論理式の数を得る．
   int
@@ -615,7 +733,9 @@ public:
 
   /// @brief 論理式番号から論理式を得る．
   Expr
-  expr(int expr_id) const; ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
+  expr(
+    int expr_id ///< [in] 論理式番号 ( 0 <= expr_id < expr_num() )
+  ) const;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -632,51 +752,62 @@ public:
   /// @return ネットワークを返す．
   static
   BnNetwork
-  read_blif(const string& filename,              ///< [in] ファイル名
-	    const string& clock_name = "clock",  ///< [in] クロック端子名
-	    const string& reset_name = "reset"); ///< [in] リセット端子名
+  read_blif(
+    const string& filename,             ///< [in] ファイル名
+    const string& clock_name = "clock", ///< [in] クロック端子名
+    const string& reset_name = "reset"  ///< [in] リセット端子名
+  );
 
   /// @brief blif ファイルを読み込む(セルライブラリ付き)．
   /// @return ネットワークを返す．
   static
   BnNetwork
-  read_blif(const string& filename,              ///< [in] ファイル名
-	    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
-	    const string& clock_name = "clock",  ///< [in] クロック端子名
-	    const string& reset_name = "reset"); ///< [in] リセット端子名
+  read_blif(
+    const string& filename,              ///< [in] ファイル名
+    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
+    const string& clock_name = "clock",  ///< [in] クロック端子名
+    const string& reset_name = "reset"   ///< [in] リセット端子名
+  );
 
   /// @brief iscas89 ファイルを読み込む．
   /// @return ネットワークを返す．
   static
   BnNetwork
-  read_iscas89(const string& filename,              ///< [in] ファイル名
-	       const string& clock_name = "clock"); ///< [in] クロック端子名
+  read_iscas89(
+    const string& filename,            ///< [in] ファイル名
+    const string& clock_name = "clock" ///< [in] クロック端子名
+  );
 
   /// @brief 内容を blif 形式で出力する．
   ///
   /// ポートの情報は無視される．
   void
-  write_blif(const string& filename,           ///< [in] 出力先のファイル名
-	     const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
-	     const string& suffix = "") const; ///< [in] 自動生成名の接尾語
+  write_blif(
+    const string& filename,          ///< [in] 出力先のファイル名
+    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
+    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+  ) const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
   ///
   /// ポートの情報は無視される．
   void
-  write_iscas89(const string& filename,           ///< [in] 出力先のファイル名
-		const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
-		const string& suffix = "") const; ///< [in] 自動生成名の接尾語
+  write_iscas89(
+    const string& filename,           ///< [in] 出力先のファイル名
+    const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
+    const string& suffix = "") const; ///< [in] 自動生成名の接尾語
 
   /// @brief 内容を Verilog-HDL 形式で出力する．
   void
-  write_verilog(const string& filename,                    ///< [in] 出力先のファイル名
-		const string& port_prefix = "__port",      ///< [in] ポート自動生成名の接頭語
-		const string& port_suffix = "",            ///< [in] ポート自動生成名の接尾語
-		const string& node_prefix = "__node",      ///< [in] ノード自動生成名の接頭語
-		const string& node_suffix = "",            ///< [in] ノード自動生成名の接尾語
-		const string& instance_prefix = "__U",     ///< [in] インスタンス自動生成名の接頭語
-		const string& instance_suffix = "") const; ///< [in] インスタンス自動生成名の接尾語
+  write_verilog(
+    const string& filename,                 ///< [in] 出力先のファイル名
+    const string& port_prefix = "__port",   ///< [in] ポート自動生成名の接頭語
+    const string& port_suffix = "",         ///< [in] ポート自動生成名の接尾語
+    const string& node_prefix = "__node",   ///< [in] ノード自動生成名の接頭語
+    const string& node_suffix = "",         ///< [in] ノード自動生成名の接尾語
+    const string& instance_prefix = "__U",  ///< [in] インスタンス自動生成名の接頭語
+    const string& instance_suffix = ""      ///< [in] インスタンス自動生成名の接尾語
+  ) const;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -693,33 +824,41 @@ public:
   ///
   /// ポートの情報は無視される．
   void
-  write_blif(ostream& s,                       ///< [in] 出力先のストリーム
-	     const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
-	     const string& suffix = "") const; ///< [in] 自動生成名の接尾語
+  write_blif(
+    ostream& s,                      ///< [in] 出力先のストリーム
+    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
+    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+  ) const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
   ///
   /// ポートの情報は無視される．
   void
-  write_iscas89(ostream& s,                       ///< [in] 出力先のストリーム
-		const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
-		const string& suffix = "") const; ///< [in] 自動生成名の接尾語
+  write_iscas89(
+    ostream& s,                      ///< [in] 出力先のストリーム
+    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
+    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+  ) const;
 
   /// @brief 内容を Verilog-HDL 形式で出力する．
   void
-  write_verilog(ostream& s,                                ///< [in] 出力先のストリーム
-		const string& port_prefix = "__port",      ///< [in] ポート自動生成名の接頭語
-		const string& port_suffix = "",            ///< [in] ポート自動生成名の接尾語
-		const string& node_prefix = "__node",      ///< [in] ノード自動生成名の接頭語
-		const string& node_suffix = "",            ///< [in] ノード自動生成名の接尾語
-		const string& instance_prefix = "__U",     ///< [in] インスタンス自動生成名の接頭語
-		const string& instance_suffix = "") const; ///< [in] インスタンス自動生成名の接尾語
+  write_verilog(
+    ostream& s,                            ///< [in] 出力先のストリーム
+    const string& port_prefix = "__port",  ///< [in] ポート自動生成名の接頭語
+    const string& port_suffix = "",        ///< [in] ポート自動生成名の接尾語
+    const string& node_prefix = "__node",  ///< [in] ノード自動生成名の接頭語
+    const string& node_suffix = "",        ///< [in] ノード自動生成名の接尾語
+    const string& instance_prefix = "__U", ///< [in] インスタンス自動生成名の接頭語
+    const string& instance_suffix = ""     ///< [in] インスタンス自動生成名の接尾語
+  ) const;
 
   /// @brief 内容を出力する．
   ///
   /// - 形式は独自フォーマット
   void
-  write(ostream& s) const; ///< [in] 出力先のストリーム
+  write(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -733,8 +872,10 @@ private:
 
   /// @brief ファンインの接続を行う．
   void
-  connect_fanins(int id,                            ///< [in] 対象のノード番号
-		 const vector<int>& fanin_id_list); ///< [in] ファンインのノード番号のリスト
+  connect_fanins(
+    int id,                          ///< [in] 対象のノード番号
+    const vector<int>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
 
 
 private:

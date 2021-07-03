@@ -5,9 +5,8 @@
 /// @brief BnIscas89Handler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/Iscas89Handler.h"
 
@@ -24,15 +23,18 @@ class BnIscas89Handler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] parser パーサー
-  /// @param[in] network 設定対象のネットワーク
-  /// @param[in] clock_name クロック端子名
-  BnIscas89Handler(Iscas89Parser& parser,
-		   BnNetwork& network,
-		   const string& clock_name = "clock");
+  BnIscas89Handler(
+    Iscas89Parser& parser,             ///< [in] パーサー
+    BnNetwork& network,                ///< [in] 設定対象のネットワーク
+    const string& clock_name = "clock" ///< [in] クロック端子名
+  ) : Iscas89Handler(parser),
+      mNetwork(network),
+      mClockName(clock_name)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnIscas89Handler();
+  ~BnIscas89Handler() = default;
 
 
 public:
@@ -47,69 +49,60 @@ public:
   init() override;
 
   /// @brief INPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 入力ピン名の ID 番号
-  /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_input(const FileRegion& loc,
-	     int name_id,
-	     const string& name) override;
+  read_input(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int name_id,           ///< [in] 入力ピン名の ID 番号
+    const string& name     ///< [in] 入力ピン名
+  ) override;
 
   /// @brief OUTPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 出力ピン名の ID 番号
-  /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_output(const FileRegion& loc,
-	      int name_id,
-	      const string& name) override;
+  read_output(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int name_id,           ///< [in] 出力ピン名の ID 番号
+    const string& name     ///< [in] 出力ピン名
+  ) override;
 
   /// @brief ゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] logic_type ゲートの型
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] oname 出力名
-  /// @param[in] iname_list 入力名のリスト
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_gate(const FileRegion& loc,
-	    BnNodeType logic_type,
-	    int oname_id,
-	    const string& name,
-	    const vector<int>& iname_list) override;
+  read_gate(
+    const FileRegion& loc,        ///< [in] ファイル位置
+    BnNodeType logic_type,        ///< [in] ゲートの型
+    int oname_id,                 ///< [in] 出力名の ID 番号
+    const string& name,           ///< [in] 出力名
+    const vector<int>& iname_list ///< [in] 入力名のリスト
+  ) override;
 
   /// @brief ゲート文(MUX)を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] oname 出力名
-  /// @param[in] iname_list 入力名のリスト
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   ///
   /// 入力数のチェックは済んでいるものとする．
   bool
-  read_mux(const FileRegion& loc,
-	   int oname_id,
-	   const string& oname,
-	   const vector<int>& iname_list) override;
+  read_mux(
+    const FileRegion& loc,        ///< [in] ファイル位置
+    int oname_id,                 ///< [in] 出力名の ID 番号
+    const string& oname,          ///< [in] 出力名
+    const vector<int>& iname_list ///< [in] 入力名のリスト
+  ) override;
 
   /// @brief D-FF用のゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] oname 出力名
-  /// @param[in] iname_id 入力名の ID 番号
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_dff(const FileRegion& loc,
-	   int oname_id,
-	   const string& oname,
-	   int iname_id) override;
+  read_dff(
+    const FileRegion& loc, ///< [in] ファイル位置
+    int oname_id,          ///< [in] 出力名の ID 番号
+    const string& oname,   ///< [in] 出力名
+    int iname_id           ///< [in] 入力名の ID 番号
+  ) override;
 
   /// @brief 終了操作
   /// @retval true 処理が成功した．
@@ -132,18 +125,18 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン情報を追加する．
-  /// @param[in] id ID番号
-  /// @param[in] fanin ファンイン番号
   void
-  add_fanin_info(int id,
-		 int fanin);
+  add_fanin_info(
+    int id,   ///< [in] ID番号
+    int fanin ///< [in] ファンイン番号
+  );
 
   /// @brief ファンイン情報を追加する．
-  /// @param[in] id ID番号
-  /// @param[in] fanin_list ファンイン番号のリスト
   void
-  add_fanin_info(int id,
-		 const vector<int>& fanin_list);
+  add_fanin_info(
+    int id,                       ///< [in] ID番号
+    const vector<int>& fanin_list ///< [in] ファンイン番号のリスト
+  );
 
 
 

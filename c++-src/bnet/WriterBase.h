@@ -5,7 +5,7 @@
 /// @brief WriterBase のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -45,17 +45,12 @@ class WriterBase
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] network 対象のネットワーク
-  WriterBase(const BnNetwork& network);
+  WriterBase(
+    const BnNetwork& network ///< [in] 対象のネットワーク
+  );
 
   /// @brief デストラクタ
   ~WriterBase() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
 
 
 protected:
@@ -64,27 +59,39 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード名の解決を行う．
-  /// @param[in] prefix 自動生成名の接頭語
-  /// @param[in] suffix 自動生成名の接尾語
   void
-  init_name_array(const string& prefix,
-		  const string& suffix);
+  init_name_array(
+    const string& prefix, ///< [in] 自動生成名の接頭語
+    const string& suffix  ///< [in] 自動生成名の接尾語
+  );
 
   /// @brief 対象のネットワークを返す．
   const BnNetwork&
-  network() const;
+  network() const { return mNetwork; }
 
   /// @brief ノード名を返す．
-  /// @param[in] node_id ノード番号
   string
-  node_name(int node_id) const;
+  node_name(
+    int node_id ///< [in] ノード番号
+  ) const
+  {
+    ASSERT_COND( node_id >= 0 && node_id < mNameArray.size() );
+
+    return mNameArray[node_id];
+  }
 
   /// @brief データ系のノードの時 true を返す．
-  /// @param[in] node_id ノード番号
   ///
   /// データ系ではないものはクロックとset/reset
   bool
-  is_data(int node_id) const;
+  is_data(
+    int node_id ///< [in] ノード番号
+  ) const
+  {
+    ASSERT_COND( node_id >= 0 && node_id < mDataArray.size() );
+
+    return mDataArray[node_id];
+  }
 
 
   //////////////////////////////////////////////////////////////////////
@@ -92,22 +99,21 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード名の登録を行う．
-  /// @param[in] node_id ノード番号
-  /// @param[in] name 登録する名前
-  /// @param[in] name_hash ノード名のハッシュ
-  /// @param[in] name_mgr ノード名を管理するクラス
   ///
   /// name が空文字列の場合は登録しない．
   void
-  reg_node_name(int node_id,
-		const string& name,
-		unordered_set<string>& name_hash,
-		NameMgr& name_mgr);
+  reg_node_name(
+    int node_id,                      ///< [in] ノード番号
+    const string& name,               ///< [in] 登録する名前
+    unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
+    NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
+  );
 
   /// @brief TFI のノードに印をつける．
-  /// @param[in] node_id ノード番号
   void
-  mark_tfi(int node_id);
+  mark_tfi(
+    int node_id ///< [in] ノード番号
+  );
 
 
 private:
@@ -125,41 +131,6 @@ private:
   vector<bool> mDataArray;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 対象のネットワークを返す．
-inline
-const BnNetwork&
-WriterBase::network() const
-{
-  return mNetwork;
-}
-
-// @brief ノード名を返す．
-// @param[in] node_id ノード番号
-inline
-string
-WriterBase::node_name(int node_id) const
-{
-  ASSERT_COND( node_id >= 0 && node_id < mNameArray.size() );
-
-  return mNameArray[node_id];
-}
-
-// @brief データ系のノードの時 true を返す．
-// @param[in] node_id ノード番号
-inline
-bool
-WriterBase::is_data(int node_id) const
-{
-  ASSERT_COND( node_id >= 0 && node_id < mDataArray.size() );
-
-  return mDataArray[node_id];
-}
 
 END_NAMESPACE_YM_BNET
 

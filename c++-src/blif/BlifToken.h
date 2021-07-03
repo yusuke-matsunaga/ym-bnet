@@ -5,9 +5,8 @@
 /// @brief BlibToken のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/bnet.h"
 
@@ -58,12 +57,12 @@ enum class BlifToken {
 
 /// @relates Token
 /// @brief トークンを出力する．
-/// @param[in] s 出力先のストリーム
-/// @param[in] token トークン
 inline
 ostream&
-operator<<(ostream& s,
-	   BlifToken token)
+operator<<(
+  ostream& s,     ///< [in] 出力先のストリーム
+  BlifToken token ///< [in] トークン
+)
 {
   switch (token) {
   case BlifToken::_EOF   : s << "EOF"; break;

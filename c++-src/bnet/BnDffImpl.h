@@ -5,9 +5,8 @@
 /// @brief BnDffImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/BnDff.h"
 
@@ -24,28 +23,30 @@ class BnDffImpl :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] input 入力端子のノード番号
-  /// @param[in] output 出力端子のノード番号
-  /// @param[in] xoutput 反転出力端子のノード番号
-  /// @param[in] clock クロック端子のノード番号
-  /// @param[in] clear クリア端子のノード番号
-  /// @param[in] preset プリセット端子のノード番号
-  /// @param[in] cell_id セル番号
-  BnDffImpl(int id,
-	    const string& name,
-	    int input,
-	    int output,
-	    int xoutput,
-	    int clock,
-	    int clear,
-	    int preset,
-	    int cell_id);
+  BnDffImpl(
+    int id,             ///< [in] ID番号
+    const string& name, ///< [in] 名前
+    int input,          ///< [in] 入力端子のノード番号
+    int output,         ///< [in] 出力端子のノード番号
+    int xoutput,        ///< [in] 反転出力端子のノード番号
+    int clock,          ///< [in] クロック端子のノード番号
+    int clear,          ///< [in] クリア端子のノード番号
+    int preset,         ///< [in] プリセット端子のノード番号
+    int cell_id         ///< [in] セル番号
+  ) : mId(id),
+    mName(name),
+    mInput(input),
+    mOutput(output),
+    mXOutput(xoutput),
+    mClock(clock),
+    mClear(clear),
+    mPreset(preset),
+    mCellId(cell_id)
+  {
+  }
 
   /// @brief デストラクタ
-  virtual
-  ~BnDffImpl();
+  ~BnDffImpl() = default;
 
 
 public:

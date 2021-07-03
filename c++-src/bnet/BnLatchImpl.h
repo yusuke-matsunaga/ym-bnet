@@ -5,9 +5,8 @@
 /// @brief BnLatchImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/BnLatch.h"
 
@@ -24,28 +23,30 @@ class BnLatchImpl :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] input 入力端子のノード番号
-  /// @param[in] output 出力端子のノード番号
-  /// @param[in] xoutput 反転出力端子のノード番号
-  /// @param[in] enable イネーブル端子のノード番号
-  /// @param[in] clear クリア端子のノード番号
-  /// @param[in] preset プリセット端子のノード番号
-  /// @param[in] cell_id セル番号
-  BnLatchImpl(int id,
-	      const string& name,
-	      int input,
-	      int output,
-	      int xoutput,
-	      int enable,
-	      int clear,
-	      int preset,
-	      int cell_id);
+  BnLatchImpl(
+    int id,             ///< [in] ID番号
+    const string& name, ///< [in] 名前
+    int input,          ///< [in] 入力端子のノード番号
+    int output,         ///< [in] 出力端子のノード番号
+    int xoutput,        ///< [in] 反転出力端子のノード番号
+    int enable,         ///< [in] イネーブル端子のノード番号
+    int clear,          ///< [in] クリア端子のノード番号
+    int preset,         ///< [in] プリセット端子のノード番号
+    int cell_id         ///< [in] セル番号
+  ) : mId(id),
+      mName(name),
+      mInput(input),
+      mOutput(output),
+      mXoutput(xoutput),
+      mEnable(enable),
+      mClear(clear),
+      mPreset(preset),
+      mCellId(cell_id)
+  {
+  }
 
   /// @brief デストラクタ
-  virtual
-  ~BnLatchImpl();
+  ~BnLatchImpl() = default;
 
 
 public:
@@ -55,55 +56,46 @@ public:
 
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
-  virtual
   int
-  id() const;
+  id() const override;
 
   /// @brief 名前を返す．
-  virtual
   string
-  name() const;
+  name() const override;
 
   /// @brief データ出力のノード番号を返す．
-  virtual
   int
-  output() const;
+  output() const override;
 
   /// @brief データ反転出力のノード番号を返す．
-  virtual
   int
-  xoutput() const;
+  xoutput() const override;
 
   /// @brief データ入力のノード番号を返す．
-  virtual
   int
-  input() const;
+  input() const override;
 
   /// @brief イネーブルのノード番号を返す．
-  virtual
   int
-  enable() const;
+  enable() const override;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
-  virtual
   int
-  clear() const;
+  clear() const override;
 
   /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
-  virtual
   int
-  preset() const;
+  preset() const override;
 
   /// @brief セル番号を返す．
   ///
   /// -1 の場合もある．
-  virtual
   int
-  cell_id() const;
+  cell_id() const override;
 
 
 private:

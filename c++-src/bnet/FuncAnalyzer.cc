@@ -3,9 +3,8 @@
 /// @brief FuncAnalyzer の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "FuncAnalyzer.h"
 #include "ym/Expr.h"
@@ -21,7 +20,9 @@ BEGIN_NONAMESPACE
 //
 // プリミティブ型でなかった場合は BnNodeType::None を返す．
 BnNodeType
-tv2logic_type(const TvFunc& tv)
+tv2logic_type(
+  const TvFunc& tv
+)
 {
   if ( tv == TvFunc::make_zero(0) ) {
     return BnNodeType::C0;
@@ -131,7 +132,9 @@ END_NONAMESPACE
 //
 // 組み込み型でない場合には BnNodeType::Expr が返される．
 BnNodeType
-FuncAnalyzer::analyze(const Expr& expr)
+FuncAnalyzer::analyze(
+  const Expr& expr
+)
 {
   int input_num = expr.input_size();
   if ( input_num <= 10 ) {
@@ -149,7 +152,9 @@ FuncAnalyzer::analyze(const Expr& expr)
 //
 // 組み込み型でない場合には BnNodeType::TvFunc が返される．
 BnNodeType
-FuncAnalyzer::analyze(const TvFunc& func)
+FuncAnalyzer::analyze(
+  const TvFunc& func
+)
 {
   BnNodeType logic_type = tv2logic_type(func);
   if ( logic_type != BnNodeType::None ) {

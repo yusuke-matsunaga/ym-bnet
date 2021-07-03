@@ -3,7 +3,7 @@
 /// @brief BlifWriter の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BlifWriter.h"
@@ -22,16 +22,12 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief 内容を blif 形式で出力する．
-// @param[in] filename 出力先のファイル名
-// @param[in] network ネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-//
-// ポートの情報は無視される．
 void
-BnNetwork::write_blif(const string& filename,
-		      const string& prefix,
-		      const string& suffix) const
+BnNetwork::write_blif(
+  const string& filename,
+  const string& prefix,
+  const string& suffix
+) const
 {
   ofstream ofs(filename);
   if ( ofs ) {
@@ -40,16 +36,12 @@ BnNetwork::write_blif(const string& filename,
 }
 
 // @brief 内容を blif 形式で出力する．
-// @param[in] s 出力先のストリーム
-// @param[in] network ネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-//
-// ポートの情報は無視される．
 void
-BnNetwork::write_blif(ostream& s,
-		      const string& prefix,
-		      const string& suffix) const
+BnNetwork::write_blif(
+  ostream& s,
+  const string& prefix,
+  const string& suffix
+) const
 {
   BlifWriter writer(*this, prefix, suffix);
   writer(s);
@@ -61,13 +53,11 @@ BnNetwork::write_blif(ostream& s,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] network 対象のネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-BlifWriter::BlifWriter(const BnNetwork& network,
-		       const string& prefix,
-		       const string& suffix) :
-  WriterBase(network)
+BlifWriter::BlifWriter(
+  const BnNetwork& network,
+  const string& prefix,
+  const string& suffix
+) : WriterBase(network)
 {
   string _prefix(prefix);
   if ( _prefix == string() ) {
@@ -81,9 +71,10 @@ BlifWriter::BlifWriter(const BnNetwork& network,
 }
 
 // @brief blif 形式で出力する．
-// @param[in] s 出力先のストリーム
 void
-BlifWriter::operator()(ostream& s)
+BlifWriter::operator()(
+  ostream& s
+)
 {
   // .model 文の出力
   s << ".model " << network().name() << endl;

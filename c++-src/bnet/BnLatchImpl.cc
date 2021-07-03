@@ -19,42 +19,6 @@ BEGIN_NAMESPACE_YM_BNET
 // クラス BnLatchImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] input 入力端子のノード番号
-// @param[in] output 出力端子のノード番号
-// @param[in] xoutput 反転出力端子のノード番号
-// @param[in] enable イネーブル端子のノード番号
-// @param[in] clear クリア端子のノード番号
-// @param[in] preset プリセット端子のノード番号
-// @param[in] cell_id セル番号
-BnLatchImpl::BnLatchImpl(int id,
-			 const string& name,
-			 int input,
-			 int output,
-			 int xoutput,
-			 int enable,
-			 int clear,
-			 int preset,
-			 int cell_id) :
-  mId(id),
-  mName(name),
-  mInput(input),
-  mOutput(output),
-  mXoutput(xoutput),
-  mEnable(enable),
-  mClear(clear),
-  mPreset(preset),
-  mCellId(cell_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchImpl::~BnLatchImpl()
-{
-}
-
 // @brief ID 番号の取得
 // @return ID 番号を返す．
 int

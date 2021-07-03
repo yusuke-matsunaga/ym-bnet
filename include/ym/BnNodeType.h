@@ -36,10 +36,13 @@ enum class BnNodeType {
 
 /// @relates BnNodeType
 /// @brief BnNodeType の内容をストリームに出力する．
+/// @return s を返す．
 extern
 ostream&
-operator<<(ostream& s,       ///< [in] 出力先のストリーム
-	   BnNodeType type); ///< [in] ノードタイプ
+operator<<(
+  ostream& s,     ///< [in] 出力先のストリーム
+  BnNodeType type ///< [in] ノードタイプ
+);
 
 // cython 用の変換関数
 extern

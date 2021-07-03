@@ -5,9 +5,8 @@
 /// @brief BnNodeImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/BnNode.h"
 
@@ -27,10 +26,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  BnNodeImpl(int id,
-	     const string& name);
+  BnNodeImpl(
+    int id,            ///< [in] ID 番号
+    const string& name ///< [in] ノード名
+  );
 
   /// @brief デストラクタ
   ~BnNodeImpl();
@@ -66,12 +65,13 @@ public:
   fanout_num() const override;
 
   /// @brief ファンアウトのノード番号を返す．
-  /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   int
-  fanout_id(int pos) const override;
+  fanout_id(
+    int pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
+  ) const override;
 
   /// @brief ファンアウトのノード番号のリストを返す．
-  const vector<int>&
+  vector<int>
   fanout_id_list() const override;
 
 
@@ -201,12 +201,13 @@ public:
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   int
-  fanin_id(int pos) const override;
+  fanin_id(
+    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+  ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  const vector<int>&
+  vector<int>
   fanin_id_list() const override;
 
   /// @brief 論理式番号を返す．
@@ -237,22 +238,22 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンインを設定する．
-  /// @param[in] ipos 入力位置
-  /// @param[in] fanin_id ファンインのノード番号
   virtual
   void
-  set_fanin(int ipos,
-	    int fanin_id);
+  set_fanin(
+    int ipos,    ///< [in] 入力位置
+    int fanin_id ///< [in] ファンインのノード番号
+  );
 
   /// @brief ファンアウトリストをクリアする．
   void
   clear_fanout();
 
   /// @brief ファンアウトを追加する．
-  /// @param[in] onode_id ファンアウトのノード番号
   void
-  add_fanout(int onode_id);
-
+  add_fanout(
+    int onode_id ///< [in] ファンアウトのノード番号
+  );
 
 
 private:

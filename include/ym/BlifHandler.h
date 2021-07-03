@@ -35,7 +35,9 @@ protected:
   /// @brief コンストラクタ
   ///
   /// 生成されたハンドラは自動的に parser に登録される．
-  BlifHandler(BlifParser& parser); ///< [in] blif パーサー
+  BlifHandler(
+    BlifParser& parser ///< [in] blif パーサー
+  );
 
   /// @brief デストラクタ
   virtual
@@ -60,36 +62,40 @@ public:
   /// この関数が呼ばれないこともある．
   virtual
   void
-  set_cell_library(const ClibCellLibrary& library) ///< [in] セルライブラリ
-  = 0;
+  set_cell_library(
+    const ClibCellLibrary& library ///< [in] セルライブラリ
+  ) = 0;
 
   /// @brief .model 文の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  model(const FileRegion& loc1,  ///< [in] .model の位置情報
-	const FileRegion& loc2,  ///< [in] 文字列の位置情報
-	const string& name)      ///< [in] 文字列
-  = 0;
+  model(
+    const FileRegion& loc1, ///< [in] .model の位置情報
+    const FileRegion& loc2, ///< [in] 文字列の位置情報
+    const string& name      ///< [in] 文字列
+  ) = 0;
 
   /// @brief .inputs 文中の文字列の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  inputs_elem(int name_id,        ///< [in] 文字列のID番号
-	      const string& name) ///< [in] 入力ピン名
-  = 0;
+  inputs_elem(
+    int name_id,       ///< [in] 文字列のID番号
+    const string& name ///< [in] 入力ピン名
+  ) = 0;
 
   /// @brief .outputs 文中の文字列の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  outputs_elem(int name_id,        ///< [in] 文字列のID番号
-	       const string& name) ///< [in] 出力ピン名
-  = 0;
+  outputs_elem(
+    int name_id,       ///< [in] 文字列のID番号
+    const string& name ///< [in] 出力ピン名
+  ) = 0;
 
   /// @brief .names 文の処理
   /// @retval true 処理が成功した．
@@ -101,42 +107,46 @@ public:
   /// opat は '0' か '1' のどちらか
   virtual
   bool
-  names(int onode_id,                      ///< [in] ノード名のID番号
-	const string& oname,               ///< [in] 出力名
-	const vector<int>& inode_id_array, ///< [in] ファンイン各のID番号の配列
-	int cover_id)                      ///< [in] カバーのID番号
-  = 0;
+  names(
+    int onode_id,                      ///< [in] ノード名のID番号
+    const string& oname,               ///< [in] 出力名
+    const vector<int>& inode_id_array, ///< [in] ファンイン各のID番号の配列
+    int cover_id                       ///< [in] カバーのID番号
+  ) = 0;
 
   /// @brief .gate 文の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  gate(int onode_id,                       ///< [in] 出力ノードのID番号
-       const string& oname,                ///< [in] 出力名
-       const vector<int>& inode_id_array,  ///< [in] セル番号
-       int cell_id)                        ///< [in] 入力ノードのID番号の配列
-  = 0;
+  gate(
+    int onode_id,                       ///< [in] 出力ノードのID番号
+    const string& oname,                ///< [in] 出力名
+    const vector<int>& inode_id_array,  ///< [in] セル番号
+    int cell_id                         ///< [in] 入力ノードのID番号の配列
+  ) = 0;
 
   /// @brief .latch 文の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  latch(int onode_id,            ///< [in] 出力ノードのID番号
-	const string& oname,     ///< [in] 出力名
-	int inode_id,            ///< [in] 入力ノードのID番号
-	const FileRegion& loc4,  ///< [in] リセット値の位置情報
-	char rval)               ///< [in] リセット時の値('0'/'1') 未定義なら ' '
-  = 0;
+  latch(
+    int onode_id,            ///< [in] 出力ノードのID番号
+    const string& oname,     ///< [in] 出力名
+    int inode_id,            ///< [in] 入力ノードのID番号
+    const FileRegion& loc4,  ///< [in] リセット値の位置情報
+    char rval                ///< [in] リセット時の値('0'/'1') 未定義なら ' '
+  ) = 0;
 
   /// @brief .end 文の処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   virtual
   bool
-  end(const FileRegion& loc) ///< [in] 位置情報
-  = 0;
+  end(
+    const FileRegion& loc ///< [in] 位置情報
+  ) = 0;
 
   /// @brief 通常終了時の処理
   virtual
@@ -156,11 +166,15 @@ protected:
 
   /// @brief ID番号から文字列を得る．
   const string&
-  id2str(int id); ///< [in] ID番号
+  id2str(
+    int id ///< [in] ID番号
+  );
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2loc(int id); ///< [in] ID番号
+  id2loc(
+    int id ///< [in] ID番号
+  );
 
   /// @brief カバーの数を得る．
   int
@@ -168,7 +182,9 @@ protected:
 
   /// @brief カバーIDからカバーを得る．
   const BlifCover&
-  id2cover(int id); ///< [in] ID番号
+  id2cover(
+    int id ///< [in] ID番号
+  );
 
 
 private:

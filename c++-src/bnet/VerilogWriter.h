@@ -5,15 +5,15 @@
 /// @brief VerilogWriter のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/BnNetwork.h"
 #include "ym/NameMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
 
 //////////////////////////////////////////////////////////////////////
 /// @class VerilogWriter VerilogWriter.h "VerilogWriter.h"
@@ -62,23 +62,31 @@ class VerilogWriter
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] port_prefix ポートの自動生成名の接頭語
-  /// @param[in] port_suffix ポートの自動生成名の接尾語
-  /// @param[in] node_prefix ノードの自動生成名の接頭語
-  /// @param[in] node_suffix ノードの自動生成名の接尾語
-  /// @param[in] instance_prefix インスタンスの自動生成名の接頭語
-  /// @param[in] instance_suffix インスタンスの自動生成名の接尾語
-  VerilogWriter(const BnNetwork& network,
-		const string& port_prefix = "__port",
-		const string& port_suffix = "",
-		const string& node_prefix = "__wire",
-		const string& node_suffix = "",
-		const string& instance_prefix = "__U",
-		const string& instance_suffix = "");
+  VerilogWriter(
+    const BnNetwork& network,              ///< [in] 対象のネットワーク
+    const string& port_prefix = "__port",  ///< [in] ポートの自動生成名の接頭語
+    const string& port_suffix = "",        ///< [in] ポートの自動生成名の接尾語
+    const string& node_prefix = "__wire",  ///< [in] ノードの自動生成名の接頭語
+    const string& node_suffix = "",        ///< [in] ノードの自動生成名の接尾語
+    const string& instance_prefix = "__U", ///< [in] インスタンスの自動生成名の接頭語
+    const string& instance_suffix = ""     ///< [in] インスタンスの自動生成名の接尾語
+  ) : mNetwork(network),
+      mPortPrefix(port_prefix),
+      mPortSuffix(port_suffix),
+      mNodePrefix(node_prefix),
+      mNodeSuffix(node_suffix),
+      mInstancePrefix(instance_prefix),
+      mInstanceSuffix(instance_suffix),
+      mPortNameArray(network.port_num()),
+      mNodeNameArray(network.node_num()),
+      mNodeInstanceNameArray(network.node_num()),
+      mDffInstanceNameArray(network.dff_num()),
+      mLatchInstanceNameArray(network.latch_num())
+  {
+  }
 
   /// @brief デストラクタ
-  ~VerilogWriter();
+  ~VerilogWriter() = default;
 
 
 public:
@@ -87,9 +95,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief blif 形式で出力する．
-  /// @param[in] s 出力先のストリーム
   void
-  operator()(ostream& s);
+  operator()(
+    ostream& s ///< [in] 出力先のストリーム
+  );
 
 
 private:
@@ -102,27 +111,26 @@ private:
   init_name_array();
 
   /// @brief ポート名の登録を行う．
-  /// @param[in] port_id ポート番号
-  /// @param[in] name_hash ポート名のハッシュ
-  /// @param[in] name_mgr ポート名を管理するクラス
   void
-  reg_port_name(int port_id,
-		unordered_set<string>& name_hash,
-		NameMgr& name_mgr);
+  reg_port_name(
+    int port_id,                      ///< [in] ポート番号
+    unordered_set<string>& name_hash, ///< [in] ポート名のハッシュ
+    NameMgr& name_mgr                 ///< [in] ポート名を管理するクラス
+  );
 
   /// @brief ノード名の登録を行う．
-  /// @param[in] node_id ノード番号
-  /// @param[in] name_hash ノード名のハッシュ
-  /// @param[in] name_mgr ノード名を管理するクラス
-  /// @param[out] node_list ノード名の生成が必要なノード番号のリスト
   void
-  reg_node_name(int node_id,
-		unordered_set<string>& name_hash,
-		NameMgr& name_mgr);
+  reg_node_name(
+    int node_id,                      ///< [in] ノード番号
+    unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
+    NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
+  );
 
   /// @brief ノード名をそのファンインのノード名に付け替える．
   void
-  replace_node_name(int node_id);
+  replace_node_name(
+    int node_id ///< [in] ノード番号
+  );
 
 
 private:

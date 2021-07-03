@@ -49,24 +49,6 @@ BnNetwork::read_iscas89(const string& filename,
 // クラス BnIscas89Handler
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] parser パーサー
-// @param[in] network 設定対象のネットワーク
-// @param[in] clock_name クロック端子名
-BnIscas89Handler::BnIscas89Handler(Iscas89Parser& parser,
-				   BnNetwork& network,
-				   const string& clock_name) :
-  Iscas89Handler(parser),
-  mNetwork(network),
-  mClockName(clock_name)
-{
-}
-
-// @brief デストラクタ
-BnIscas89Handler::~BnIscas89Handler()
-{
-}
-
 // @brief 初期化
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．

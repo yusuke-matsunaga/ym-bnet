@@ -107,12 +107,13 @@ public:
   /// @brief ファンアウトのノード番号を返す．
   virtual
   int
-  fanout_id(int pos) const ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
-  = 0;
+  fanout_id(
+    int pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
+  ) const = 0;
 
   /// @brief ファンアウトのノード番号のリストを返す．
   virtual
-  const vector<int>&
+  vector<int>
   fanout_id_list() const = 0;
 
 
@@ -271,12 +272,13 @@ public:
   /// - is_logic() == false の時の動作は不定
   virtual
   int
-  fanin_id(int pos) const ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
-  = 0;
+  fanin_id(
+    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+  ) const = 0;
 
   /// @brief ファンインのノード番号のリストを返す．
   virtual
-  const vector<int>&
+  vector<int>
   fanin_id_list() const = 0;
 
   /// @brief 論理式番号を返す．

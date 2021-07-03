@@ -16,19 +16,22 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCover BlifCover.h "ym/BlifCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
+///
+/// 内容は入力のカバーを表す2次元の文字列配列と出力の極性を表す
+/// 文字パタンからなる．
+/// 入力カバーは1行で一つのキューブを表す．
 //////////////////////////////////////////////////////////////////////
 class BlifCover
 {
 public:
 
   /// @brief コンストラクタ
-  ///
-  /// - ipat_list の要素は '0', '1', '-' のいずれか
-  /// - opat は '0', '1' のいずれか
-  BlifCover(int ni,                          ///< [in] 入力数
-	    const vector<string>& ipat_list, ///< [in] 入力のパタンベクタ
-	    char opat)                       ///< [in] 出力のパタン
-    : mInputNum{ni},
+  BlifCover(
+    int ni,                          ///< [in] 入力数
+    const vector<string>& ipat_list, ///< [in] 入力のパタンベクタ
+                                     ///< 要素は '0', '1', '-' のいずれか
+    char opat                        ///< [in] 出力のパタン ( '0', '1' のみ )
+  ) : mInputNum{ni},
       mInputPatList{ipat_list},
       mOutputPat{opat}
   {
@@ -54,8 +57,10 @@ public:
   /// @brief 入力パタンを返す．
   /// @return パタンを返す．('0', '1', '-')
   char
-  input_pat(int cpos,       ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
-	    int ipos) const ///< [in] 入力番号 ( 0 <= ipos < input_num() )
+  input_pat(
+    int cpos, ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
+    int ipos  ///< [in] 入力番号 ( 0 <= ipos < input_num() )
+  ) const
   {
     ASSERT_COND( 0 <= cpos && cpos < cube_num() );
     ASSERT_COND( 0 <= ipos && ipos < input_num() );
@@ -71,7 +76,9 @@ public:
 
   /// @brief 内容を出力する．
   void
-  print(ostream& s) const; ///< [in] 出力先のストリーム
+  print(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const;
 
 
 private:

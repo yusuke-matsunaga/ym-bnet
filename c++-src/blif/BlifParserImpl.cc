@@ -3,9 +3,8 @@
 /// @brief BlibParserImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2017 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2017, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BlifParserImpl.h"
 #include "ym/BlifCover.h"
@@ -25,8 +24,8 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-BlifParser::BlifParser() :
-  mImpl{new BlifParserImpl()}
+BlifParser::BlifParser(
+) : mImpl{new BlifParserImpl()}
 {
 }
 
@@ -38,21 +37,21 @@ BlifParser::~BlifParser()
 }
 
 // @brief 読み込みを行う．
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
 bool
-BlifParser::read(const string& filename)
+BlifParser::read(
+  const string& filename
+)
 {
   bool stat = mImpl->read(filename, ClibCellLibrary());
   return stat;
 }
 
 // @brief 読み込みを行う(セルライブラリ付き)．
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
 bool
-BlifParser::read(const string& filename,
-		 const ClibCellLibrary& cell_library)
+BlifParser::read(
+  const string& filename,
+  const ClibCellLibrary& cell_library
+)
 {
   bool stat = mImpl->read(filename, cell_library);
   return stat;
@@ -65,8 +64,10 @@ BlifParser::read(const string& filename,
 
 // @brief 読み込みを行う．
 bool
-BlifParserImpl::read(const string& filename,
-		     const ClibCellLibrary& cell_library)
+BlifParserImpl::read(
+  const string& filename,
+  const ClibCellLibrary& cell_library
+)
 {
   // blif ファイル読み込みの状態遷移
   //
@@ -353,14 +354,14 @@ BlifParserImpl::read(const string& filename,
 
 // @brief イベントハンドラの登録
 void
-BlifParserImpl::add_handler(BlifHandler* handler)
+BlifParserImpl::add_handler(
+  BlifHandler* handler
+)
 {
   mHandlerList.push_back(handler);
 }
 
 // @brief .model 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_model()
 {
@@ -434,8 +435,6 @@ BlifParserImpl::read_model()
 }
 
 // @brief .inputs 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_inputs()
 {
@@ -492,8 +491,6 @@ BlifParserImpl::read_inputs()
 }
 
 // @brief .outputs 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_outputs()
 {
@@ -547,8 +544,6 @@ BlifParserImpl::read_outputs()
 }
 
 // @brief .names 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_names()
 {
@@ -772,8 +767,6 @@ BlifParserImpl::read_names()
 }
 
 /// @brief .gate 文の読み込みを行う．
-/// @retval true 正しく読み込んだ．
-/// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_gate()
 {
@@ -949,8 +942,6 @@ BlifParserImpl::read_gate()
 }
 
 // @brief .latch 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_latch()
 {
@@ -1030,8 +1021,6 @@ BlifParserImpl::read_latch()
 }
 
 // @brief .exdc 文の読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_exdc()
 {
@@ -1048,8 +1037,6 @@ BlifParserImpl::read_exdc()
 }
 
 // @brief ダミーの１行読み込みを行う．
-// @retval true 正しく読み込んだ．
-// @retval false エラーが起こった．
 bool
 BlifParserImpl::read_dummy1()
 {
@@ -1094,13 +1081,11 @@ BlifParserImpl::cur_loc() const
 }
 
 // @brief name に対応する識別子番号を返す．
-// @param[in] name 名前
-// @param[in] loc name の位置
-//
-// 未登録の場合には新たに作る．
 int
-BlifParserImpl::find_id(const string& name,
-			const FileRegion& loc)
+BlifParserImpl::find_id(
+  const string& name,
+  const FileRegion& loc
+)
 {
   if ( mIdHash.find(name) == mIdHash.end() ) {
     // 未定義だった．
@@ -1116,64 +1101,62 @@ BlifParserImpl::find_id(const string& name,
 }
 
 // @brief 対応する識別子がすでに定義済みか調べる．
-// @param[in] id 識別子番号
-// @retval true 定義済み
-// @retval false 未定義
 bool
-BlifParserImpl::is_defined(int id) const
+BlifParserImpl::is_defined(
+  int id
+) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   return mCellArray[id].is_defined();
 }
 
 // @brief 対応する識別子が入力用か調べる．
-// @param[in] id 識別子番号
-// @retval true 入力
-// @retval false 入力以外
 bool
-BlifParserImpl::is_input(int id) const
+BlifParserImpl::is_input(
+  int id
+) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   return mCellArray[id].is_input();
 }
 
 // @brief 対応する識別子が出力用か調べる．
-// @param[in] id 識別子番号
-// @retval true 出力
-// @retval false 出力以外
 bool
-BlifParserImpl::is_output(int id) const
+BlifParserImpl::is_output(
+  int id
+) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   return mCellArray[id].is_output();
 }
 
 // @brief 対応する識別子に定義済みの印をつける．
-// @param[in] id 識別子番号
-// @param[in] loc 定義している場所．
 void
-BlifParserImpl::set_defined(int id,
-			    const FileRegion& loc)
+BlifParserImpl::set_defined(
+  int id,
+  const FileRegion& loc
+)
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   mCellArray[id].set_defined(loc);
 }
 
 // @brief 対応する識別子に入力用の印を付ける．
-// @param[in] id 識別子番号
-// @param[in] loc 定義している場所．
 void
-BlifParserImpl::set_input(int id,
-			  const FileRegion& loc)
+BlifParserImpl::set_input(
+  int id,
+  const FileRegion& loc
+)
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   mCellArray[id].set_input(loc);
 }
 
 // @brief 対応する識別子に出力用の印を付ける．
-// @param[in] id 識別子番号
 void
-BlifParserImpl::set_output(int id)
+BlifParserImpl::set_output(
+  int id
+)
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   mCellArray[id].set_output();

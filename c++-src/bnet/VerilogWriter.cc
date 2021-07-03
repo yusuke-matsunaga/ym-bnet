@@ -3,9 +3,8 @@
 /// @brief VerilogWriter の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "VerilogWriter.h"
 #include "ym/BnNetwork.h"
@@ -26,21 +25,16 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief 内容を Verilog-HDL 形式で出力する．
-// @param[in] s 出力先のストリーム
-// @param[in] port_prefix ポート自動生成名の接頭語
-// @param[in] port_suffix ポート自動生成名の接尾語
-// @param[in] node_prefix ノード自動生成名の接頭語
-// @param[in] node_suffix ノード自動生成名の接尾語
-// @param[in] instance_prefix インスタンス自動生成名の接頭語
-// @param[in] instance_suffix インスタンス自動生成名の接尾語
 void
-BnNetwork::write_verilog(ostream& s,
-			 const string& port_prefix,
-			 const string& port_suffix,
-			 const string& node_prefix,
-			 const string& node_suffix,
-			 const string& instance_prefix,
-			 const string& instance_suffix) const
+BnNetwork::write_verilog(
+  ostream& s,
+  const string& port_prefix,
+  const string& port_suffix,
+  const string& node_prefix,
+  const string& node_suffix,
+  const string& instance_prefix,
+  const string& instance_suffix
+) const
 {
   VerilogWriter writer(*this,
 		       port_prefix, port_suffix,
@@ -50,21 +44,16 @@ BnNetwork::write_verilog(ostream& s,
 }
 
 // @brief 内容を Verilog-HDL 形式で出力する．
-// @param[in] filename 出力先のファイル名
-// @param[in] port_prefix ポート自動生成名の接頭語
-// @param[in] port_suffix ポート自動生成名の接尾語
-// @param[in] node_prefix ノード自動生成名の接頭語
-// @param[in] node_suffix ノード自動生成名の接尾語
-// @param[in] instance_prefix インスタンス自動生成名の接頭語
-// @param[in] instance_suffix インスタンス自動生成名の接尾語
 void
-BnNetwork::write_verilog(const string& filename,
-			 const string& port_prefix,
-			 const string& port_suffix,
-			 const string& node_prefix,
-			 const string& node_suffix,
-			 const string& instance_prefix,
-			 const string& instance_suffix) const
+BnNetwork::write_verilog(
+  const string& filename,
+  const string& port_prefix,
+  const string& port_suffix,
+  const string& node_prefix,
+  const string& node_suffix,
+  const string& instance_prefix,
+  const string& instance_suffix
+) const
 {
   ofstream ofs(filename);
   if ( ofs ) {
@@ -77,40 +66,13 @@ BnNetwork::write_verilog(const string& filename,
 // クラス VerilogWriter
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] network 対象のネットワーク
-VerilogWriter::VerilogWriter(const BnNetwork& network,
-			     const string& port_prefix,
-			     const string& port_suffix,
-			     const string& node_prefix,
-			     const string& node_suffix,
-			     const string& instance_prefix,
-			     const string& instance_suffix) :
-  mNetwork(network),
-  mPortPrefix(port_prefix),
-  mPortSuffix(port_suffix),
-  mNodePrefix(node_prefix),
-  mNodeSuffix(node_suffix),
-  mInstancePrefix(instance_prefix),
-  mInstanceSuffix(instance_suffix),
-  mPortNameArray(network.port_num()),
-  mNodeNameArray(network.node_num()),
-  mNodeInstanceNameArray(network.node_num()),
-  mDffInstanceNameArray(network.dff_num()),
-  mLatchInstanceNameArray(network.latch_num())
-{
-}
-
-// @brief デストラクタ
-VerilogWriter::~VerilogWriter()
-{
-}
-
 BEGIN_NONAMESPACE
 
 // 関数番号から UDP名を作る．
 string
-udp_name(int func_id)
+udp_name(
+  int func_id
+)
 {
   ostringstream buf;
   buf << "__func" << func_id;
@@ -119,9 +81,11 @@ udp_name(int func_id)
 
 // UDP プリミティブの定義を出力する．
 void
-write_udp(ostream& s,
-	  const string& udp_name,
-	  const TvFunc& func)
+write_udp(
+  ostream& s,
+  const string& udp_name,
+  const TvFunc& func
+)
 {
   int ni = func.input_num();
   int np = 1 << ni;
@@ -162,10 +126,12 @@ write_udp(ostream& s,
 }
 
 void
-write_op(ostream& s,
-	 const char* op_str,
-	 bool neg,
-	 const vector<string>& iname_array)
+write_op(
+  ostream& s,
+  const char* op_str,
+  bool neg,
+  const vector<string>& iname_array
+)
 {
   if ( neg ) {
     s << "~(";
@@ -182,9 +148,11 @@ write_op(ostream& s,
 }
 
 void
-write_expr(ostream& s,
-	   const Expr& expr,
-	   const vector<string>& iname_array)
+write_expr(
+  ostream& s,
+  const Expr& expr,
+  const vector<string>& iname_array
+)
 {
   if ( expr.is_zero() ) {
     s << "1'b0";
@@ -229,9 +197,10 @@ write_expr(ostream& s,
 END_NONAMESPACE
 
 // @brief blif 形式で出力する．
-// @param[in] s 出力先のストリーム
 void
-VerilogWriter::operator()(ostream& s)
+VerilogWriter::operator()(
+  ostream& s
+)
 {
   // TODO
   // * ラッチ記述のチェック
@@ -603,7 +572,9 @@ VerilogWriter::init_name_array()
 
 // @brief ノード名をそのファンインのノード名に付け替える．
 void
-VerilogWriter::replace_node_name(int node_id)
+VerilogWriter::replace_node_name(
+  int node_id
+)
 {
   if ( node_id == -1 ) {
     return;
@@ -618,7 +589,9 @@ BEGIN_NONAMESPACE
 // 名前を補正する．
 // 具体的には [a-zA-Z0-9_] 以外の文字を含んでいる場合にエスケープ識別子にする．
 string
-coerce_name(const string& name)
+coerce_name(
+  const string& name
+)
 {
   bool need_escape = false;
   for ( char c: name ) {
@@ -638,13 +611,12 @@ coerce_name(const string& name)
 END_NONAMESPACE
 
 // @brief ポート名の登録を行う．
-// @param[in] port_id ポート番号
-// @param[in] name_hash ポート名のハッシュ
-// @param[in] name_mgr ポート名を管理するクラス
 void
-VerilogWriter::reg_port_name(int port_id,
-			     unordered_set<string>& name_hash,
-			     NameMgr& name_mgr)
+VerilogWriter::reg_port_name(
+  int port_id,
+  unordered_set<string>& name_hash,
+  NameMgr& name_mgr
+)
 {
   auto& port = mNetwork.port(port_id);
   string name = port.name();
@@ -665,13 +637,12 @@ VerilogWriter::reg_port_name(int port_id,
 }
 
 // @brief ノード名の登録を行う．
-// @param[in] node_id ノード番号
-// @param[in] name_hash ノード名のハッシュ
-// @param[in] name_mgr ノード名を管理するクラス
 void
-VerilogWriter::reg_node_name(int node_id,
-			     unordered_set<string>& name_hash,
-			     NameMgr& name_mgr)
+VerilogWriter::reg_node_name(
+  int node_id,
+  unordered_set<string>& name_hash,
+  NameMgr& name_mgr
+)
 {
   auto& node = mNetwork.node(node_id);
   string name = node.name();

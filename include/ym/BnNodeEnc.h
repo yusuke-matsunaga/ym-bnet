@@ -26,9 +26,11 @@ class BnNodeEnc
 public:
 
   /// @brief コンストラクタ
-  BnNodeEnc(SatSolver& solver,                 ///< [in] SATソルバ
-	    const BnNetwork& network,          ///< [in] 対象のネットワーク
-	    const vector<SatLiteral>& varmap); ///< [in] 変数番号のマップ
+  BnNodeEnc(
+    SatSolver& solver,               ///< [in] SATソルバ
+    const BnNetwork& network,        ///< [in] 対象のネットワーク
+    const vector<SatLiteral>& varmap ///< [in] 変数番号のマップ
+  );
 
   /// @brief デストラクタ
   ~BnNodeEnc() = default;
@@ -41,7 +43,9 @@ public:
 
   /// @brief ノードの入出力の関係を表すCNF式を作る．
   void
-  make_cnf(const BnNode& node); ///< [in] 対象のノード
+  make_cnf(
+    const BnNode& node ///< [in] 対象のノード
+  );
 
 
 private:

@@ -5,7 +5,7 @@
 /// @brief Iscas89Writer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "WriterBase.h"
@@ -23,12 +23,11 @@ class Iscas89Writer :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] prefix 自動生成名の接頭語
-  /// @param[in] suffix 自動生成名の接尾語
-  Iscas89Writer(const BnNetwork& network,
-		const string& prefix,
-		const string& suffix);
+  Iscas89Writer(
+    const BnNetwork& network, ///< [in] 対象のネットワーク
+    const string& prefix,     ///< [in] 自動生成名の接頭語
+    const string& suffix      ///< [in] 自動生成名の接尾語
+  );
 
   /// @brief デストラクタ
   ~Iscas89Writer() = default;
@@ -40,22 +39,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief iscas89(.bench) 形式で出力する．
-  /// @param[in] s 出力先のストリーム
   void
-  operator()(ostream& s);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
+  operator()(
+    ostream& s ///< [in] 出力先のストリーム
+  );
 
 };
 

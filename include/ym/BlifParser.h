@@ -46,14 +46,18 @@ public:
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename); ///< [in] ファイル名
+  read(
+    const string& filename ///< [in] ファイル名
+  );
 
   /// @brief 読み込みを行う(セルライブラリ付き)．
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename,               ///< [in] ファイル名
-       const ClibCellLibrary& cell_library); ///< [in] セルライブラリ
+  read(
+    const string& filename,             ///< [in] ファイル名
+    const ClibCellLibrary& cell_library ///< [in] セルライブラリ
+  );
 
 
 private:

@@ -3,9 +3,8 @@
 /// @brief BnOutputNode の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnOutputNode.h"
 
@@ -15,24 +14,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 // クラス BnOutputNode
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-BnOutputNode::BnOutputNode(int id,
-			   const string& name,
-			   int output_id) :
-  BnNodeImpl(id, name),
-  mOutputPos(output_id),
-  mFanin(kBnNullId)
-{
-}
-
-// @brief デストラクタ
-BnOutputNode::~BnOutputNode()
-{
-}
 
 // @brief タイプを返す．
 BnNodeType
@@ -76,12 +57,10 @@ BnOutputNode::fanin_id(int pos) const
 }
 
 // @brief ファンインのノード番号のリストを返す．
-const vector<int>&
+vector<int>
 BnOutputNode::fanin_id_list() const
 {
-  static vector<int> dummy_fanin(1);
-  dummy_fanin[0] = mFanin;
-  return dummy_fanin;
+  return vector<int>{mFanin};
 }
 
 // @brief ファンインを設定する．
@@ -99,29 +78,6 @@ BnOutputNode::set_fanin(int ipos,
 //////////////////////////////////////////////////////////////////////
 // クラス BnPortOutput
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input 入力のノード番号
-// @param[in] output_id 出力番号
-// @param[in] port_id ポート番号
-// @param[in] port_bit ポート中のビット位置
-BnPortOutput::BnPortOutput(int id,
-			   const string& name,
-			   int output_id,
-			   int port_id,
-			   int port_bit) :
-  BnOutputNode(id, name, output_id),
-  mPortId(port_id),
-  mPortBit(port_bit)
-{
-}
-
-// @brief デストラクタ
-BnPortOutput::~BnPortOutput()
-{
-}
 
 // @brief 外部出力端子の時に true を返す．
 bool
@@ -153,26 +109,6 @@ BnPortOutput::port_bit() const
 // クラス BnDffControl
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input 入力のノード番号
-// @param[in] output_id 出力番号
-// @param[in] dff_id DFF番号
-BnDffControl::BnDffControl(int id,
-			   const string& name,
-			   int output_id,
-			   int dff_id) :
-  BnOutputNode(id, name, output_id),
-  mDffId(dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffControl::~BnDffControl()
-{
-}
-
 // @brief 接続しているDFFの番号を返す．
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
@@ -188,24 +124,6 @@ BnDffControl::dff_id() const
 // クラス BnDffInput
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] dff_id DFF番号
-BnDffInput::BnDffInput(int id,
-		       const string& name,
-		       int output_id,
-		       int dff_id) :
-  BnDffControl(id, name, output_id, dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffInput::~BnDffInput()
-{
-}
-
 // @brie DFFの入力端子の時に true を返す．
 bool
 BnDffInput::is_dff_input() const
@@ -217,24 +135,6 @@ BnDffInput::is_dff_input() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnDffClock
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] dff_id DFF番号
-BnDffClock::BnDffClock(int id,
-		       const string& name,
-		       int output_id,
-		       int dff_id) :
-  BnDffControl(id, name, output_id, dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffClock::~BnDffClock()
-{
-}
 
 // @brief DFFのクロック端子の時に true を返す．
 bool
@@ -248,24 +148,6 @@ BnDffClock::is_dff_clock() const
 // クラス BnDffClear
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] dff_id DFF番号
-BnDffClear::BnDffClear(int id,
-		       const string& name,
-		       int output_id,
-		       int dff_id) :
-  BnDffControl(id, name, output_id, dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffClear::~BnDffClear()
-{
-}
-
 // @brief DFFのクリア端子の時に true を返す．
 bool
 BnDffClear::is_dff_clear() const
@@ -278,24 +160,6 @@ BnDffClear::is_dff_clear() const
 // クラス BnDffPreset
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] dff_id DFF番号
-BnDffPreset::BnDffPreset(int id,
-			 const string& name,
-			 int output_id,
-			 int dff_id) :
-  BnDffControl(id, name, output_id, dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffPreset::~BnDffPreset()
-{
-}
-
 // @brief DFFのプリセット端子の時に true を返す．
 bool
 BnDffPreset::is_dff_preset() const
@@ -307,25 +171,6 @@ BnDffPreset::is_dff_preset() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnLatchControl
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] latch_id ラッチ番号
-BnLatchControl::BnLatchControl(int id,
-			       const string& name,
-			       int output_id,
-			       int latch_id) :
-  BnOutputNode(id, name, output_id),
-  mLatchId(latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchControl::~BnLatchControl()
-{
-}
 
 // @brief 接続しているラッチの番号を返す．
 //
@@ -342,24 +187,6 @@ BnLatchControl::latch_id() const
 // クラス BnLatchInput
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] latch_id ラッチ番号
-BnLatchInput::BnLatchInput(int id,
-			   const string& name,
-			   int output_id,
-			   int latch_id) :
-  BnLatchControl(id, name, output_id, latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchInput::~BnLatchInput()
-{
-}
-
 // @brie ラッチの入力端子の時に true を返す．
 bool
 BnLatchInput::is_latch_input() const
@@ -371,24 +198,6 @@ BnLatchInput::is_latch_input() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnLatchEnable
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] latch_id ラッチ番号
-BnLatchEnable::BnLatchEnable(int id,
-			     const string& name,
-			     int output_id,
-			     int latch_id) :
-  BnLatchControl(id, name, output_id, latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchEnable::~BnLatchEnable()
-{
-}
 
 // @brief ラッチのイネーブル端子の時に true を返す．
 bool
@@ -402,24 +211,6 @@ BnLatchEnable::is_latch_enable() const
 // クラス BnLatchClear
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] latch_id ラッチ番号
-BnLatchClear::BnLatchClear(int id,
-			   const string& name,
-			   int output_id,
-			   int latch_id) :
-  BnLatchControl(id, name, output_id, latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchClear::~BnLatchClear()
-{
-}
-
 // @brief ラッチのクリア端子の時に true を返す．
 bool
 BnLatchClear::is_latch_clear() const
@@ -431,24 +222,6 @@ BnLatchClear::is_latch_clear() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnLatchPreset
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] output_id 出力番号
-// @param[in] latch_id ラッチ番号
-BnLatchPreset::BnLatchPreset(int id,
-			     const string& name,
-			     int output_id,
-			     int latch_id) :
-  BnLatchControl(id, name, output_id, latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchPreset::~BnLatchPreset()
-{
-}
 
 // @brief ラッチのプリセット端子の時に true を返す．
 bool

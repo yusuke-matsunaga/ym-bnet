@@ -43,12 +43,16 @@ public:
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read(const string& filename,               ///< [in] ファイル名
-       const ClibCellLibrary& cell_library); ///< [in] セルライブラリ
+  read(
+    const string& filename,             ///< [in] ファイル名
+    const ClibCellLibrary& cell_library ///< [in] セルライブラリ
+  );
 
   /// @brief イベントハンドラの登録
   void
-  add_handler(BlifHandler* handler); ///< [in] 登録するハンドラ
+  add_handler(
+    BlifHandler* handler ///< [in] 登録するハンドラ
+  );
 
 
 public:
@@ -58,7 +62,9 @@ public:
 
   /// @brief ID番号から文字列を得る．
   const string&
-  id2str(int id) ///< [in] ID番号
+  id2str(
+    int id ///< [in] ID番号
+  )
   {
     ASSERT_COND( 0 <= id && id < mCellArray.size() );
     return mCellArray[id].name();
@@ -66,7 +72,9 @@ public:
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
-  id2loc(int id) ///< [in] ID番号
+  id2loc(
+    int id ///< [in] ID番号
+  )
   {
     ASSERT_COND( 0 <= id && id < mCellArray.size() );
     return mCellArray[id].def_loc();
@@ -81,7 +89,9 @@ public:
 
   /// @brief カバーIDから BlifCover を得る．
   const BlifCover&
-  id2cover(int id) ///< [in] ID番号
+  id2cover(
+    int id ///< [in] ID番号
+  )
   {
     return mCoverMgr.cover(id);
   }
@@ -98,9 +108,10 @@ private:
   public:
 
     /// @brief コンストラクタ
-    IdCell(const string& name,
-	   const FileRegion& loc)
-      : mName{name},
+    IdCell(
+      const string& name,
+      const FileRegion& loc
+    ) : mName{name},
 	mRefLoc{loc}
     {
     }
@@ -134,7 +145,9 @@ private:
 
     /// @brief 定義済みフラグをセットする．
     void
-    set_defined(const FileRegion& loc)
+    set_defined(
+      const FileRegion& loc
+    )
     {
       mDefLoc = loc;
       mFlags.set(0);
@@ -142,7 +155,9 @@ private:
 
     /// @brief 入力として定義されたことをセットする．
     void
-    set_input(const FileRegion& loc)
+    set_input(
+      const FileRegion& loc
+    )
     {
       set_defined(loc);
       mFlags.set(1);
@@ -249,54 +264,58 @@ private:
   cur_loc() const;
 
   /// @brief name に対応する IdCell を取り出す．
-  /// @param[in] name 名前
-  /// @param[in] loc name の位置
   /// @return 対応するID番号を返す．
   ///
   /// 未登録の場合には新たに作る．
   int
-  find_id(const string& name,
-	  const FileRegion& loc);
+  find_id(
+    const string& name,   ///< [in] 名前
+    const FileRegion& loc ///< [in] name の位置
+  );
 
   /// @brief 対応する識別子がすでに定義済みか調べる．
-  /// @param[in] id 識別子番号
   /// @retval true 定義済み
   /// @retval false 未定義
   bool
-  is_defined(int id) const;
+  is_defined(
+    int id ///< [in] 識別子番号
+  ) const;
 
   /// @brief 対応する識別子が入力用か調べる．
-  /// @param[in] id 識別子番号
   /// @retval true 入力
   /// @retval false 入力以外
   bool
-  is_input(int id) const;
+  is_input(
+    int id ///< [in] 識別子番号
+  ) const;
 
   /// @brief 対応する識別子が出力用か調べる．
-  /// @param[in] id 識別子番号
   /// @retval true 出力
   /// @retval false 出力以外
   bool
-  is_output(int id) const;
+  is_output(
+    int id ///< [in] 識別子番号
+  ) const;
 
   /// @brief 対応する識別子に定義済みの印をつける．
-  /// @param[in] id 識別子番号
-  /// @param[in] loc 定義している場所．
   void
-  set_defined(int id,
-	      const FileRegion& loc);
+  set_defined(
+    int id,               ///< [in] 識別子番号
+    const FileRegion& loc ///< [in] 定義している場所．
+  );
 
   /// @brief 対応する識別子に入力用の印を付ける．
-  /// @param[in] id 識別子番号
-  /// @param[in] loc 定義している場所．
   void
-  set_input(int id,
-	    const FileRegion& loc);
+  set_input(
+    int id,               ///< [in] 識別子番号
+    const FileRegion& loc ///< [in] 定義している場所．
+  );
 
   /// @brief 対応する識別子に出力用の印を付ける．
-  /// @param[in] id 識別子番号
   void
-  set_output(int id);
+  set_output(
+    int id ///< [in] 識別子番号
+  );
 
   /// @brief スキャナーを削除する．
   void

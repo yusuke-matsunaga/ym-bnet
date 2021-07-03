@@ -5,9 +5,8 @@
 /// @brief BnOutputNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnNodeImpl.h"
 
@@ -27,15 +26,18 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  BnOutputNode(int id,
-	       const string& name,
-	       int output_id);
+  BnOutputNode(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id       ///< [in] 出力番号
+  ) : BnNodeImpl(id, name),
+    mOutputPos(output_id),
+    mFanin(kBnNullId)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnOutputNode();
+  ~BnOutputNode() = default;
 
 
 public:
@@ -69,12 +71,13 @@ public:
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   int
-  fanin_id(int pos) const override;
+  fanin_id(
+    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+  ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  const vector<int>&
+  vector<int>
   fanin_id_list() const override;
 
 
@@ -84,11 +87,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンインを設定する．
-  /// @param[in] ipos 入力位置
-  /// @param[in] fanin_id ファンインのノード番号
   void
-  set_fanin(int ipos,
-	    int fanin_id) override;
+  set_fanin(
+    int ipos,    ///< [in] 入力位置
+    int fanin_id ///< [in] ファンインのノード番号
+  ) override;
 
 
 private:
@@ -115,19 +118,20 @@ class BnPortOutput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] port_id ポート番号
-  /// @param[in] port_bit ポート中のビット位置
-  BnPortOutput(int id,
-	       const string& name,
-	       int output_id,
-	       int port_id,
-	       int port_bit);
+  BnPortOutput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int port_id,        ///< [in] ポート番号
+    int port_bit        ///< [in] ポート中のビット位置
+  ) : BnOutputNode(id, name, output_id),
+      mPortId(port_id),
+      mPortBit(port_bit)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnPortOutput();
+  ~BnPortOutput() = default;
 
 
 public:
@@ -184,17 +188,18 @@ class BnDffControl :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] dff_id DFF番号
-  BnDffControl(int id,
-	       const string& name,
-	       int output_id,
-	       int dff_id);
+  BnDffControl(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnOutputNode(id, name, output_id),
+      mDffId(dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffControl();
+  ~BnDffControl() = default;
 
 
 public:
@@ -233,17 +238,17 @@ class BnDffInput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] dff_id DFF番号
-  BnDffInput(int id,
-	     const string& name,
-	     int output_id,
-	     int dff_id);
+  BnDffInput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnDffControl(id, name, output_id, dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffInput();
+  ~BnDffInput() = default;
 
 
 public:
@@ -254,12 +259,6 @@ public:
   /// @brie DFFの入力端子の時に true を返す．
   bool
   is_dff_input() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -274,17 +273,17 @@ class BnDffClock :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] dff_id DFF番号
-  BnDffClock(int id,
-	     const string& name,
-	     int output_id,
-	     int dff_id);
+  BnDffClock(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnDffControl(id, name, output_id, dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffClock();
+  ~BnDffClock() = default;
 
 
 public:
@@ -295,12 +294,6 @@ public:
   /// @brief DFFのクロック端子の時に true を返す．
   bool
   is_dff_clock() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -315,17 +308,17 @@ class BnDffClear :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] dff_id DFF番号
-  BnDffClear(int id,
-	     const string& name,
-	     int output_id,
-	     int dff_id);
+  BnDffClear(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnDffControl(id, name, output_id, dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffClear();
+  ~BnDffClear() = default;
 
 
 public:
@@ -336,12 +329,6 @@ public:
   /// @brief DFFのクリア端子の時に true を返す．
   bool
   is_dff_clear() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -356,17 +343,17 @@ class BnDffPreset :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] dff_id DFF番号
-  BnDffPreset(int id,
-	      const string& name,
-	      int output_id,
-	      int dff_id);
+  BnDffPreset(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnDffControl(id, name, output_id, dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffPreset();
+  ~BnDffPreset() = default;
 
 
 public:
@@ -377,12 +364,6 @@ public:
   /// @brief DFFのプリセット端子の時に true を返す．
   bool
   is_dff_preset() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -399,17 +380,18 @@ class BnLatchControl :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchControl(int id,
-		 const string& name,
-		 int output_id,
-		 int latch_id);
+  BnLatchControl(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnOutputNode(id, name, output_id),
+      mLatchId(latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchControl();
+  ~BnLatchControl() = default;
 
 
 public:
@@ -419,7 +401,8 @@ public:
 
   /// @brief 接続しているラッチの番号を返す．
   ///
-  /// is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// is_latch_input() || is_latch_output() || is_latch_enable() ||
+  /// is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   int
   latch_id() const override;
@@ -448,17 +431,17 @@ class BnLatchInput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchInput(int id,
-	       const string& name,
-	       int output_id,
-	       int latch_id);
+  BnLatchInput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnLatchControl(id, name, output_id, latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchInput();
+  ~BnLatchInput() = default;
 
 
 public:
@@ -469,12 +452,6 @@ public:
   /// @brie ラッチの入力端子の時に true を返す．
   bool
   is_latch_input() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -489,17 +466,17 @@ class BnLatchEnable :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchEnable(int id,
-		const string& name,
-		int output_id,
-		int latch_id);
+  BnLatchEnable(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnLatchControl(id, name, output_id, latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchEnable();
+  ~BnLatchEnable() = default;
 
 
 public:
@@ -510,12 +487,6 @@ public:
   /// @brief ラッチのイネーブル端子の時に true を返す．
   bool
   is_latch_enable() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -530,17 +501,17 @@ class BnLatchClear :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchClear(int id,
-	       const string& name,
-	       int output_id,
-	       int latch_id);
+  BnLatchClear(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnLatchControl(id, name, output_id, latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchClear();
+  ~BnLatchClear() = default;
 
 
 public:
@@ -551,12 +522,6 @@ public:
   /// @brief ラッチのクリア端子の時に true を返す．
   bool
   is_latch_clear() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 
@@ -571,17 +536,17 @@ class BnLatchPreset :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] output_id 出力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchPreset(int id,
-		const string& name,
-		int output_id,
-		int latch_id);
+  BnLatchPreset(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int output_id,      ///< [in] 出力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnLatchControl(id, name, output_id, latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchPreset();
+  ~BnLatchPreset() = default;
 
 
 public:
@@ -592,12 +557,6 @@ public:
   /// @brief ラッチのプリセット端子の時に true を返す．
   bool
   is_latch_preset() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
 
 };
 

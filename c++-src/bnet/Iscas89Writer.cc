@@ -3,9 +3,8 @@
 /// @brief Iscas89Writer の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Iscas89Writer.h"
 #include "ym/BnNetwork.h"
@@ -23,16 +22,12 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief 内容を ISCAS89(.bench) 形式で出力する．
-// @param[in] filename 出力先のファイル名
-// @param[in] network ネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-//
-// ポートの情報は無視される．
 void
-BnNetwork::write_iscas89(const string& filename,
-			 const string& prefix,
-			 const string& suffix) const
+BnNetwork::write_iscas89(
+  const string& filename,
+  const string& prefix,
+  const string& suffix
+) const
 {
   ofstream ofs(filename);
   if ( ofs ) {
@@ -41,16 +36,12 @@ BnNetwork::write_iscas89(const string& filename,
 }
 
 // @brief 内容を ISCAS89(.bench) 形式で出力する．
-// @param[in] s 出力先のストリーム
-// @param[in] network ネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-//
-// ポートの情報は無視される．
 void
-BnNetwork::write_iscas89(ostream& s,
-			 const string& prefix,
-			 const string& suffix) const
+BnNetwork::write_iscas89(
+  ostream& s,
+  const string& prefix,
+  const string& suffix
+) const
 {
   // 個々のノードが単純なゲートか調べる．
   bool ng = false;
@@ -94,13 +85,11 @@ BnNetwork::write_iscas89(ostream& s,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] network 対象のネットワーク
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
-Iscas89Writer::Iscas89Writer(const BnNetwork& network,
-			     const string& prefix,
-			     const string& suffix) :
-  WriterBase(network)
+Iscas89Writer::Iscas89Writer(
+  const BnNetwork& network,
+  const string& prefix,
+  const string& suffix
+) : WriterBase(network)
 {
   string _prefix(prefix);
   if ( _prefix == string() ) {
@@ -114,9 +103,10 @@ Iscas89Writer::Iscas89Writer(const BnNetwork& network,
 }
 
 // @brief blif 形式で出力する．
-// @param[in] s 出力先のストリーム
 void
-Iscas89Writer::operator()(ostream& s)
+Iscas89Writer::operator()(
+  ostream& s
+)
 {
   // INPUT 文の出力
   int count = 0;

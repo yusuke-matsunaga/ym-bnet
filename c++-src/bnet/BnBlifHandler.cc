@@ -68,27 +68,6 @@ BnNetwork::read_blif(const string& filename,
 // クラス BnBlifHandler
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] parser パーサー
-// @param[in] network ネットワーク
-// @param[in] clock_name クロック端子名
-// @param[in] reset_name リセット端子名
-BnBlifHandler::BnBlifHandler(BlifParser& parser,
-			     BnNetwork& network,
-			     const string& clock_name,
-			     const string& reset_name) :
-  BlifHandler(parser),
-  mNetwork(network),
-  mClockName(clock_name),
-  mResetName(reset_name)
-{
-}
-
-// @brief デストラクタ
-BnBlifHandler::~BnBlifHandler()
-{
-}
-
 // @brief 初期化
 bool
 BnBlifHandler::init()
@@ -109,18 +88,20 @@ BnBlifHandler::init()
 //
 // この関数が呼ばれないこともある．
 void
-BnBlifHandler::set_cell_library(const ClibCellLibrary& library)
+BnBlifHandler::set_cell_library(
+  const ClibCellLibrary& library
+)
 {
   mNetwork.set_library(library);
 }
 
 // @brief .model 文の読み込み
-// @param[in] loc 位置情報
-// @param[in] name model名
 bool
-BnBlifHandler::model(const FileRegion& loc1,
-		     const FileRegion& loc2,
-		     const string& name)
+BnBlifHandler::model(
+  const FileRegion& loc1,
+  const FileRegion& loc2,
+  const string& name
+)
 {
   mNetwork.set_name(name);
 
@@ -128,12 +109,11 @@ BnBlifHandler::model(const FileRegion& loc1,
 }
 
 // @brief .input 文の読み込み
-// @param[in] loc 位置情報
-// @param[in] name_id 文字列のID番号
-// @param[in] name 入力ピン名
 bool
-BnBlifHandler::inputs_elem(int name_id,
-			   const string& name)
+BnBlifHandler::inputs_elem(
+  int name_id,
+  const string& name
+)
 {
   auto port_id = mNetwork.new_input_port(name);
   const auto& port = mNetwork.port(port_id);
@@ -144,11 +124,11 @@ BnBlifHandler::inputs_elem(int name_id,
 }
 
 // @brief .output 文の読み込み
-// @param[in] name_id 文字列のID番号
-// @param[in] name 出力ピン名
 bool
-BnBlifHandler::outputs_elem(int name_id,
-			    const string& name)
+BnBlifHandler::outputs_elem(
+  int name_id,
+  const string& name
+)
 {
   auto port_id = mNetwork.new_output_port(name);
   const auto& port = mNetwork.port(port_id);
@@ -161,9 +141,10 @@ BnBlifHandler::outputs_elem(int name_id,
 BEGIN_NONAMESPACE
 
 Expr
-cover2expr(const BlifCover& cover)
+cover2expr(
+  const BlifCover& cover
+)
 {
-
   int input_num = cover.input_num();
   int cube_num = cover.cube_num();
   vector<Expr> prod_list;
@@ -203,17 +184,13 @@ cover2expr(const BlifCover& cover)
 END_NONAMESPACE
 
 // @brief .names 文の処理
-// @param[in] oname_id ノード名のID番号
-// @param[in] oname 出力名
-// @param[in] inode_id_array ファンイン各のID番号の配列
-// @param[in] cover_id カバーID
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
 bool
-BnBlifHandler::names(int oname_id,
-		     const string& oname,
-		     const vector<int>& inode_id_array,
-		     int cover_id)
+BnBlifHandler::names(
+  int oname_id,
+  const string& oname,
+  const vector<int>& inode_id_array,
+  int cover_id
+)
 {
   auto& cover = id2cover(cover_id);
   auto expr = cover2expr(cover);
@@ -228,17 +205,13 @@ BnBlifHandler::names(int oname_id,
 }
 
 // @brief .gate 文の処理
-// @param[in] oname_id 出力ノードのID番号
-// @param[in] oname 出力名
-// @param[in] cell_id セル番号
-// @param[in] inode_id_array 入力ノードのID番号の配列
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
 bool
-BnBlifHandler::gate(int oname_id,
-		    const string& oname,
-		    const vector<int>& inode_id_array,
-		    int cell_id)
+BnBlifHandler::gate(
+  int oname_id,
+  const string& oname,
+  const vector<int>& inode_id_array,
+  int cell_id
+)
 {
   int ni = inode_id_array.size();
   const ClibCell& cell = mNetwork.library().cell(cell_id);
@@ -252,19 +225,14 @@ BnBlifHandler::gate(int oname_id,
 }
 
 // @brief .latch 文の処理
-// @param[in] oname_id 出力ノードのID番号
-// @param[in] oname 出力名
-// @param[in] iname_id 入力ノードのID番号
-// @param[in] loc4 リセット値の位置情報
-// @param[in] rval リセット時の値('0'/'1') 未定義なら ' '
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
 bool
-BnBlifHandler::latch(int oname_id,
-		     const string& oname,
-		     int iname_id,
-		     const FileRegion& loc4,
-		     char rval)
+BnBlifHandler::latch(
+  int oname_id,
+  const string& oname,
+  int iname_id,
+  const FileRegion& loc4,
+  char rval
+)
 {
   bool has_clear = false;
   bool has_preset = false;
@@ -321,9 +289,10 @@ BnBlifHandler::latch(int oname_id,
 }
 
 // @brief 終了処理
-// @param[in] loc 位置情報
 bool
-BnBlifHandler::end(const FileRegion& loc)
+BnBlifHandler::end(
+  const FileRegion& loc
+)
 {
   // ノードのファンインを設定する．
   for ( int node_id = 1; node_id <= mNetwork.node_num(); ++ node_id ) {

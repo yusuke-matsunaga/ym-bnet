@@ -3,9 +3,8 @@
 /// @brief BnLogicNode の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnLogicNode.h"
 
@@ -15,26 +14,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 // クラス BnLogicNode
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] cell_id セル番号 (-1 の場合もあり)
-BnLogicNode::BnLogicNode(int id,
-			 const string& name,
-			 int ni,
-			 int cell_id) :
-  BnNodeImpl(id, name),
-  mFanins(ni, kBnNullId),
-  mCellId(cell_id)
-{
-}
-
-// @brief デストラクタ
-BnLogicNode::~BnLogicNode()
-{
-}
 
 // @brief 外部入力の時 true を返す．
 bool
@@ -61,7 +40,7 @@ BnLogicNode::fanin_id(int pos) const
 }
 
 // @brief ファンインのノード番号のリストを返す．
-const vector<int>&
+vector<int>
 BnLogicNode::fanin_id_list() const
 {
   return mFanins;
@@ -94,27 +73,6 @@ BnLogicNode::set_fanin(int ipos,
 // クラス BnPrimNode
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] logic_type 論理タイプ
-// @param[in] cell_id セル番号 (nullptr の場合もあり)
-BnPrimNode::BnPrimNode(int id,
-		       const string& name,
-		       int ni,
-		       BnNodeType logic_type,
-		       int cell_id) :
-  BnLogicNode(id, name, ni, cell_id),
-  mLogicType(logic_type)
-{
-}
-
-// @brief デストラクタ
-BnPrimNode::~BnPrimNode()
-{
-}
-
 // @brief タイプを返す．
 BnNodeType
 BnPrimNode::type() const
@@ -126,27 +84,6 @@ BnPrimNode::type() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnExprNode
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] expr_id 論理式番号
-// @param[in] cell_id セル番号 (-1 の場合もあり)
-BnExprNode::BnExprNode(int id,
-		       const string& name,
-		       int ni,
-		       int expr_id,
-		       int cell_id) :
-  BnLogicNode(id, name, ni, cell_id),
-  mExprId(expr_id)
-{
-}
-
-// @brief デストラクタ
-BnExprNode::~BnExprNode()
-{
-}
 
 // @brief タイプを返す．
 BnNodeType
@@ -169,27 +106,6 @@ BnExprNode::expr_id() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnTvNode
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID番号
-// @param[in] name ノード名
-// @param[in] ni 入力数
-// @param[in] func_id 関数番号
-// @param[in] cell_id セル (-1 の場合もあり)
-BnTvNode::BnTvNode(int id,
-		   const string& name,
-		   int ni,
-		   int func_id,
-		   int cell_id) :
-  BnLogicNode(id, name, ni, cell_id),
-  mFuncId(func_id)
-{
-}
-
-// @brief デストラクタ
-BnTvNode::~BnTvNode()
-{
-}
 
 // @brief タイプを返す．
 BnNodeType

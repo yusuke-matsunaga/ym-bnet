@@ -3,9 +3,8 @@
 /// @brief BnNodeImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnNodeImpl.h"
 
@@ -19,10 +18,11 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 // @param[in] id ID 番号
 // @param[in] name ノード名
-BnNodeImpl::BnNodeImpl(int id,
-		       const string& name) :
-  mId(id),
-  mName(name)
+BnNodeImpl::BnNodeImpl(
+  int id,
+  const string& name
+) : mId(id),
+    mName(name)
 {
 }
 
@@ -75,9 +75,10 @@ BnNodeImpl::fanout_num() const
 }
 
 // @brief ファンアウトのノード番号を返す．
-// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
 int
-BnNodeImpl::fanout_id(int pos) const
+BnNodeImpl::fanout_id(
+  int pos
+) const
 {
   ASSERT_COND( pos >= 0 && pos < fanout_num() );
 
@@ -85,7 +86,7 @@ BnNodeImpl::fanout_id(int pos) const
 }
 
 // @brief ファンアウトのノード番号のリストを返す．
-const vector<int>&
+vector<int>
 BnNodeImpl::fanout_id_list() const
 {
   return mFanoutList;
@@ -272,11 +273,10 @@ BnNodeImpl::fanin_id(int pos) const
 }
 
 // @brief ファンインのノード番号のリストを返す．
-const vector<int>&
+vector<int>
 BnNodeImpl::fanin_id_list() const
 {
-  static vector<int> dummy;
-  return dummy;
+  return {};
 }
 
 // @brief 論理式番号を返す．

@@ -5,9 +5,8 @@
 /// @brief BnLogicNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnNodeImpl.h"
 
@@ -27,17 +26,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] cell_id セル番号 (-1 の場合もあり)
-  BnLogicNode(int id,
-	      const string& name,
-	      int ni,
-	      int cell_id);
+  BnLogicNode(
+    int id,             ///< [in] ID番号
+    const string& name, ///< [in] ノード名
+    int ni,             ///< [in] 入力数
+    int cell_id         ///< [in] セル番号 (-1 の場合もあり)
+  ) : BnNodeImpl(id, name),
+      mFanins(ni, kBnNullId),
+      mCellId(cell_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLogicNode();
+  ~BnLogicNode() = default;
 
 
 public:
@@ -60,12 +61,13 @@ public:
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  /// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
   int
-  fanin_id(int pos) const override;
+  fanin_id(
+    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+  ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  const vector<int>&
+  vector<int>
   fanin_id_list() const override;
 
   /// @brief セル番号を返す．
@@ -82,11 +84,13 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンインを設定する．
-  /// @param[in] ipos 入力位置
-  /// @param[in] fanin_id ファンインのノード番号
+  /// @param[in] ipos
+  /// @param[in] fanin_id
   void
-  set_fanin(int ipos,
-	    int fanin_id) override;
+  set_fanin(
+    int ipos,    ///< [in] 入力位置
+    int fanin_id ///< [in] ファンインのノード番号
+  ) override;
 
 
 private:
@@ -115,19 +119,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] logic_type 論理タイプ
-  /// @param[in] cell_id セル番号 (-1 の場合もあり)
-  BnPrimNode(int id,
-	     const string& name,
-	     int ni,
-	     BnNodeType logic_type,
-	     int cell_id);
+  BnPrimNode(
+    int id,                ///< [in] ID番号
+    const string& name,    ///< [in] ノード名
+    int ni,                ///< [in] 入力数
+    BnNodeType logic_type, ///< [in] 論理タイプ
+    int cell_id            ///< [in] セル番号 (-1 の場合もあり)
+  ) : BnLogicNode(id, name, ni, cell_id),
+      mLogicType(logic_type)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnPrimNode();
+  ~BnPrimNode() = default;
 
 
 public:
@@ -140,16 +144,9 @@ public:
   type() const;
 
 
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 論理タイプ/ゲートタイプに共通の外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
-  // ここのメモリ領域はすべて BnNetworkImpl::mAlloc が管理する．
   //////////////////////////////////////////////////////////////////////
 
   // 論理タイプ
@@ -168,19 +165,19 @@ class BnExprNode :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] expr_id 関数番号
-  /// @param[in] cell_id セル番号 (-1 の場合もあり)
-  BnExprNode(int id,
-	     const string& name,
-	     int ni,
-	     int expr_id,
-	     int cell_id);
+  BnExprNode(
+    int id,             ///< [in] ID番号
+    const string& name, ///< [in] ノード名
+    int ni,             ///< [in] 入力数
+    int expr_id,        ///< [in] 関数番号
+    int cell_id         ///< [in] セル番号 (-1 の場合もあり)
+  ) : BnLogicNode(id, name, ni, cell_id),
+      mExprId(expr_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnExprNode();
+  ~BnExprNode() = default;
 
 
 public:
@@ -208,12 +205,6 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -233,19 +224,19 @@ class BnTvNode :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] name ノード名
-  /// @param[in] ni 入力数
-  /// @param[in] func_id 関数番号
-  /// @param[in] cell_id セル 番号(-1 の場合もあり)
-  BnTvNode(int id,
-	   const string& name,
-	   int ni,
-	   int func_id,
-	   int cell_id);
+  BnTvNode(
+    int id,             ///< [in] ID番号
+    const string& name, ///< [in] ノード名
+    int ni,             ///< [in] 入力数
+    int func_id,        ///< [in] 関数番号
+    int cell_id         ///< [in] セル 番号(-1 の場合もあり)
+  ) : BnLogicNode(id, name, ni, cell_id),
+      mFuncId(func_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnTvNode();
+  ~BnTvNode() = default;
 
 
 public:
@@ -269,12 +260,6 @@ public:
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   int
   func_id() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
 
 
 private:

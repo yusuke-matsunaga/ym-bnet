@@ -5,7 +5,7 @@
 /// @brief BlifCoverMgr のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -41,14 +41,18 @@ public:
 
   /// @brief パタン文字列からカバー番号を返す．
   int
-  pat2cover(int input_num,          ///< [in] 入力数
-	    int cube_num,           ///< [in] キューブ数
-	    const string& ipat_str, ///< [in] 入力パタン文字列
-	    char opat_char);        ///< [in] 出力パタン
+  pat2cover(
+    int input_num,          ///< [in] 入力数
+    int cube_num,           ///< [in] キューブ数
+    const string& ipat_str, ///< [in] 入力パタン文字列
+    char opat_char          ///< [in] 出力パタン
+  );
 
   /// @brief ID番号から BlifCover を返す．
   const BlifCover&
-  cover(int id) const; ///< [in] ID番号
+  cover(
+    int id ///< [in] ID番号
+  ) const;
 
 
 private:
@@ -59,10 +63,12 @@ private:
   /// @brief BlifCover を作る．
   /// @return 作成された BlifCover の ID 番号を返す．
   int
-  new_cover(int input_num,          ///< [in] 入力数
-	    int cube_num,           ///< [in] キューブ数
-	    const string& ipat_str, ///< [in] 入力パタン文字列
-	    char opat_char);        ///< [in] 出力パタン
+  new_cover(
+    int input_num,          ///< [in] 入力数
+    int cube_num,           ///< [in] キューブ数
+    const string& ipat_str, ///< [in] 入力パタン文字列
+    char opat_char          ///< [in] 出力パタン
+  );
 
 
 private:
@@ -77,11 +83,6 @@ private:
   vector<BlifCover> mCoverArray;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
 
 END_NAMESPACE_YM_BNET
 

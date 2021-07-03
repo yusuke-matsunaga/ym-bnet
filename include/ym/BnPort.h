@@ -56,8 +56,9 @@ public:
   /// @return 対応するノードのノード番号を返す．
   virtual
   int
-  bit(int pos) const ///< [in] ビット位置 ( 0 <= pos < bit_width() )
-  = 0;
+  bit(
+    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+  ) const = 0;
 
 };
 

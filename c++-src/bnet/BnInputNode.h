@@ -5,9 +5,8 @@
 /// @brief BnInputNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnNodeImpl.h"
 
@@ -27,15 +26,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  BnInputNode(int id,
-	      const string& name,
-	      int input_id);
+  BnInputNode(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id        ///< [in] 入力番号
+  ) : BnNodeImpl(id, name),
+      mInputPos(input_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnInputNode();
+  ~BnInputNode() = default;
 
 
 public:
@@ -86,19 +87,20 @@ class BnPortInput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  /// @param[in] port_id ポート番号
-  /// @param[in] port_bit ポート中のビット位置
-  BnPortInput(int id,
-	      const string& name,
-	      int input_id,
-	      int port_id,
-	      int port_bit);
+  BnPortInput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id,       ///< [in] 入力番号
+    int port_id,        ///< [in] ポート番号
+    int port_bit        ///< [in] ポート中のビット位置
+  ) : BnInputNode(id, name, input_id),
+      mPortId(port_id),
+      mPortBit(port_bit)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnPortInput();
+  ~BnPortInput() = default;
 
 
 public:
@@ -155,17 +157,18 @@ class BnDffOutput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  /// @param[in] dff_id DFF番号
-  BnDffOutput(int id,
-	      const string& name,
-	      int inputid,
-	      int dff_id);
+  BnDffOutput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id,       ///< [in] 入力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnInputNode(id, name, input_id),
+      mDffId(dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffOutput();
+  ~BnDffOutput() = default;
 
 
 public:
@@ -215,17 +218,18 @@ class BnDffXOutput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  /// @param[in] dff_id DFF番号
-  BnDffXOutput(int id,
-	      const string& name,
-	      int inputid,
-	      int dff_id);
+  BnDffXOutput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id,       ///< [in] 入力番号
+    int dff_id          ///< [in] DFF番号
+  ) : BnInputNode(id, name, input_id),
+      mDffId(dff_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnDffXOutput();
+  ~BnDffXOutput() = default;
 
 
 public:
@@ -275,17 +279,18 @@ class BnLatchOutput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchOutput(int id,
-		const string& name,
-		int input_id,
-		int latch_id);
+  BnLatchOutput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id,       ///< [in] 入力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnInputNode(id, name, input_id),
+      mLatchId(latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchOutput() override;
+  ~BnLatchOutput() override = default;
 
 
 public:
@@ -335,17 +340,18 @@ class BnLatchXOutput :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ID 番号
-  /// @param[in] name ノード名
-  /// @param[in] input_id 入力番号
-  /// @param[in] latch_id ラッチ番号
-  BnLatchXOutput(int id,
-		 const string& name,
-		 int input_id,
-		 int latch_id);
+  BnLatchXOutput(
+    int id,             ///< [in] ID 番号
+    const string& name, ///< [in] ノード名
+    int input_id,       ///< [in] 入力番号
+    int latch_id        ///< [in] ラッチ番号
+  ) : BnInputNode(id, name, input_id),
+      mLatchId(latch_id)
+  {
+  }
 
   /// @brief デストラクタ
-  ~BnLatchXOutput() override;
+  ~BnLatchXOutput() = default;
 
 
 public:

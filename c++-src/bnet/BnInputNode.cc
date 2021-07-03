@@ -3,9 +3,8 @@
 /// @brief BnInputNode の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnInputNode.h"
 
@@ -15,23 +14,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 // クラス BnInputNode
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-BnInputNode::BnInputNode(int id,
-			 const string& name,
-			 int input_id) :
-  BnNodeImpl(id, name),
-  mInputPos(input_id)
-{
-}
-
-// @brief デストラクタ
-BnInputNode::~BnInputNode()
-{
-}
 
 // @brief タイプを返す．
 BnNodeType
@@ -61,28 +43,6 @@ BnInputNode::input_pos() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnPortInput
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-// @param[in] port_id ポート番号
-// @param[in] port_bit ポート中のビット位置
-BnPortInput::BnPortInput(int id,
-			 const string& name,
-			 int input_id,
-			 int port_id,
-			 int port_bit) :
-  BnInputNode(id, name, input_id),
-  mPortId(port_id),
-  mPortBit(port_bit)
-{
-}
-
-// @brief デストラクタ
-BnPortInput::~BnPortInput()
-{
-}
 
 // @brief 外部入力端子の時 true を返す．
 bool
@@ -114,25 +74,6 @@ BnPortInput::port_bit() const
 // クラス BnDffOutput
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-// @param[in] dff_id DFF番号
-BnDffOutput::BnDffOutput(int id,
-			 const string& name,
-			 int input_id,
-			 int dff_id) :
-  BnInputNode(id, name, input_id),
-  mDffId(dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffOutput::~BnDffOutput()
-{
-}
-
 // @brief DFFの出力端子の時 true を返す．
 bool
 BnDffOutput::is_dff_output() const
@@ -155,25 +96,6 @@ BnDffOutput::dff_id() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnDffXOutput
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-// @param[in] dff_id DFF番号
-BnDffXOutput::BnDffXOutput(int id,
-			   const string& name,
-			   int input_id,
-			   int dff_id) :
-  BnInputNode(id, name, input_id),
-  mDffId(dff_id)
-{
-}
-
-// @brief デストラクタ
-BnDffXOutput::~BnDffXOutput()
-{
-}
 
 // @brief DFFの反転出力端子の時 true を返す．
 bool
@@ -198,25 +120,6 @@ BnDffXOutput::dff_id() const
 // クラス BnLatchOutput
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-// @param[in] latch_id ラッチ番号
-BnLatchOutput::BnLatchOutput(int id,
-			     const string& name,
-			     int input_id,
-			     int latch_id) :
-  BnInputNode(id, name, input_id),
-  mLatchId(latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchOutput::~BnLatchOutput()
-{
-}
-
 // @brief ラッチの出力端子の時 true を返す．
 bool
 BnLatchOutput::is_latch_output() const
@@ -239,25 +142,6 @@ BnLatchOutput::latch_id() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnLatchXOutput
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] id ID 番号
-// @param[in] name ノード名
-// @param[in] input_id 入力番号
-// @param[in] latch_id ラッチ番号
-BnLatchXOutput::BnLatchXOutput(int id,
-			       const string& name,
-			       int input_id,
-			       int latch_id) :
-  BnInputNode(id, name, input_id),
-  mLatchId(latch_id)
-{
-}
-
-// @brief デストラクタ
-BnLatchXOutput::~BnLatchXOutput()
-{
-}
 
 // @brief ラッチの出力端子の時 true を返す．
 bool

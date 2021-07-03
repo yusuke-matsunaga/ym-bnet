@@ -5,7 +5,7 @@
 /// @brief BnPortImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/BnPort.h"
@@ -23,14 +23,16 @@ class BnPortImpl :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ポート番号
-  /// @param[in] name 名前
-  BnPortImpl(int id,
-	     const string& name);
+  BnPortImpl(
+    int id,            ///< [in] ポート番号
+    const string& name ///< [in] 名前
+  ) : mId(id),
+    mName(name)
+  {
+  }
 
   /// @brief デストラクタ
-  virtual
-  ~BnPortImpl();
+  ~BnPortImpl() = default;
 
 
 public:
@@ -39,20 +41,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ポート番号を返す．
-  virtual
   int
-  id() const;
+  id() const override;
 
   /// @brief 名前を得る．
-  virtual
   string
-  name() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  name() const override;
 
 
 private:
@@ -79,16 +73,17 @@ class BnPort1 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ポート番号
-  /// @param[in] name 名前
-  /// @param[in] bit 内容のノード番号
-  BnPort1(int id,
-	  const string& name,
-	  int bit);
+  BnPort1(
+    int id,             ///< [in] ポート番号
+    const string& name, ///< [in] 名前
+    int bit             ///< [in] 内容のノード番号
+  ) : BnPortImpl(id, name),
+    mBit(bit)
+  {
+  }
 
   /// @brief デストラクタ
-  virtual
-  ~BnPort1();
+  ~BnPort1() = default;
 
 
 public:
@@ -97,22 +92,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ビット数を得る．
-  virtual
   int
-  bit_width() const;
+  bit_width() const override;
 
   /// @brief pos ビット目のノード番号を得る．
-  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
-  virtual
   int
-  bit(int pos) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  bit(
+    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+  ) const override;
 
 
 private:
@@ -136,16 +124,17 @@ class BnPortN :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] id ポート番号
-  /// @param[in] name 名前
-  /// @param[in] bits 内容のノード番号のベクタ
-  BnPortN(int id,
-	  const string& name,
-	  const vector<int>& bits);
+  BnPortN(
+    int id,                 ///< [in] ポート番号
+    const string& name,     ///< [in] 名前
+    const vector<int>& bits ///< [in] 内容のノード番号のベクタ
+  ) : BnPortImpl(id, name),
+      mBits{bits}
+  {
+  }
 
   /// @brief デストラクタ
-  virtual
-  ~BnPortN();
+  ~BnPortN() = default;
 
 
 public:
@@ -154,22 +143,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ビット数を得る．
-  virtual
   int
-  bit_width() const;
+  bit_width() const override;
 
   /// @brief pos ビット目のノード番号を得る．
-  /// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
   /// @return 対応するノードのノード番号を返す．
-  virtual
   int
-  bit(int pos) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  bit(
+    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+  ) const override;
 
 
 private:
@@ -181,7 +163,7 @@ private:
   int mBitWidth;
 
   // ノード番号の配列
-  int* mBits;
+  vector<int> mBits;
 
 };
 
