@@ -334,7 +334,8 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 字句解析器
-  unique_ptr<Iscas89Scanner> mScanner;
+  // この変数の値は read() 内のみで意味を持つ．
+  Iscas89Scanner* mScanner;
 
   // イベントハンドラのリスト
   vector<Iscas89Handler*> mHandlerList;

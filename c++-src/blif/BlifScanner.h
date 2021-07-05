@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include "ym/InputFileObj.h"
+#include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "BlifToken.h"
 
@@ -20,13 +20,15 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
 /// @brief blif 用の字句解析器
 //////////////////////////////////////////////////////////////////////
-class BlifScanner
+class BlifScanner :
+  public Scanner
 {
 public:
 
   /// @brief コンストラクタ
   BlifScanner(
-    InputFileObj& in ///< [in] 入力ファイルオブジェクト
+    istream& s,               ///< [in] 入力ストリーム
+    const FileInfo& file_info ///< [in] ファイル情報
   );
 
   /// @brief デストラクタ
@@ -72,17 +74,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力ファイルオブジェクト
-  InputFileObj& mIn;
-
   // 予約語テーブル
   unordered_map<string, BlifToken> mDic;
 
   // 文字列バッファ
-  string mCurString;
-
-  // 現在のトークンの始まりの位置
-  FileLoc mFirstLoc;
+  StrBuff mCurString;
 
 };
 

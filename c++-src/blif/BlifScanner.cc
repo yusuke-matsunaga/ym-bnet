@@ -3,9 +3,8 @@
 /// @brief BlibScanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BlifScanner.h"
 
@@ -25,10 +24,10 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] in 入力ファイルオブジェクト
 BlifScanner::BlifScanner(
-  InputFileObj& in
-) : mIn{in},
+  istream& s,
+  const FileInfo& file_info
+) : Scanner(s, file_info),
     mDic{ {"model", BlifToken::MODEL},
 	  {"inputs", BlifToken::INPUTS},
 	  {"outputs", BlifToken::OUTPUTS},
@@ -73,7 +72,7 @@ BlifScanner::read_token(
 )
 {
   auto token = scan();
-  loc = FileRegion{mFirstLoc, mIn.cur_loc()};
+  loc = cur_region();
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
@@ -101,8 +100,8 @@ BlifScanner::scan()
   // 効率はよい．
 
  ST_INIT:
-  c = mIn.get();
-  mFirstLoc = mIn.cur_loc();
+  c = get();
+  set_first_loc();
 
   switch ( c ) {
   case EOF:
@@ -127,24 +126,24 @@ BlifScanner::scan()
     goto ST_SHARP;
 
   case '/':
-    if ( mIn.peek() == '*' ) {
-      mIn.accept();
+    if ( peek() == '*' ) {
+      accept();
       // ここまでで "/*" を読んでいる．
       goto ST_CM1;
     }
-    mCurString += '/';
+    mCurString.put_char('/');
     goto ST_STR;
 
   case '\\':
     goto ST_ESC;
 
   default:
-    mCurString += c;
+    mCurString.put_char(c);
     goto ST_STR;
   }
 
  ST_SHARP:
-  c = mIn.get();
+  c = get();
   if ( c == '\n' ) {
     return BlifToken::NL;
   }
@@ -155,7 +154,7 @@ BlifScanner::scan()
   goto ST_SHARP;
 
  ST_CM1:
-  c = mIn.get();
+  c = get();
   if ( c == '*' ) {
     goto ST_CM2;
   }
@@ -166,7 +165,7 @@ BlifScanner::scan()
   goto ST_CM1;
 
  ST_CM2:
-  c = mIn.get();
+  c = get();
   if ( c == '/' ) {
     // コメントは空白扱いにする．
     goto ST_INIT;
@@ -177,7 +176,7 @@ BlifScanner::scan()
   goto ST_CM1;
 
  ST_ESC:
-  c = mIn.get();
+  c = get();
   if ( c == '\n' ) {
     // エスケープされた改行は空白扱いにする．
     goto ST_INIT;
@@ -187,11 +186,11 @@ BlifScanner::scan()
     return check_word(StartWithDot);
   }
   // それ以外は普通の文字として扱う．
-  mCurString += c;
+  mCurString.put_char(c);
   goto ST_STR;
 
  ST_STR:
-  c = mIn.peek();
+  c = peek();
   switch ( c ) {
   case ' ':
   case '\t':
@@ -204,8 +203,8 @@ BlifScanner::scan()
     return check_word(StartWithDot);
 
   default:
-    mIn.accept();
-    mCurString += c;
+    accept();
+    mCurString.put_char(c);
     goto ST_STR;
   }
 }

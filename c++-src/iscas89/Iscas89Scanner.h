@@ -5,12 +5,11 @@
 /// @brief Iscas89Scanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/bnet.h"
-#include "ym/InputFileObj.h"
+#include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
@@ -21,13 +20,16 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
 /// @brief iscas89 用の字句解析器
 //////////////////////////////////////////////////////////////////////
-class Iscas89Scanner
+class Iscas89Scanner :
+  public Scanner
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] in 入力ファイルオブジェクト
-  Iscas89Scanner(InputFileObj& in);
+  Iscas89Scanner(
+    istream& s,               ///< [in] 入力ストリーム
+    const FileInfo& file_info ///< [in] ファイル情報
+  );
 
   /// @brief デストラクタ
   ~Iscas89Scanner() = default;
@@ -45,7 +47,7 @@ public:
 
   /// @brief 最後の read_token() で読み出した字句の文字列を返す．
   const char*
-  cur_string();
+  cur_string() { return mCurString.c_str(); }
 
 
 private:
@@ -71,9 +73,6 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力ファイルオブジェクト
-  InputFileObj& mIn;
-
   // 文字列バッファ
   StrBuff mCurString;
 
@@ -81,19 +80,6 @@ private:
   FileLoc mFirstLoc;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 最後の read_token() で読み出した字句の文字列を返す．
-inline
-const char*
-Iscas89Scanner::cur_string()
-{
-  return mCurString.c_str();
-}
 
 END_NAMESPACE_YM_BNET
 

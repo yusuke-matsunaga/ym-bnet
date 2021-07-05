@@ -24,9 +24,10 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] in 入力ファイルオブジェクト
-Iscas89Scanner::Iscas89Scanner(InputFileObj& in) :
-  mIn{in}
+Iscas89Scanner::Iscas89Scanner(
+  istream& s,
+  const FileInfo& file_info
+) : Scanner(s, file_info)
 {
 }
 
@@ -39,7 +40,7 @@ Iscas89Scanner::read_token(FileRegion& loc)
   if ( token == Iscas89Token::NAME ) {
     token = check_word();
   }
-  loc = FileRegion{mFirstLoc, mIn.cur_loc()};
+  loc = cur_region();
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
@@ -86,8 +87,8 @@ Iscas89Scanner::scan()
   // 効率はよい．
 
  ST_INIT:
-  c = mIn.get();
-  mFirstLoc = mIn.cur_loc();
+  c = get();
+  set_first_loc();
   switch ( c ) {
   case EOF:
     return Iscas89Token::_EOF;
@@ -119,7 +120,7 @@ Iscas89Scanner::scan()
   }
 
  ST_SHARP: // 1行コメントの始まり
-  c = mIn.get();
+  c = get();
   if ( c == '\n' ) {
     goto ST_INIT;
   }
@@ -130,7 +131,7 @@ Iscas89Scanner::scan()
   goto ST_SHARP;
 
  ST_STR:
-  c = mIn.peek();
+  c = peek();
   switch ( c ) {
   case ' ':
   case '\t':
@@ -145,7 +146,7 @@ Iscas89Scanner::scan()
     return Iscas89Token::NAME;
 
   default:
-    mIn.accept();
+    accept();
     mCurString.put_char(c);
     goto ST_STR;
   }

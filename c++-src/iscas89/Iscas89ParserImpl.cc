@@ -53,12 +53,11 @@ Iscas89ParserImpl::read(const string& filename)
     return false;
   }
 
-  InputFileObj in{fin, {filename}};
-  mScanner = unique_ptr<Iscas89Scanner>{new Iscas89Scanner{in}};
+  Iscas89Scanner scanner(fin, {filename});
+  mScanner = &scanner;
 
   for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {
-      delete_scanner();
       return false;
     }
   }
@@ -198,8 +197,6 @@ Iscas89ParserImpl::read(const string& filename)
       has_error = true;
     }
   }
-
-  delete_scanner();
 
   if ( !has_error ) {
     // 成功
@@ -607,14 +604,6 @@ Iscas89ParserImpl::read_token()
     }
   }
   return make_tuple(token, id, lloc);
-}
-
-// @brief スキャナーを削除する．
-void
-Iscas89ParserImpl::delete_scanner()
-{
-  unique_ptr<Iscas89Scanner> dummy;
-  mScanner.swap(dummy);
 }
 
 END_NAMESPACE_YM_BNET

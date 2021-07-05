@@ -94,13 +94,12 @@ BlifParserImpl::read(
     return false;
   }
 
-  mCellLibrary = cell_library;
+  BlifScanner scanner(fin, {filename});
 
   // 初期化を行う．
-  InputFileObj in{fin, {filename}};
-  mScanner = unique_ptr<BlifScanner>{new BlifScanner(in)};
+  mScanner = &scanner;
+  mCellLibrary = cell_library;
   mIdHash.clear();
-
   mOidArray.clear();
 
   // エラー箇所
@@ -331,7 +330,6 @@ BlifParserImpl::read(
   for ( auto handler: mHandlerList ) {
     handler->normal_exit();
   }
-  delete_scanner();
 
   return true;
 
@@ -347,7 +345,6 @@ BlifParserImpl::read(
   for ( auto handler: mHandlerList ) {
     handler->error_exit();
   }
-  delete_scanner();
 
   return false;
 }
@@ -1160,14 +1157,6 @@ BlifParserImpl::set_output(
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   mCellArray[id].set_output();
-}
-
-// @brief スキャナーを削除する．
-void
-BlifParserImpl::delete_scanner()
-{
-  unique_ptr<BlifScanner> dummy;
-  mScanner.swap(dummy);
 }
 
 END_NAMESPACE_YM_BNET

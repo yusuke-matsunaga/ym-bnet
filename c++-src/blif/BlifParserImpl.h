@@ -317,10 +317,6 @@ private:
     int id ///< [in] 識別子番号
   );
 
-  /// @brief スキャナーを削除する．
-  void
-  delete_scanner();
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -331,7 +327,8 @@ private:
   ClibCellLibrary mCellLibrary;
 
   // 字句解析器
-  unique_ptr<BlifScanner> mScanner;
+  // この変数は read() 内でのみ有効
+  BlifScanner* mScanner;
 
   // イベントハンドラのリスト
   vector<BlifHandler*> mHandlerList;
