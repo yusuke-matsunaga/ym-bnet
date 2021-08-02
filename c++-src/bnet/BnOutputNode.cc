@@ -33,14 +33,14 @@ BnOutputNode::is_output() const
 //
 // is_output() == false の時の動作は不定<br>
 // node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
-int
+SizeType
 BnOutputNode::output_pos() const
 {
   return mOutputPos;
 }
 
 // @brief ファンイン数を得る．
-int
+SizeType
 BnOutputNode::fanin_num() const
 {
   return 1;
@@ -48,8 +48,10 @@ BnOutputNode::fanin_num() const
 
 // @brief ファンインのノード番号を返す．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-int
-BnOutputNode::fanin_id(int pos) const
+SizeType
+BnOutputNode::fanin_id(
+  SizeType pos
+) const
 {
   ASSERT_COND( pos == 0 );
 
@@ -57,18 +59,20 @@ BnOutputNode::fanin_id(int pos) const
 }
 
 // @brief ファンインのノード番号のリストを返す．
-vector<int>
+vector<SizeType>
 BnOutputNode::fanin_id_list() const
 {
-  return vector<int>{mFanin};
+  return vector<SizeType>{mFanin};
 }
 
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
 void
-BnOutputNode::set_fanin(int ipos,
-			int fanin_id)
+BnOutputNode::set_fanin(
+  SizeType ipos,
+  SizeType fanin_id
+)
 {
   ASSERT_COND( ipos == 0 );
   mFanin = fanin_id;
@@ -89,7 +93,7 @@ BnPortOutput::is_port_output() const
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-int
+SizeType
 BnPortOutput::port_id() const
 {
   return mPortId;
@@ -98,7 +102,7 @@ BnPortOutput::port_id() const
 // @brief 接続しているポート中のビット番号を返す．
 //
 // is_port_input() || is_port_output() の時のみ意味を持つ．
-int
+SizeType
 BnPortOutput::port_bit() const
 {
   return mPortBit;
@@ -113,7 +117,7 @@ BnPortOutput::port_bit() const
 //
 // is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnDffControl::dff_id() const
 {
   return mDffId;
@@ -176,7 +180,7 @@ BnDffPreset::is_dff_preset() const
 //
 // is_latch_input() || is_latch_output() || is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnLatchControl::latch_id() const
 {
   return mLatchId;

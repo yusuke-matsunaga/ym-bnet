@@ -3,9 +3,8 @@
 /// @brief BnLatchImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "BnLatchImpl.h"
 #include "ym/ClibCell.h"
@@ -21,7 +20,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief ID 番号の取得
 // @return ID 番号を返す．
-int
+SizeType
 BnLatchImpl::id() const
 {
   return mId;
@@ -35,28 +34,28 @@ BnLatchImpl::name() const
 }
 
 // @brief データ出力のノード番号を返す．
-int
+SizeType
 BnLatchImpl::output() const
 {
   return mOutput;
 }
 
 // @brief データ反転出力のノード番号を返す．
-int
+SizeType
 BnLatchImpl::xoutput() const
 {
   return mXoutput;
 }
 
 // @brief データ入力のノード番号を返す．
-int
+SizeType
 BnLatchImpl::input() const
 {
   return mInput;
 }
 
 // @brief イネーブルのノード番号を返す．
-int
+SizeType
 BnLatchImpl::enable() const
 {
   return mEnable;
@@ -64,8 +63,8 @@ BnLatchImpl::enable() const
 
 // @brief クリア信号のノード番号を返す．
 //
-// kBnNullId の場合もある．
-int
+// BNET_NULLID の場合もある．
+SizeType
 BnLatchImpl::clear() const
 {
   return mClear;
@@ -73,8 +72,8 @@ BnLatchImpl::clear() const
 
 // @brief プリセット信号のノード番号を返す．
 //
-// kBnNullId の場合もある．
-int
+// BNET_NULLID の場合もある．
+SizeType
 BnLatchImpl::preset() const
 {
   return mPreset;

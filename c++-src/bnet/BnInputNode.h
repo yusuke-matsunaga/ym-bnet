@@ -27,11 +27,11 @@ public:
 
   /// @brief コンストラクタ
   BnInputNode(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id        ///< [in] 入力番号
+    SizeType input_id   ///< [in] 入力番号
   ) : BnNodeImpl(id, name),
-      mInputPos(input_id)
+      mInputPos{input_id}
   {
   }
 
@@ -62,7 +62,7 @@ public:
   ///
   /// is_input() == false の時の動作は不定<br>
   /// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
-  int
+  SizeType
   input_pos() const override;
 
 
@@ -72,7 +72,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力位置
-  int mInputPos;
+  SizeType mInputPos;
 
 };
 
@@ -88,14 +88,14 @@ public:
 
   /// @brief コンストラクタ
   BnPortInput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id,       ///< [in] 入力番号
-    int port_id,        ///< [in] ポート番号
-    int port_bit        ///< [in] ポート中のビット位置
+    SizeType input_id,  ///< [in] 入力番号
+    SizeType port_id,   ///< [in] ポート番号
+    SizeType port_bit   ///< [in] ポート中のビット位置
   ) : BnInputNode(id, name, input_id),
-      mPortId(port_id),
-      mPortBit(port_bit)
+      mPortId{port_id},
+      mPortBit{port_bit}
   {
   }
 
@@ -121,13 +121,13 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-  int
+  SizeType
   port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
-  int
+  SizeType
   port_bit() const override;
 
 
@@ -137,10 +137,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ポート番号
-  int mPortId;
+  SizeType mPortId;
 
   // ポート中のビット位置
-  int mPortBit;
+  SizeType mPortBit;
 
 };
 
@@ -158,10 +158,10 @@ public:
 
   /// @brief コンストラクタ
   BnDffOutput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id,       ///< [in] 入力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType input_id,  ///< [in] 入力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnInputNode(id, name, input_id),
       mDffId(dff_id)
   {
@@ -191,7 +191,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
   /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   dff_id() const override;
 
 
@@ -201,7 +201,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF 番号
-  int mDffId;
+  SizeType mDffId;
 
 };
 
@@ -219,12 +219,12 @@ public:
 
   /// @brief コンストラクタ
   BnDffXOutput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id,       ///< [in] 入力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType input_id,  ///< [in] 入力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnInputNode(id, name, input_id),
-      mDffId(dff_id)
+      mDffId{dff_id}
   {
   }
 
@@ -252,7 +252,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
   /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   dff_id() const override;
 
 
@@ -262,7 +262,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF 番号
-  int mDffId;
+  SizeType mDffId;
 
 };
 
@@ -280,12 +280,12 @@ public:
 
   /// @brief コンストラクタ
   BnLatchOutput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id,       ///< [in] 入力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType input_id,  ///< [in] 入力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnInputNode(id, name, input_id),
-      mLatchId(latch_id)
+      mLatchId{latch_id}
   {
   }
 
@@ -313,7 +313,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
   /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   latch_id() const override;
 
 
@@ -323,7 +323,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ラッチ番号
-  int mLatchId;
+  SizeType mLatchId;
 
 };
 
@@ -341,12 +341,12 @@ public:
 
   /// @brief コンストラクタ
   BnLatchXOutput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int input_id,       ///< [in] 入力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType input_id,  ///< [in] 入力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnInputNode(id, name, input_id),
-      mLatchId(latch_id)
+      mLatchId{latch_id}
   {
   }
 
@@ -374,7 +374,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_xoutput ||
   /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   latch_id() const override;
 
 
@@ -384,7 +384,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ラッチ番号
-  int mLatchId;
+  SizeType mLatchId;
 
 };
 

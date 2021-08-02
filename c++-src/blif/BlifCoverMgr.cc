@@ -16,9 +16,11 @@ BEGIN_NONAMESPACE
 
 // キー生成関数その１
 string
-key_func(int input_num,
-	 const string& ipat_str,
-	 char opat_char)
+key_func(
+  SizeType input_num,
+  const string& ipat_str,
+  char opat_char
+)
 {
   ostringstream buf;
   buf << input_num << ':'
@@ -29,15 +31,17 @@ key_func(int input_num,
 
 // キー生成関数その2
 string
-key_func(const BlifCover* cover)
+key_func(
+  const BlifCover* cover
+)
 {
   ostringstream buf;
   buf << cover->input_num() << ':'
       << cover->output_pat() << ':';
-  int nc = cover->cube_num();
-  int ni = cover->input_num();
-  for ( int c = 0; c < nc; ++ c ) {
-    for ( int i = 0; i < ni; ++ i ) {
+  SizeType nc = cover->cube_num();
+  SizeType ni = cover->input_num();
+  for ( SizeType c = 0; c < nc; ++ c ) {
+    for ( SizeType i = 0; i < ni; ++ i ) {
       buf << cover->input_pat(c, i);
     }
   }
@@ -54,10 +58,12 @@ END_NONAMESPACE
 // @brief 内容を出力する．
 // @param[in] s 出力先のストリーム
 void
-BlifCover::print(ostream& s) const
+BlifCover::print(
+  ostream& s
+) const
 {
-  for ( int c = 0; c < cube_num(); ++ c ) {
-    for ( int i = 0; i < input_num(); ++ i ) {
+  for ( SizeType c = 0; c < cube_num(); ++ c ) {
+    for ( SizeType i = 0; i < input_num(); ++ i ) {
       s << input_pat(c, i);
     }
     if ( input_num() > 0 ) {
@@ -73,7 +79,7 @@ BlifCover::print(ostream& s) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief 登録されているカバー数を返す．
-int
+SizeType
 BlifCoverMgr::cover_num() const
 {
   return mCoverArray.size();
@@ -82,7 +88,7 @@ BlifCoverMgr::cover_num() const
 // @brief ID番号から BlifCover を返す．
 const BlifCover&
 BlifCoverMgr::cover(
-  int id
+  SizeType id
 ) const
 {
   ASSERT_COND( 0 <= id && id < cover_num() );
@@ -91,10 +97,10 @@ BlifCoverMgr::cover(
 }
 
 // @brief パタン文字列からカバーを返す．
-int
+SizeType
 BlifCoverMgr::pat2cover(
-  int input_num,
-  int cube_num,
+  SizeType input_num,
+  SizeType cube_num,
   const string& ipat_str,
   char opat_char
 )
@@ -104,12 +110,12 @@ BlifCoverMgr::pat2cover(
 
   // すでに登録されているか調べる．
   if ( mCoverDict.count(key_str) > 0 ) {
-    int id = mCoverDict.at(key_str);
+    auto id = mCoverDict.at(key_str);
     return id;
   }
   else {
     // 新しいカバーを作る．
-    int id = new_cover(input_num, cube_num, ipat_str, opat_char);
+    auto id = new_cover(input_num, cube_num, ipat_str, opat_char);
 
     // そのカバーを登録する．
     mCoverDict.insert({key_str, id});
@@ -118,22 +124,22 @@ BlifCoverMgr::pat2cover(
 }
 
 // @brief BlifCover を作る．
-int
+SizeType
 BlifCoverMgr::new_cover(
-  int input_num,
-  int cube_num,
+  SizeType input_num,
+  SizeType cube_num,
   const string& ipat_str,
   char opat
 )
 {
   vector<string> ipat_list;
   ipat_list.reserve(cube_num);
-  for ( int c = 0; c < cube_num; ++ c ) {
+  for ( SizeType c = 0; c < cube_num; ++ c ) {
     string ipat = ipat_str.substr(c * input_num, (c + 1) * input_num);
     ipat_list.push_back(ipat);
   }
 
-  int id = cover_num();
+  auto id = cover_num();
   mCoverArray.push_back({input_num, ipat_list, opat});
 
   return id;

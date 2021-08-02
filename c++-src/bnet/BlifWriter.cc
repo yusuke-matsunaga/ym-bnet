@@ -81,7 +81,7 @@ BlifWriter::operator()(
 
   // .inputs 文の出力
   int count = 0;
-  for ( int id: network().primary_input_id_list() ) {
+  for ( auto id: network().primary_input_id_list() ) {
     if ( !is_data(id) ) {
       continue;
     }
@@ -101,7 +101,7 @@ BlifWriter::operator()(
 
   // .outputs 文の出力
   count = 0;
-  for ( int id: network().primary_output_src_id_list() ) {
+  for ( auto id: network().primary_output_src_id_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
@@ -118,15 +118,15 @@ BlifWriter::operator()(
   }
 
   // .latch 文の出力
-  for ( int id: Range(network().dff_num()) ) {
+  for ( auto id: Range(network().dff_num()) ) {
     auto& dff = network().dff(id);
     s << ".latch " << node_name(dff.input()) << " " << node_name(dff.output()) << endl;
   }
 
   // 出力用の追加の .names 文
-  for ( int id: network().primary_output_id_list() ) {
+  for ( auto id: network().primary_output_id_list() ) {
     auto& node = network().node(id);
-    int src_id = node.fanin_id(0);
+    auto src_id = node.fanin_id(0);
     string src_name = node_name(src_id);
     string name = node_name(id);
     if ( name != src_name ) {
@@ -136,19 +136,19 @@ BlifWriter::operator()(
   }
 
   // .names 文の出力
-  for ( int id: network().logic_id_list() ) {
+  for ( auto id: network().logic_id_list() ) {
     if ( !is_data(id) ) {
       continue;
     }
 
     s << ".names";
     auto& node = network().node(id);
-    for ( int iid: node.fanin_id_list() ) {
+    for ( auto iid: node.fanin_id_list() ) {
       s << " " << node_name(iid);
     }
     s << " " << node_name(id) << endl;
     auto type = node.type();
-    int ni = node.fanin_num();
+    auto ni = node.fanin_num();
     switch ( type ) {
     case BnNodeType::C0:
       s << "0" << endl;
@@ -169,8 +169,8 @@ BlifWriter::operator()(
       s << " 1" << endl;
       break;
     case BnNodeType::Nand:
-      for ( int i: Range(ni) ) {
-	for ( int j: Range(ni) ) {
+      for ( auto i: Range(ni) ) {
+	for ( auto j: Range(ni) ) {
 	  if ( i == j ) {
 	    s << "0";
 	  }
@@ -182,8 +182,8 @@ BlifWriter::operator()(
       }
       break;
     case BnNodeType::Or:
-      for ( int i: Range(ni) ) {
-	for ( int j: Range(ni) ) {
+      for ( auto i: Range(ni) ) {
+	for ( auto j: Range(ni) ) {
 	  if ( i == j ) {
 	    s << "1";
 	  }
@@ -195,21 +195,21 @@ BlifWriter::operator()(
       }
       break;
     case BnNodeType::Nor:
-      for ( int i: Range(ni) ) {
+      for ( auto i: Range(ni) ) {
 	s << "0";
       }
       s << " 1" << endl;
       break;
     case BnNodeType::Xor:
-      for ( int p: Range(1 << ni) ) {
+      for ( auto p: Range(1 << ni) ) {
 	int parity = 0;
-	for ( int i: Range(ni) ) {
+	for ( auto i: Range(ni) ) {
 	  if ( p & (1 << i) ) {
 	    parity ^= 1;
 	  }
 	}
 	if ( parity ) {
-	  for ( int i: Range(ni) ) {
+	  for ( auto i: Range(ni) ) {
 	    if ( p & (1 << i) ) {
 	      s << "1";
 	    }
@@ -222,15 +222,15 @@ BlifWriter::operator()(
       }
       break;
     case BnNodeType::Xnor:
-      for ( int p: Range(1 << ni) ) {
+      for ( auto p: Range(1 << ni) ) {
 	int parity = 0;
-	for ( int i: Range(ni) ) {
+	for ( auto i: Range(ni) ) {
 	  if ( p & (1 << i) ) {
 	    parity ^= 1;
 	  }
 	}
 	if ( parity == 0 ) {
-	  for ( int i: Range(ni) ) {
+	  for ( auto i: Range(ni) ) {
 	    if ( p & (1 << i) ) {
 	      s << "1";
 	    }
@@ -246,27 +246,27 @@ BlifWriter::operator()(
       {
 	const Expr& expr = network().expr(node.expr_id());
 	if ( expr.is_sop() ) {
-	  int nc = expr.child_num();
+	  auto nc = expr.child_num();
 	  if ( expr.is_and() ) {
 	    // 個々の子供はリテラルのはず．
 	    vector<int> pol_array(ni, 0);
-	    for ( int i: Range(expr.child_num()) ) {
+	    for ( auto i: Range(expr.child_num()) ) {
 	      Expr expr1 = expr.child(i);
 	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
-		int pos = var.val();
+		auto pos = var.val();
 		pol_array[pos] = 1;
 	      }
 	      else if ( expr1.is_nega_literal() ) {
 		VarId var = expr1.varid();
-		int pos = var.val();
+		auto pos = var.val();
 		pol_array[pos] = 2;
 	      }
 	      else {
 		ASSERT_NOT_REACHED;
 	      }
 	    }
-	    for ( int i: Range(ni) ) {
+	    for ( auto i: Range(ni) ) {
 	      switch ( pol_array[i] ) {
 	      case 0: s << "-"; break;
 	      case 1: s << "1"; break;
@@ -276,11 +276,11 @@ BlifWriter::operator()(
 	    s << " 1" << endl;
 	  }
 	  else if ( expr.is_or() ) {
-	    for ( int i: Range(expr.child_num()) ) {
+	    for ( auto i: Range(expr.child_num()) ) {
 	      Expr expr1 = expr.child(i);
 	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
-		int pos = var.val();
+		auto pos = var.val();
 		for ( auto j: Range(ni) ) {
 		  if ( j == pos ) {
 		    s << "1";
@@ -293,8 +293,8 @@ BlifWriter::operator()(
 	      }
 	      else if ( expr1.is_nega_literal() ) {
 		VarId var = expr1.varid();
-		int pos = var.val();
-		for ( int j: Range(ni) ) {
+		auto pos = var.val();
+		for ( auto j: Range(ni) ) {
 		  if ( j == pos ) {
 		    s << "0";
 		  }
@@ -305,12 +305,12 @@ BlifWriter::operator()(
 		s << " 1" << endl;
 	      }
 	      else if ( expr1.is_and() ) {
-		vector<int> lit_map(ni, 0);
-		for ( int j: Range(expr1.child_num()) ) {
+		vector<SizeType> lit_map(ni, 0);
+		for ( auto j: Range(expr1.child_num()) ) {
 		  Expr expr2 = expr1.child(j);
 		  ASSERT_COND( expr2.is_literal() );
 		  VarId var = expr2.varid();
-		  int pos = var.val();
+		  auto pos = var.val();
 		  if ( expr2.is_posi_literal() ) {
 		    lit_map[pos] = 1;
 		  }
@@ -318,7 +318,7 @@ BlifWriter::operator()(
 		    lit_map[pos] = 2;
 		  }
 		}
-		for ( int j: Range(ni) ) {
+		for ( auto j: Range(ni) ) {
 		  if ( lit_map[j] == 1 ) {
 		    s << "1";
 		  }
@@ -339,9 +339,9 @@ BlifWriter::operator()(
 	}
 	else {
 	  // めんどくさいので最小項ごとに記述する．
-	  for ( int p: Range(1 << ni) ) {
+	  for ( auto p: Range(1 << ni) ) {
 	    vector<Expr::BitVectType> vect_array(ni);
-	    for ( int i: Range(ni) ) {
+	    for ( auto i: Range(ni) ) {
 	      if ( p & (1 << i) ) {
 		vect_array[i] = 1;
 	      }
@@ -350,7 +350,7 @@ BlifWriter::operator()(
 	      }
 	    }
 	    if ( expr.eval(vect_array, 1) == 1 ) {
-	      for ( int i: Range(ni) ) {
+	      for ( auto i: Range(ni) ) {
 		if ( p & (1 << i) ) {
 		  s << "1";
 		}
@@ -367,9 +367,9 @@ BlifWriter::operator()(
     case BnNodeType::TvFunc:
       {
 	const TvFunc& func = network().func(node.func_id());
-	for ( int p: Range(1 << ni) ) {
+	for ( auto p: Range(1 << ni) ) {
 	  if ( func.value(p) ) {
-	    for ( int i: Range(ni) ) {
+	    for ( auto i: Range(ni) ) {
 	      if ( p & (1 << i) ) {
 		s << "1";
 	      }

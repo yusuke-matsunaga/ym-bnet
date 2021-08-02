@@ -16,7 +16,7 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief ポート番号を返す．
-int
+SizeType
 BnPortImpl::id() const
 {
   return mId;
@@ -35,7 +35,7 @@ BnPortImpl::name() const
 //////////////////////////////////////////////////////////////////////
 
 // @brief ビット数を得る．
-int
+SizeType
 BnPort1::bit_width() const
 {
   return 1;
@@ -43,9 +43,9 @@ BnPort1::bit_width() const
 
 // @brief pos ビット目の内容を得る．
 // @return 対応するノード番号を返す．
-int
+SizeType
 BnPort1::bit(
-  int pos
+  SizeType pos
 ) const
 {
   ASSERT_COND( pos == 0 );
@@ -58,7 +58,7 @@ BnPort1::bit(
 //////////////////////////////////////////////////////////////////////
 
 // @brief ビット数を得る．
-int
+SizeType
 BnPortN::bit_width() const
 {
   return mBits.size();
@@ -67,9 +67,9 @@ BnPortN::bit_width() const
 // @brief pos ビット目の内容を得る．
 // @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
 // @return 対応するノード番号を返す．
-int
+SizeType
 BnPortN::bit(
-  int pos
+  SizeType pos
 ) const
 {
   ASSERT_COND( 0 <= pos && pos < bit_width() );

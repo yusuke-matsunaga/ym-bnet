@@ -24,24 +24,24 @@ public:
 
   /// @brief コンストラクタ
   BnLatchImpl(
-    int id,             ///< [in] ID番号
+    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] 名前
-    int input,          ///< [in] 入力端子のノード番号
-    int output,         ///< [in] 出力端子のノード番号
-    int xoutput,        ///< [in] 反転出力端子のノード番号
-    int enable,         ///< [in] イネーブル端子のノード番号
-    int clear,          ///< [in] クリア端子のノード番号
-    int preset,         ///< [in] プリセット端子のノード番号
+    SizeType input,     ///< [in] 入力端子のノード番号
+    SizeType output,    ///< [in] 出力端子のノード番号
+    SizeType xoutput,   ///< [in] 反転出力端子のノード番号
+    SizeType enable,    ///< [in] イネーブル端子のノード番号
+    SizeType clear,     ///< [in] クリア端子のノード番号
+    SizeType preset,    ///< [in] プリセット端子のノード番号
     int cell_id         ///< [in] セル番号
-  ) : mId(id),
-      mName(name),
-      mInput(input),
-      mOutput(output),
-      mXoutput(xoutput),
-      mEnable(enable),
-      mClear(clear),
-      mPreset(preset),
-      mCellId(cell_id)
+  ) : mId{id},
+      mName{name},
+      mInput{input},
+      mOutput{output},
+      mXoutput{xoutput},
+      mEnable{enable},
+      mClear{clear},
+      mPreset{preset},
+      mCellId{cell_id}
   {
   }
 
@@ -56,7 +56,7 @@ public:
 
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
-  int
+  SizeType
   id() const override;
 
   /// @brief 名前を返す．
@@ -64,31 +64,31 @@ public:
   name() const override;
 
   /// @brief データ出力のノード番号を返す．
-  int
+  SizeType
   output() const override;
 
   /// @brief データ反転出力のノード番号を返す．
-  int
+  SizeType
   xoutput() const override;
 
   /// @brief データ入力のノード番号を返す．
-  int
+  SizeType
   input() const override;
 
   /// @brief イネーブルのノード番号を返す．
-  int
+  SizeType
   enable() const override;
 
   /// @brief クリア信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
-  int
+  SizeType
   clear() const override;
 
   /// @brief プリセット信号のノード番号を返す．
   ///
   /// kBnNullId の場合もある．
-  int
+  SizeType
   preset() const override;
 
   /// @brief セル番号を返す．
@@ -104,28 +104,28 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  int mId;
+  SizeType mId;
 
   // 名前
   string mName;
 
   // データ出力ノード
-  int mOutput;
+  SizeType mOutput;
 
   // データ反転出力ノード
-  int mXoutput;
+  SizeType mXoutput;
 
   // データ入力ノード
-  int mInput;
+  SizeType mInput;
 
   // イネーブルノード
-  int mEnable;
+  SizeType mEnable;
 
   // クリア信号ノード
-  int mClear;
+  SizeType mClear;
 
   // プリセット信号ノード
-  int mPreset;
+  SizeType mPreset;
 
   // セル番号
   int mCellId;

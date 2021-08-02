@@ -63,7 +63,7 @@ public:
   /// @brief ID番号から文字列を得る．
   const string&
   id2str(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   )
   {
     ASSERT_COND( 0 <= id && id < mCellArray.size() );
@@ -73,7 +73,7 @@ public:
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
   id2loc(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   )
   {
     ASSERT_COND( 0 <= id && id < mCellArray.size() );
@@ -81,7 +81,7 @@ public:
   }
 
   /// @brief カバーの数を得る．
-  int
+  SizeType
   cover_num()
   {
     return mCoverMgr.cover_num();
@@ -90,7 +90,7 @@ public:
   /// @brief カバーIDから BlifCover を得る．
   const BlifCover&
   id2cover(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   )
   {
     return mCoverMgr.cover(id);
@@ -267,7 +267,7 @@ private:
   /// @return 対応するID番号を返す．
   ///
   /// 未登録の場合には新たに作る．
-  int
+  SizeType
   find_id(
     const string& name,   ///< [in] 名前
     const FileRegion& loc ///< [in] name の位置
@@ -278,7 +278,7 @@ private:
   /// @retval false 未定義
   bool
   is_defined(
-    int id ///< [in] 識別子番号
+    SizeType id ///< [in] 識別子番号
   ) const;
 
   /// @brief 対応する識別子が入力用か調べる．
@@ -286,7 +286,7 @@ private:
   /// @retval false 入力以外
   bool
   is_input(
-    int id ///< [in] 識別子番号
+    SizeType id ///< [in] 識別子番号
   ) const;
 
   /// @brief 対応する識別子が出力用か調べる．
@@ -294,27 +294,27 @@ private:
   /// @retval false 出力以外
   bool
   is_output(
-    int id ///< [in] 識別子番号
+    SizeType id ///< [in] 識別子番号
   ) const;
 
   /// @brief 対応する識別子に定義済みの印をつける．
   void
   set_defined(
-    int id,               ///< [in] 識別子番号
+    SizeType id,               ///< [in] 識別子番号
     const FileRegion& loc ///< [in] 定義している場所．
   );
 
   /// @brief 対応する識別子に入力用の印を付ける．
   void
   set_input(
-    int id,               ///< [in] 識別子番号
+    SizeType id,               ///< [in] 識別子番号
     const FileRegion& loc ///< [in] 定義している場所．
   );
 
   /// @brief 対応する識別子に出力用の印を付ける．
   void
   set_output(
-    int id ///< [in] 識別子番号
+    SizeType id ///< [in] 識別子番号
   );
 
 
@@ -334,13 +334,13 @@ private:
   vector<BlifHandler*> mHandlerList;
 
   // 名前をキーにした識別子番号のハッシュ表
-  unordered_map<string, int> mIdHash;
+  unordered_map<string, SizeType> mIdHash;
 
   // IdCell本体の配列
   vector<IdCell> mCellArray;
 
   // 出力の ID 番号のリスト
-  vector<int> mOidArray;
+  vector<SizeType> mOidArray;
 
   // BlifCover を管理するオブジェクト
   BlifCoverMgr mCoverMgr;

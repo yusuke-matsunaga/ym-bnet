@@ -3,9 +3,8 @@
 /// @brief BlibParser の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Iscas89ParserImpl.h"
 #include "ym/Iscas89Handler.h"
@@ -40,7 +39,9 @@ BEGIN_NAMESPACE_YM_BNET
 // dff    = NAME '=' 'DFF' '(' NAME ')'
 //
 bool
-Iscas89ParserImpl::read(const string& filename)
+Iscas89ParserImpl::read(
+  const string& filename
+)
 {
   // ファイルをオープンする．
   ifstream fin{filename};
@@ -67,7 +68,7 @@ Iscas89ParserImpl::read(const string& filename)
   bool has_error = false;
   while ( go_on ) {
     Iscas89Token tok;
-    int name_id;
+    SizeType name_id;
     FileRegion first_loc;
     FileRegion last_loc;
     tie(tok, name_id, first_loc) = read_token();
@@ -100,7 +101,7 @@ Iscas89ParserImpl::read(const string& filename)
 
 	auto gate_type{parse_gate_type()};
 	auto type{BnNodeType::None};
-	vector<int> iname_id_list;
+	vector<SizeType> iname_id_list;
 	switch ( gate_type ) {
 	case Iscas89Token::CONST0: type = BnNodeType::C0; break;
 	case Iscas89Token::CONST1: type = BnNodeType::C1; break;
@@ -179,8 +180,8 @@ Iscas89ParserImpl::read(const string& filename)
   }
 
   // 出力文の処理を行う．
-  for ( int i = 0; i < mOidArray.size(); ++ i ) {
-    int oid;
+  for ( SizeType i = 0; i < mOidArray.size(); ++ i ) {
+    SizeType oid;
     FileRegion loc;
     tie(oid, loc) = mOidArray[i];
     auto oname{id2str(oid)};
@@ -270,8 +271,9 @@ Iscas89ParserImpl::parse_gate_type()
 //
 // エラーが起きたらエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::parse_name(int& name_id,
-			      FileRegion& last_loc)
+Iscas89ParserImpl::parse_name(
+  SizeType& name_id,
+  FileRegion& last_loc)
 {
   bool ok;
   tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
@@ -300,8 +302,9 @@ Iscas89ParserImpl::parse_name(int& name_id,
 //
 // エラーが起きたらエラーメッセージをセットする．
 bool
-Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
-				   FileRegion& last_loc)
+Iscas89ParserImpl::parse_name_list(
+  vector<SizeType>& name_id_list,
+  FileRegion& last_loc)
 {
   name_id_list.clear();
 
@@ -313,7 +316,7 @@ Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
   }
 
   for ( ; ; ) {
-    int name_id;
+    SizeType name_id;
     tie(ok, name_id, ignore) = expect(Iscas89Token::NAME);
     if ( !ok ) {
       // NAME を期待したシンタックスエラー
@@ -346,8 +349,10 @@ Iscas89ParserImpl::parse_name_list(vector<int>& name_id_list,
 // @param[in] name_id 入力ピン名の ID 番号
 // @return エラーが起きたら false を返す．
 bool
-Iscas89ParserImpl::read_input(const FileRegion& loc,
-			      int name_id)
+Iscas89ParserImpl::read_input(
+  const FileRegion& loc,
+  SizeType name_id
+)
 {
   auto name{id2str(name_id)};
   if ( is_defined(name_id) ) {
@@ -375,8 +380,10 @@ Iscas89ParserImpl::read_input(const FileRegion& loc,
 // @param[in] name_id 出力ピン名の ID 番号
 // @return エラーが起きたら false を返す．
 bool
-Iscas89ParserImpl::read_output(const FileRegion& loc,
-			       int name_id)
+Iscas89ParserImpl::read_output(
+  const FileRegion& loc,
+  SizeType name_id
+)
 {
   if ( is_input(name_id) ) {
     auto name{id2str(name_id)};
@@ -401,10 +408,12 @@ Iscas89ParserImpl::read_output(const FileRegion& loc,
 // @param[in] logic_type ゲートタイプ
 // @return エラーが起きたら false を返す．
 bool
-Iscas89ParserImpl::read_gate(const FileRegion& loc,
-			     int oname_id,
-			     BnNodeType logic_type,
-			     const vector<int>& iname_id_list)
+Iscas89ParserImpl::read_gate(
+  const FileRegion& loc,
+  SizeType oname_id,
+  BnNodeType logic_type,
+  const vector<SizeType>& iname_id_list
+)
 {
   auto oname{id2str(oname_id)};
   if ( is_defined(oname_id) ) {
@@ -436,9 +445,11 @@ Iscas89ParserImpl::read_gate(const FileRegion& loc,
 // @param[in] oname_id 出力名の ID 番号
 // @return エラーが起きたら false を返す．
 bool
-Iscas89ParserImpl::read_mux(const FileRegion& loc,
-			    int oname_id,
-			    const vector<int>& iname_id_list)
+Iscas89ParserImpl::read_mux(
+  const FileRegion& loc,
+  SizeType oname_id,
+  const vector<SizeType>& iname_id_list
+)
 {
   auto oname{id2str(oname_id)};
   if ( is_defined(oname_id) ) {
@@ -457,9 +468,9 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
   set_defined(oname_id, loc);
 
   { // 入力数をチェックする．
-    int ni = iname_id_list.size();
-    int nc = 0;
-    int nd = 1;
+    SizeType ni = iname_id_list.size();
+    SizeType nc = 0;
+    SizeType nd = 1;
     while ( nc + nd < ni ) {
       ++ nc;
       nd <<= 1;
@@ -492,9 +503,10 @@ Iscas89ParserImpl::read_mux(const FileRegion& loc,
 // @param[in] type ゲートタイプ
 // @return エラーが起きたら false を返す．
 bool
-Iscas89ParserImpl::read_dff(const FileRegion& loc,
-			    int oname_id,
-			    int iname_id)
+Iscas89ParserImpl::read_dff(
+  const FileRegion& loc,
+  SizeType oname_id,
+  SizeType iname_id)
 {
   auto oname{id2str(oname_id)};
   if ( is_defined(oname_id) ) {
@@ -563,11 +575,13 @@ END_NONAMESPACE
 // @retval false トークンの方が一致しなかった．
 //
 // トークンの方が一致しなかった場合にはエラーメッセージをセットする．
-tuple<bool, int, FileRegion>
-Iscas89ParserImpl::expect(Iscas89Token exp_token)
+tuple<bool, SizeType, FileRegion>
+Iscas89ParserImpl::expect(
+  Iscas89Token exp_token
+)
 {
   Iscas89Token tok;
-  int name_id;
+  SizeType name_id;
   FileRegion loc;
   tie(tok, name_id, loc) = read_token();
   if ( tok != exp_token ) {
@@ -586,12 +600,12 @@ Iscas89ParserImpl::expect(Iscas89Token exp_token)
 
 // @brief yylex() 用の処理を行う．
 // @return トークンの型を返す．
-tuple<Iscas89Token, int, FileRegion>
+tuple<Iscas89Token, SizeType, FileRegion>
 Iscas89ParserImpl::read_token()
 {
   FileRegion lloc;
   Iscas89Token token = mScanner->read_token(lloc);
-  int id;
+  SizeType id;
   if ( token == Iscas89Token::NAME ) {
     auto name{mScanner->cur_string()};
     if ( mIdHash.count(name) == 0 ) {

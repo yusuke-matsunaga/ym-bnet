@@ -44,7 +44,7 @@ WriterBase::init_name_array(const string& prefix,
   // ただし重複のチェックを行う．
 
   // 外部ポート名
-  for ( int i: Range(mNetwork.port_num()) ) {
+  for ( SizeType i: Range(mNetwork.port_num()) ) {
     auto& port = mNetwork.port(i);
     const string& name = port.name();
     if ( name == string() ) {
@@ -52,16 +52,16 @@ WriterBase::init_name_array(const string& prefix,
       continue;
     }
 
-    int nb = port.bit_width();
+    auto nb = port.bit_width();
     if ( nb == 1 ) {
       // 1ビットポートならポート名をノード名にする．
-      int id = port.bit(0);
+      auto id = port.bit(0);
       reg_node_name(id, name, name_hash, name_mgr);
     }
     else {
       // 多ビットポートの場合は '[' <ビット番号> ']' を後ろにつける．
-      for ( int b: Range(nb) ) {
-	int id = port.bit(b);
+      for ( SizeType b: Range(nb) ) {
+	auto id = port.bit(b);
 	ostringstream buf;
 	buf << name << "[" << b << "]";
 	reg_node_name(id, buf.str(), name_hash, name_mgr);
@@ -70,88 +70,88 @@ WriterBase::init_name_array(const string& prefix,
   }
 
   // FF名
-  for ( int i: Range(mNetwork.dff_num()) ) {
+  for ( SizeType i: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(i);
     const string& name = dff.name();
     if ( name == string() ) {
       // 名無しの場合はスキップ
       continue;
     }
-    int id = dff.output();
+    auto id = dff.output();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // ラッチ名
-  for ( int i: Range(mNetwork.latch_num()) ) {
+  for ( SizeType i: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(i);
     const string& name = latch.name();
     if ( name == string() ) {
       // 名無しの場合はスキップ
       continue;
     }
-    int id = latch.output();
+    auto id = latch.output();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // 外部入力ノード名
-  for ( int id: mNetwork.primary_input_id_list() ) {
+  for ( auto id: mNetwork.primary_input_id_list() ) {
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // FFの出力ノード名
-  for ( int i: Range(mNetwork.dff_num()) ) {
+  for ( SizeType i: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(i);
-    int id = dff.output();
+    auto id = dff.output();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // ラッチの出力ノード名
-  for ( int i: Range(mNetwork.latch_num()) ) {
+  for ( SizeType i: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(i);
-    int id = latch.output();
+    auto id = latch.output();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // 外部出力ノード名
-  for ( int id: mNetwork.primary_output_id_list() ) {
+  for ( auto id: mNetwork.primary_output_id_list() ) {
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // FF の入力ノード名
-  for ( int i: Range(mNetwork.dff_num()) ) {
+  for ( SizeType i: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(i);
-    int id = dff.input();
+    auto id = dff.input();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // ラッチの入力ノード名
-  for ( int i: Range(mNetwork.latch_num()) ) {
+  for ( SizeType i: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(i);
-    int id = latch.input();
+    auto id = latch.input();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // 論理ノード名
-  for ( int id: mNetwork.logic_id_list() ) {
+  for ( auto id: mNetwork.logic_id_list() ) {
     auto& node = mNetwork.node(id);
     const string& name = node.name();
     reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // 名無しのノードに名前を与える．
-  for ( int id: Range(mNetwork.node_num()) ) {
+  for ( SizeType id: Range(mNetwork.node_num()) ) {
     if ( mNameArray[id] == string() ) {
       string name = name_mgr.new_name(true);
       mNameArray[id] = name;
@@ -159,9 +159,9 @@ WriterBase::init_name_array(const string& prefix,
   }
 
   // 外部出力ノードのファンインの名前を出力ノードの名前に付け替える．
-  for ( int id: mNetwork.primary_output_id_list() ) {
+  for ( auto id: mNetwork.primary_output_id_list() ) {
     auto& node = mNetwork.node(id);
-    int src_id = node.fanin_id(0);
+    auto src_id = node.fanin_id(0);
     auto& src_node = mNetwork.node(src_id);
     if ( !src_node.is_input() ) {
       mNameArray[src_id] = mNameArray[id];
@@ -169,25 +169,25 @@ WriterBase::init_name_array(const string& prefix,
   }
 
   // FFの入力ノードの名前をそのファンインの名前に付け替える．
-  for ( int i: Range(mNetwork.dff_num()) ) {
+  for ( SizeType i: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(i);
-    int id = dff.input();
+    auto id = dff.input();
     auto& node = mNetwork.node(id);
-    int src_id = node.fanin_id(0);
+    auto src_id = node.fanin_id(0);
     mNameArray[id] = mNameArray[src_id];
   }
 
   // ラッチの入力ノードの名前をそのファンインの名前に付け替える．
-  for ( int i: Range(mNetwork.latch_num()) ) {
+  for ( SizeType i: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(i);
-    int id = latch.input();
+    auto id = latch.input();
     auto& node = mNetwork.node(id);
-    int src_id = node.fanin_id(0);
+    auto src_id = node.fanin_id(0);
     mNameArray[id] = mNameArray[src_id];
   }
 
   // データ系のノードに印をつける．
-  for ( int id: mNetwork.output_id_list() ) {
+  for ( auto id: mNetwork.output_id_list() ) {
     auto& node = mNetwork.node(id);
     if ( node.is_port_output() || node.is_dff_input() ) {
       mark_tfi(node.fanin_id(0));
@@ -196,7 +196,7 @@ WriterBase::init_name_array(const string& prefix,
 
   // 特例としてどこにもファンアウトしていないノードはデータ系とみなす．
   // 正確にはクロック系ではないとみなす．
-  for ( int id: Range(mNetwork.node_num()) ) {
+  for ( SizeType id: Range(mNetwork.node_num()) ) {
     auto& node = mNetwork.node(id);
     if ( node.is_output() ) {
       continue;
@@ -213,7 +213,7 @@ WriterBase::init_name_array(const string& prefix,
 // @param[in] name_hash ノード名のハッシュ
 // @param[in] name_mgr ノード名を管理するクラス
 void
-WriterBase::reg_node_name(int node_id,
+WriterBase::reg_node_name(SizeType node_id,
 			  const string& name,
 			  unordered_set<string>& name_hash,
 			  NameMgr& name_mgr)
@@ -240,7 +240,7 @@ WriterBase::reg_node_name(int node_id,
 // @brief TFI のノードに印をつける．
 // @param[in] node_id ノード番号
 void
-WriterBase::mark_tfi(int node_id)
+WriterBase::mark_tfi(SizeType node_id)
 {
   if ( mDataArray[node_id] ) {
     // すでに印がついていた．
@@ -249,7 +249,7 @@ WriterBase::mark_tfi(int node_id)
   mDataArray[node_id] = true;
 
   auto& node = mNetwork.node(node_id);
-  for ( int iid: node.fanin_id_list() ) {
+  for ( auto iid: node.fanin_id_list() ) {
     mark_tfi(iid);
   }
 }

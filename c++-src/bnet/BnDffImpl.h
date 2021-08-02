@@ -24,24 +24,24 @@ public:
 
   /// @brief コンストラクタ
   BnDffImpl(
-    int id,             ///< [in] ID番号
+    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] 名前
-    int input,          ///< [in] 入力端子のノード番号
-    int output,         ///< [in] 出力端子のノード番号
-    int xoutput,        ///< [in] 反転出力端子のノード番号
-    int clock,          ///< [in] クロック端子のノード番号
-    int clear,          ///< [in] クリア端子のノード番号
-    int preset,         ///< [in] プリセット端子のノード番号
+    SizeType input,     ///< [in] 入力端子のノード番号
+    SizeType output,    ///< [in] 出力端子のノード番号
+    SizeType xoutput,   ///< [in] 反転出力端子のノード番号
+    SizeType clock,     ///< [in] クロック端子のノード番号
+    SizeType clear,     ///< [in] クリア端子のノード番号
+    SizeType preset,    ///< [in] プリセット端子のノード番号
     int cell_id         ///< [in] セル番号
-  ) : mId(id),
-    mName(name),
-    mInput(input),
-    mOutput(output),
-    mXOutput(xoutput),
-    mClock(clock),
-    mClear(clear),
-    mPreset(preset),
-    mCellId(cell_id)
+  ) : mId{id},
+      mName{name},
+      mInput{input},
+      mOutput{output},
+      mXOutput{xoutput},
+      mClock{clock},
+      mClear{clear},
+      mPreset{preset},
+      mCellId{cell_id}
   {
   }
 
@@ -56,55 +56,46 @@ public:
 
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
-  virtual
-  int
-  id() const;
+  SizeType
+  id() const override;
 
   /// @brief 名前を返す．
-  virtual
   string
-  name() const;
+  name() const override;
 
   /// @brief データ出力のノード番号を返す．
-  virtual
-  int
-  output() const;
+  SizeType
+  output() const override;
 
   /// @brief 反転データ出力のノード番号を返す．
-  virtual
-  int
-  xoutput() const;
+  SizeType
+  xoutput() const override;
 
   /// @brief データ入力のノード番号を返す．
-  virtual
-  int
-  input() const;
+  SizeType
+  input() const override;
 
   /// @brief クロックのノード番号を返す．
-  virtual
-  int
-  clock() const;
+  SizeType
+  clock() const override;
 
   /// @brief クリア信号のノード番号を返す．
   ///
-  /// kBnNullId の場合もある．
-  virtual
-  int
-  clear() const;
+  /// BNET_NULLID の場合もある．
+  SizeType
+  clear() const override;
 
   /// @brief プリセット信号のノードを返す．
   ///
-  /// kBnNullId の場合もある．
-  virtual
-  int
-  preset() const;
+  /// BNET_NULLID の場合もある．
+  SizeType
+  preset() const override;
 
   /// @brief セル番号を返す．
   ///
   /// -1 の場合もある．
-  virtual
   int
-  cell_id() const;
+  cell_id() const override;
 
 
 private:
@@ -113,28 +104,28 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  int mId;
+  SizeType mId;
 
   // 名前
   string mName;
 
   // データ出力ノード
-  int mOutput;
+  SizeType mOutput;
 
   // 反転データ出力ノード
-  int mXOutput;
+  SizeType mXOutput;
 
   // データ入力ノード
-  int mInput;
+  SizeType mInput;
 
   // クロックノード
-  int mClock;
+  SizeType mClock;
 
   // クリア信号ノード
-  int mClear;
+  SizeType mClear;
 
   // プリセット信号ノード
-  int mPreset;
+  SizeType mPreset;
 
   // セル番号
   int mCellId;

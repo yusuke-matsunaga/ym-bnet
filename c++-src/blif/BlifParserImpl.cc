@@ -12,7 +12,7 @@
 #include "ym/BlifParser.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
-#include "ym/ClibCellPin.h"
+#include "ym/ClibPin.h"
 #include "ym/MsgMgr.h"
 #include "ym/Range.h"
 
@@ -435,7 +435,7 @@ BlifParserImpl::read_model()
 bool
 BlifParserImpl::read_inputs()
 {
-  int n_token = 0;
+  SizeType n_token = 0;
   bool ok = true;
   for ( ; ; ) {
     next_token();
@@ -443,7 +443,7 @@ BlifParserImpl::read_inputs()
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
-      int id = find_id(name, name_loc);
+      auto id = find_id(name, name_loc);
       if ( is_defined(id) ) {
 	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
@@ -491,7 +491,7 @@ BlifParserImpl::read_inputs()
 bool
 BlifParserImpl::read_outputs()
 {
-  int n_token = 0;
+  SizeType n_token = 0;
   bool ok = true;
   for ( ; ; ) {
     next_token();
@@ -499,7 +499,7 @@ BlifParserImpl::read_outputs()
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
-      int id = find_id(name, name_loc);
+      auto id = find_id(name, name_loc);
       if ( is_output(id) ) {
 	FileRegion def_loc{id2loc(id)};
 	ostringstream buf;
@@ -545,13 +545,13 @@ bool
 BlifParserImpl::read_names()
 {
   // .names 文に現れる識別子番号のリスト
-  vector<int> names_id_list;
+  vector<SizeType> names_id_list;
 
   // .names 文の最後の識別子の定義場所
   FileRegion names_loc;
 
   // .names 文のキューブ数
-  int cube_num{0};
+  SizeType cube_num{0};
 
   // .names 文のキューブパタンを表す文字列
   string ipat_str;
@@ -567,11 +567,11 @@ BlifParserImpl::read_names()
     if ( tk == BlifToken::STRING ) {
       auto name{cur_string()};
       names_loc = cur_loc();
-      int id = find_id(name, names_loc);
+      auto id = find_id(name, names_loc);
       names_id_list.push_back(id);
     }
     else if ( tk == BlifToken::NL ) {
-      int n = names_id_list.size();
+      auto n = names_id_list.size();
       if ( n == 0 ) {
 	// 名前が1つもない場合
 	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
@@ -592,7 +592,7 @@ BlifParserImpl::read_names()
   }
 
   // 入力数
-  int ni = names_id_list.size() - 1;
+  auto ni = names_id_list.size() - 1;
   if ( ni == 0 ) {
     // 入力のキューブがない場合
     for ( ; ; ) {
@@ -651,7 +651,7 @@ BlifParserImpl::read_names()
       BlifToken tk = cur_token();
       if ( tk == BlifToken::STRING ) {
 	auto tmp_str{cur_string()};
-	int n = tmp_str.size();
+	auto n = tmp_str.size();
 	if ( n != names_id_list.size() - 1 ) {
 	  MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
 			  MsgType::Error,
@@ -735,7 +735,7 @@ BlifParserImpl::read_names()
     }
   }
 
-  int oid = names_id_list[ni];
+  auto oid = names_id_list[ni];
   if ( is_defined(oid) ) {
     // 二重定義
     FileRegion def_loc{id2loc(oid)};
@@ -749,7 +749,7 @@ BlifParserImpl::read_names()
   }
   set_defined(oid, names_loc);
 
-  int cover_id = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
+  auto cover_id = mCoverMgr.pat2cover(ni, cube_num, ipat_str, opat_char);
 
   // ハンドラを呼び出す．
   bool ok = true;
@@ -789,7 +789,7 @@ BlifParserImpl::read_gate()
 
   auto name{cur_string()};
   auto name_loc{cur_loc()};
-  int gate_id = mCellLibrary.cell_id(name);
+  auto gate_id = mCellLibrary.cell_id(name);
   if ( gate_id == -1 ) {
     ostringstream buf;
     buf << name << ": No such cell.";
@@ -837,10 +837,13 @@ BlifParserImpl::read_gate()
     return false;
   }
 
-  // .gate 文に現れる識別子番号のハッシュ表
-  unordered_map<int, int> pin_id_hash;
+  // 出力ピンに対応する識別子番号
+  SizeType oid;
+  // 入力ピンに対応する識別子番号
+  auto ni = cell.input_num();
+  vector<SizeType> id_array(ni);
 
-  int n_pins = 0;
+  SizeType n_pins = 0;
 
   // (str '=' str)* nl
   for ( ; ; ) {
@@ -848,8 +851,8 @@ BlifParserImpl::read_gate()
     BlifToken tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto pin_name{cur_string()};
-      int pin_id = cell.pin_id(pin_name);
-      if ( pin_id == -1 ) {
+      auto pin_id = cell.pin_id(pin_name);
+      if ( pin_id == CLIB_NULLID ) {
 	ostringstream buf;
 	buf << pin_name << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
@@ -880,10 +883,10 @@ BlifParserImpl::read_gate()
 
       auto name2{cur_string()};
       auto name2_loc{cur_loc()};
-      int id2 = find_id(name2, name2_loc);
-      const ClibCellPin& pin = cell.pin(pin_id);
+      auto id2 = find_id(name2, name2_loc);
+      const ClibPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
-	pin_id = pin_id;
+	oid = id2;
 	if ( is_defined(id2) ) {
 	  // 二重定義
 	  FileRegion def_loc{id2loc(id2)};
@@ -897,15 +900,17 @@ BlifParserImpl::read_gate()
 	}
 	set_defined(id2, name2_loc);
       }
-      if ( pin_id_hash.count(pin.pin_id()) > 0 ) {
-	ostringstream buf;
-	buf << name2 << ": Appears more than once.";
-	MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
-			MsgType::Error,
-			"MLTDEF02", buf.str());
-	return false;
+      else {
+	if ( id_array[pin.input_id()] != -1 ) {
+	  ostringstream buf;
+	  buf << name2 << ": Appears more than once.";
+	  MsgMgr::put_msg(__FILE__, __LINE__, name2_loc,
+			  MsgType::Error,
+			  "MLTDEF02", buf.str());
+	  return false;
+	}
+	id_array[pin.input_id()] = id2;
       }
-      pin_id_hash.emplace(pin.pin_id(), id2);
       ++ n_pins;
     }
     else if ( tk == BlifToken::NL ) {
@@ -915,14 +920,6 @@ BlifParserImpl::read_gate()
 			"GATEXX",
 			"Syntax error: pin assiments expected.");
 	return false;
-      }
-      auto& opin{cell.output(0)};
-      int oid = pin_id_hash.at(opin.pin_id());
-      int ni = cell.input_num();
-      vector<int> id_array(ni);
-      for ( int i: Range(ni) ) {
-	auto& ipin = cell.input(i);
-	id_array[i] = pin_id_hash.at(ipin.pin_id());
       }
       bool ok = true;
       for ( auto handler: mHandlerList ) {
@@ -949,7 +946,7 @@ BlifParserImpl::read_latch()
   if ( tk == BlifToken::STRING ) {
     auto name1{cur_string()};
     auto name1_loc{cur_loc()};
-    int id1 = find_id(name1, name1_loc);
+    auto id1 = find_id(name1, name1_loc);
 
     next_token();
     tk = cur_token();
@@ -960,7 +957,7 @@ BlifParserImpl::read_latch()
 
     auto name2{cur_string()};
     auto name2_loc{cur_loc()};
-    int id2 = find_id(name2, name2_loc);
+    auto id2 = find_id(name2, name2_loc);
     if ( is_defined(id2) ) {
       // 二重定義
       FileRegion def_loc{id2loc(id2)};
@@ -1078,7 +1075,7 @@ BlifParserImpl::cur_loc() const
 }
 
 // @brief name に対応する識別子番号を返す．
-int
+SizeType
 BlifParserImpl::find_id(
   const string& name,
   const FileRegion& loc
@@ -1087,7 +1084,7 @@ BlifParserImpl::find_id(
   if ( mIdHash.find(name) == mIdHash.end() ) {
     // 未定義だった．
     // 新しく作る．
-    int id = mCellArray.size();
+    auto id = mCellArray.size();
     mCellArray.push_back({name, loc});
     mIdHash.emplace(name, id);
     return id;
@@ -1100,7 +1097,7 @@ BlifParserImpl::find_id(
 // @brief 対応する識別子がすでに定義済みか調べる．
 bool
 BlifParserImpl::is_defined(
-  int id
+  SizeType id
 ) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
@@ -1110,7 +1107,7 @@ BlifParserImpl::is_defined(
 // @brief 対応する識別子が入力用か調べる．
 bool
 BlifParserImpl::is_input(
-  int id
+  SizeType id
 ) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
@@ -1120,7 +1117,7 @@ BlifParserImpl::is_input(
 // @brief 対応する識別子が出力用か調べる．
 bool
 BlifParserImpl::is_output(
-  int id
+  SizeType id
 ) const
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
@@ -1130,7 +1127,7 @@ BlifParserImpl::is_output(
 // @brief 対応する識別子に定義済みの印をつける．
 void
 BlifParserImpl::set_defined(
-  int id,
+  SizeType id,
   const FileRegion& loc
 )
 {
@@ -1141,7 +1138,7 @@ BlifParserImpl::set_defined(
 // @brief 対応する識別子に入力用の印を付ける．
 void
 BlifParserImpl::set_input(
-  int id,
+  SizeType id,
   const FileRegion& loc
 )
 {
@@ -1152,7 +1149,7 @@ BlifParserImpl::set_input(
 // @brief 対応する識別子に出力用の印を付ける．
 void
 BlifParserImpl::set_output(
-  int id
+  SizeType id
 )
 {
   ASSERT_COND( 0 <= id && id < mCellArray.size() );

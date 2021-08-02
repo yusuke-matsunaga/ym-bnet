@@ -72,7 +72,7 @@ protected:
   /// @brief ノード名を返す．
   string
   node_name(
-    int node_id ///< [in] ノード番号
+    SizeType node_id ///< [in] ノード番号
   ) const
   {
     ASSERT_COND( node_id >= 0 && node_id < mNameArray.size() );
@@ -85,7 +85,7 @@ protected:
   /// データ系ではないものはクロックとset/reset
   bool
   is_data(
-    int node_id ///< [in] ノード番号
+    SizeType node_id ///< [in] ノード番号
   ) const
   {
     ASSERT_COND( node_id >= 0 && node_id < mDataArray.size() );
@@ -103,7 +103,7 @@ protected:
   /// name が空文字列の場合は登録しない．
   void
   reg_node_name(
-    int node_id,                      ///< [in] ノード番号
+    SizeType node_id,                 ///< [in] ノード番号
     const string& name,               ///< [in] 登録する名前
     unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
     NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
@@ -112,7 +112,7 @@ protected:
   /// @brief TFI のノードに印をつける．
   void
   mark_tfi(
-    int node_id ///< [in] ノード番号
+    SizeType node_id ///< [in] ノード番号
   );
 
 

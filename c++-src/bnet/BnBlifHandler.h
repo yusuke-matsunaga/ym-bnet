@@ -71,7 +71,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   inputs_elem(
-    int name_id,
+    SizeType name_id,
     const string& name
   ) override;
 
@@ -80,7 +80,7 @@ public:
   /// @retval false エラーが起こった．
   bool
   outputs_elem(
-    int name_id,
+    SizeType name_id,
     const string& name
   ) override;
 
@@ -89,10 +89,10 @@ public:
   /// @retval false エラーが起こった．
   bool
   names(
-    int oname_id,
+    SizeType oname_id,
     const string& oname,
-    const vector<int>& inode_id_array,
-    int cover_id
+    const vector<SizeType>& inode_id_array,
+    SizeType cover_id
   ) override;
 
   /// @brief .gate 文の処理
@@ -100,9 +100,9 @@ public:
   /// @retval false エラーが起こった．
   bool
   gate(
-    int oname_id,
+    SizeType oname_id,
     const string& oname,
-    const vector<int>& inode_id_array,
+    const vector<SizeType>& inode_id_array,
     int cell_id
   ) override;
 
@@ -111,9 +111,9 @@ public:
   /// @retval false エラーが起こった．
   bool
   latch(
-    int oname_id,
+    SizeType oname_id,
     const string& oname,
-    int inode_id,
+    SizeType inode_id,
     const FileRegion& loc4,
     char rval
   ) override;
@@ -149,16 +149,16 @@ private:
   string mResetName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  unordered_map<int, int> mIdMap;
+  unordered_map<SizeType, SizeType> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<int, vector<int>> mFaninInfoMap;
+  unordered_map<SizeType, vector<SizeType>> mFaninInfoMap;
 
   // クロック端子のノード番号
-  int mClockId;
+  SizeType mClockId;
 
   // リセット端子のノード番号
-  int mResetId;
+  SizeType mResetId;
 
 };
 

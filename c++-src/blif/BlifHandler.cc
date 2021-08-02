@@ -28,7 +28,7 @@ BlifHandler::BlifHandler(
 // @brief ID番号から文字列を得る．
 const string&
 BlifHandler::id2str(
-  int id
+  SizeType id
 )
 {
   return mParser.id2str(id);
@@ -37,14 +37,14 @@ BlifHandler::id2str(
 // @brief ID番号からそれに関連した位置情報を得る．
 const FileRegion&
 BlifHandler::id2loc(
-  int id
+  SizeType id
 )
 {
   return mParser.id2loc(id);
 }
 
 // @brief カバーの数を得る．
-int
+SizeType
 BlifHandler::cover_num()
 {
   return mParser.cover_num();
@@ -53,7 +53,7 @@ BlifHandler::cover_num()
 // @brief カバーIDからカバーを得る．
 const BlifCover&
 BlifHandler::id2cover(
-  int id
+  SizeType id
 )
 {
   return mParser.id2cover(id);

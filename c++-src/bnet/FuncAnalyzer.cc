@@ -37,15 +37,15 @@ tv2logic_type(
     return BnNodeType::Not;
   }
   else {
-    int input_num = tv.input_num();
-    int np = 1UL << input_num;
+    auto input_num = tv.input_num();
+    auto np = 1UL << input_num;
     int val_0;
     int val_1;
     bool has_0 = false;
     bool has_1 = false;
     bool xor_match = true;
     bool xnor_match = true;
-    for ( int p = 0; p < np; ++ p ) {
+    for ( auto p = 0; p < np; ++ p ) {
       int val = tv.value(p);
       if ( p == 0UL ) {
 	// 00...00 の時の値
@@ -68,7 +68,7 @@ tv2logic_type(
 
       // p のパリティを計算する．
       bool parity = false;
-      for ( int i = 0; i < input_num; ++ i ) {
+      for ( auto i = 0; i < input_num; ++ i ) {
 	if ( (1UL << i) & p ) {
 	  parity = !parity;
 	}
@@ -136,7 +136,7 @@ FuncAnalyzer::analyze(
   const Expr& expr
 )
 {
-  int input_num = expr.input_size();
+  auto input_num = expr.input_size();
   if ( input_num <= 10 ) {
     // 10入力以下の場合は一旦 TvFunc に変換する．
     TvFunc tv = expr.make_tv(input_num);

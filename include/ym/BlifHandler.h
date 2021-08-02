@@ -83,7 +83,7 @@ public:
   virtual
   bool
   inputs_elem(
-    int name_id,       ///< [in] 文字列のID番号
+    SizeType name_id,  ///< [in] 文字列のID番号
     const string& name ///< [in] 入力ピン名
   ) = 0;
 
@@ -93,7 +93,7 @@ public:
   virtual
   bool
   outputs_elem(
-    int name_id,       ///< [in] 文字列のID番号
+    SizeType name_id,  ///< [in] 文字列のID番号
     const string& name ///< [in] 出力ピン名
   ) = 0;
 
@@ -108,10 +108,10 @@ public:
   virtual
   bool
   names(
-    int onode_id,                      ///< [in] ノード名のID番号
-    const string& oname,               ///< [in] 出力名
-    const vector<int>& inode_id_array, ///< [in] ファンイン各のID番号の配列
-    int cover_id                       ///< [in] カバーのID番号
+    SizeType onode_id,                      ///< [in] ノード名のID番号
+    const string& oname,                    ///< [in] 出力名
+    const vector<SizeType>& inode_id_array, ///< [in] ファンイン各のID番号の配列
+    SizeType cover_id                       ///< [in] カバーのID番号
   ) = 0;
 
   /// @brief .gate 文の処理
@@ -120,10 +120,10 @@ public:
   virtual
   bool
   gate(
-    int onode_id,                       ///< [in] 出力ノードのID番号
-    const string& oname,                ///< [in] 出力名
-    const vector<int>& inode_id_array,  ///< [in] セル番号
-    int cell_id                         ///< [in] 入力ノードのID番号の配列
+    SizeType onode_id,                       ///< [in] 出力ノードのID番号
+    const string& oname,                     ///< [in] 出力名
+    const vector<SizeType>& inode_id_array,  ///< [in] セル番号
+    int cell_id                              ///< [in] 入力ノードのID番号の配列
   ) = 0;
 
   /// @brief .latch 文の処理
@@ -132,9 +132,9 @@ public:
   virtual
   bool
   latch(
-    int onode_id,            ///< [in] 出力ノードのID番号
+    SizeType onode_id,       ///< [in] 出力ノードのID番号
     const string& oname,     ///< [in] 出力名
-    int inode_id,            ///< [in] 入力ノードのID番号
+    SizeType inode_id,       ///< [in] 入力ノードのID番号
     const FileRegion& loc4,  ///< [in] リセット値の位置情報
     char rval                ///< [in] リセット時の値('0'/'1') 未定義なら ' '
   ) = 0;
@@ -167,23 +167,23 @@ protected:
   /// @brief ID番号から文字列を得る．
   const string&
   id2str(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   );
 
   /// @brief ID番号からそれに関連した位置情報を得る．
   const FileRegion&
   id2loc(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   );
 
   /// @brief カバーの数を得る．
-  int
+  SizeType
   cover_num();
 
   /// @brief カバーIDからカバーを得る．
   const BlifCover&
   id2cover(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   );
 
 

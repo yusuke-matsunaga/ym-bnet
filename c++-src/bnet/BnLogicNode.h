@@ -27,13 +27,13 @@ public:
 
   /// @brief コンストラクタ
   BnLogicNode(
-    int id,             ///< [in] ID番号
+    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
-    int ni,             ///< [in] 入力数
+    SizeType ni,        ///< [in] 入力数
     int cell_id         ///< [in] セル番号 (-1 の場合もあり)
   ) : BnNodeImpl(id, name),
-      mFanins(ni, kBnNullId),
-      mCellId(cell_id)
+      mFanins(ni, BNET_NULLID),
+      mCellId{cell_id}
   {
   }
 
@@ -57,17 +57,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン数を得る．
-  int
+  SizeType
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  int
+  SizeType
   fanin_id(
-    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+    SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
   ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  vector<int>
+  vector<SizeType>
   fanin_id_list() const override;
 
   /// @brief セル番号を返す．
@@ -88,8 +88,8 @@ public:
   /// @param[in] fanin_id
   void
   set_fanin(
-    int ipos,    ///< [in] 入力位置
-    int fanin_id ///< [in] ファンインのノード番号
+    SizeType ipos,    ///< [in] 入力位置
+    SizeType fanin_id ///< [in] ファンインのノード番号
   ) override;
 
 
@@ -98,7 +98,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  vector<int> mFanins;
+  vector<SizeType> mFanins;
 
   // セル番号
   int mCellId;
@@ -120,13 +120,13 @@ public:
 
   /// @brief コンストラクタ
   BnPrimNode(
-    int id,                ///< [in] ID番号
+    SizeType id,           ///< [in] ID番号
     const string& name,    ///< [in] ノード名
-    int ni,                ///< [in] 入力数
+    SizeType ni,           ///< [in] 入力数
     BnNodeType logic_type, ///< [in] 論理タイプ
     int cell_id            ///< [in] セル番号 (-1 の場合もあり)
   ) : BnLogicNode(id, name, ni, cell_id),
-      mLogicType(logic_type)
+      mLogicType{logic_type}
   {
   }
 
@@ -166,13 +166,13 @@ public:
 
   /// @brief コンストラクタ
   BnExprNode(
-    int id,             ///< [in] ID番号
+    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
-    int ni,             ///< [in] 入力数
-    int expr_id,        ///< [in] 関数番号
+    SizeType ni,        ///< [in] 入力数
+    SizeType expr_id,   ///< [in] 関数番号
     int cell_id         ///< [in] セル番号 (-1 の場合もあり)
   ) : BnLogicNode(id, name, ni, cell_id),
-      mExprId(expr_id)
+      mExprId{expr_id}
   {
   }
 
@@ -199,7 +199,7 @@ public:
   ///
   /// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
-  int
+  SizeType
   expr_id() const;
 
 
@@ -209,7 +209,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 論理式番号
-  int mExprId;
+  SizeType mExprId;
 
 };
 
@@ -225,13 +225,13 @@ public:
 
   /// @brief コンストラクタ
   BnTvNode(
-    int id,             ///< [in] ID番号
+    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
-    int ni,             ///< [in] 入力数
-    int func_id,        ///< [in] 関数番号
+    SizeType ni,        ///< [in] 入力数
+    SizeType func_id,   ///< [in] 関数番号
     int cell_id         ///< [in] セル 番号(-1 の場合もあり)
   ) : BnLogicNode(id, name, ni, cell_id),
-      mFuncId(func_id)
+      mFuncId{func_id}
   {
   }
 
@@ -258,7 +258,7 @@ public:
   ///
   /// logic_type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
-  int
+  SizeType
   func_id() const;
 
 
@@ -268,7 +268,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 関数番号
-  int mFuncId;
+  SizeType mFuncId;
 
 };
 

@@ -36,14 +36,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 登録されているカバー数を返す．
-  int
+  SizeType
   cover_num() const;
 
   /// @brief パタン文字列からカバー番号を返す．
-  int
+  SizeType
   pat2cover(
-    int input_num,          ///< [in] 入力数
-    int cube_num,           ///< [in] キューブ数
+    SizeType input_num,     ///< [in] 入力数
+    SizeType cube_num,      ///< [in] キューブ数
     const string& ipat_str, ///< [in] 入力パタン文字列
     char opat_char          ///< [in] 出力パタン
   );
@@ -51,7 +51,7 @@ public:
   /// @brief ID番号から BlifCover を返す．
   const BlifCover&
   cover(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const;
 
 
@@ -62,10 +62,10 @@ private:
 
   /// @brief BlifCover を作る．
   /// @return 作成された BlifCover の ID 番号を返す．
-  int
+  SizeType
   new_cover(
-    int input_num,          ///< [in] 入力数
-    int cube_num,           ///< [in] キューブ数
+    SizeType input_num,     ///< [in] 入力数
+    SizeType cube_num,      ///< [in] キューブ数
     const string& ipat_str, ///< [in] 入力パタン文字列
     char opat_char          ///< [in] 出力パタン
   );
@@ -77,7 +77,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // カバーを表す文字列をキーにしてID番号を納める辞書
-  unordered_map<string, int> mCoverDict;
+  unordered_map<string, SizeType> mCoverDict;
 
   // ID 番号をキーにしてカバーを格納する配列
   vector<BlifCover> mCoverArray;

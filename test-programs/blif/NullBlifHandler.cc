@@ -3,9 +3,8 @@
 /// @brief NullBlifHandler の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "NullBlifHandler.h"
 
@@ -14,8 +13,9 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] parser
-NullBlifHandler::NullBlifHandler(BlifParser& parser) :
-  BlifHandler(parser)
+NullBlifHandler::NullBlifHandler(
+  BlifParser& parser
+) : BlifHandler(parser)
 {
 }
 
@@ -38,7 +38,9 @@ NullBlifHandler::init()
 //
 // この関数が呼ばれないこともある．
 void
-NullBlifHandler::set_cell_library(const ClibCellLibrary& library)
+NullBlifHandler::set_cell_library(
+  const ClibCellLibrary& library
+)
 {
 }
 
@@ -49,9 +51,11 @@ NullBlifHandler::set_cell_library(const ClibCellLibrary& library)
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::model(const FileRegion& loc1,
-		       const FileRegion& loc2,
-		       const string& name)
+NullBlifHandler::model(
+  const FileRegion& loc1,
+  const FileRegion& loc2,
+  const string& name
+)
 {
   return true;
 }
@@ -62,8 +66,10 @@ NullBlifHandler::model(const FileRegion& loc1,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::inputs_elem(int name_id,
-			     const string& name)
+NullBlifHandler::inputs_elem(
+  SizeType name_id,
+  const string& name
+)
 {
   return true;
 }
@@ -74,8 +80,10 @@ NullBlifHandler::inputs_elem(int name_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::outputs_elem(int name_id,
-			      const string& name)
+NullBlifHandler::outputs_elem(
+  SizeType name_id,
+  const string& name
+)
 {
   return true;
 }
@@ -87,14 +95,12 @@ NullBlifHandler::outputs_elem(int name_id,
 // @param[in] cover カバー
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
-// @note cover_pat は ni 個ごとに1行のパタンを表す．
-// 各要素のとりうる値は '0', '1', '-' を表す．
-// @note opat は '0' か '1' のどちらか
 bool
-NullBlifHandler::names(int onode_id,
-		       const string& oname,
-		       const vector<int>& inode_id_array,
-		       int cover_id)
+NullBlifHandler::names(
+  SizeType onode_id,
+  const string& oname,
+  const vector<SizeType>& inode_id_array,
+  SizeType cover_id)
 {
   return true;
 }
@@ -107,10 +113,11 @@ NullBlifHandler::names(int onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::gate(int onode_id,
-		      const string& oname,
-		      const vector<int>& inode_id_array,
-		      int cell_id)
+NullBlifHandler::gate(
+  SizeType onode_id,
+  const string& oname,
+  const vector<SizeType>& inode_id_array,
+  int cell_id)
 {
   return true;
 }
@@ -124,11 +131,12 @@ NullBlifHandler::gate(int onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::latch(int onode_id,
-		       const string& oname,
-		       int inode_id,
-		       const FileRegion& loc4,
-		       char rval)
+NullBlifHandler::latch(
+  SizeType onode_id,
+  const string& oname,
+  SizeType inode_id,
+  const FileRegion& loc4,
+  char rval)
 {
   return true;
 }
@@ -138,7 +146,9 @@ NullBlifHandler::latch(int onode_id,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-NullBlifHandler::end(const FileRegion& loc)
+NullBlifHandler::end(
+  const FileRegion& loc
+)
 {
   return true;
 }

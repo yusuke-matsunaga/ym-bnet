@@ -27,7 +27,7 @@ public:
 
   /// @brief コンストラクタ
   BlifCover(
-    int ni,                          ///< [in] 入力数
+    SizeType ni,                     ///< [in] 入力数
     const vector<string>& ipat_list, ///< [in] 入力のパタンベクタ
                                      ///< 要素は '0', '1', '-' のいずれか
     char opat                        ///< [in] 出力のパタン ( '0', '1' のみ )
@@ -47,19 +47,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 入力数を返す．
-  int
+  SizeType
   input_num() const { return mInputNum; }
 
   /// @brief キューブ数を返す．
-  int
+  SizeType
   cube_num() const { return mInputPatList.size(); }
 
   /// @brief 入力パタンを返す．
   /// @return パタンを返す．('0', '1', '-')
   char
   input_pat(
-    int cpos, ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
-    int ipos  ///< [in] 入力番号 ( 0 <= ipos < input_num() )
+    SizeType cpos, ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
+    SizeType ipos  ///< [in] 入力番号 ( 0 <= ipos < input_num() )
   ) const
   {
     ASSERT_COND( 0 <= cpos && cpos < cube_num() );
@@ -87,7 +87,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力数
-  int mInputNum;
+  SizeType mInputNum;
 
   // 入力パタンのリスト
   vector<string> mInputPatList;

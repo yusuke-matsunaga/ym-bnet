@@ -27,12 +27,12 @@ public:
 
   /// @brief コンストラクタ
   BnOutputNode(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id       ///< [in] 出力番号
+    SizeType output_id  ///< [in] 出力番号
   ) : BnNodeImpl(id, name),
-    mOutputPos(output_id),
-    mFanin(kBnNullId)
+      mOutputPos{output_id},
+      mFanin{BNET_NULLID}
   {
   }
 
@@ -63,21 +63,21 @@ public:
   ///
   /// is_output() == false の時の動作は不定<br>
   /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
-  int
+  SizeType
   output_pos() const override;
 
   /// @brief ファンイン数を得る．
-  int
+  SizeType
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  int
+  SizeType
   fanin_id(
-    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+    SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
   ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  vector<int>
+  vector<SizeType>
   fanin_id_list() const override;
 
 
@@ -89,8 +89,8 @@ public:
   /// @brief ファンインを設定する．
   void
   set_fanin(
-    int ipos,    ///< [in] 入力位置
-    int fanin_id ///< [in] ファンインのノード番号
+    SizeType ipos,    ///< [in] 入力位置
+    SizeType fanin_id ///< [in] ファンインのノード番号
   ) override;
 
 
@@ -100,10 +100,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 出力位置
-  int mOutputPos;
+  SizeType mOutputPos;
 
   // ファンインのノード番号
-  int mFanin;
+  SizeType mFanin;
 
 };
 
@@ -119,14 +119,14 @@ public:
 
   /// @brief コンストラクタ
   BnPortOutput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int port_id,        ///< [in] ポート番号
-    int port_bit        ///< [in] ポート中のビット位置
+    SizeType output_id, ///< [in] 出力番号
+    SizeType port_id,   ///< [in] ポート番号
+    SizeType port_bit   ///< [in] ポート中のビット位置
   ) : BnOutputNode(id, name, output_id),
-      mPortId(port_id),
-      mPortBit(port_bit)
+      mPortId{port_id},
+      mPortBit{port_bit}
   {
   }
 
@@ -152,13 +152,13 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-  int
+  SizeType
   port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
-  int
+  SizeType
   port_bit() const override;
 
 
@@ -168,10 +168,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ポート番号
-  int mPortId;
+  SizeType mPortId;
 
   // ポート中のビット位置
-  int mPortBit;
+  SizeType mPortBit;
 
 };
 
@@ -189,12 +189,12 @@ public:
 
   /// @brief コンストラクタ
   BnDffControl(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnOutputNode(id, name, output_id),
-      mDffId(dff_id)
+      mDffId{dff_id}
   {
   }
 
@@ -211,7 +211,7 @@ public:
   ///
   /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   dff_id() const override;
 
 
@@ -221,7 +221,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // DFF番号
-  int mDffId;
+  SizeType mDffId;
 
 };
 
@@ -239,10 +239,10 @@ public:
 
   /// @brief コンストラクタ
   BnDffInput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnDffControl(id, name, output_id, dff_id)
   {
   }
@@ -274,10 +274,10 @@ public:
 
   /// @brief コンストラクタ
   BnDffClock(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnDffControl(id, name, output_id, dff_id)
   {
   }
@@ -309,10 +309,10 @@ public:
 
   /// @brief コンストラクタ
   BnDffClear(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnDffControl(id, name, output_id, dff_id)
   {
   }
@@ -344,10 +344,10 @@ public:
 
   /// @brief コンストラクタ
   BnDffPreset(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int dff_id          ///< [in] DFF番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType dff_id     ///< [in] DFF番号
   ) : BnDffControl(id, name, output_id, dff_id)
   {
   }
@@ -381,12 +381,12 @@ public:
 
   /// @brief コンストラクタ
   BnLatchControl(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnOutputNode(id, name, output_id),
-      mLatchId(latch_id)
+      mLatchId{latch_id}
   {
   }
 
@@ -404,7 +404,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_enable() ||
   /// is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   latch_id() const override;
 
 
@@ -414,7 +414,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ラッチ番号
-  int mLatchId;
+  SizeType mLatchId;
 
 };
 
@@ -432,10 +432,10 @@ public:
 
   /// @brief コンストラクタ
   BnLatchInput(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnLatchControl(id, name, output_id, latch_id)
   {
   }
@@ -467,10 +467,10 @@ public:
 
   /// @brief コンストラクタ
   BnLatchEnable(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnLatchControl(id, name, output_id, latch_id)
   {
   }
@@ -502,10 +502,10 @@ public:
 
   /// @brief コンストラクタ
   BnLatchClear(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnLatchControl(id, name, output_id, latch_id)
   {
   }
@@ -537,10 +537,10 @@ public:
 
   /// @brief コンストラクタ
   BnLatchPreset(
-    int id,             ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    int output_id,      ///< [in] 出力番号
-    int latch_id        ///< [in] ラッチ番号
+    SizeType output_id, ///< [in] 出力番号
+    SizeType latch_id   ///< [in] ラッチ番号
   ) : BnLatchControl(id, name, output_id, latch_id)
   {
   }

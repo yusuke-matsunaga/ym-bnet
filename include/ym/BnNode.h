@@ -65,7 +65,7 @@ public:
 
   /// @brief ノードID を返す．
   virtual
-  int
+  SizeType
   id() const = 0;
 
   /// @brief 名前を返す．
@@ -101,19 +101,19 @@ public:
 
   /// @brief ファンアウト数を得る．
   virtual
-  int
+  SizeType
   fanout_num() const = 0;
 
   /// @brief ファンアウトのノード番号を返す．
   virtual
-  int
+  SizeType
   fanout_id(
-    int pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
   ) const = 0;
 
   /// @brief ファンアウトのノード番号のリストを返す．
   virtual
-  vector<int>
+  vector<SizeType>
   fanout_id_list() const = 0;
 
 
@@ -128,7 +128,7 @@ public:
   /// - node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
   /// @sa BnNetwork::input_id()
   virtual
-  int
+  SizeType
   input_pos() const = 0;
 
   /// @brief 外部入力端子の時 true を返す．
@@ -168,7 +168,7 @@ public:
   /// - node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
   /// @sa BnNetwork::output()
   virtual
-  int
+  SizeType
   output_pos() const = 0;
 
   /// @brief 外部出力端子の時に true を返す．
@@ -226,14 +226,14 @@ public:
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
   virtual
-  int
+  SizeType
   port_id() const = 0;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
   virtual
-  int
+  SizeType
   port_bit() const = 0;
 
   /// @brief 接続しているDFFの番号を返す．
@@ -242,7 +242,7 @@ public:
   /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
   virtual
-  int
+  SizeType
   dff_id() const = 0;
 
   /// @brief 接続しているラッチの番号を返す．
@@ -251,7 +251,7 @@ public:
   /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
   virtual
-  int
+  SizeType
   latch_id() const = 0;
 
 
@@ -264,21 +264,21 @@ public:
   ///
   /// - is_logic() == false の時の動作は不定
   virtual
-  int
+  SizeType
   fanin_num() const = 0;
 
   /// @brief ファンインのノード番号を返す．
   ///
   /// - is_logic() == false の時の動作は不定
   virtual
-  int
+  SizeType
   fanin_id(
-    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+    SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
   ) const = 0;
 
   /// @brief ファンインのノード番号のリストを返す．
   virtual
-  vector<int>
+  vector<SizeType>
   fanin_id_list() const = 0;
 
   /// @brief 論理式番号を返す．
@@ -287,7 +287,7 @@ public:
   /// - 論理式番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::expr()
   virtual
-  int
+  SizeType
   expr_id() const = 0;
 
   /// @brief 関数番号を返す．
@@ -296,7 +296,7 @@ public:
   /// - 関数番号は同じ BnNetwork 内で唯一となるもの．
   /// @sa BnNetwork::func()
   virtual
-  int
+  SizeType
   func_id() const = 0;
 
   /// @brief セル番号を返す．

@@ -27,7 +27,7 @@ public:
 
   /// @brief コンストラクタ
   BnNodeImpl(
-    int id,            ///< [in] ID 番号
+    SizeType id,        ///< [in] ID 番号
     const string& name ///< [in] ノード名
   );
 
@@ -41,7 +41,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノードID を返す．
-  int
+  SizeType
   id() const override;
 
   /// @brief 名前を返す．
@@ -61,17 +61,17 @@ public:
   is_logic() const override;
 
   /// @brief ファンアウト数を得る．
-  int
+  SizeType
   fanout_num() const override;
 
   /// @brief ファンアウトのノード番号を返す．
-  int
+  SizeType
   fanout_id(
-    int pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
   ) const override;
 
   /// @brief ファンアウトのノード番号のリストを返す．
-  vector<int>
+  vector<SizeType>
   fanout_id_list() const override;
 
 
@@ -84,7 +84,7 @@ public:
   ///
   /// is_input() == false の時の動作は不定<br>
   /// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
-  int
+  SizeType
   input_pos() const override;
 
   /// @brief 外部入力端子の時 true を返す．
@@ -117,7 +117,7 @@ public:
   ///
   /// is_output() == false の時の動作は不定<br>
   /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
-  int
+  SizeType
   output_pos() const override;
 
   /// @brief 外部出力端子の時に true を返す．
@@ -165,13 +165,13 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-  int
+  SizeType
   port_id() const override;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
-  int
+  SizeType
   port_bit() const override;
 
   /// @brief 接続しているDFFの番号を返す．
@@ -179,7 +179,7 @@ public:
   /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
   /// is_dff_clock() || is_dff_clear() || is_dff_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   dff_id() const override;
 
   /// @brief 接続しているラッチの番号を返す．
@@ -187,7 +187,7 @@ public:
   /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
   /// is_latch_enable() || is_latch_clear() || is_latch_preset()
   /// の時のみ意味を持つ．
-  int
+  SizeType
   latch_id() const override;
 
 
@@ -197,31 +197,31 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン数を得る．
-  int
+  SizeType
   fanin_num() const override;
 
   /// @brief ファンインのノード番号を返す．
-  int
+  SizeType
   fanin_id(
-    int pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
+    SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
   ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  vector<int>
+  vector<SizeType>
   fanin_id_list() const override;
 
   /// @brief 論理式番号を返す．
   ///
   /// type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
-  int
+  SizeType
   expr_id() const override;
 
   /// @brief 関数番号を返す．
   ///
   /// type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
-  int
+  SizeType
   func_id() const override;
 
   /// @brief セル番号を返す．
@@ -241,8 +241,8 @@ public:
   virtual
   void
   set_fanin(
-    int ipos,    ///< [in] 入力位置
-    int fanin_id ///< [in] ファンインのノード番号
+    SizeType ipos,    ///< [in] 入力位置
+    SizeType fanin_id ///< [in] ファンインのノード番号
   );
 
   /// @brief ファンアウトリストをクリアする．
@@ -252,7 +252,7 @@ public:
   /// @brief ファンアウトを追加する．
   void
   add_fanout(
-    int onode_id ///< [in] ファンアウトのノード番号
+    SizeType onode_id ///< [in] ファンアウトのノード番号
   );
 
 
@@ -262,13 +262,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  int mId;
+  SizeType mId;
 
   // 名前
   string mName;
 
   // ファンアウトのノード番号のリスト
-  vector<int> mFanoutList;
+  vector<SizeType> mFanoutList;
 
 };
 

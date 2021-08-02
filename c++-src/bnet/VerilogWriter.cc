@@ -14,7 +14,7 @@
 #include "ym/BnPort.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
-#include "ym/ClibCellPin.h"
+#include "ym/ClibPin.h"
 #include "ym/Range.h"
 
 

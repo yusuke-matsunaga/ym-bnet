@@ -54,7 +54,7 @@ public:
   bool
   read_input(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id,           ///< [in] 入力ピン名の ID 番号
+    SizeType name_id,      ///< [in] 入力ピン名の ID 番号
     const string& name     ///< [in] 入力ピン名
   ) override;
 
@@ -64,7 +64,7 @@ public:
   bool
   read_output(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id,           ///< [in] 出力ピン名の ID 番号
+    SizeType name_id,      ///< [in] 出力ピン名の ID 番号
     const string& name     ///< [in] 出力ピン名
   ) override;
 
@@ -75,9 +75,9 @@ public:
   read_gate(
     const FileRegion& loc,        ///< [in] ファイル位置
     BnNodeType logic_type,        ///< [in] ゲートの型
-    int oname_id,                 ///< [in] 出力名の ID 番号
+    SizeType oname_id,            ///< [in] 出力名の ID 番号
     const string& name,           ///< [in] 出力名
-    const vector<int>& iname_list ///< [in] 入力名のリスト
+    const vector<SizeType>& iname_list ///< [in] 入力名のリスト
   ) override;
 
   /// @brief ゲート文(MUX)を読み込む．
@@ -87,10 +87,10 @@ public:
   /// 入力数のチェックは済んでいるものとする．
   bool
   read_mux(
-    const FileRegion& loc,        ///< [in] ファイル位置
-    int oname_id,                 ///< [in] 出力名の ID 番号
-    const string& oname,          ///< [in] 出力名
-    const vector<int>& iname_list ///< [in] 入力名のリスト
+    const FileRegion& loc,             ///< [in] ファイル位置
+    SizeType oname_id,                 ///< [in] 出力名の ID 番号
+    const string& oname,               ///< [in] 出力名
+    const vector<SizeType>& iname_list ///< [in] 入力名のリスト
   ) override;
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -99,9 +99,9 @@ public:
   bool
   read_dff(
     const FileRegion& loc, ///< [in] ファイル位置
-    int oname_id,          ///< [in] 出力名の ID 番号
+    SizeType oname_id,     ///< [in] 出力名の ID 番号
     const string& oname,   ///< [in] 出力名
-    int iname_id           ///< [in] 入力名の ID 番号
+    SizeType iname_id      ///< [in] 入力名の ID 番号
   ) override;
 
   /// @brief 終了操作
@@ -127,15 +127,15 @@ private:
   /// @brief ファンイン情報を追加する．
   void
   add_fanin_info(
-    int id,   ///< [in] ID番号
-    int fanin ///< [in] ファンイン番号
+    SizeType id,   ///< [in] ID番号
+    SizeType fanin ///< [in] ファンイン番号
   );
 
   /// @brief ファンイン情報を追加する．
   void
   add_fanin_info(
-    int id,                       ///< [in] ID番号
-    const vector<int>& fanin_list ///< [in] ファンイン番号のリスト
+    SizeType id,                       ///< [in] ID番号
+    const vector<SizeType>& fanin_list ///< [in] ファンイン番号のリスト
   );
 
 
@@ -152,13 +152,13 @@ private:
   string mClockName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  unordered_map<int, int> mIdMap;
+  unordered_map<SizeType, SizeType> mIdMap;
 
   // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<int, vector<int>> mFaninInfoMap;
+  unordered_map<SizeType, vector<SizeType>> mFaninInfoMap;
 
   // クロック端子のノード番号
-  int mClockId;
+  SizeType mClockId;
 
 };
 

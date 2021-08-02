@@ -52,8 +52,14 @@ END_NAMESPACE_YM_BNET
 
 BEGIN_NAMESPACE_YM
 
+/// @brief ポートの向きを表す列挙型(サイズは8ビット)
+enum class BnDir : ymuint8 {
+  INPUT  = 0, ///< 入力
+  OUTPUT = 1  ///< 出力
+};
+
 /// @brief 不正なノード番号を表す定数
-const int kBnNullId = -1;
+const SizeType BNET_NULLID = -1;
 
 using nsBnet::BnBlifReader;
 using nsBnet::BnIscas89Reader;

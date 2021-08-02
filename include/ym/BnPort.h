@@ -39,7 +39,7 @@ public:
 
   /// @brief ポート番号を返す．
   virtual
-  int
+  SizeType
   id() const = 0;
 
   /// @brief 名前を得る．
@@ -49,15 +49,15 @@ public:
 
   /// @brief ビット数を得る．
   virtual
-  int
+  SizeType
   bit_width() const = 0;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @return 対応するノードのノード番号を返す．
   virtual
-  int
+  SizeType
   bit(
-    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+    SizeType pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
   ) const = 0;
 
 };

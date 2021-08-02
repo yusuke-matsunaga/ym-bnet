@@ -5,9 +5,8 @@
 /// @brief NullBlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/BlifHandler.h"
 
@@ -24,8 +23,9 @@ class NullBlifHandler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] parser パーサー
-  NullBlifHandler(BlifParser& parser);
+  NullBlifHandler(
+    BlifParser& parser ///< [in] パーサー
+  );
 
   /// @brief デストラクタ
   ~NullBlifHandler();
@@ -40,91 +40,82 @@ public:
   init() override;
 
   /// @brief セルライブラリの設定
-  /// @param[in] library セルライブラリ
   ///
   /// この関数が呼ばれないこともある．
   void
-  set_cell_library(const ClibCellLibrary& library) override;
+  set_cell_library(
+    const ClibCellLibrary& library ///< [in] セルライブラリ
+  ) override;
 
   /// @brief .model 文の処理
-  /// @param[in] loc1 .model の位置情報
-  /// @param[in] loc2 文字列の位置情報
-  /// @param[in] name 文字列
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  model(const FileRegion& loc1,
-	const FileRegion& loc2,
-	const string& name) override;
+  model(
+    const FileRegion& loc1, ///< [in] .model の位置情報
+    const FileRegion& loc2, ///< [in] 文字列の位置情報
+    const string& name      ///< [in] 文字列
+  ) override;
 
   /// @brief .inputs 文中の文字列の処理
-  /// @param[in] name_id 文字列のID番号
-  /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  inputs_elem(int name_id,
-	      const string& name) override;
+  inputs_elem(
+    SizeType name_id,  ///< [in] 文字列のID番号
+    const string& name ///< [in] 入力名
+  ) override;
 
   /// @brief .outputs 文中の文字列の処理
-  /// @param[in] name_id 文字列のID番号
-  /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  outputs_elem(int name_id,
-	       const string& name) override;
+  outputs_elem(
+    SizeType name_id,  ///< [in] 文字列のID番号
+    const string& name ///< [in] 出力名
+  ) override;
 
   /// @brief .names 文の処理
-  /// @param[in] onode_id 出力ノードのID番号
-  /// @param[in] oname 出力名
-  /// @param[in] inode_id_array 各識別子のID番号の配列
-  /// @param[in] cover カバー
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
-  /// @note cover_pat は ni 個ごとに1行のパタンを表す．
-  /// 各要素のとりうる値は '0', '1', '-' を表す．
-  /// @note opat は '0' か '1' のどちらか
   bool
-  names(int onode_id,
-	const string& oname,
-	const vector<int>& inode_id_array,
-	int cover_id) override;
+  names(
+    SizeType onode_id,                      ///< [in] 出力ノードのID番号
+    const string& oname,                    ///< [in] 出力名
+    const vector<SizeType>& inode_id_array, ///< [in] 各識別子のID番号の配列
+    SizeType cover_id                       ///< [in] カバーID
+  ) override;
 
   /// @brief .gate 文の処理
-  /// @param[in] onode_id 出力ノードのID番号
-  /// @param[in] oname 出力名
-  /// @param[in] inode_id_array 入力ノードのID番号の配列
-  /// @param[in] cell_id セル番号
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  gate(int onode_id,
-       const string& oname,
-       const vector<int>& inode_id_array,
-       int cell_id) override;
+  gate(
+    SizeType onode_id,                      ///< [in] 出力ノードのID番号
+    const string& oname,                    ///< [in] 出力名
+    const vector<SizeType>& inode_id_array, ///< [in] 入力ノードのID番号の配列
+    int cell_id                             ///< [in] セル番号
+  ) override;
 
   /// @brief .latch 文の処理
-  /// @param[in] onode_id 出力ノードのID番号
-  /// @param[in] oname 出力名
-  /// @param[in] inode_id 入力ノードのID番号
-  /// @param[in] loc4 リセット値の位置情報
-  /// @param[in] rval リセット時の値('0'/'1') 未定義なら ' '
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  latch(int onode_id,
-	const string& oname,
-	int inode_id,
-	const FileRegion& loc4,
-	char rval) override;
+  latch(
+    SizeType onode_id,      ///< [in] 出力ノードのID番号
+    const string& oname,    ///< [in] 出力名
+    SizeType inode_id,      ///< [in] 入力ノードのID番号
+    const FileRegion& loc4, ///< [in] リセット値の位置情報
+    char rval               ///< [in] リセット時の値('0'/'1') 未定義なら ' '
+  ) override;
 
   /// @brief .end 文の処理
-  /// @param[in] loc 位置情報
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  end(const FileRegion& loc) override;
+  end(
+    const FileRegion& loc ///< [in] 位置情報
+  ) override;
 
   /// @brief 通常終了時の処理
   void

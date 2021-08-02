@@ -57,7 +57,7 @@ public:
   bool
   read_input(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id,           ///< [in] 入力ピン名の ID 番号
+    SizeType name_id,      ///< [in] 入力ピン名の ID 番号
     const string& name     ///< [in] 入力ピン名
   );
 
@@ -68,7 +68,7 @@ public:
   bool
   read_output(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id,           ///< [in] 出力ピン名の ID 番号
+    SizeType name_id,      ///< [in] 出力ピン名の ID 番号
     const string& name     ///< [in] 出力ピン名
   );
 
@@ -78,11 +78,11 @@ public:
   virtual
   bool
   read_gate(
-    const FileRegion& loc,        ///< [in] ファイル位置
-    BnNodeType logic_type,        ///< [in] ゲートの型
-    int oname_id,                 ///< [in] 出力名の ID 番号
-    const string& oname,          ///< [in] 出力名
-    const vector<int>& iname_list ///< [in] 入力名のリスト
+    const FileRegion& loc,             ///< [in] ファイル位置
+    BnNodeType logic_type,             ///< [in] ゲートの型
+    SizeType oname_id,                 ///< [in] 出力名の ID 番号
+    const string& oname,               ///< [in] 出力名
+    const vector<SizeType>& iname_list ///< [in] 入力名のリスト
   );
 
   /// @brief ゲート文(MUX)を読み込む．
@@ -93,10 +93,10 @@ public:
   virtual
   bool
   read_mux(
-    const FileRegion& loc,        ///< [in] ファイル位置
-    int oname_id,                 ///< [in] 出力名の ID 番号
-    const string& oname,          ///< [in] 出力名
-    const vector<int>& iname_list ///< [in] 入力名のリスト
+    const FileRegion& loc,             ///< [in] ファイル位置
+    SizeType oname_id,                 ///< [in] 出力名の ID 番号
+    const string& oname,               ///< [in] 出力名
+    const vector<SizeType>& iname_list ///< [in] 入力名のリスト
   );
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -106,9 +106,9 @@ public:
   bool
   read_dff(
     const FileRegion& loc, ///< [in] ファイル位置
-    int oname_id,          ///< [in] 出力名の ID 番号
+    SizeType oname_id,     ///< [in] 出力名の ID 番号
     const string& oname,   ///< [in] 出力名
-    int iname_id           ///< [in] 入力名の ID 番号
+    SizeType iname_id      ///< [in] 入力名の ID 番号
   );
 
   /// @brief 終了操作
@@ -137,13 +137,13 @@ protected:
   /// @brief ID 番号から文字列を得る．
   const string&
   id2str(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const;
 
   /// @brief ID 番号から位置情報を得る．
   FileRegion
   id2loc(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const;
 
 

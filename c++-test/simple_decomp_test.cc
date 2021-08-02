@@ -20,19 +20,19 @@ TEST(SimpleDecompTest, test1)
 {
   BnNetwork network1;
 
-  int port1_id = network1.new_input_port("port1");
-  int port2_id = network1.new_input_port("port2");
-  int port3_id = network1.new_input_port("port3");
-  int port4_id = network1.new_output_port("port4");
+  auto port1_id = network1.new_input_port("port1");
+  auto port2_id = network1.new_input_port("port2");
+  auto port3_id = network1.new_input_port("port3");
+  auto port4_id = network1.new_output_port("port4");
 
   auto& port1 = network1.port(port1_id);
   auto& port2 = network1.port(port2_id);
   auto& port3 = network1.port(port3_id);
   auto& port4 = network1.port(port4_id);
 
-  int input1 = port1.bit(0);
-  int input2 = port2.bit(0);
-  int input3 = port3.bit(0);
+  auto input1 = port1.bit(0);
+  auto input2 = port2.bit(0);
+  auto input3 = port3.bit(0);
 
   VarId var0{0};
   VarId var1{1};
@@ -42,10 +42,10 @@ TEST(SimpleDecompTest, test1)
   Expr lit2{Expr::make_posi_literal(var2)};
 
   Expr expr = (lit0 & ~lit1) | (~lit1 & lit2);
-  vector<int> fanin_id_list{input1, input2, input3};
-  int id1 = network1.new_logic(string(), expr, fanin_id_list);
+  vector<SizeType> fanin_id_list{input1, input2, input3};
+  auto id1 = network1.new_logic(string(), expr, fanin_id_list);
 
-  int output1 = port4.bit(0);
+  auto output1 = port4.bit(0);
   network1.connect(id1, output1, 0);
 
   network1.wrap_up();

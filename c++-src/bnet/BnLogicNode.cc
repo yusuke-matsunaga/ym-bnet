@@ -23,7 +23,7 @@ BnLogicNode::is_logic() const
 }
 
 // @brief ファンイン数を得る．
-int
+SizeType
 BnLogicNode::fanin_num() const
 {
   return mFanins.size();
@@ -31,8 +31,10 @@ BnLogicNode::fanin_num() const
 
 // @brief ファンインを求める．
 // @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-int
-BnLogicNode::fanin_id(int pos) const
+SizeType
+BnLogicNode::fanin_id(
+  SizeType pos
+) const
 {
   ASSERT_COND( pos >= 0 && pos < fanin_num() );
 
@@ -40,7 +42,7 @@ BnLogicNode::fanin_id(int pos) const
 }
 
 // @brief ファンインのノード番号のリストを返す．
-vector<int>
+vector<SizeType>
 BnLogicNode::fanin_id_list() const
 {
   return mFanins;
@@ -49,7 +51,6 @@ BnLogicNode::fanin_id_list() const
 // @brief セル番号を返す．
 //
 // is_logic() == false の時の動作は不定
-// 場合によっては nullptr を返す．
 int
 BnLogicNode::cell_id() const
 {
@@ -60,8 +61,10 @@ BnLogicNode::cell_id() const
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
 void
-BnLogicNode::set_fanin(int ipos,
-		       int fanin_id)
+BnLogicNode::set_fanin(
+  SizeType ipos,
+  SizeType fanin_id
+)
 {
   ASSERT_COND( ipos >= 0 && ipos < fanin_num() );
 
@@ -96,7 +99,7 @@ BnExprNode::type() const
 //
 // logic_type() == BnNodeType::Expr の時のみ意味を持つ．
 // 論理式番号は同じ BnNetwork 内で唯一となるもの．
-int
+SizeType
 BnExprNode::expr_id() const
 {
   return mExprId;
@@ -118,7 +121,7 @@ BnTvNode::type() const
 //
 // type() == BnNodeType::TvFunc の時のみ意味を持つ．
 // 関数番号は同じ BnNetwork 内で唯一となるもの．
-int
+SizeType
 BnTvNode::func_id() const
 {
   return mFuncId;

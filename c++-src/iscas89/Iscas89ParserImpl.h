@@ -53,7 +53,7 @@ public:
   /// @brief ID 番号から文字列を得る．
   const string&
   id2str(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -63,7 +63,7 @@ public:
   /// @brief ID 番号から位置情報を得る．
   const FileRegion&
   id2loc(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -175,7 +175,7 @@ private:
   /// エラーが起きたらエラーメッセージをセットする．
   bool
   parse_name(
-    int& name_id,        ///< [out] 名前の識別子番号を格納する変数．
+    SizeType& name_id,   ///< [out] 名前の識別子番号を格納する変数．
     FileRegion& last_loc ///< [in] 末尾のファイル位置
   );
 
@@ -186,8 +186,8 @@ private:
   /// エラーが起きたらエラーメッセージをセットする．
   bool
   parse_name_list(
-    vector<int>& name_id_list, ///< [out] 名前の識別子番号を格納するリスト．
-    FileRegion& last_loc       ///< [in] 末尾のファイル位置
+    vector<SizeType>& name_id_list, ///< [out] 名前の識別子番号を格納するリスト．
+    FileRegion& last_loc            ///< [in] 末尾のファイル位置
   );
 
   /// @brief INPUT 文を読み込む．
@@ -195,7 +195,7 @@ private:
   bool
   read_input(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id            ///< [in] 入力ピン名の ID 番号
+    SizeType name_id       ///< [in] 入力ピン名の ID 番号
   );
 
   /// @brief OUTPUT 文を読み込む．
@@ -203,26 +203,26 @@ private:
   bool
   read_output(
     const FileRegion& loc, ///< [in] ファイル位置
-    int name_id            ///< [in] 出力ピン名の ID 番号
+    SizeType name_id       ///< [in] 出力ピン名の ID 番号
   );
 
   /// @brief ゲート文を読み込む．
   /// @return エラーが起きたら false を返す．
   bool
   read_gate(
-    const FileRegion& loc,           ///< [in] ファイル位置
-    int oname_id,                    ///< [in] 出力名の ID 番号
-    BnNodeType type,                 ///< [in] ゲートタイプ
-    const vector<int>& iname_id_list ///< [in] 入力名のID番号のリスト
+    const FileRegion& loc,                ///< [in] ファイル位置
+    SizeType oname_id,                    ///< [in] 出力名の ID 番号
+    BnNodeType type,                      ///< [in] ゲートタイプ
+    const vector<SizeType>& iname_id_list ///< [in] 入力名のID番号のリスト
   );
 
   /// @brief ゲート文(MUX)を読み込む．
   /// @return エラーが起きたら false を返す．
   bool
   read_mux(
-    const FileRegion& loc,           ///< [in] ファイル位置
-    int oname_id,                    ///< [in] 出力名の ID 番号
-    const vector<int>& iname_id_list ///< [in] 入力名のID番号のリスト
+    const FileRegion& loc,                ///< [in] ファイル位置
+    SizeType oname_id,                    ///< [in] 出力名の ID 番号
+    const vector<SizeType>& iname_id_list ///< [in] 入力名のID番号のリスト
   );
 
   /// @brief D-FF用のゲート文を読み込む．
@@ -230,15 +230,15 @@ private:
   bool
   read_dff(
     const FileRegion& loc, ///< [in] ファイル位置
-    int oname_id,          ///< [in] 出力名の ID 番号
-    int iname_id           ///< [in] 入力名のID番号
+    SizeType oname_id,     ///< [in] 出力名の ID 番号
+    SizeType iname_id      ///< [in] 入力名のID番号
   );
 
   /// @brief 次のトークンが期待されている型か調べる．
   /// @return ok/ng, 識別子番号, ファイル位置のタプルを返す．
   ///
   /// トークンが exp_token と同じなら ok/ng は true となる．
-  tuple<bool, int, FileRegion>
+  tuple<bool, SizeType, FileRegion>
   expect(
     Iscas89Token exp_token ///< [in] トークンの期待値
   );
@@ -247,12 +247,12 @@ private:
   /// @return 型，識別子番号，位置のタプルを返す．
   ///
   /// 識別子番号に値が入るのはトークンが Iscas89Token::NAME の時だけ
-  tuple<Iscas89Token, int, FileRegion>
+  tuple<Iscas89Token, SizeType, FileRegion>
   read_token();
 
   /// @brief 文字列用の領域を確保する．
   /// @return 文字列の ID 番号
-  int
+  SizeType
   reg_id(
     const string& src_str, ///< [in] ソース文字列
     const FileRegion& loc  ///< [in] 文字列の位置情報
@@ -261,7 +261,7 @@ private:
   /// @brief 該当の識別子が定義済みか調べる．
   bool
   is_defined(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -271,7 +271,7 @@ private:
   /// @brief 該当の識別子が入力か調べる．
   bool
   is_input(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -281,7 +281,7 @@ private:
   /// @brief 該当の識別子が出力か調べる．
   bool
   is_output(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   ) const
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -291,7 +291,7 @@ private:
   /// @brief 識別子に定義済みの印を付ける．
   void
   set_defined(
-    int id,               ///< [in] ID番号
+    SizeType id,          ///< [in] ID番号
     const FileRegion& loc ///< [in] 定義している場所
   )
   {
@@ -304,7 +304,7 @@ private:
   /// 同時に定義済みになる．
   void
   set_input(
-    int id,               ///< [in] ID番号
+    SizeType id,          ///< [in] ID番号
     const FileRegion& loc ///< [in] 定義している場所
   )
   {
@@ -316,7 +316,7 @@ private:
   /// @brief 識別子に出力の印を付ける．
   void
   set_output(
-    int id ///< [in] ID番号
+    SizeType id ///< [in] ID番号
   )
   {
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
@@ -341,13 +341,13 @@ private:
   vector<Iscas89Handler*> mHandlerList;
 
   // 名前をキーにした識別子のハッシュ表
-  unordered_map<string, int> mIdHash;
+  unordered_map<string, SizeType> mIdHash;
 
   // 識別子の配列
   vector<IdCell> mIdCellArray;
 
   // 出力の ID番号とファイル位置のリスト
-  vector<pair<int, FileRegion>> mOidArray;
+  vector<pair<SizeType, FileRegion>> mOidArray;
 
 };
 

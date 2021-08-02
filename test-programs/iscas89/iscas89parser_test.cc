@@ -3,9 +3,8 @@
 /// @brief iscas89 ファイルの読み書きのテスト
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/Iscas89Parser.h"
 #include "ym/Iscas89Handler.h"
@@ -25,9 +24,10 @@ class TestIscas89Handler :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] parser パーサー
-  TestIscas89Handler(Iscas89Parser& parser,
-		     ostream* stream);
+  TestIscas89Handler(
+    Iscas89Parser& parser, ///< パーサー
+    ostream& stream        ///< メッセージ出力先のストリーム
+  );
 
   /// @brief デストラクタ
   ~TestIscas89Handler();
@@ -40,53 +40,47 @@ public:
   init() override;
 
   /// @brief INPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 入力ピン名の ID 番号
-  /// @param[in] name 入力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_input(const FileRegion& loc,
-	     int name_id,
-	     const string& name) override;
+  read_input(
+    const FileRegion& loc, ///< [in] ファイル位置
+    SizeType name_id,      ///< [in] 入力ピン名の ID 番号
+    const string& name     ///< [in] 入力ピン名
+  ) override;
 
   /// @brief OUTPUT 文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] name_id 出力ピン名の ID 番号
-  /// @param[in] name 出力ピン名
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_output(const FileRegion& loc,
-	      int name_id,
-	      const string& name) override;
+  read_output(
+    const FileRegion& loc, ///< [in] ファイル位置
+    SizeType name_id,      ///< [in] 出力ピン名の ID 番号
+    const string& name     ///< [in] 出力ピン名
+  ) override;
 
   /// @brief ゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] type ゲートの型
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] iname_list 入力名のリスト
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_gate(const FileRegion& loc,
-	    BnNodeType type,
-	    int oname_id,
-	    const string& oname,
-	    const vector<int>& iname_list) override;
+  read_gate(
+    const FileRegion& loc,             ///< [in] ファイル位置
+    BnNodeType type,                   ///< [in] ゲートの型
+    SizeType oname_id,                 ///< [in] 出力名の ID 番号
+    const string& oname,               ///< [in] 出力名
+    const vector<SizeType>& iname_list ///< [in] 入力名のリスト
+  ) override;
 
   /// @brief D-FF用のゲート文を読み込む．
-  /// @param[in] loc ファイル位置
-  /// @param[in] oname_id 出力名の ID 番号
-  /// @param[in] oname 出力名
-  /// @param[in] iname_id 入力名の ID 番号
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
   bool
-  read_dff(const FileRegion& loc,
-	   int oname_id,
-	   const string& oname,
-	   int iname_id) override;
+  read_dff(
+    const FileRegion& loc, ///< [in] ファイル位置
+    SizeType oname_id,     ///< [in] 出力名の ID 番号
+    const string& oname,   ///< [in] 出力名
+    SizeType iname_id      ///< [in] 入力名の ID 番号
+  ) override;
 
   /// @brief 通常終了時の処理
   void
@@ -98,17 +92,21 @@ public:
 
 
 private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
 
-  ostream* mStreamPtr;
+  ostream& mStream;
 
 };
 
 
 // @brief コンストラクタ
-TestIscas89Handler::TestIscas89Handler(Iscas89Parser& parser,
-				       ostream* streamptr) :
-  Iscas89Handler(parser),
-  mStreamPtr(streamptr)
+TestIscas89Handler::TestIscas89Handler(
+  Iscas89Parser& parser,
+  ostream& stream
+) : Iscas89Handler(parser),
+    mStream{stream}
 {
 }
 
@@ -121,7 +119,7 @@ TestIscas89Handler::~TestIscas89Handler()
 bool
 TestIscas89Handler::init()
 {
-  (*mStreamPtr) << "TestIscas89Handler::init()" << endl;
+  mStream << "TestIscas89Handler::init()" << endl;
   return true;
 }
 
@@ -132,14 +130,16 @@ TestIscas89Handler::init()
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestIscas89Handler::read_input(const FileRegion& loc,
-			       int name_id,
-			       const string& name)
+TestIscas89Handler::read_input(
+  const FileRegion& loc,
+  SizeType name_id,
+  const string& name
+)
 {
-  (*mStreamPtr) << "TestIscas89Handler::read_input()" << endl
-		<< "    " << loc << endl;
-  (*mStreamPtr) << "  str(name_id) = " << id2str(name_id) << endl
-		<< "  loc(name_id) = " << id2loc(name_id) << endl;
+  mStream << "TestIscas89Handler::read_input()" << endl
+	  << "    " << loc << endl;
+  mStream << "  str(name_id) = " << id2str(name_id) << endl
+	  << "  loc(name_id) = " << id2loc(name_id) << endl;
   return true;
 }
 
@@ -150,14 +150,16 @@ TestIscas89Handler::read_input(const FileRegion& loc,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestIscas89Handler::read_output(const FileRegion& loc,
-				int name_id,
-				const string& name)
+TestIscas89Handler::read_output(
+  const FileRegion& loc,
+  SizeType name_id,
+  const string& name
+)
 {
-  (*mStreamPtr) << "TestIscas89Handler::read_output()" << endl
-		<< "    " << loc << endl;
-  (*mStreamPtr) << "  str(name_id) = " << id2str(name_id) << endl
-		<< "  loc(name_id) = " << id2loc(name_id) << endl;
+  mStream << "TestIscas89Handler::read_output()" << endl
+	  << "    " << loc << endl;
+  mStream << "  str(name_id) = " << id2str(name_id) << endl
+	  << "  loc(name_id) = " << id2loc(name_id) << endl;
   return true;
 }
 
@@ -169,35 +171,36 @@ TestIscas89Handler::read_output(const FileRegion& loc,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestIscas89Handler::read_gate(const FileRegion& loc,
-			      BnNodeType type,
-			      int oname_id,
-			      const string& oname,
-			      const vector<int>& iname_list)
+TestIscas89Handler::read_gate(
+  const FileRegion& loc,
+  BnNodeType type,
+  SizeType oname_id,
+  const string& oname,
+  const vector<SizeType>& iname_list
+)
 {
-  (*mStreamPtr) << "TestIscas89Handler::read_gate()" << endl
-		<< "    " << loc << endl;
-  (*mStreamPtr) << "  str(oname_id) = " << oname << endl
-		<< "  loc(oname_id) = " << id2loc(oname_id) << endl;
-  (*mStreamPtr) << "  type = ";
+  mStream << "TestIscas89Handler::read_gate()" << endl
+	  << "    " << loc << endl;
+  mStream << "  str(oname_id) = " << oname << endl
+	  << "  loc(oname_id) = " << id2loc(oname_id) << endl;
+  mStream << "  type = ";
   switch ( type ) {
-  case BnNodeType::Buff: (*mStreamPtr) << "BUFF"; break;
-  case BnNodeType::Not:  (*mStreamPtr) << "NOT"; break;
-  case BnNodeType::And:  (*mStreamPtr) << "AND"; break;
-  case BnNodeType::Nand: (*mStreamPtr) << "NAND"; break;
-  case BnNodeType::Or:   (*mStreamPtr) << "OR"; break;
-  case BnNodeType::Nor:  (*mStreamPtr) << "NOR"; break;
-  case BnNodeType::Xor:  (*mStreamPtr) << "XOR"; break;
-  case BnNodeType::Xnor: (*mStreamPtr) << "XNOR"; break;
+  case BnNodeType::Buff: mStream << "BUFF"; break;
+  case BnNodeType::Not:  mStream << "NOT"; break;
+  case BnNodeType::And:  mStream << "AND"; break;
+  case BnNodeType::Nand: mStream << "NAND"; break;
+  case BnNodeType::Or:   mStream << "OR"; break;
+  case BnNodeType::Nor:  mStream << "NOR"; break;
+  case BnNodeType::Xor:  mStream << "XOR"; break;
+  case BnNodeType::Xnor: mStream << "XNOR"; break;
   default: ASSERT_NOT_REACHED; break;
   }
-  (*mStreamPtr) << endl;
-  size_t i = 0;
-  for (vector<int>::const_iterator p = iname_list.begin();
-       p != iname_list.end(); ++ p, ++ i) {
-    int id = *p;
-    (*mStreamPtr) << "  str(iname_list[" << i << "]) = " << id2str(id) << endl
-		  << "  loc(iname_list[" << i << "]) = " << id2loc(id) << endl;
+  mStream << endl;
+  int i = 0;
+  for ( auto id: iname_list ) {
+    mStream << "  str(iname_list[" << i << "]) = " << id2str(id) << endl
+	    << "  loc(iname_list[" << i << "]) = " << id2loc(id) << endl;
+    ++ i;
   }
   return true;
 }
@@ -209,19 +212,21 @@ TestIscas89Handler::read_gate(const FileRegion& loc,
 // @retval true 処理が成功した．
 // @retval false エラーが起こった．
 bool
-TestIscas89Handler::read_dff(const FileRegion& loc,
-			     int oname_id,
-			     const string& oname,
-			     int iname_id)
+TestIscas89Handler::read_dff(
+  const FileRegion& loc,
+  SizeType oname_id,
+  const string& oname,
+  SizeType iname_id
+)
 {
-  (*mStreamPtr) << "TestIscas89Handler::read_dff()" << endl
-		<< "    " << loc << endl;
-  (*mStreamPtr) << "  str(oname_id) = " << oname << endl
-		<< "  loc(oname_id) = " << id2loc(oname_id) << endl;
-  (*mStreamPtr) << "  type = DFF";
-  (*mStreamPtr) << endl;
-  (*mStreamPtr) << "  str(iname_id) = " << id2str(iname_id) << endl
-		<< "  loc(iname_id) = " << id2loc(iname_id) << endl;
+  mStream << "TestIscas89Handler::read_dff()" << endl
+	  << "    " << loc << endl;
+  mStream << "  str(oname_id) = " << oname << endl
+	  << "  loc(oname_id) = " << id2loc(oname_id) << endl;
+  mStream << "  type = DFF";
+  mStream << endl;
+  mStream << "  str(iname_id) = " << id2str(iname_id) << endl
+	  << "  loc(iname_id) = " << id2loc(iname_id) << endl;
   return true;
 }
 
@@ -229,22 +234,24 @@ TestIscas89Handler::read_dff(const FileRegion& loc,
 void
 TestIscas89Handler::normal_exit()
 {
-  (*mStreamPtr) << "TestIscas89Handler::normal_exit()" << endl;
+  mStream << "TestIscas89Handler::normal_exit()" << endl;
 }
 
 // @brief エラー終了時の処理
 void
 TestIscas89Handler::error_exit()
 {
-  (*mStreamPtr) << "TestIscas89Handler::error_exit()" << endl;
+  mStream << "TestIscas89Handler::error_exit()" << endl;
 }
 
 END_NAMESPACE_YM_BNET
 
 
 int
-main(int argc,
-     char** argv)
+main(
+  int argc,
+  char** argv
+)
 {
   using namespace std;
   using namespace nsYm;
@@ -258,7 +265,7 @@ main(int argc,
 
   try {
     Iscas89Parser parser;
-    TestIscas89Handler handler(parser, &cout);
+    TestIscas89Handler handler(parser, cout);
 
     StreamMsgHandler msg_handler(cerr);
     MsgMgr::attach_handler(&msg_handler);

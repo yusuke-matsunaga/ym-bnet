@@ -24,10 +24,10 @@ public:
 
   /// @brief コンストラクタ
   BnPortImpl(
-    int id,            ///< [in] ポート番号
+    SizeType id,       ///< [in] ポート番号
     const string& name ///< [in] 名前
-  ) : mId(id),
-    mName(name)
+  ) : mId{id},
+      mName{name}
   {
   }
 
@@ -41,7 +41,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ポート番号を返す．
-  int
+  SizeType
   id() const override;
 
   /// @brief 名前を得る．
@@ -55,7 +55,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ポート番号
-  int mId;
+  SizeType mId;
 
   // 名前
   string mName;
@@ -74,11 +74,11 @@ public:
 
   /// @brief コンストラクタ
   BnPort1(
-    int id,             ///< [in] ポート番号
+    SizeType id,        ///< [in] ポート番号
     const string& name, ///< [in] 名前
-    int bit             ///< [in] 内容のノード番号
+    SizeType bit        ///< [in] 内容のノード番号
   ) : BnPortImpl(id, name),
-    mBit(bit)
+      mBit{bit}
   {
   }
 
@@ -92,14 +92,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ビット数を得る．
-  int
+  SizeType
   bit_width() const override;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @return 対応するノードのノード番号を返す．
-  int
+  SizeType
   bit(
-    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+    SizeType pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
   ) const override;
 
 
@@ -109,7 +109,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ノード番号
-  int mBit;
+  SizeType mBit;
 
 };
 
@@ -125,9 +125,9 @@ public:
 
   /// @brief コンストラクタ
   BnPortN(
-    int id,                 ///< [in] ポート番号
-    const string& name,     ///< [in] 名前
-    const vector<int>& bits ///< [in] 内容のノード番号のベクタ
+    SizeType id,                 ///< [in] ポート番号
+    const string& name,          ///< [in] 名前
+    const vector<SizeType>& bits ///< [in] 内容のノード番号のベクタ
   ) : BnPortImpl(id, name),
       mBits{bits}
   {
@@ -143,14 +143,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ビット数を得る．
-  int
+  SizeType
   bit_width() const override;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @return 対応するノードのノード番号を返す．
-  int
+  SizeType
   bit(
-    int pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+    SizeType pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
   ) const override;
 
 
@@ -159,11 +159,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ビット数
-  int mBitWidth;
-
   // ノード番号の配列
-  vector<int> mBits;
+  vector<SizeType> mBits;
 
 };
 

@@ -33,7 +33,7 @@ BnInputNode::is_input() const
 //
 // is_input() == false の時の動作は不定<br>
 // node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
-int
+SizeType
 BnInputNode::input_pos() const
 {
   return mInputPos;
@@ -54,7 +54,7 @@ BnPortInput::is_port_input() const
 // @brief 接続しているポート番号を返す．
 //
 // is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
-int
+SizeType
 BnPortInput::port_id() const
 {
   return mPortId;
@@ -63,7 +63,7 @@ BnPortInput::port_id() const
 // @brief 接続しているポート中のビット番号を返す．
 //
 // is_port_input() || is_port_output() の時のみ意味を持つ．
-int
+SizeType
 BnPortInput::port_bit() const
 {
   return mPortBit;
@@ -86,7 +86,7 @@ BnDffOutput::is_dff_output() const
 // is_dff_input() || is_dff_output() || is_dff_xoutput() ||
 // is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnDffOutput::dff_id() const
 {
   return mDffId;
@@ -109,7 +109,7 @@ BnDffXOutput::is_dff_xoutput() const
 // is_dff_input() || is_dff_output() || is_dff_xoutput() ||
 // is_dff_clock() || is_dff_clear() || is_dff_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnDffXOutput::dff_id() const
 {
   return mDffId;
@@ -132,7 +132,7 @@ BnLatchOutput::is_latch_output() const
 // is_latch_input() || is_latch_output() || is_latch_xoutput() ||
 // is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnLatchOutput::latch_id() const
 {
   return mLatchId;
@@ -155,7 +155,7 @@ BnLatchXOutput::is_latch_xoutput() const
 // is_latch_input() || is_latch_output() || is_latch_xoutput() ||
 // is_latch_enable() || is_latch_clear() || is_latch_preset()
 // の時のみ意味を持つ．
-int
+SizeType
 BnLatchXOutput::latch_id() const
 {
   return mLatchId;

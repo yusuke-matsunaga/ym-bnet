@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief ID 番号の取得
 // @return ID 番号を返す．
-int
+SizeType
 BnDffImpl::id() const
 {
   return mId;
@@ -33,28 +33,28 @@ BnDffImpl::name() const
 }
 
 // @brief データ出力のノード番号を返す．
-int
+SizeType
 BnDffImpl::output() const
 {
   return mOutput;
 }
 
 // @brief データ出力のノード番号を返す．
-int
+SizeType
 BnDffImpl::xoutput() const
 {
   return mXOutput;
 }
 
 // @brief データ入力のノード番号を返す．
-int
+SizeType
 BnDffImpl::input() const
 {
   return mInput;
 }
 
 // @brief クロックのノード番号を返す．
-int
+SizeType
 BnDffImpl::clock() const
 {
   return mClock;
@@ -62,8 +62,8 @@ BnDffImpl::clock() const
 
 // @brief クリア信号のノード番号を返す．
 //
-// kBnNullId の場合もある．
-int
+// BNET_NULLID の場合もある．
+SizeType
 BnDffImpl::clear() const
 {
   return mClear;
@@ -71,8 +71,8 @@ BnDffImpl::clear() const
 
 // @brief プリセット信号のノードを返す．
 //
-// kBnNullId の場合もある．
-int
+// BNET_NULLID の場合もある．
+SizeType
 BnDffImpl::preset() const
 {
   return mPreset;
