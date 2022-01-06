@@ -9,8 +9,12 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include "ym/NameMgr.h"
 
+BEGIN_NAMESPACE_YM
+
+class NameMgr;
+
+END_NAMESPACE_YM
 
 BEGIN_NAMESPACE_YM_BNET
 
