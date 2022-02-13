@@ -30,19 +30,6 @@ BEGIN_NAMESPACE_YM_BNET
 // クラス BnNetworkImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-//
-// 空の状態で初期化される．
-BnNetworkImpl::BnNetworkImpl()
-{
-}
-
-// @brief デストラクタ
-BnNetworkImpl::~BnNetworkImpl()
-{
-  clear();
-}
-
 // @brief 内容をクリアする．
 //
 // コンストラクタ直後と同じ状態になる．
@@ -422,6 +409,50 @@ BnNetworkImpl::_new_logic(
   ASSERT_COND( node != nullptr );
 
   return node;
+}
+
+// @brief セルの情報を持ったDFFを追加する．
+SizeType
+BnNetworkImpl::new_dff(
+  const string& name,
+  int cell_id
+)
+{
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_ff() ) {
+    return -1;
+  }
+
+  #error "TODO"
+#if 0
+  ClibFFInfo ffinfo = cell.ff_info();
+  bool has_xoutput = ffinfo.has_xq();
+  bool has_clear = ffinfo.has_clear();
+  bool has_preset = ffinfo.has_preset();
+  return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
+#endif
+}
+
+// @brief セルの情報を持ったラッチを追加する．
+SizeType
+BnNetworkImpl::new_latch(
+  const string& name,
+  int cell_id
+)
+{
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_latch() ) {
+    return -1;
+  }
+
+  #error "TODO"
+#if 0
+  ClibLatchInfo latchinfo = cell.latch_info();
+  bool has_xoutput = latchinfo.has_xq();
+  bool has_clear = latchinfo.has_clear();
+  bool has_preset = latchinfo.has_preset();
+  return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
+#endif
 }
 
 // @brief 各ノードがプリミティブ型になるように分解する．

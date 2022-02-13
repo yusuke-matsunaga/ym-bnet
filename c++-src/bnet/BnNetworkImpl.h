@@ -34,10 +34,13 @@ public:
   /// @brief 空のコンストラクタ
   ///
   /// 空の状態で初期化される．
-  BnNetworkImpl();
+  BnNetworkImpl() = default;
 
   /// @brief デストラクタ
-  ~BnNetworkImpl();
+  ~BnNetworkImpl()
+  {
+    clear();
+  }
 
 
 public:
@@ -118,19 +121,7 @@ public:
   new_dff(
     const string& name, ///< [in] DFF名
     int cell_id         ///< [in] 対応するセル番号
-  )
-  {
-    const ClibCell& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_ff() ) {
-      return -1;
-    }
-
-    ClibFFInfo ffinfo = cell.ff_info();
-    bool has_xoutput = ffinfo.has_xq();
-    bool has_clear = ffinfo.has_clear();
-    bool has_preset = ffinfo.has_preset();
-    return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
-  }
+  );
 
   /// @brief ラッチを追加する．
   /// @return 生成したラッチ番号を返す．
@@ -156,19 +147,7 @@ public:
   new_latch(
     const string& name, ///< [in] ラッチ名
     int cell_id         ///< [in] 対応するセル番号
-  )
-  {
-    const ClibCell& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_latch() ) {
-      return -1;
-    }
-
-    ClibLatchInfo latchinfo = cell.latch_info();
-    bool has_xoutput = latchinfo.has_xq();
-    bool has_clear = latchinfo.has_clear();
-    bool has_preset = latchinfo.has_preset();
-    return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
-  }
+  );
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
