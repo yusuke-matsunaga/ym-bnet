@@ -40,13 +40,6 @@ BnLatchImpl::output() const
   return mOutput;
 }
 
-// @brief データ反転出力のノード番号を返す．
-SizeType
-BnLatchImpl::xoutput() const
-{
-  return mXoutput;
-}
-
 // @brief データ入力のノード番号を返す．
 SizeType
 BnLatchImpl::input() const

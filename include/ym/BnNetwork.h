@@ -187,7 +187,6 @@ public:
   SizeType
   new_dff(
     const string& name,       ///< [in] DFF名
-    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
     bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
   );
@@ -210,7 +209,6 @@ public:
   SizeType
   new_latch(
     const string& name,       ///< [in] ラッチ名
-    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
     bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
   );

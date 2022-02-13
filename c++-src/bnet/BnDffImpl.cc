@@ -39,13 +39,6 @@ BnDffImpl::output() const
   return mOutput;
 }
 
-// @brief データ出力のノード番号を返す．
-SizeType
-BnDffImpl::xoutput() const
-{
-  return mXOutput;
-}
-
 // @brief データ入力のノード番号を返す．
 SizeType
 BnDffImpl::input() const

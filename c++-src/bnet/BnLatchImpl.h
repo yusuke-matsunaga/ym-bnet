@@ -28,7 +28,6 @@ public:
     const string& name, ///< [in] 名前
     SizeType input,     ///< [in] 入力端子のノード番号
     SizeType output,    ///< [in] 出力端子のノード番号
-    SizeType xoutput,   ///< [in] 反転出力端子のノード番号
     SizeType enable,    ///< [in] イネーブル端子のノード番号
     SizeType clear,     ///< [in] クリア端子のノード番号
     SizeType preset,    ///< [in] プリセット端子のノード番号
@@ -37,7 +36,6 @@ public:
       mName{name},
       mInput{input},
       mOutput{output},
-      mXoutput{xoutput},
       mEnable{enable},
       mClear{clear},
       mPreset{preset},
@@ -66,10 +64,6 @@ public:
   /// @brief データ出力のノード番号を返す．
   SizeType
   output() const override;
-
-  /// @brief データ反転出力のノード番号を返す．
-  SizeType
-  xoutput() const override;
 
   /// @brief データ入力のノード番号を返す．
   SizeType
@@ -111,9 +105,6 @@ private:
 
   // データ出力ノード
   SizeType mOutput;
-
-  // データ反転出力ノード
-  SizeType mXoutput;
 
   // データ入力ノード
   SizeType mInput;

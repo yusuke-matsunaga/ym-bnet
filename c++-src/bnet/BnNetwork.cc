@@ -191,14 +191,13 @@ BnNetwork::new_port(
 SizeType
 BnNetwork::new_dff(
   const string& name,
-  bool has_xoutput,
   bool has_clear,
   bool has_preset
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_dff(name, has_xoutput, has_clear, has_preset);
+  return mImpl->new_dff(name, has_clear, has_preset);
 }
 
 // @brief セルの情報を持ったDFFを追加する．
@@ -217,14 +216,13 @@ BnNetwork::new_dff(
 SizeType
 BnNetwork::new_latch(
   const string& name,
-  bool has_xoutput,
   bool has_clear,
   bool has_preset
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_latch(name, has_xoutput, has_clear, has_preset);
+  return mImpl->new_latch(name, has_clear, has_preset);
 }
 
 // @brief セルの情報を持ったラッチを追加する．

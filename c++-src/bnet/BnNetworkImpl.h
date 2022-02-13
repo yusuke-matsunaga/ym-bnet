@@ -101,12 +101,11 @@ public:
   SizeType
   new_dff(
     const string& name,       ///< [in] DFF名
-    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
     bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
   )
   {
-    return _new_dff(name, has_xoutput, has_clear, has_preset, -1);
+    return _new_dff(name, has_clear, has_preset, -1);
   }
 
   /// @brief セルの情報を持ったDFFを追加する．
@@ -125,11 +124,9 @@ public:
       return -1;
     }
 
-    ClibFFInfo ffinfo = cell.ff_info();
-    bool has_xoutput = ffinfo.has_xq();
-    bool has_clear = ffinfo.has_clear();
-    bool has_preset = ffinfo.has_preset();
-    return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
+    bool has_clear = cell.has_clear();
+    bool has_preset = cell.has_preset();
+    return _new_dff(name, has_clear, has_preset, cell_id);
   }
 
   /// @brief ラッチを追加する．
@@ -139,12 +136,11 @@ public:
   SizeType
   new_latch(
     const string& name,       ///< [in] ラッチ名
-    bool has_xoutput = false, ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
     bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
   )
   {
-    return _new_latch(name, has_xoutput, has_clear, has_preset, -1);
+    return _new_latch(name, has_clear, has_preset, -1);
   }
 
   /// @brief セルの情報を持ったラッチを追加する．
@@ -163,11 +159,9 @@ public:
       return -1;
     }
 
-    ClibLatchInfo latchinfo = cell.latch_info();
-    bool has_xoutput = latchinfo.has_xq();
-    bool has_clear = latchinfo.has_clear();
-    bool has_preset = latchinfo.has_preset();
-    return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
+    bool has_clear = cell.has_clear();
+    bool has_preset = cell.has_preset();
+    return _new_latch(name, has_clear, has_preset, cell_id);
   }
 
   /// @brief プリミティブ型の論理ノードを追加する．
@@ -279,7 +273,7 @@ public:
   )
   {
     auto& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_logic() || cell.output_num() != 1 ) {
+    if ( cell.type() != ClibCellType::Logic || cell.output_num() != 1 ) {
       return BNET_NULLID;
     }
 
@@ -828,7 +822,6 @@ private:
   SizeType
   _new_dff(
     const string& name, ///< [in] DFF名
-    bool has_xoutput,   ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
     bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
     int cell_id         ///< [in] 対応するセル番号．
@@ -842,7 +835,6 @@ private:
   SizeType
   _new_latch(
     const string& name, ///< [in] ラッチ名
-    bool has_xoutput,   ///< [in] 反転出力端子を持つ時 true にする．
     bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
     bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
     int cell_id         ///< [in] 対応するセル番号．
