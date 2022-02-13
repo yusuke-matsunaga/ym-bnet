@@ -15,6 +15,7 @@
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibPin.h"
+#include "ym/NameMgr.h"
 #include "ym/Range.h"
 
 

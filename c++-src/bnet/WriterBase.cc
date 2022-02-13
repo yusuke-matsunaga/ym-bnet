@@ -20,10 +20,11 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
-WriterBase::WriterBase(const BnNetwork& network) :
-  mNetwork(network),
-  mNameArray(network.node_num()),
-  mDataArray(network.node_num(), false)
+WriterBase::WriterBase(
+  const BnNetwork& network
+) : mNetwork(network),
+    mNameArray(network.node_num()),
+    mDataArray(network.node_num(), false)
 {
 }
 
@@ -31,8 +32,10 @@ WriterBase::WriterBase(const BnNetwork& network) :
 // @param[in] prefix 自動生成名の接頭語
 // @param[in] suffix 自動生成名の接尾語
 void
-WriterBase::init_name_array(const string& prefix,
-			    const string& suffix)
+WriterBase::init_name_array(
+  const string& prefix,
+  const string& suffix
+)
 {
   // ノード名を管理するクラス
   NameMgr name_mgr(prefix, suffix);
@@ -213,10 +216,12 @@ WriterBase::init_name_array(const string& prefix,
 // @param[in] name_hash ノード名のハッシュ
 // @param[in] name_mgr ノード名を管理するクラス
 void
-WriterBase::reg_node_name(SizeType node_id,
-			  const string& name,
-			  unordered_set<string>& name_hash,
-			  NameMgr& name_mgr)
+WriterBase::reg_node_name(
+  SizeType node_id,
+  const string& name,
+  unordered_set<string>& name_hash,
+  NameMgr& name_mgr
+)
 {
   if ( mNameArray[node_id] != string() ) {
     // すでに名前がついていた．
@@ -240,7 +245,9 @@ WriterBase::reg_node_name(SizeType node_id,
 // @brief TFI のノードに印をつける．
 // @param[in] node_id ノード番号
 void
-WriterBase::mark_tfi(SizeType node_id)
+WriterBase::mark_tfi(
+  SizeType node_id
+)
 {
   if ( mDataArray[node_id] ) {
     // すでに印がついていた．
