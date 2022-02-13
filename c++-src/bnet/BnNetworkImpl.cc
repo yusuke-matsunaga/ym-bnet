@@ -411,6 +411,7 @@ BnNetworkImpl::_new_logic(
   return node;
 }
 
+#if 0
 // @brief セルの情報を持ったDFFを追加する．
 SizeType
 BnNetworkImpl::new_dff(
@@ -432,7 +433,9 @@ BnNetworkImpl::new_dff(
   return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
 #endif
 }
+#endif
 
+#if 0
 // @brief セルの情報を持ったラッチを追加する．
 SizeType
 BnNetworkImpl::new_latch(
@@ -454,6 +457,7 @@ BnNetworkImpl::new_latch(
   return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
 #endif
 }
+#endif
 
 // @brief 各ノードがプリミティブ型になるように分解する．
 void
