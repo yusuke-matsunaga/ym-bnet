@@ -56,7 +56,6 @@ cdef class BnDff :
     cdef str __name
     cdef int __input
     cdef int __output
-    cdef int __xoutput
     cdef int __clock
     cdef int __clear
     cdef int __preset
@@ -79,10 +78,6 @@ cdef class BnDff :
     @property
     def output(self) :
         return self.__output
-
-    @property
-    def xoutput(self) :
-        return self.__xoutput
 
     @property
     def clock(self) :
@@ -303,7 +298,6 @@ cdef class BnNetwork :
         ans.__name = c_dff.name().decode('UTF-8')
         ans.__input = c_dff.input()
         ans.__output = c_dff.output()
-        ans.__xoutput = c_dff.xoutput()
         ans.__clock = c_dff.clock()
         ans.__clear = c_dff.clear()
         ans.__preset = c_dff.preset()

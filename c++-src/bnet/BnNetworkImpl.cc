@@ -612,7 +612,6 @@ BnNetworkImpl::new_port(
 SizeType
 BnNetworkImpl::_new_dff(
   const string& name,
-  bool has_xoutput,
   bool has_clear,
   bool has_preset,
   int cell_id
@@ -640,18 +639,6 @@ BnNetworkImpl::_new_dff(
     BnNodeImpl* node = new BnDffOutput(output_id, oname, iid, dff_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
-  }
-
-  auto xoutput_id = BNET_NULLID;
-  if ( has_xoutput ) {
-    auto xoutput_id = mNodeList.size();
-    auto iid = mInputList.size();
-    ostringstream buf;
-    buf << name << ".xoutput";
-    string xname = buf.str();
-    BnNodeImpl* node = new BnDffXOutput(xoutput_id, xname, iid, dff_id);
-    mNodeList.push_back(node);
-    mInputList.push_back(xoutput_id);
   }
 
   auto clock_id = mNodeList.size();
@@ -689,7 +676,7 @@ BnNetworkImpl::_new_dff(
     mOutputList.push_back(preset_id);
   }
 
-  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id, xoutput_id,
+  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id,
 			     clock_id, clear_id, preset_id, cell_id);
   mDffList.push_back(dff);
 
@@ -700,7 +687,6 @@ BnNetworkImpl::_new_dff(
 SizeType
 BnNetworkImpl::_new_latch(
   const string& name,
-  bool has_xoutput,
   bool has_clear,
   bool has_preset,
   int cell_id)
@@ -727,17 +713,6 @@ BnNetworkImpl::_new_latch(
     BnNodeImpl* node = new BnLatchOutput(output_id, oname, iid, latch_id);
     mNodeList.push_back(node);
     mInputList.push_back(output_id);
-  }
-
-  auto xoutput_id = BNET_NULLID;
-  if ( has_xoutput ) {
-    auto iid = mInputList.size();
-    ostringstream buf;
-    buf << name << ".xoutput";
-    string xname = buf.str();
-    BnNodeImpl* node = new BnLatchXOutput(output_id, xname, iid, latch_id);
-    mNodeList.push_back(node);
-    mInputList.push_back(xoutput_id);
   }
 
   auto enable_id = mNodeList.size();
@@ -775,7 +750,7 @@ BnNetworkImpl::_new_latch(
     mOutputList.push_back(preset_id);
   }
 
-  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id, xoutput_id,
+  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
 				   enable_id, clear_id, preset_id, cell_id);
   mLatchList.push_back(latch);
 

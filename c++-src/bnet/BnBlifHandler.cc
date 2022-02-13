@@ -245,8 +245,7 @@ BnBlifHandler::latch(
   else if ( rval == '1' ) {
     has_preset = true;
   }
-  bool has_xoutput = false;
-  auto dff_id = mNetwork.new_dff(oname, has_xoutput, has_clear, has_preset);
+  auto dff_id = mNetwork.new_dff(oname, has_clear, has_preset);
   const auto& dff = mNetwork.dff(dff_id);
 
   auto output_id = dff.output();

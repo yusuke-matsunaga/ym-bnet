@@ -63,11 +63,6 @@ public:
   SizeType
   output() const = 0;
 
-  /// @brief データ反転出力のノード番号を返す．
-  virtual
-  SizeType
-  xoutput() const = 0;
-
   /// @brief データ入力のノード番号を返す．
   virtual
   SizeType
