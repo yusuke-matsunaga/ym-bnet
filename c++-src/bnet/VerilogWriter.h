@@ -67,27 +67,14 @@ public:
 
   /// @brief コンストラクタ
   VerilogWriter(
-    const BnNetwork& network,              ///< [in] 対象のネットワーク
-    const string& port_prefix = "__port",  ///< [in] ポートの自動生成名の接頭語
-    const string& port_suffix = "",        ///< [in] ポートの自動生成名の接尾語
-    const string& node_prefix = "__wire",  ///< [in] ノードの自動生成名の接頭語
-    const string& node_suffix = "",        ///< [in] ノードの自動生成名の接尾語
-    const string& instance_prefix = "__U", ///< [in] インスタンスの自動生成名の接頭語
-    const string& instance_suffix = ""     ///< [in] インスタンスの自動生成名の接尾語
-  ) : mNetwork(network),
-      mPortPrefix(port_prefix),
-      mPortSuffix(port_suffix),
-      mNodePrefix(node_prefix),
-      mNodeSuffix(node_suffix),
-      mInstancePrefix(instance_prefix),
-      mInstanceSuffix(instance_suffix),
-      mPortNameArray(network.port_num()),
-      mNodeNameArray(network.node_num()),
-      mNodeInstanceNameArray(network.node_num()),
-      mDffInstanceNameArray(network.dff_num()),
-      mLatchInstanceNameArray(network.latch_num())
-  {
-  }
+    const BnNetwork& network,      ///< [in] 対象のネットワーク
+    const string& port_prefix,     ///< [in] ポートの自動生成名の接頭語
+    const string& port_suffix,     ///< [in] ポートの自動生成名の接尾語
+    const string& node_prefix,     ///< [in] ノードの自動生成名の接頭語
+    const string& node_suffix,     ///< [in] ノードの自動生成名の接尾語
+    const string& instance_prefix, ///< [in] インスタンスの自動生成名の接頭語
+    const string& instance_suffix  ///< [in] インスタンスの自動生成名の接尾語
+  );
 
   /// @brief デストラクタ
   ~VerilogWriter() = default;

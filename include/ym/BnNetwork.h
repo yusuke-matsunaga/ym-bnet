@@ -755,9 +755,9 @@ public:
   static
   BnNetwork
   read_blif(
-    const string& filename,             ///< [in] ファイル名
-    const string& clock_name = "clock", ///< [in] クロック端子名
-    const string& reset_name = "reset"  ///< [in] リセット端子名
+    const string& filename,              ///< [in] ファイル名
+    const string& clock_name = string{}, ///< [in] クロック端子名
+    const string& reset_name = string{}  ///< [in] リセット端子名
   );
 
   /// @brief blif ファイルを読み込む(セルライブラリ付き)．
@@ -767,8 +767,8 @@ public:
   read_blif(
     const string& filename,              ///< [in] ファイル名
     const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
-    const string& clock_name = "clock",  ///< [in] クロック端子名
-    const string& reset_name = "reset"   ///< [in] リセット端子名
+    const string& clock_name = string{}, ///< [in] クロック端子名
+    const string& reset_name = string{}  ///< [in] リセット端子名
   );
 
   /// @brief iscas89 ファイルを読み込む．
@@ -776,8 +776,8 @@ public:
   static
   BnNetwork
   read_iscas89(
-    const string& filename,            ///< [in] ファイル名
-    const string& clock_name = "clock" ///< [in] クロック端子名
+    const string& filename,             ///< [in] ファイル名
+    const string& clock_name = string{} ///< [in] クロック端子名
   );
 
   /// @brief 内容を blif 形式で出力する．
@@ -786,8 +786,8 @@ public:
   void
   write_blif(
     const string& filename,          ///< [in] 出力先のファイル名
-    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
-    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+    const string& prefix = string{}, ///< [in] 自動生成名の接頭語
+    const string& suffix = string{}  ///< [in] 自動生成名の接尾語
   ) const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
@@ -795,20 +795,21 @@ public:
   /// ポートの情報は無視される．
   void
   write_iscas89(
-    const string& filename,           ///< [in] 出力先のファイル名
-    const string& prefix = "__node",  ///< [in] 自動生成名の接頭語
-    const string& suffix = "") const; ///< [in] 自動生成名の接尾語
+    const string& filename,          ///< [in] 出力先のファイル名
+    const string& prefix = string{}, ///< [in] 自動生成名の接頭語
+    const string& suffix = string{}  ///< [in] 自動生成名の接尾語
+  ) const;
 
   /// @brief 内容を Verilog-HDL 形式で出力する．
   void
   write_verilog(
-    const string& filename,                 ///< [in] 出力先のファイル名
-    const string& port_prefix = "__port",   ///< [in] ポート自動生成名の接頭語
-    const string& port_suffix = "",         ///< [in] ポート自動生成名の接尾語
-    const string& node_prefix = "__node",   ///< [in] ノード自動生成名の接頭語
-    const string& node_suffix = "",         ///< [in] ノード自動生成名の接尾語
-    const string& instance_prefix = "__U",  ///< [in] インスタンス自動生成名の接頭語
-    const string& instance_suffix = ""      ///< [in] インスタンス自動生成名の接尾語
+    const string& filename,                   ///< [in] 出力先のファイル名
+    const string& port_prefix = string{},     ///< [in] ポート自動生成名の接頭語
+    const string& port_suffix = string{},     ///< [in] ポート自動生成名の接尾語
+    const string& node_prefix = string{},     ///< [in] ノード自動生成名の接頭語
+    const string& node_suffix = string{},     ///< [in] ノード自動生成名の接尾語
+    const string& instance_prefix = string{}, ///< [in] インスタンス自動生成名の接頭語
+    const string& instance_suffix = string{}  ///< [in] インスタンス自動生成名の接尾語
   ) const;
 
   //////////////////////////////////////////////////////////////////////
@@ -828,8 +829,8 @@ public:
   void
   write_blif(
     ostream& s,                      ///< [in] 出力先のストリーム
-    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
-    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+    const string& prefix = string{}, ///< [in] 自動生成名の接頭語
+    const string& suffix = string{}  ///< [in] 自動生成名の接尾語
   ) const;
 
   /// @brief 内容を ISCAS89(.bench) 形式で出力する．
@@ -838,20 +839,20 @@ public:
   void
   write_iscas89(
     ostream& s,                      ///< [in] 出力先のストリーム
-    const string& prefix = "__node", ///< [in] 自動生成名の接頭語
-    const string& suffix = ""        ///< [in] 自動生成名の接尾語
+    const string& prefix = string{}, ///< [in] 自動生成名の接頭語
+    const string& suffix = string{}  ///< [in] 自動生成名の接尾語
   ) const;
 
   /// @brief 内容を Verilog-HDL 形式で出力する．
   void
   write_verilog(
-    ostream& s,                            ///< [in] 出力先のストリーム
-    const string& port_prefix = "__port",  ///< [in] ポート自動生成名の接頭語
-    const string& port_suffix = "",        ///< [in] ポート自動生成名の接尾語
-    const string& node_prefix = "__node",  ///< [in] ノード自動生成名の接頭語
-    const string& node_suffix = "",        ///< [in] ノード自動生成名の接尾語
-    const string& instance_prefix = "__U", ///< [in] インスタンス自動生成名の接頭語
-    const string& instance_suffix = ""     ///< [in] インスタンス自動生成名の接尾語
+    ostream& s,                               ///< [in] 出力先のストリーム
+    const string& port_prefix = string{},     ///< [in] ポート自動生成名の接頭語
+    const string& port_suffix = string{},     ///< [in] ポート自動生成名の接尾語
+    const string& node_prefix = string{},     ///< [in] ノード自動生成名の接頭語
+    const string& node_suffix = string{},     ///< [in] ノード自動生成名の接尾語
+    const string& instance_prefix = string{}, ///< [in] インスタンス自動生成名の接頭語
+    const string& instance_suffix = string{}  ///< [in] インスタンス自動生成名の接尾語
   ) const;
 
   /// @brief 内容を出力する．

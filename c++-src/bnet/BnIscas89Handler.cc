@@ -32,10 +32,13 @@ BnNetwork::read_iscas89(
   const string& clock_name
 )
 {
-  BnNetwork network;
-
   Iscas89Parser parser;
-  BnIscas89Handler handler(parser, network, clock_name);
+  BnNetwork network;
+  string _clock_name{clock_name};
+  if ( _clock_name == string{} ) {
+    _clock_name = "clock";
+  }
+  BnIscas89Handler handler{parser, network, _clock_name};
 
   bool stat = parser.read(filename);
   if ( !stat ) {

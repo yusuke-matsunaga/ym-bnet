@@ -197,6 +197,60 @@ write_expr(
 
 END_NONAMESPACE
 
+// @brief コンストラクタ
+VerilogWriter::VerilogWriter(
+  const BnNetwork& network,
+  const string& port_prefix,
+  const string& port_suffix,
+  const string& node_prefix,
+  const string& node_suffix,
+  const string& instance_prefix,
+  const string& instance_suffix
+) : mNetwork{network},
+    mPortNameArray(network.port_num()),
+    mNodeNameArray(network.node_num()),
+    mNodeInstanceNameArray(network.node_num()),
+    mDffInstanceNameArray(network.dff_num()),
+    mLatchInstanceNameArray(network.latch_num())
+{
+  if ( port_prefix == string{} ) {
+    mPortPrefix = "__port";
+  }
+  else {
+    mPortPrefix = port_prefix;
+  }
+  if ( port_suffix == string{} ) {
+    mPortSuffix = "";
+  }
+  else {
+    mPortSuffix = port_suffix;
+  }
+  if ( node_prefix == string{} ) {
+    mNodePrefix = "__wire";
+  }
+  else {
+    mNodePrefix = node_prefix;
+  }
+  if ( node_suffix == string{} ) {
+    mNodeSuffix = "";
+  }
+  else {
+    mNodeSuffix = node_suffix;
+  }
+  if ( instance_prefix == string{} ) {
+    mInstancePrefix = "__U";
+  }
+  else {
+    mInstancePrefix = instance_prefix;
+  }
+  if ( instance_suffix == string{} ) {
+    mInstanceSuffix = "";
+  }
+  else {
+    mInstanceSuffix = instance_suffix;
+  }
+}
+
 // @brief blif 形式で出力する．
 void
 VerilogWriter::operator()(

@@ -89,14 +89,14 @@ Iscas89Writer::Iscas89Writer(
   const BnNetwork& network,
   const string& prefix,
   const string& suffix
-) : WriterBase(network)
+) : WriterBase{network}
 {
-  string _prefix(prefix);
-  if ( _prefix == string() ) {
+  string _prefix{prefix};
+  if ( _prefix == string{} ) {
     _prefix = "__node";
   }
-  string _suffix(suffix);
-  if ( _suffix == string() ) {
+  string _suffix{suffix};
+  if ( _suffix == string{} ) {
     _suffix = "";
   }
   init_name_array(_prefix, _suffix);

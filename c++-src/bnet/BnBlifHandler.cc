@@ -53,10 +53,17 @@ BnNetwork::read_blif(
   const string& reset_name
 )
 {
-  BnNetwork network;
-
   BlifParser parser;
-  BnBlifHandler handler(parser, network, clock_name, reset_name);
+  BnNetwork network;
+  string _clock_name{clock_name};
+  if ( _clock_name == string{} ) {
+    _clock_name = "clock";
+  }
+  string _reset_name{reset_name};
+  if ( _reset_name == string{} ) {
+    _reset_name = "reset";
+  }
+  BnBlifHandler handler(parser, network, _clock_name, _reset_name);
 
   bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
