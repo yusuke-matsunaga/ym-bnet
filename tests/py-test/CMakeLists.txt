@@ -70,7 +70,7 @@ add_test ( bnet_py_read_blif_test
   )
 
 set_property ( TEST bnet_py_read_blif_test
-  PROPERTY ENVIRONMENT TESTDATA_DIR=${PROJECT_SOURCE_DIR}/ym-bnet/testdata
+  PROPERTY ENVIRONMENT TESTDATA_DIR=${CMAKE_CURRENT_SOURCE_DIR}/../testdata
   )
 
 add_test ( bnet_py_read_iscas89_test
@@ -78,5 +78,5 @@ add_test ( bnet_py_read_iscas89_test
   )
 
 set_property ( TEST bnet_py_read_iscas89_test
-  PROPERTY ENVIRONMENT TESTDATA_DIR=${PROJECT_SOURCE_DIR}/ym-bnet/testdata
+  PROPERTY ENVIRONMENT TESTDATA_DIR=${CMAKE_CURRENT_SOURCE_DIR}/../testdata
   )

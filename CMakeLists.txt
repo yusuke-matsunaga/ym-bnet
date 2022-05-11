@@ -46,9 +46,9 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( c++-test )
-add_subdirectory ( py-test )
-add_subdirectory ( test-programs )
+add_subdirectory ( tests/gtest )
+add_subdirectory ( tests/programs )
+add_subdirectory ( tests/py-test )
 
 
 # ===================================================================
