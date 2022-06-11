@@ -48,7 +48,7 @@ include_directories(
 
 add_subdirectory ( tests/gtest )
 add_subdirectory ( tests/programs )
-add_subdirectory ( tests/py-test )
+#add_subdirectory ( tests/py-test )
 
 
 # ===================================================================
