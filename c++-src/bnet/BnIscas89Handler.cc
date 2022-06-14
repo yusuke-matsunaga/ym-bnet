@@ -43,6 +43,7 @@ BnNetwork::read_iscas89(
   bool stat = parser.read(filename);
   if ( !stat ) {
     network.clear();
+    throw BnetError{"Error in read_iscas89"};
   }
 
   return network;

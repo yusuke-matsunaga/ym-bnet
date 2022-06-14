@@ -61,6 +61,50 @@ enum class BnDir : ymuint8 {
 /// @brief 不正なノード番号を表す定数
 const SizeType BNET_NULLID = -1;
 
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnetError BnetError.h "BnetError.h"
+/// @brief bnet 関係のエラーを表す例外クラス
+//////////////////////////////////////////////////////////////////////
+class BnetError :
+  public exception
+{
+public:
+
+  /// @brief コンストラクタ
+  BnetError(
+    const string& msg ///< [in] エラーメッセージ
+  ) : mMsg{msg}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnetError() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 内容を表す文字列を返す．
+  const string&
+  str() const
+  {
+    return mMsg;
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // メッセージ
+  string mMsg;
+
+};
+
 using nsBnet::BnBlifReader;
 using nsBnet::BnIscas89Reader;
 using nsBnet::BnNetwork;

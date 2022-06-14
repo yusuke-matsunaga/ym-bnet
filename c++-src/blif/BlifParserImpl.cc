@@ -3,7 +3,7 @@
 /// @brief BlibParserImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2017, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2017, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BlifParserImpl.h"
@@ -94,7 +94,7 @@ BlifParserImpl::read(
     return false;
   }
 
-  BlifScanner scanner(fin, {filename});
+  BlifScanner scanner{fin, {filename}};
 
   // 初期化を行う．
   mScanner = &scanner;

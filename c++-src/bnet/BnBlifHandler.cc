@@ -68,6 +68,7 @@ BnNetwork::read_blif(
   bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
     network.clear();
+    throw BnetError{"Error in read_blif"};
   }
 
   return network;

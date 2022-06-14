@@ -5,7 +5,7 @@
 /// @brief ym/BlifParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"

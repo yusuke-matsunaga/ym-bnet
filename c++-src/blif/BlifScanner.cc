@@ -3,7 +3,7 @@
 /// @brief BlibScanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BlifScanner.h"
@@ -210,10 +210,10 @@ BlifScanner::scan()
 }
 
 // @brief 予約後の検査をする．
-// @param[in] start_with_dot '.' で始まっている時に true を渡す．
-// @return トークンを返す．
 BlifToken
-BlifScanner::check_word(bool start_with_dot)
+BlifScanner::check_word(
+  bool start_with_dot
+)
 {
   if ( start_with_dot ) {
     // 予約後の検索
