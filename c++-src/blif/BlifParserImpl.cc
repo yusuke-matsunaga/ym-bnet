@@ -790,7 +790,7 @@ BlifParserImpl::read_gate()
   auto name{cur_string()};
   auto name_loc{cur_loc()};
   auto gate_id = mCellLibrary.cell_id(name);
-  if ( gate_id == -1 ) {
+  if ( gate_id == CLIB_NULLID ) {
     ostringstream buf;
     buf << name << ": No such cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
@@ -841,7 +841,7 @@ BlifParserImpl::read_gate()
   SizeType oid;
   // 入力ピンに対応する識別子番号
   auto ni = cell.input_num();
-  vector<SizeType> id_array(ni);
+  vector<SizeType> id_array(ni, -1);
 
   SizeType n_pins = 0;
 
