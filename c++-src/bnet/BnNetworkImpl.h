@@ -105,7 +105,8 @@ public:
   new_dff(
     const string& name,       ///< [in] DFF名
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
+    bool has_preset = false,  ///< [in] プリセット端子を持つ時 true にする．
+    bool has_xoutput = false  ///< [in] 反転出力端子を持つ時 true にする．
   )
   {
     return _new_dff(name, has_clear, has_preset, -1);

@@ -83,34 +83,10 @@ BnDffOutput::is_dff_output() const
 
 // @brief 接続しているDFFの番号を返す．
 //
-// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-// is_dff_clock() || is_dff_clear() || is_dff_preset()
+// is_dff_input() || is_dff_output()
 // の時のみ意味を持つ．
 SizeType
 BnDffOutput::dff_id() const
-{
-  return mDffId;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnDffXOutput
-//////////////////////////////////////////////////////////////////////
-
-// @brief DFFの反転出力端子の時 true を返す．
-bool
-BnDffXOutput::is_dff_xoutput() const
-{
-  return true;
-}
-
-// @brief 接続しているDFFの番号を返す．
-//
-// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-// is_dff_clock() || is_dff_clear() || is_dff_preset()
-// の時のみ意味を持つ．
-SizeType
-BnDffXOutput::dff_id() const
 {
   return mDffId;
 }
@@ -129,34 +105,10 @@ BnLatchOutput::is_latch_output() const
 
 // @brief 接続しているラッチの番号を返す．
 //
-// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-// is_latch_enable() || is_latch_clear() || is_latch_preset()
+// is_latch_input() || is_latch_output()
 // の時のみ意味を持つ．
 SizeType
 BnLatchOutput::latch_id() const
-{
-  return mLatchId;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnLatchXOutput
-//////////////////////////////////////////////////////////////////////
-
-// @brief ラッチの出力端子の時 true を返す．
-bool
-BnLatchXOutput::is_latch_xoutput() const
-{
-  return true;
-}
-
-// @brief 接続しているラッチの番号を返す．
-//
-// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-// is_latch_enable() || is_latch_clear() || is_latch_preset()
-// の時のみ意味を持つ．
-SizeType
-BnLatchXOutput::latch_id() const
 {
   return mLatchId;
 }

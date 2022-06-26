@@ -163,7 +163,7 @@ public:
     SizeType input_id,  ///< [in] 入力番号
     SizeType dff_id     ///< [in] DFF番号
   ) : BnInputNode(id, name, input_id),
-      mDffId(dff_id)
+      mDffId{dff_id}
   {
   }
 
@@ -188,69 +188,7 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
-  /// の時のみ意味を持つ．
-  SizeType
-  dff_id() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // DFF 番号
-  SizeType mDffId;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnDffXOutput BnInputNode.h "BnInputNode.h"
-/// @brief DFf の反転出力端子を表すクラス
-///
-/// 名前が紛らわしいが入力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnDffXOutput :
-  public BnInputNode
-{
-public:
-
-  /// @brief コンストラクタ
-  BnDffXOutput(
-    SizeType id,        ///< [in] ID 番号
-    const string& name, ///< [in] ノード名
-    SizeType input_id,  ///< [in] 入力番号
-    SizeType dff_id     ///< [in] DFF番号
-  ) : BnInputNode(id, name, input_id),
-      mDffId{dff_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnDffXOutput() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief DFFの反転出力端子の時 true を返す．
-  bool
-  is_dff_xoutput() const override;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力タイプ/出力タイプに共通なインターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 接続しているDFFの番号を返す．
-  ///
-  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output()
   /// の時のみ意味を持つ．
   SizeType
   dff_id() const override;
@@ -310,69 +248,7 @@ public:
 
   /// @brief 接続しているラッチの番号を返す．
   ///
-  /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
-  /// の時のみ意味を持つ．
-  SizeType
-  latch_id() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ラッチ番号
-  SizeType mLatchId;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchXOutput BnLatchOutput.h "BnLatchOutput.h"
-/// @brief ラッチの反転出力端子を表すクラス
-///
-/// 名前が紛らわしいが入力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnLatchXOutput :
-  public BnInputNode
-{
-public:
-
-  /// @brief コンストラクタ
-  BnLatchXOutput(
-    SizeType id,        ///< [in] ID 番号
-    const string& name, ///< [in] ノード名
-    SizeType input_id,  ///< [in] 入力番号
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnInputNode(id, name, input_id),
-      mLatchId{latch_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnLatchXOutput() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ラッチの反転出力端子の時 true を返す．
-  bool
-  is_latch_xoutput() const override;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力タイプ/出力タイプに共通なインターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 接続しているラッチの番号を返す．
-  ///
-  /// is_latch_input() || is_latch_output() || is_latch_xoutput ||
-  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// is_latch_input() || is_latch_output()
   /// の時のみ意味を持つ．
   SizeType
   latch_id() const override;

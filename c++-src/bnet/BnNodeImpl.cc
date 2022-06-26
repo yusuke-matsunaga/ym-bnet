@@ -114,23 +114,9 @@ BnNodeImpl::is_dff_output() const
   return false;
 }
 
-// @brief DFFの出力端子の時 true を返す．
-bool
-BnNodeImpl::is_dff_xoutput() const
-{
-  return false;
-}
-
 // @brief ラッチの出力端子の時 true を返す．
 bool
 BnNodeImpl::is_latch_output() const
-{
-  return false;
-}
-
-// @brief ラッチの反転出力端子の時 true を返す．
-bool
-BnNodeImpl::is_latch_xoutput() const
 {
   return false;
 }
@@ -160,51 +146,9 @@ BnNodeImpl::is_dff_input() const
   return false;
 }
 
-// @brief DFFのクロック端子の時に true を返す．
-bool
-BnNodeImpl::is_dff_clock() const
-{
-  return false;
-}
-
-// @brief DFFのクリア端子の時に true を返す．
-bool
-BnNodeImpl::is_dff_clear() const
-{
-  return false;
-}
-
-// @brief DFFのプリセット端子の時に true を返す．
-bool
-BnNodeImpl::is_dff_preset() const
-{
-  return false;
-}
-
 // @brief ラッチの入力端子の時に true を返す．
 bool
 BnNodeImpl::is_latch_input() const
-{
-  return false;
-}
-
-// @brief ラッチのイネーブル端子の時に true を返す．
-bool
-BnNodeImpl::is_latch_enable() const
-{
-  return false;
-}
-
-// @brief ラッチのクリア端子の時に true を返す．
-bool
-BnNodeImpl::is_latch_clear() const
-{
-  return false;
-}
-
-// @brief ラッチのプリセット端子の時に true を返す．
-bool
-BnNodeImpl::is_latch_preset() const
 {
   return false;
 }
@@ -231,8 +175,7 @@ BnNodeImpl::port_bit() const
 
 // @brief 接続しているDFFの番号を返す．
 //
-// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-// is_dff_clock() || is_dff_clear() || is_dff_preset()
+// is_dff_input() || is_dff_output()
 // の時のみ意味を持つ．
 SizeType
 BnNodeImpl::dff_id() const
@@ -243,8 +186,7 @@ BnNodeImpl::dff_id() const
 
 // @brief 接続しているラッチの番号を返す．
 //
-// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-// is_latch_enable() || is_latch_clear() || is_latch_preset()
+// is_latch_input() || is_latch_output()
 // の時のみ意味を持つ．
 SizeType
 BnNodeImpl::latch_id() const

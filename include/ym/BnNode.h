@@ -141,20 +141,10 @@ public:
   bool
   is_dff_output() const = 0;
 
-  /// @brief DFFの反転出力端子の時 true を返す．
-  virtual
-  bool
-  is_dff_xoutput() const = 0;
-
   /// @brief ラッチの出力端子の時 true を返す．
   virtual
   bool
   is_latch_output() const = 0;
-
-  /// @brief ラッチの反転出力端子の時 true を返す．
-  virtual
-  bool
-  is_latch_xoutput() const = 0;
 
 
 public:
@@ -181,40 +171,10 @@ public:
   bool
   is_dff_input() const = 0;
 
-  /// @brief DFFのクロック端子の時に true を返す．
-  virtual
-  bool
-  is_dff_clock() const = 0;
-
-  /// @brief DFFのクリア端子の時に true を返す．
-  virtual
-  bool
-  is_dff_clear() const = 0;
-
-  /// @brief DFFのプリセット端子の時に true を返す．
-  virtual
-  bool
-  is_dff_preset() const = 0;
-
   /// @brief ラッチの入力端子の時に true を返す．
   virtual
   bool
   is_latch_input() const = 0;
-
-  /// @brief ラッチのイネーブル端子の時に true を返す．
-  virtual
-  bool
-  is_latch_enable() const = 0;
-
-  /// @brief ラッチのクリア端子の時に true を返す．
-  virtual
-  bool
-  is_latch_clear() const = 0;
-
-  /// @brief ラッチのプリセット端子の時に true を返す．
-  virtual
-  bool
-  is_latch_preset() const = 0;
 
 
 public:
@@ -238,8 +198,7 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output()
   /// の時のみ意味を持つ．
   virtual
   SizeType
@@ -247,8 +206,7 @@ public:
 
   /// @brief 接続しているラッチの番号を返す．
   ///
-  /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
+  /// is_latch_input() || is_latch_output()
   /// の時のみ意味を持つ．
   virtual
   SizeType

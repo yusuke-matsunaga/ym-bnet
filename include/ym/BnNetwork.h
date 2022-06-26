@@ -183,19 +183,49 @@ public:
   /// @brief DFFを追加する．
   /// @return 生成したDFF番号を返す．
   ///
-  /// - 名前の重複に関しては感知しない．
+  /// 生成されたDFFは以下の入出力端子を持つ．
+  /// - データ入力
+  /// - クロック入力(positive edge)
+  /// - 非同期クリア(positive edge): has_clear = true の時
+  /// - 非同期プリセット(positive edge): has_preset = true の時
+  /// - データ出力
+  /// - 反転データ出力: has_xoutput = true の時
+  ///
+  /// 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,       ///< [in] DFF名
-    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,      ///< [in] DFF名
+    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
+    bool has_xoutput = false ///< [in] 反転出力端子を持つ時 true にする．
+  );
+
+  /// @brief DFFを追加する．
+  /// @return 生成したDFF番号を返す．
+  ///
+  /// 論理式中の変数番号は 0 〜 (ni - 1) が入力端子
+  /// ni が状態変数, ni + 1 が状態変数の否定を表す．
+  ///
+  /// クリアやプリセット端子を持たない場合は
+  /// Expr::is_invalid() = true となる論理式を持つ．
+  SizeType
+  new_dff(
+    const string& name,               ///< [in] DFF名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
+    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
+    const Expr& clock_expr,           ///< [in] クロックの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr           ///< [in] プリセットの論理式
   );
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @return 生成したDFF番号を返す．
   ///
-  /// - 名前の重複に関しては感知しない．
-  /// - FFセルでない場合には -1 を返す．
+  /// セルの内容に従った入出力端子を持つ．
+  ///
+  /// 名前の重複に関しては感知しない．
+  /// cell_id が FFセルでない場合には -1 を返す．
   SizeType
   new_dff(
     const string& name, ///< [in] DFF名
@@ -205,19 +235,50 @@ public:
   /// @brief ラッチを追加する．
   /// @return 生成したラッチ番号を返す．
   ///
+  /// 生成されたラッチは以下の入出力端子を持つ．
+  /// - データ入力
+  /// - イネーブル入力(positive edge)
+  /// - 非同期クリア(positive edge): has_clear = true の時
+  /// - 非同期プリセット(positive edge): has_preset = true の時
+  /// - データ出力
+  /// - 反転データ出力: has_xoutput = true の時
+  ///
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_latch(
     const string& name,       ///< [in] ラッチ名
     bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
+    bool has_preset = false,  ///< [in] プリセット端子を持つ時 true にする．
+    bool has_xoutput = false  ///< [in] 反転出力端子を持つ時 true にする．
+  );
+
+  /// @brief ラッチを追加する．
+  /// @return 生成したラッチ番号を返す．
+  ///
+  /// 論理式中の変数番号は 0 〜 (ni - 1) が入力端子
+  /// ni が状態変数, ni + 1 が状態変数の否定を表す．
+  ///
+  /// クリアやプリセット端子を持たない場合は
+  /// Expr::is_invalid() = true となる論理式を持つ．
+  SizeType
+  new_latch(
+    const string& name,               ///< [in] DFF名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
+    const Expr& data_in_expr,         ///< [in] データ入力の論理式
+    const Expr& clock_expr,           ///< [in] クロックの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr           ///< [in] プリセットの論理式
   );
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @return 生成したラッチ番号を返す．
   ///
-  /// - 名前の重複に関しては感知しない．
-  /// - ラッチセルでない場合には -1 を返す．
+  /// セルの内容に従った入出力端子を持つ．
+  ///
+  /// 名前の重複に関しては感知しない．
+  ///
+  /// cell_id がラッチセルでない場合には -1 を返す．
   SizeType
   new_latch(
     const string& name, ///< [in] ラッチ名

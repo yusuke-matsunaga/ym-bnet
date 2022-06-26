@@ -95,17 +95,9 @@ public:
   bool
   is_dff_output() const override;
 
-  /// @brief DFFの反転出力端子の時 true を返す．
-  bool
-  is_dff_xoutput() const override;
-
   /// @brief ラッチの出力端子の時 true を返す．
   bool
   is_latch_output() const override;
-
-  /// @brief ラッチの出力端子の時 true を返す．
-  bool
-  is_latch_xoutput() const override;
 
 
 public:
@@ -128,33 +120,9 @@ public:
   bool
   is_dff_input() const override;
 
-  /// @brief DFFのクロック端子の時に true を返す．
-  bool
-  is_dff_clock() const override;
-
-  /// @brief DFFのクリア端子の時に true を返す．
-  bool
-  is_dff_clear() const override;
-
-  /// @brief DFFのプリセット端子の時に true を返す．
-  bool
-  is_dff_preset() const override;
-
   /// @brief ラッチの入力端子の時に true を返す．
   bool
   is_latch_input() const override;
-
-  /// @brief ラッチのイネーブル端子の時に true を返す．
-  bool
-  is_latch_enable() const override;
-
-  /// @brief ラッチのクリア端子の時に true を返す．
-  bool
-  is_latch_clear() const override;
-
-  /// @brief ラッチのプリセット端子の時に true を返す．
-  bool
-  is_latch_preset() const override;
 
 
 public:
