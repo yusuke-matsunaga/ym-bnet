@@ -189,15 +189,13 @@ public:
   /// - 非同期クリア(positive edge): has_clear = true の時
   /// - 非同期プリセット(positive edge): has_preset = true の時
   /// - データ出力
-  /// - 反転データ出力: has_xoutput = true の時
   ///
   /// 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,      ///< [in] DFF名
-    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
-    bool has_xoutput = false ///< [in] 反転出力端子を持つ時 true にする．
+    const string& name,     ///< [in] DFF名
+    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief DFFを追加する．
@@ -241,15 +239,13 @@ public:
   /// - 非同期クリア(positive edge): has_clear = true の時
   /// - 非同期プリセット(positive edge): has_preset = true の時
   /// - データ出力
-  /// - 反転データ出力: has_xoutput = true の時
   ///
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_latch(
-    const string& name,       ///< [in] ラッチ名
-    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false,  ///< [in] プリセット端子を持つ時 true にする．
-    bool has_xoutput = false  ///< [in] 反転出力端子を持つ時 true にする．
+    const string& name,      ///< [in] ラッチ名
+    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false  ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief ラッチを追加する．
@@ -266,7 +262,7 @@ public:
     SizeType ni,                      ///< [in] 入力端子数
     const vector<Expr>& output_exprs, ///< [in] 出力の論理式
     const Expr& data_in_expr,         ///< [in] データ入力の論理式
-    const Expr& clock_expr,           ///< [in] クロックの論理式
+    const Expr& enable_expr,          ///< [in] イネーブルの論理式
     const Expr& clear_expr,           ///< [in] クリアの論理式
     const Expr& preset_expr           ///< [in] プリセットの論理式
   );

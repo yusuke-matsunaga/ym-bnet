@@ -10,6 +10,7 @@
 
 #include "ym/bnet.h"
 #include "ym/clib.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -58,34 +59,56 @@ public:
   string
   name() const = 0;
 
-  /// @brief データ出力のノード番号を返す．
+  /// @brief 入力数を返す．
   virtual
   SizeType
-  output() const = 0;
+  input_num() const = 0;
 
-  /// @brief データ入力のノード番号を返す．
+  /// @brief 入力端子のノード番号を返す．
   virtual
   SizeType
-  input() const = 0;
+  input(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
+  ) const = 0;
 
-  /// @brief ラッチイネーブルのノード番号を返す．
+  /// @brief 出力数を返す．
   virtual
   SizeType
-  enable() const = 0;
+  output_num() const = 0;
 
-  /// @brief クリア信号のノード番号を返す．
-  ///
-  /// BNET_NULLID の場合もある．
+  /// @brief 出力のノード番号を返す．
   virtual
   SizeType
-  clear() const = 0;
+  output(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const = 0;
 
-  /// @brief プリセット信号のノード番号を返す．
-  ///
-  /// BNET_NULLID の場合もある．
+  /// @brief 出力の論理式を返す．
   virtual
-  SizeType
-  preset() const = 0;
+  Expr
+  output_expr(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const = 0;
+
+  /// @brief データ入力の論理式を返す．
+  virtual
+  Expr
+  data_in_expr() const = 0;
+
+  /// @brief ラッチイネーブルの論理式を返す．
+  virtual
+  Expr
+  enable_expr() const = 0;
+
+  /// @brief クリア条件の論理式を返す．
+  virtual
+  Expr
+  clear_expr() const = 0;
+
+  /// @brief プリセット条件の論理式を返す．
+  virtual
+  Expr
+  preset_expr() const = 0;
 
   /// @brief セル番号を返す．
   ///

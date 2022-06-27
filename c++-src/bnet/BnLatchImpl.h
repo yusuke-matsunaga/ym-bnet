@@ -24,21 +24,25 @@ public:
 
   /// @brief コンストラクタ
   BnLatchImpl(
-    SizeType id,        ///< [in] ID番号
-    const string& name, ///< [in] 名前
-    SizeType input,     ///< [in] 入力端子のノード番号
-    SizeType output,    ///< [in] 出力端子のノード番号
-    SizeType enable,    ///< [in] イネーブル端子のノード番号
-    SizeType clear,     ///< [in] クリア端子のノード番号
-    SizeType preset,    ///< [in] プリセット端子のノード番号
+    SizeType id,                      ///< [in] ID番号
+    const string& name,               ///< [in] 名前
+    const vector<SizeType>& inputs,   ///< [in] 入力のノード番号のリスト
+    const vector<SizeType>& outputs,  ///< [in] 出力のノード番号のリスト
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
+    const Expr& data_in_expr,         ///< [in] データ入力の論理式
+    const Expr& enable_expr,          ///< [in] イネーブルの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr,          ///< [in] プリセットの論理式
     int cell_id         ///< [in] セル番号
   ) : mId{id},
       mName{name},
-      mInput{input},
-      mOutput{output},
-      mEnable{enable},
-      mClear{clear},
-      mPreset{preset},
+      mInputs{inputs},
+      mOutputs{outputs},
+      mOutputExprs{output_exprs},
+      mDataInExpr{data_in_expr},
+      mEnableExpr{enable_expr},
+      mClearExpr{clear_expr},
+      mPresetExpr{preset_expr},
       mCellId{cell_id}
   {
   }
@@ -61,29 +65,47 @@ public:
   string
   name() const override;
 
-  /// @brief データ出力のノード番号を返す．
+  /// @brief 入力数を返す．
   SizeType
-  output() const override;
+  input_num() const override;
 
-  /// @brief データ入力のノード番号を返す．
+  /// @brief 入力端子のノード番号を返す．
   SizeType
-  input() const override;
+  input(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
+  ) const override;
 
-  /// @brief イネーブルのノード番号を返す．
+  /// @brief 出力数を返す．
   SizeType
-  enable() const override;
+  output_num() const override;
 
-  /// @brief クリア信号のノード番号を返す．
-  ///
-  /// kBnNullId の場合もある．
+  /// @brief 出力のノード番号を返す．
   SizeType
-  clear() const override;
+  output(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const override;
 
-  /// @brief プリセット信号のノード番号を返す．
-  ///
-  /// kBnNullId の場合もある．
-  SizeType
-  preset() const override;
+  /// @brief 出力の論理式を返す．
+  Expr
+  output_expr(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const override;
+
+  /// @brief データ入力の論理式を返す．
+  Expr
+  data_in_expr() const override;
+
+  /// @brief ラッチイネーブルの論理式を返す．
+  Expr
+  enable_expr() const override;
+
+  /// @brief クリア条件の論理式を返す．
+  Expr
+  clear_expr() const override;
+
+  /// @brief プリセット条件の論理式を返す．
+  Expr
+  preset_expr() const override;
 
   /// @brief セル番号を返す．
   ///
@@ -103,20 +125,26 @@ private:
   // 名前
   string mName;
 
-  // データ出力ノード
-  SizeType mOutput;
+  // 入力のノード番号
+  vector<SizeType> mInputs;
 
-  // データ入力ノード
-  SizeType mInput;
+  // 出力のノード番号
+  vector<SizeType> mOutputs;
 
-  // イネーブルノード
-  SizeType mEnable;
+  // 出力の論理式
+  vector<Expr> mOutputExprs;
 
-  // クリア信号ノード
-  SizeType mClear;
+  // データ入力の論理式
+  Expr mDataInExpr;
 
-  // プリセット信号ノード
-  SizeType mPreset;
+  // イネーブルの論理式
+  Expr mEnableExpr;
+
+  // クリアの論理式
+  Expr mClearExpr;
+
+  // プリセットの論理式
+  Expr mPresetExpr;
 
   // セル番号
   int mCellId;

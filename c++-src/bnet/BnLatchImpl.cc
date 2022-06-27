@@ -33,43 +33,76 @@ BnLatchImpl::name() const
   return mName;
 }
 
-// @brief データ出力のノード番号を返す．
+// @brief 入力数を返す．
 SizeType
-BnLatchImpl::output() const
+BnLatchImpl::input_num() const
 {
-  return mOutput;
+  return mInputs.size();
 }
 
-// @brief データ入力のノード番号を返す．
+// @brief 入力端子のノード番号を返す．
 SizeType
-BnLatchImpl::input() const
+BnLatchImpl::input(
+  SizeType pos
+) const
 {
-  return mInput;
+  ASSERT_COND( 0 <= pos && pos < input_num() );
+  return mInputs[pos];
 }
 
-// @brief イネーブルのノード番号を返す．
+// @brief 出力数を返す．
 SizeType
-BnLatchImpl::enable() const
+BnLatchImpl::output_num() const
 {
-  return mEnable;
+  return mOutputs.size();
 }
 
-// @brief クリア信号のノード番号を返す．
-//
-// BNET_NULLID の場合もある．
+// @brief 出力のノード番号を返す．
 SizeType
-BnLatchImpl::clear() const
+BnLatchImpl::output(
+  SizeType pos
+) const
 {
-  return mClear;
+  ASSERT_COND( 0 <= pos && pos < output_num() );
+  return mOutputs[pos];
 }
 
-// @brief プリセット信号のノード番号を返す．
-//
-// BNET_NULLID の場合もある．
-SizeType
-BnLatchImpl::preset() const
+// @brief 出力の論理式を返す．
+Expr
+BnLatchImpl::output_expr(
+  SizeType pos
+) const
 {
-  return mPreset;
+  ASSERT_COND( 0 <= pos && pos < output_num() );
+  return mOutputExprs[pos];
+}
+
+// @brief データ入力の論理式を返す．
+Expr
+BnLatchImpl::data_in_expr() const
+{
+  return mDataInExpr;
+}
+
+// @brief ラッチイネーブルの論理式を返す．
+Expr
+BnLatchImpl::enable_expr() const
+{
+  return mEnableExpr;
+}
+
+// @brief クリア条件の論理式を返す．
+Expr
+BnLatchImpl::clear_expr() const
+{
+  return mClearExpr;
+}
+
+// @brief プリセット条件の論理式を返す．
+Expr
+BnLatchImpl::preset_expr() const
+{
+  return mPresetExpr;
 }
 
 // @brief セル番号を返す．

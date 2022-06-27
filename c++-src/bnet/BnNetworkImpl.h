@@ -105,14 +105,14 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,       ///< [in] DFF名
-    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false,  ///< [in] プリセット端子を持つ時 true にする．
-    bool has_xoutput = false  ///< [in] 反転出力端子を持つ時 true にする．
-  )
-  {
-    return _new_dff(name, has_clear, has_preset, -1);
-  }
+    const string& name,               ///< [in] DFF名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
+    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
+    const Expr& clock_expr,           ///< [in] クロックの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr           ///< [in] プリセットの論理式
+  );
 
   /// @brief セルの情報を持ったDFFを追加する．
   /// @return 生成したDFF番号を返す．
@@ -123,17 +123,7 @@ public:
   new_dff(
     const string& name, ///< [in] DFF名
     int cell_id         ///< [in] 対応するセル番号
-  )
-  {
-    const ClibCell& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_ff() ) {
-      return -1;
-    }
-
-    bool has_clear = cell.has_clear();
-    bool has_preset = cell.has_preset();
-    return _new_dff(name, has_clear, has_preset, cell_id);
-  }
+  );
 
   /// @brief ラッチを追加する．
   /// @return 生成したラッチ番号を返す．
@@ -141,13 +131,14 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_latch(
-    const string& name,       ///< [in] ラッチ名
-    bool has_clear = false,   ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false   ///< [in] プリセット端子を持つ時 true にする．
-  )
-  {
-    return _new_latch(name, has_clear, has_preset, -1);
-  }
+    const string& name,               ///< [in] ラッチ名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
+    const Expr& data_in_expr,         ///< [in] データ入力の論理式
+    const Expr& enable_expr,          ///< [in] イネーブルの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr           ///< [in] プリセットの論理式
+  );
 
   /// @brief セルの情報を持ったラッチを追加する．
   /// @return 生成したラッチ番号を返す．
@@ -158,17 +149,7 @@ public:
   new_latch(
     const string& name, ///< [in] ラッチ名
     int cell_id         ///< [in] 対応するセル番号
-  )
-  {
-    const ClibCell& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_latch() ) {
-      return -1;
-    }
-
-    bool has_clear = cell.has_clear();
-    bool has_preset = cell.has_preset();
-    return _new_latch(name, has_clear, has_preset, cell_id);
-  }
+  );
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -876,12 +857,17 @@ private:
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
+  /// - cell はFFのセルでなければならない．
   SizeType
   _new_dff(
-    const string& name, ///< [in] DFF名
-    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
-    int cell_id         ///< [in] 対応するセル番号．
+    const string& name,               ///< [in] DFF名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
+    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
+    const Expr& clock_expr,           ///< [in] クロックの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr,          ///< [in] プリセットの論理式
+    int cell_id                       ///< [in] 対応するセル番号．
   );
 
   /// @brief ラッチを追加する共通の処理を行う関数
@@ -891,10 +877,14 @@ private:
   /// - cell はラッチのセルでなければならない．
   SizeType
   _new_latch(
-    const string& name, ///< [in] ラッチ名
-    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
-    int cell_id         ///< [in] 対応するセル番号．
+    const string& name,               ///< [in] ラッチ名
+    SizeType ni,                      ///< [in] 入力端子数
+    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
+    const Expr& data_in_expr,         ///< [in] 次状態関数の論理式
+    const Expr& enable_expr,          ///< [in] クロックの論理式
+    const Expr& clear_expr,           ///< [in] クリアの論理式
+    const Expr& preset_expr,          ///< [in] プリセットの論理式
+    int cell_id                       ///< [in] 対応するセル番号．
   );
 
   /// @brief 論理式を解析する．

@@ -230,35 +230,32 @@ BnNetworkImpl::_copy_dff(
 )
 {
   string dff_name = src_dff.name();
-  bool has_clear = (src_dff.clear() != BNET_NULLID);
-  bool has_preset = (src_dff.preset() != BNET_NULLID);
-  auto dst_id = new_dff(dff_name, has_clear, has_preset);
+  SizeType ni = src_dff.input_num();
+  SizeType no = src_dff.output_num();
+  vector<Expr> output_exprs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
+    output_exprs[i] = src_dff.output_expr(i);
+  }
+  auto next_state_expr = src_dff.next_state_expr();
+  auto clock_expr = src_dff.clock_expr();
+  auto clear_expr = src_dff.clear_expr();
+  auto preset_expr = src_dff.preset_expr();
+  auto dst_id = new_dff(dff_name, ni, output_exprs,
+			next_state_expr,
+			clock_expr,
+			clear_expr,
+			preset_expr);
   auto& dst_dff = dff(dst_id);
 
   // 各端子の対応関係を記録する．
-  {
-    auto src_id = src_dff.input();
-    auto dst_id = dst_dff.input();
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    auto src_id = src_dff.input(i);
+    auto dst_id = dst_dff.input(i);
     id_map[src_id] = dst_id;
   }
-  {
-    auto src_id = src_dff.output();
-    auto dst_id = dst_dff.output();
-    id_map[src_id] = dst_id;
-  }
-  {
-    auto src_id = src_dff.clock();
-    auto dst_id = dst_dff.clock();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_clear ) {
-    auto src_id = src_dff.clear();
-    auto dst_id = dst_dff.clear();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_preset ) {
-    auto src_id = src_dff.preset();
-    auto dst_id = dst_dff.preset();
+  for ( SizeType i = 0; i < no; ++ i ) {
+    auto src_id = src_dff.output(i);
+    auto dst_id = dst_dff.output(i);
     id_map[src_id] = dst_id;
   }
 
@@ -273,35 +270,32 @@ BnNetworkImpl::_copy_latch(
 )
 {
   string latch_name = src_latch.name();
-  bool has_clear = (src_latch.clear() != BNET_NULLID);
-  bool has_preset = (src_latch.preset() != BNET_NULLID);
-  auto dst_id = new_latch(latch_name, has_clear, has_preset);
+  SizeType ni = src_latch.input_num();
+  SizeType no = src_latch.output_num();
+  vector<Expr> output_exprs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
+    output_exprs[i] = src_latch.output_expr(i);
+  }
+  auto data_in_expr = src_latch.data_in_expr();
+  auto enable_expr = src_latch.enable_expr();
+  auto clear_expr = src_latch.clear_expr();
+  auto preset_expr = src_latch.preset_expr();
+  auto dst_id = new_latch(latch_name, ni, output_exprs,
+			  data_in_expr,
+			  enable_expr,
+			  clear_expr,
+			  preset_expr);
   auto& dst_latch = latch(dst_id);
 
   // 各端子の対応関係を記録する．
-  {
-    auto src_id = src_latch.input();
-    auto dst_id = dst_latch.input();
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    auto src_id = src_dff.input(i);
+    auto dst_id = dst_dff.input(i);
     id_map[src_id] = dst_id;
   }
-  {
-    auto src_id = src_latch.output();
-    auto dst_id = dst_latch.output();
-    id_map[src_id] = dst_id;
-  }
-  {
-    auto src_id = src_latch.enable();
-    auto dst_id = dst_latch.enable();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_clear ) {
-    auto src_id = src_latch.clear();
-    auto dst_id = dst_latch.clear();
-    id_map[src_id] = dst_id;
-  }
-  if ( has_preset ) {
-    auto src_id = src_latch.preset();
-    auto dst_id = dst_latch.preset();
+  for ( SizeType i = 0; i < no; ++ i ) {
+    auto src_id = src_dff.output(i);
+    auto dst_id = dst_dff.output(i);
     id_map[src_id] = dst_id;
   }
 
@@ -411,20 +405,23 @@ BnNetworkImpl::_new_logic(
 }
 
 // @brief DFFを追加する．
-// @return 生成したDFF番号を返す．
-//
-// - 名前の重複に関しては感知しない．
 SizeType
 BnNetworkImpl::new_dff(
   const string& name,
-  bool has_clear,
-  bool has_preset,
-  bool has_xoutput
+  SizeType ni,
+  const vector<Expr>& output_exprs,
+  const Expr& next_state_expr,
+  const Expr& clock_expr,
+  const Expr& clear_expr,
+  const Expr& preset_expr
 )
 {
-  vector<SizeType> inputs;
-  inputs.push_back(
-  return _new_dff(name, has_clear, has_preset, -1);
+  return _new_dff(name, ni, output_exprs,
+		  next_state_expr,
+		  clock_expr,
+		  clear_expr,
+		  preset_expr,
+		  -1);
 }
 
 // @brief セルの情報を持ったDFFを追加する．
@@ -442,37 +439,45 @@ BnNetworkImpl::new_dff(
   if ( !cell.is_ff() ) {
     return -1;
   }
-
-  bool has_clear = cell.has_clear();
-  bool has_preset = cell.has_preset();
-  return _new_dff(name, has_clear, has_preset, cell_id);
-}
-
-#if 0
-// @brief セルの情報を持ったDFFを追加する．
-SizeType
-BnNetworkImpl::new_dff(
-  const string& name,
-  int cell_id
-)
-{
-  const ClibCell& cell = mCellLibrary.cell(cell_id);
-  if ( !cell.is_ff() ) {
+  if ( cell.inout_num() > 0 ) {
     return -1;
   }
 
-  #error "TODO"
-#if 0
-  ClibFFInfo ffinfo = cell.ff_info();
-  bool has_xoutput = ffinfo.has_xq();
-  bool has_clear = ffinfo.has_clear();
-  bool has_preset = ffinfo.has_preset();
-  return _new_dff(name, has_xoutput, has_clear, has_preset, cell_id);
-#endif
+  SizeType ni = cell.input_num();
+  SizeType no = cell.output_num();
+  vector<Expr> output_exprs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
+    if ( !cell.has_logic(i) || cell.has_tristate(i) ) {
+      return -1;
+    }
+    output_expr[i] = cell.logic_expr(i);
+  }
+  auto next_state_expr = cell.next_state_expr();
+  auto clock_expr = cell.clock_expr();
+  auto clear_expr = cell.clear_expr();
+  auto preset_expr = cell.preset_expr();
+  return _new_dff(name, ni, output_exprs,
+		  next_state_expr,
+		  clock_expr,
+		  clear_expr,
+		  preset_expr,
+		  cell_id);
 }
-#endif
 
-#if 0
+// @brief ラッチを追加する．
+SizeType
+BnNetworkImpl::new_latch(
+  const string& name,
+  SizeType ni,
+  const vector<Expr>& output_exprs,
+  const Expr& data_in_expr,
+  const Expr& clock_expr,
+  const Expr& clear_expr,
+  const Expr& preset_expr
+)
+{
+}
+
 // @brief セルの情報を持ったラッチを追加する．
 SizeType
 BnNetworkImpl::new_latch(
@@ -484,17 +489,30 @@ BnNetworkImpl::new_latch(
   if ( !cell.is_latch() ) {
     return -1;
   }
+  if ( cell.inout_num() > 0 ) {
+    return -1;
+  }
 
-  #error "TODO"
-#if 0
-  ClibLatchInfo latchinfo = cell.latch_info();
-  bool has_xoutput = latchinfo.has_xq();
-  bool has_clear = latchinfo.has_clear();
-  bool has_preset = latchinfo.has_preset();
-  return _new_latch(name, has_xoutput, has_clear, has_preset, cell_id);
-#endif
+  SizeType ni = cell.input_num();
+  SizeType no = cell.output_num();
+  vector<Expr> output_exprs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
+    if ( !cell.has_logic(i) || cell.has_tristate(i) ) {
+      return -1;
+    }
+    output_expr[i] = cell.logic_expr(i);
+  }
+  auto data_in_expr = cell.data_in_expr();
+  auto enable_expr = cell.enable_expr();
+  auto clear_expr = cell.clear_expr();
+  auto preset_expr = cell.preset_expr();
+  return _new_latch(name, ni, output_exprs,
+		    data_in_expr,
+		    enable_expr,
+		    clear_expr,
+		    preset_expr,
+		    cell_id);
 }
-#endif
 
 // @brief 各ノードがプリミティブ型になるように分解する．
 void
@@ -643,69 +661,45 @@ BnNetworkImpl::new_port(
   return port_id;
 }
 
-// @brief DFFを追加する共通の関数
+// @brief DFFを追加する共通の処理を行う関数
 SizeType
 BnNetworkImpl::_new_dff(
   const string& name,
-  bool has_clear,
-  bool has_preset,
+  SizeType ni,
+  const vector<Expr>& output_exprs,
+  const Expr& next_state_expr,
+  const Expr& clock_expr,
+  const Expr& clear_expr,
+  const Expr& preset_expr,
   int cell_id
 )
 {
-  auto dff_id = mDffList.size();
-
-  auto input_id = mNodeList.size();
-  {
+  vector<SizeType> inputs(ni);
+  for ( SizeType i = 0; i < ni; ++ i ) {
     ostringstream buf;
-    buf << name << ".input";
-    string iname = buf.str();
+    buf << name << ".input_" << (i + 1);
+    auto iname = buf.str();
     auto node = new BnDffInput(iname, dff_id);
     _reg_output(node);
-    input_id = node->id();
+    inputs[i] = node->id();
   }
 
-  auto output_id = mNodeList.size();
-  {
+  SizeType no = output_exprs.size();
+  vector<SizeType> outputs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
     ostringstream buf;
-    buf << name;
-    string oname = buf.str();
+    buf << name << ".output_" << (i + 1);
+    auto oname = buf.str();
     auto node = new BnDffOutput(oname, dff_id);
-    _reg_input(node);
-    output_id = node->id();
-  }
-
-  auto clock_id = mNodeList.size();
-  {
-    ostringstream buf;
-    buf << name << ".clock";
-    string cname = buf.str();
-    auto node = new BnDffClock(cname, dff_id);
     _reg_output(node);
-    clock_id = node->id();
+    outputs[i] = node->id();
   }
 
-  auto clear_id = BNET_NULLID;
-  if ( has_clear ) {
-    ostringstream buf;
-    buf << name << ".clear";
-    string rname = buf.str();
-    auto node = new BnDffClear(rname, dff_id);
-    _reg_output(node);
-    clear_id = node->id();
-  }
-
-  auto preset_id = BNET_NULLID;
-  if ( has_preset ) {
-    ostringstream buf;
-    buf << name << ".preset";
-    string sname = buf.str();
-    auto node = new BnDffPreset(preset_id, sname, oid, dff_id);
-    _reg_output(node);
-    preset_id = node->id();
-  }
-
-  BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id,
-			     clock_id, clear_id, preset_id, cell_id);
+  auto dff_id = mDffList.size();
+  auto dff = new BnDffImpl(dff_id, name, inputs, outpus,
+			   next_state_expr, clock_expr,
+			   clear_expr, preset_expr,
+			   cell_id);
   mDffList.push_back(dff);
 
   return dff_id;
@@ -715,71 +709,41 @@ BnNetworkImpl::_new_dff(
 SizeType
 BnNetworkImpl::_new_latch(
   const string& name,
-  bool has_clear,
-  bool has_preset,
-  int cell_id)
+  SizeType ni,
+  const vector<Expr>& output_exprs,
+  const Expr& data_in_expr,
+  const Expr& enable_expr,
+  const Expr& clear_expr,
+  const Expr& preset_expr,
+  int cell_id
+)
 {
+  vector<SizeType> inputs(ni);
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    ostringstream buf;
+    buf << name << ".input_" << (i + 1);
+    auto iname = buf.str();
+    auto node = new BnLatchInput(iname, dff_id);
+    _reg_output(node);
+    inputs[i] = node->id();
+  }
+
+  SizeType no = output_exprs.size();
+  vector<SizeType> outputs(no);
+  for ( SizeType i = 0; i < no; ++ i ) {
+    ostringstream buf;
+    buf << name << ".output_" << (i + 1);
+    auto oname = buf.str();
+    auto node = new BnLatchOutput(oname, dff_id);
+    _reg_output(node);
+    outputs[i] = node->id();
+  }
+
   auto latch_id = mLatchList.size();
-
-  auto input_id = mNodeList.size();
-  {
-    auto oid = mOutputList.size();
-    ostringstream buf;
-    buf << name << ".input";
-    string iname = buf.str();
-    BnNodeImpl* node = new BnLatchInput(input_id, iname, oid, latch_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(input_id);
-  }
-
-  auto output_id = mNodeList.size();
-  {
-    auto iid = mInputList.size();
-    ostringstream buf;
-    buf << name;
-    string oname = buf.str();
-    BnNodeImpl* node = new BnLatchOutput(output_id, oname, iid, latch_id);
-    mNodeList.push_back(node);
-    mInputList.push_back(output_id);
-  }
-
-  auto enable_id = mNodeList.size();
-  {
-    auto oid = mOutputList.size();
-    ostringstream buf;
-    buf << name << ".enable";
-    string ename = buf.str();
-    BnNodeImpl* node = new BnLatchEnable(enable_id, ename, oid, latch_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(enable_id);
-  }
-
-  auto clear_id = BNET_NULLID;
-  if ( has_clear ) {
-    clear_id = mNodeList.size();
-    auto oid = mOutputList.size();
-    ostringstream buf;
-    buf << name << ".clear";
-    string rname = buf.str();
-    BnNodeImpl* node = new BnLatchClear(clear_id, rname, oid, latch_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(clear_id);
-  }
-
-  auto preset_id = BNET_NULLID;
-  if ( has_preset ) {
-    preset_id = mNodeList.size();
-    auto oid = mOutputList.size();
-    ostringstream buf;
-    buf << name << ".preset";
-    string sname = buf.str();
-    BnNodeImpl* node = new BnLatchPreset(preset_id, sname, oid, latch_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(preset_id);
-  }
-
-  BnLatch* latch = new BnLatchImpl(latch_id, name, input_id, output_id,
-				   enable_id, clear_id, preset_id, cell_id);
+  auto latch = new BnLatchImpl(latch_id, name, inputs, outputs,
+			       data_in_expr, enable_expr,
+			       clear_expr, preset_id,
+			       cell_id);
   mLatchList.push_back(latch);
 
   return latch_id;

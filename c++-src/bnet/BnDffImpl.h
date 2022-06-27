@@ -39,6 +39,7 @@ public:
       mInputs{inputs},
       mOutputs{outputs},
       mOutputExprs{output_exprs},
+      mNextStateExpr{next_state_expr},
       mClockExpr{clock_expr},
       mClearExpr{clear_expr},
       mPresetExpr{preset_expr},
