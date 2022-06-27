@@ -3,12 +3,10 @@
 /// @brief BnDffImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BnDffImpl.h"
-#include "ym/ClibCell.h"
-#include "ym/ClibFFInfo.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -32,43 +30,76 @@ BnDffImpl::name() const
   return mName;
 }
 
-// @brief データ出力のノード番号を返す．
+// @brief 入力数を返す．
 SizeType
-BnDffImpl::output() const
+BnDffImpl::input_num() const
 {
-  return mOutput;
+  return mInputs.size();
 }
 
-// @brief データ入力のノード番号を返す．
+// @brief 入力端子のノード番号を返す．
 SizeType
-BnDffImpl::input() const
+BnDffImpl::input(
+  SizeType pos
+) const
 {
-  return mInput;
+  ASSERT_COND( 0 <= pos && pos < input_num() );
+  return mInputs[pos];
 }
 
-// @brief クロックのノード番号を返す．
+// @brief 出力数を返す．
 SizeType
-BnDffImpl::clock() const
+BnDffImpl::output_num() const
 {
-  return mClock;
+  return mOutputs.size();
 }
 
-// @brief クリア信号のノード番号を返す．
-//
-// BNET_NULLID の場合もある．
+// @brief 出力のノード番号を返す．
 SizeType
-BnDffImpl::clear() const
+BnDffImpl::output(
+  SizeType pos
+) const
 {
-  return mClear;
+  ASSERT_COND ( 0 <= pos && pos < output_num() );
+  return mOutputs[pos];
 }
 
-// @brief プリセット信号のノードを返す．
-//
-// BNET_NULLID の場合もある．
-SizeType
-BnDffImpl::preset() const
+// @brief 出力の論理式を返す．
+Expr
+BnDffImpl::output_expr(
+  SizeType pos
+) const
 {
-  return mPreset;
+  ASSERT_COND( 0 <= pos && pos < output_num() );
+  return mOutputExpr[pos];
+}
+
+// @brief 次状態関数の論理式を返す．
+Expr
+BnDffImpl::next_state_expr() const
+{
+  return mNextStateExpr;
+}
+
+// @brief クロックの論理式を返す．
+Expr
+BnDffImpl::clock_expr() const
+{
+  return mClockExpr;
+}
+
+// @brief クリア条件の論理式を返す．
+Expr
+BnDffImpl::clear_expr() const
+{
+  return mClearExpr;
+}
+
+// @brief プリセット条件の論理式を返す．
+Expr
+BnDffImpl::preset_expr() const
+{
+  return mPresetExpr;
 }
 
 // @brief セル番号を返す．
