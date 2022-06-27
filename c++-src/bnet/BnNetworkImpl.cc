@@ -359,10 +359,11 @@ BnNetworkImpl::_change_logic(
 {
   ASSERT_COND( node_id >= 0 && node_id < mNodeList.size() );
 
-  BnNodeImpl* old_node = mNodeList[node_id];
-  BnNodeImpl* new_node = _new_logic(node_id, old_node->name(),
-				    fanin_num, logic_type, expr_id, func_id, cell_id);
+  auto old_node = mNodeList[node_id];
+  auto new_node = _new_logic(old_node->name(), fanin_num,
+			     logic_type, expr_id, func_id, cell_id);
   mNodeList[node_id] = new_node;
+  new_node->mId = node_id;
   delete old_node;
 
 }
@@ -378,16 +379,14 @@ BnNetworkImpl::_reg_logic(
   int cell_id
 )
 {
-  auto dst_id = mNodeList.size();
-  BnNodeImpl* node = _new_logic(dst_id, name, fanin_num, logic_type, expr_id, func_id, cell_id);
-  mNodeList.push_back(node);
-  return dst_id;
+  auto node = _new_logic(name, fanin_num, logic_type, expr_id, func_id, cell_id);
+  _reg_node(node);
+  return node->id();
 }
 
 // @brief 論理ノードを作る最も低レベルの関数
 BnNodeImpl*
 BnNetworkImpl::_new_logic(
-  SizeType node_id,
   const string& name,
   SizeType fanin_num,
   BnNodeType logic_type,
@@ -398,17 +397,55 @@ BnNetworkImpl::_new_logic(
 {
   BnNodeImpl* node = nullptr;
   if ( logic_type == BnNodeType::Expr ) {
-    node = new BnExprNode(node_id, name, fanin_num, expr_id, cell_id);
+    node = new BnExprNode(name, fanin_num, expr_id, cell_id);
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
-    node = new BnTvNode(node_id, name, fanin_num, func_id, cell_id);
+    node = new BnTvNode(name, fanin_num, func_id, cell_id);
   }
   else {
-    node = new BnPrimNode(node_id, name, fanin_num, logic_type, cell_id);
+    node = new BnPrimNode(name, fanin_num, logic_type, cell_id);
   }
   ASSERT_COND( node != nullptr );
 
   return node;
+}
+
+// @brief DFFを追加する．
+// @return 生成したDFF番号を返す．
+//
+// - 名前の重複に関しては感知しない．
+SizeType
+BnNetworkImpl::new_dff(
+  const string& name,
+  bool has_clear,
+  bool has_preset,
+  bool has_xoutput
+)
+{
+  vector<SizeType> inputs;
+  inputs.push_back(
+  return _new_dff(name, has_clear, has_preset, -1);
+}
+
+// @brief セルの情報を持ったDFFを追加する．
+// @return 生成したDFF番号を返す．
+//
+// - 名前の重複に関しては感知しない．
+// - FFセルでない場合には -1 を返す．
+SizeType
+BnNetworkImpl::new_dff(
+  const string& name, ///< [in] DFF名
+  int cell_id         ///< [in] 対応するセル番号
+)
+{
+  const ClibCell& cell = mCellLibrary.cell(cell_id);
+  if ( !cell.is_ff() ) {
+    return -1;
+  }
+
+  bool has_clear = cell.has_clear();
+  bool has_preset = cell.has_preset();
+  return _new_dff(name, has_clear, has_preset, cell_id);
 }
 
 #if 0
@@ -585,18 +622,12 @@ BnNetworkImpl::new_port(
       node_name = port_name;
     }
     if ( dir_vect[i] == BnDir::INPUT ) {
-      auto input_id = mInputList.size();
-      BnNodeImpl* node = new BnPortInput(node_id, node_name, input_id, port_id, i);
-      mNodeList.push_back(node);
-      mInputList.push_back(node_id);
-      mPrimaryInputList.push_back(node_id);
+      auto node = new BnPortInput(node_name, port_id, i);
+      _reg_primary_input(node);
     }
     else { // BnDir::OUTPUT
-      auto output_id = mOutputList.size();
-      BnNodeImpl* node = new BnPortOutput(node_id, node_name, output_id, port_id, i);
-      mNodeList.push_back(node);
-      mOutputList.push_back(node_id);
-      mPrimaryOutputList.push_back(node_id);
+      auto node = new BnPortOutput(node_name, port_id, i);
+      _reg_primary_output(node);
     }
   }
 
@@ -625,59 +656,52 @@ BnNetworkImpl::_new_dff(
 
   auto input_id = mNodeList.size();
   {
-    auto oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".input";
     string iname = buf.str();
-    BnNodeImpl* node = new BnDffInput(input_id, iname, oid, dff_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(input_id);
+    auto node = new BnDffInput(iname, dff_id);
+    _reg_output(node);
+    input_id = node->id();
   }
 
   auto output_id = mNodeList.size();
   {
-    auto iid = mInputList.size();
     ostringstream buf;
     buf << name;
     string oname = buf.str();
-    BnNodeImpl* node = new BnDffOutput(output_id, oname, iid, dff_id);
-    mNodeList.push_back(node);
-    mInputList.push_back(output_id);
+    auto node = new BnDffOutput(oname, dff_id);
+    _reg_input(node);
+    output_id = node->id();
   }
 
   auto clock_id = mNodeList.size();
   {
-    auto oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".clock";
     string cname = buf.str();
-    BnNodeImpl* node = new BnDffClock(clock_id, cname, oid, dff_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(clock_id);
+    auto node = new BnDffClock(cname, dff_id);
+    _reg_output(node);
+    clock_id = node->id();
   }
 
   auto clear_id = BNET_NULLID;
   if ( has_clear ) {
-    clear_id = mNodeList.size();
-    auto oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".clear";
     string rname = buf.str();
-    BnNodeImpl* node = new BnDffClear(clear_id, rname, oid, dff_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(clear_id);
+    auto node = new BnDffClear(rname, dff_id);
+    _reg_output(node);
+    clear_id = node->id();
   }
 
   auto preset_id = BNET_NULLID;
   if ( has_preset ) {
-    preset_id = mNodeList.size();
-    auto oid = mOutputList.size();
     ostringstream buf;
     buf << name << ".preset";
     string sname = buf.str();
-    BnNodeImpl* node = new BnDffPreset(preset_id, sname, oid, dff_id);
-    mNodeList.push_back(node);
-    mOutputList.push_back(preset_id);
+    auto node = new BnDffPreset(preset_id, sname, oid, dff_id);
+    _reg_output(node);
+    preset_id = node->id();
   }
 
   BnDff* dff = new BnDffImpl(dff_id, name, input_id, output_id,

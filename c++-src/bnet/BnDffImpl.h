@@ -39,9 +39,9 @@ public:
       mInputs{inputs},
       mOutputs{outputs},
       mOutputExprs{output_exprs},
-      mClockExpr{clock},
-      mClearExpr{clear},
-      mPresetExpr{preset},
+      mClockExpr{clock_expr},
+      mClearExpr{clear_expr},
+      mPresetExpr{preset_expr},
       mCellId{cell_id}
   {
     ASSERT_COND( mOutputs.size() == mOutputExprs.size() );
@@ -132,7 +132,7 @@ private:
   vector<SizeType> mOutputs;
 
   // 出力の論理式
-  vectpr<Expr> mOutputExprs;
+  vector<Expr> mOutputExprs;
 
   // 次状態関数の論理式
   Expr mNextStateExpr;
@@ -144,7 +144,7 @@ private:
   Expr mClearExpr;
 
   // プリセットの論理式
-  Expr mPreset;
+  Expr mPresetExpr;
 
   // セル番号
   int mCellId;

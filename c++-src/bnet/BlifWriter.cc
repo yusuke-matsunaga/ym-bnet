@@ -117,11 +117,13 @@ BlifWriter::operator()(
     s << endl;
   }
 
+#if 0
   // .latch 文の出力
   for ( auto id: Range(network().dff_num()) ) {
     auto& dff = network().dff(id);
     s << ".latch " << node_name(dff.input()) << " " << node_name(dff.output()) << endl;
   }
+#endif
 
   // 出力用の追加の .names 文
   for ( auto id: network().primary_output_id_list() ) {

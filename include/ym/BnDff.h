@@ -10,6 +10,7 @@
 
 #include "ym/bnet.h"
 #include "ym/clib.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -86,12 +87,14 @@ public:
   ) const = 0;
 
   /// @brief 出力の論理式を返す．
+  virtual
   Expr
   output_expr(
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
   ) const = 0;
 
   /// @brief 次状態関数の論理式を返す．
+  virtual
   Expr
   next_state_expr() const = 0;
 

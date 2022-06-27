@@ -20,6 +20,8 @@ BEGIN_NAMESPACE_YM_BNET
 class BnNodeImpl :
   public BnNode
 {
+  friend class BnNetworkImpl;
+
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -27,7 +29,6 @@ public:
 
   /// @brief コンストラクタ
   BnNodeImpl(
-    SizeType id,        ///< [in] ID 番号
     const string& name ///< [in] ノード名
   );
 

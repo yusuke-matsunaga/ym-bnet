@@ -27,11 +27,10 @@ public:
 
   /// @brief コンストラクタ
   BnLogicNode(
-    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
     int cell_id         ///< [in] セル番号 (-1 の場合もあり)
-  ) : BnNodeImpl(id, name),
+  ) : BnNodeImpl{name},
       mFanins(ni, BNET_NULLID),
       mCellId{cell_id}
   {
@@ -120,12 +119,11 @@ public:
 
   /// @brief コンストラクタ
   BnPrimNode(
-    SizeType id,           ///< [in] ID番号
     const string& name,    ///< [in] ノード名
     SizeType ni,           ///< [in] 入力数
     BnNodeType logic_type, ///< [in] 論理タイプ
     int cell_id            ///< [in] セル番号 (-1 の場合もあり)
-  ) : BnLogicNode(id, name, ni, cell_id),
+  ) : BnLogicNode{name, ni, cell_id},
       mLogicType{logic_type}
   {
   }
@@ -166,12 +164,11 @@ public:
 
   /// @brief コンストラクタ
   BnExprNode(
-    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
     SizeType expr_id,   ///< [in] 関数番号
     int cell_id         ///< [in] セル番号 (-1 の場合もあり)
-  ) : BnLogicNode(id, name, ni, cell_id),
+  ) : BnLogicNode{name, ni, cell_id},
       mExprId{expr_id}
   {
   }
@@ -225,12 +222,11 @@ public:
 
   /// @brief コンストラクタ
   BnTvNode(
-    SizeType id,        ///< [in] ID番号
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
     SizeType func_id,   ///< [in] 関数番号
     int cell_id         ///< [in] セル 番号(-1 の場合もあり)
-  ) : BnLogicNode(id, name, ni, cell_id),
+  ) : BnLogicNode{name, ni, cell_id},
       mFuncId{func_id}
   {
   }

@@ -71,7 +71,7 @@ BnDffImpl::output_expr(
 ) const
 {
   ASSERT_COND( 0 <= pos && pos < output_num() );
-  return mOutputExpr[pos];
+  return mOutputExprs[pos];
 }
 
 // @brief 次状態関数の論理式を返す．

@@ -17,10 +17,8 @@ BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
 BnNodeImpl::BnNodeImpl(
-  SizeType id,
   const string& name
-) : mId{id},
-    mName{name}
+) : mName{name}
 {
 }
 

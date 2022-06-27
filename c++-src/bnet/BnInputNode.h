@@ -20,6 +20,8 @@ BEGIN_NAMESPACE_YM_BNET
 class BnInputNode :
   public BnNodeImpl
 {
+  friend class BnNetworkImpl;
+
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -27,11 +29,8 @@ public:
 
   /// @brief コンストラクタ
   BnInputNode(
-    SizeType id,        ///< [in] ID 番号
-    const string& name, ///< [in] ノード名
-    SizeType input_id   ///< [in] 入力番号
-  ) : BnNodeImpl(id, name),
-      mInputPos{input_id}
+    const string& name ///< [in] ノード名
+  ) : BnNodeImpl{name}
   {
   }
 
@@ -88,12 +87,10 @@ public:
 
   /// @brief コンストラクタ
   BnPortInput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType input_id,  ///< [in] 入力番号
     SizeType port_id,   ///< [in] ポート番号
     SizeType port_bit   ///< [in] ポート中のビット位置
-  ) : BnInputNode(id, name, input_id),
+  ) : BnInputNode{name},
       mPortId{port_id},
       mPortBit{port_bit}
   {
@@ -158,11 +155,9 @@ public:
 
   /// @brief コンストラクタ
   BnDffOutput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType input_id,  ///< [in] 入力番号
     SizeType dff_id     ///< [in] DFF番号
-  ) : BnInputNode(id, name, input_id),
+  ) : BnInputNode{name},
       mDffId{dff_id}
   {
   }
@@ -218,11 +213,9 @@ public:
 
   /// @brief コンストラクタ
   BnLatchOutput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType input_id,  ///< [in] 入力番号
     SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnInputNode(id, name, input_id),
+  ) : BnInputNode{name},
       mLatchId{latch_id}
   {
   }

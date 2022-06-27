@@ -16,6 +16,8 @@
 #include "ym/ClibFFInfo.h"
 #include "ym/ClibLatchInfo.h"
 #include "BnNodeImpl.h"
+#include "BnInputNode.h"
+#include "BnOutputNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -741,6 +743,58 @@ private:
     vector<SizeType>& id_map  ///< [out] 生成したノードの対応関係を記録するハッシュ表
   );
 
+  /// @brief ノードを登録する．
+  void
+  _reg_node(
+    BnNodeImpl* node
+  )
+  {
+    node->mId = mNodeList.size();
+    mNodeList.push_back(node);
+  }
+
+  /// @brief 入力ノードを登録する．
+  void
+  _reg_input(
+    BnInputNode* node
+  )
+  {
+    _reg_node(node);
+    node->mInputPos = mInputList.size();
+    mInputList.push_back(node->id());
+  }
+
+  /// @brief 外部入力ノードを登録する．
+  void
+  _reg_primary_input(
+    BnInputNode* node
+  )
+  {
+    _reg_input(node);
+    mPrimaryInputList.push_back(node->id());
+  }
+
+  /// @brief 出力ノードを登録する．
+  void
+  _reg_output(
+    BnOutputNode* node
+  )
+  {
+    _reg_node(node);
+    node->mOutputPos = mOutputList.size();
+    mOutputList.push_back(node->id());
+  }
+
+  /// @brief 外部出力ノードを登録する．
+  void
+  _reg_primary_output(
+    BnOutputNode* node
+  )
+  {
+    _reg_output(node);
+    mPrimaryOutputList.push_back(node->id());
+  }
+
   /// @brief 論理ノードを複製する．
   /// @return 生成したノード番号を返す．
   ///
@@ -785,7 +839,6 @@ private:
   /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
   BnNodeImpl*
   _new_logic(
-    SizeType node_id,      ///< [in] ノード番号
     const string& name,    ///< [in] ノード名
     SizeType fanin_num,    ///< [in] ファンイン数
     BnNodeType logic_type, ///< [in] 論理ノードの型

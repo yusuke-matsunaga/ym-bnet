@@ -20,6 +20,8 @@ BEGIN_NAMESPACE_YM_BNET
 class BnOutputNode :
   public BnNodeImpl
 {
+  friend class BnNetworkImpl;
+
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -27,11 +29,8 @@ public:
 
   /// @brief コンストラクタ
   BnOutputNode(
-    SizeType id,        ///< [in] ID 番号
-    const string& name, ///< [in] ノード名
-    SizeType output_id  ///< [in] 出力番号
-  ) : BnNodeImpl(id, name),
-      mOutputPos{output_id},
+    const string& name ///< [in] ノード名
+  ) : BnNodeImpl{name},
       mFanin{BNET_NULLID}
   {
   }
@@ -119,12 +118,10 @@ public:
 
   /// @brief コンストラクタ
   BnPortOutput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType output_id, ///< [in] 出力番号
     SizeType port_id,   ///< [in] ポート番号
     SizeType port_bit   ///< [in] ポート中のビット位置
-  ) : BnOutputNode(id, name, output_id),
+  ) : BnOutputNode{name},
       mPortId{port_id},
       mPortBit{port_bit}
   {
@@ -189,11 +186,9 @@ public:
 
   /// @brief コンストラクタ
   BnDffControl(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType output_id, ///< [in] 出力番号
     SizeType dff_id     ///< [in] DFF番号
-  ) : BnOutputNode(id, name, output_id),
+  ) : BnOutputNode{name},
       mDffId{dff_id}
   {
   }
@@ -239,11 +234,9 @@ public:
 
   /// @brief コンストラクタ
   BnDffInput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType output_id, ///< [in] 出力番号
     SizeType dff_id     ///< [in] DFF番号
-  ) : BnDffControl(id, name, output_id, dff_id)
+  ) : BnDffControl{name, dff_id}
   {
   }
 
@@ -276,11 +269,9 @@ public:
 
   /// @brief コンストラクタ
   BnLatchControl(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType output_id, ///< [in] 出力番号
     SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnOutputNode(id, name, output_id),
+  ) : BnOutputNode{name},
       mLatchId{latch_id}
   {
   }
@@ -327,11 +318,9 @@ public:
 
   /// @brief コンストラクタ
   BnLatchInput(
-    SizeType id,        ///< [in] ID 番号
     const string& name, ///< [in] ノード名
-    SizeType output_id, ///< [in] 出力番号
     SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnLatchControl(id, name, output_id, latch_id)
+  ) : BnLatchControl{name, latch_id}
   {
   }
 

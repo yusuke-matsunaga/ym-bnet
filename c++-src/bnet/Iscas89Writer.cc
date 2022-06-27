@@ -123,12 +123,14 @@ Iscas89Writer::operator()(
   }
   s << endl;
 
+#if 0
   // DFF 文の出力
   for ( auto id: Range(network().dff_num()) ) {
     auto& dff = network().dff(id);
     s << node_name(dff.output()) << " = DFF(" << node_name(dff.input()) << ")" << endl;
   }
   s << endl;
+#endif
 
   // 出力用の追加の BUFF 文
   for ( int id: network().primary_output_id_list() ) {
