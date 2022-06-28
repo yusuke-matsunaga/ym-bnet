@@ -195,46 +195,8 @@ BnNetwork::new_dff(
   bool has_preset
 )
 {
-  auto next_state_expr = Expr::make_posi_literal(VarId{0});
-  auto clock_expr = Expr::make_posi_literal(VarId{1});
-  Expr clear_expr = Expr::make_invalid();
-  Expr preset_expr = Expr::make_invalid();
-  SizeType ni = 2; // data_in, clock
-  if ( has_clear ) {
-    clear_expr = Expr::make_posi_literal(VarId{ni});
-    ++ ni;
-  }
-  if ( has_preset ) {
-    preset_expr = Expr::make_posi_literal(VarId{ni});
-    ++ ni;
-  }
-  vector<Expr> output_exprs{Expr::make_posi_literal(VarId{ni})};
-  return new_dff(name, ni, output_exprs,
-		 next_state_expr,
-		 clock_expr,
-		 clear_expr,
-		 preset_expr);
-}
-
-// @brief DFFを追加する．
-SizeType
-BnNetwork::new_dff(
-  const string& name,
-  SizeType ni,
-  const vector<Expr>& output_exprs,
-  const Expr& next_state_expr,
-  const Expr& clock_expr,
-  const Expr& clear_expr,
-  const Expr& preset_expr
-)
-{
   ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_dff(name, ni, output_exprs,
-			next_state_expr,
-			clock_expr,
-			clear_expr,
-			preset_expr);
+  return mImpl->new_dff(name, has_clear, has_preset);
 }
 
 // @brief セルの情報を持ったDFFを追加する．
@@ -257,46 +219,9 @@ BnNetwork::new_latch(
   bool has_preset
 )
 {
-  auto data_in_expr = Expr::make_posi_literal(VarId{0});
-  auto enable_expr = Expr::make_posi_literal(VarId{1});
-  Expr clear_expr = Expr::make_invalid();
-  Expr preset_expr = Expr::make_invalid();
-  SizeType ni = 2; // data_in, clock
-  if ( has_clear ) {
-    clear_expr = Expr::make_posi_literal(VarId{ni});
-    ++ ni;
-  }
-  if ( has_preset ) {
-    preset_expr = Expr::make_posi_literal(VarId{ni});
-    ++ ni;
-  }
-  vector<Expr> output_exprs{Expr::make_posi_literal(VarId{ni})};
-  return new_latch(name, ni, output_exprs,
-		   data_in_expr,
-		   enable_expr,
-		   clear_expr,
-		   preset_expr);
-}
-
-// @brief ラッチを追加する．
-SizeType
-BnNetwork::new_latch(
-  const string& name,
-  SizeType ni,
-  const vector<Expr>& output_exprs,
-  const Expr& data_in_expr,
-  const Expr& enable_expr,
-  const Expr& clear_expr,
-  const Expr& preset_expr
-)
-{
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_latch(name, ni, output_exprs,
-			  data_in_expr,
-			  enable_expr,
-			  clear_expr,
-			  preset_expr);
+  return mImpl->new_latch(name, has_clear, has_preset);
 }
 
 // @brief セルの情報を持ったラッチを追加する．

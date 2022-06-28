@@ -144,9 +144,51 @@ BnNodeImpl::is_dff_input() const
   return false;
 }
 
+// @brie DFFのクロック端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_clock() const
+{
+  return false;
+}
+
+// @brie DFFのクリア端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_clear() const
+{
+  return false;
+}
+
+// @brie DFFのプリセット端子の時に true を返す．
+bool
+BnNodeImpl::is_dff_preset() const
+{
+  return false;
+}
+
 // @brief ラッチの入力端子の時に true を返す．
 bool
 BnNodeImpl::is_latch_input() const
+{
+  return false;
+}
+
+// @brief ラッチのイネーブル端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_enable() const
+{
+  return false;
+}
+
+// @brief ラッチのクリア端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_clear() const
+{
+  return false;
+}
+
+// @brief ラッチのプリセット端子の時に true を返す．
+bool
+BnNodeImpl::is_latch_preset() const
 {
   return false;
 }

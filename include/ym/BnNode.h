@@ -171,10 +171,40 @@ public:
   bool
   is_dff_input() const = 0;
 
+  /// @brief DFFのクロック端子の時に true を返す．
+  virtual
+  bool
+  is_dff_clock() const = 0;
+
+  /// @brief DFFのクリア端子の時に true を返す．
+  virtual
+  bool
+  is_dff_clear() const = 0;
+
+  /// @brief DFFのプリセット端子の時に true を返す．
+  virtual
+  bool
+  is_dff_preset() const = 0;
+
   /// @brief ラッチの入力端子の時に true を返す．
   virtual
   bool
   is_latch_input() const = 0;
+
+  /// @brief ラッチのイネーブル端子の時に true を返す．
+  virtual
+  bool
+  is_latch_enable() const = 0;
+
+  /// @brief ラッチのクリア端子の時に true を返す．
+  virtual
+  bool
+  is_latch_clear() const = 0;
+
+  /// @brief ラッチのプリセット端子の時に true を返す．
+  virtual
+  bool
+  is_latch_preset() const = 0;
 
 
 public:

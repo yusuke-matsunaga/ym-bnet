@@ -30,85 +30,39 @@ BnDffImpl::name() const
   return mName;
 }
 
-// @brief 入力数を返す．
-SizeType
-BnDffImpl::input_num() const
-{
-  return mInputs.size();
-}
-
 // @brief 入力端子のノード番号を返す．
 SizeType
-BnDffImpl::input(
-  SizeType pos
-) const
+BnDffImpl::input() const
 {
-  ASSERT_COND( 0 <= pos && pos < input_num() );
-  return mInputs[pos];
+  return mInput;
 }
 
-// @brief 出力数を返す．
+// @brief 出力端子のノード番号を返す．
 SizeType
-BnDffImpl::output_num() const
+BnDffImpl::output() const
 {
-  return mOutputs.size();
+  return mOutput;
 }
 
-// @brief 出力のノード番号を返す．
+// @brief クロック端子のノード番号を返す．
 SizeType
-BnDffImpl::output(
-  SizeType pos
-) const
+BnDffImpl::clock() const
 {
-  ASSERT_COND ( 0 <= pos && pos < output_num() );
-  return mOutputs[pos];
+  return mClock;
 }
 
-// @brief 出力の論理式を返す．
-Expr
-BnDffImpl::output_expr(
-  SizeType pos
-) const
+// @brief クリア端子のノード番号を返す．
+SizeType
+BnDffImpl::clear() const
 {
-  ASSERT_COND( 0 <= pos && pos < output_num() );
-  return mOutputExprs[pos];
+  return mClear;
 }
 
-// @brief 次状態関数の論理式を返す．
-Expr
-BnDffImpl::next_state_expr() const
+// @brief プリセット端子のノード番号を返す．
+SizeType
+BnDffImpl::preset() const
 {
-  return mNextStateExpr;
-}
-
-// @brief クロックの論理式を返す．
-Expr
-BnDffImpl::clock_expr() const
-{
-  return mClockExpr;
-}
-
-// @brief クリア条件の論理式を返す．
-Expr
-BnDffImpl::clear_expr() const
-{
-  return mClearExpr;
-}
-
-// @brief プリセット条件の論理式を返す．
-Expr
-BnDffImpl::preset_expr() const
-{
-  return mPresetExpr;
-}
-
-// @brief セル番号を返す．
-//
-// -1 の場合もある．
-int
-BnDffImpl::cell_id() const
-{
-  return mCellId;
+  return mPreset;
 }
 
 END_NAMESPACE_YM_BNET

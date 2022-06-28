@@ -25,17 +25,13 @@ BEGIN_NAMESPACE_YM_BNET
 /// 以下の情報を持つ．
 /// - ID番号: これは親の BnNetwork 内で唯一のもの．
 /// - 名前: 場合によっては空文字列となる．
-/// - 出力の論理式
-/// - 次状態関数の論理式
-/// - クロックの論理式
-/// - クリア条件の論理式
-/// - プリセット条件の論理式
-/// - セル: 場合によっては nullptr となる．
+/// - 出力のノード番号
+/// - データ入力のノード番号
+/// - クロック入力のノード番号
+/// - クリア入力のノード番号
+/// - プリセット入力のノード番号
 ///
-/// 出力および次状態関数の論理式には ni 番目の変数として
-/// 現状態の値を用いることができる．
-/// 出力にはさらに ni + 1 番目の変数として現状態の否定
-/// も用いることができる．
+/// クリアとプリセットは存在しない場合もある．
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {
@@ -62,63 +58,30 @@ public:
   string
   name() const = 0;
 
-  /// @brief 入力数を返す．
-  virtual
-  SizeType
-  input_num() const = 0;
-
   /// @brief 入力端子のノード番号を返す．
   virtual
   SizeType
-  input(
-    SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
-  ) const = 0;
+  input() const = 0;
 
-  /// @brief 出力数を返す．
+  /// @brief 出力端子のノード番号を返す．
   virtual
   SizeType
-  output_num() const = 0;
+  output() const = 0;
 
-  /// @brief 出力のノード番号を返す．
+  /// @brief クロック端子のノード番号を返す．
   virtual
   SizeType
-  output(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const = 0;
+  clock() const = 0;
 
-  /// @brief 出力の論理式を返す．
+  /// @brief クリア端子のノード番号を返す．
   virtual
-  Expr
-  output_expr(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const = 0;
+  SizeType
+  clear() const = 0;
 
-  /// @brief 次状態関数の論理式を返す．
+  /// @brief プリセット端子のノード番号を返す．
   virtual
-  Expr
-  next_state_expr() const = 0;
-
-  /// @brief クロックの論理式を返す．
-  virtual
-  Expr
-  clock_expr() const = 0;
-
-  /// @brief クリア条件の論理式を返す．
-  virtual
-  Expr
-  clear_expr() const = 0;
-
-  /// @brief プリセット条件の論理式を返す．
-  virtual
-  Expr
-  preset_expr() const = 0;
-
-  /// @brief セル番号を返す．
-  ///
-  /// -1 の場合もある．
-  virtual
-  int
-  cell_id() const = 0;
+  SizeType
+  preset() const = 0;
 
 };
 

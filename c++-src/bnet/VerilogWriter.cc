@@ -313,7 +313,7 @@ VerilogWriter::operator()(
   for ( int i: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(i);
     s << "  ";
-    if ( dff.cell_id() == -1 ) {
+    if ( /*dff.cell_id() == -1*/ true ) {
       s << "reg    ";
     }
     else {
@@ -326,7 +326,7 @@ VerilogWriter::operator()(
   for ( int i: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(i);
     s << "  ";
-    if ( latch.cell_id() == -1 ) {
+    if ( /*latch.cell_id() == -1*/ true ) {
       s << "reg   ";
     }
     else {
@@ -347,8 +347,7 @@ VerilogWriter::operator()(
     auto& dff = mNetwork.dff(i);
     const string& dff_output = mNodeNameArray[dff.output()];
     const string& dff_input = mNodeNameArray[dff.input()];
-    int cell_id = dff.cell_id();
-    if ( cell_id == -1 ) {
+    if ( true ) {
       s << "  " << "always @ ( posedge " << mNodeNameArray[dff.clock()];
       int clear = dff.clear();
       if ( clear != -1 ) {
@@ -388,8 +387,7 @@ VerilogWriter::operator()(
     auto& latch = mNetwork.latch(i);
     const string& latch_output = mNodeNameArray[latch.output()];
     const string& latch_input = mNodeNameArray[latch.input()];
-    int cell_id = latch.cell_id();
-    if ( cell_id == -1 ) {
+    if ( true ) {
       s << "  " << "always @ ( " << mNodeNameArray[latch.enable()];
       int clear = latch.clear();
       if ( clear != -1 ) {
@@ -584,6 +582,7 @@ VerilogWriter::init_name_array()
   }
 
   // DFF用のインスタンス名を登録する．
+#if 0
   for ( int id: Range(mNetwork.dff_num()) ) {
     auto& dff = mNetwork.dff(id);
     if ( dff.cell_id() != -1 ) {
@@ -591,8 +590,10 @@ VerilogWriter::init_name_array()
       mDffInstanceNameArray[id] = name;
     }
   }
+#endif
 
   // ラッチ用のインスタンス名を登録する．
+#if 0
   for ( int id: Range(mNetwork.latch_num()) ) {
     auto& latch = mNetwork.latch(id);
     if ( latch.cell_id() != -1 ) {
@@ -600,6 +601,7 @@ VerilogWriter::init_name_array()
       mLatchInstanceNameArray[id] = name;
     }
   }
+#endif
 
   // 外部出力ノードの名前をそのファンインの名前に付け替える．
   for ( int id: mNetwork.primary_output_id_list() ) {

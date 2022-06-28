@@ -198,25 +198,6 @@ public:
     bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
   );
 
-  /// @brief DFFを追加する．
-  /// @return 生成したDFF番号を返す．
-  ///
-  /// 論理式中の変数番号は 0 〜 (ni - 1) が入力端子
-  /// ni が状態変数, ni + 1 が状態変数の否定を表す．
-  ///
-  /// クリアやプリセット端子を持たない場合は
-  /// Expr::is_invalid() = true となる論理式を持つ．
-  SizeType
-  new_dff(
-    const string& name,               ///< [in] DFF名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
-    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
-    const Expr& clock_expr,           ///< [in] クロックの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr           ///< [in] プリセットの論理式
-  );
-
   /// @brief セルの情報を持ったDFFを追加する．
   /// @return 生成したDFF番号を返す．
   ///
@@ -246,25 +227,6 @@ public:
     const string& name,      ///< [in] ラッチ名
     bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
     bool has_preset = false  ///< [in] プリセット端子を持つ時 true にする．
-  );
-
-  /// @brief ラッチを追加する．
-  /// @return 生成したラッチ番号を返す．
-  ///
-  /// 論理式中の変数番号は 0 〜 (ni - 1) が入力端子
-  /// ni が状態変数, ni + 1 が状態変数の否定を表す．
-  ///
-  /// クリアやプリセット端子を持たない場合は
-  /// Expr::is_invalid() = true となる論理式を持つ．
-  SizeType
-  new_latch(
-    const string& name,               ///< [in] DFF名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
-    const Expr& data_in_expr,         ///< [in] データ入力の論理式
-    const Expr& enable_expr,          ///< [in] イネーブルの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr           ///< [in] プリセットの論理式
   );
 
   /// @brief セルの情報を持ったラッチを追加する．

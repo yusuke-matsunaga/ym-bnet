@@ -105,13 +105,9 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,               ///< [in] DFF名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
-    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
-    const Expr& clock_expr,           ///< [in] クロックの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr           ///< [in] プリセットの論理式
+    const string& name,     ///< [in] DFF名
+    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief セルの情報を持ったDFFを追加する．
@@ -131,13 +127,9 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_latch(
-    const string& name,               ///< [in] ラッチ名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式
-    const Expr& data_in_expr,         ///< [in] データ入力の論理式
-    const Expr& enable_expr,          ///< [in] イネーブルの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr           ///< [in] プリセットの論理式
+    const string& name,     ///< [in] ラッチ名
+    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief セルの情報を持ったラッチを追加する．
@@ -857,34 +849,22 @@ private:
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - cell はFFのセルでなければならない．
   SizeType
   _new_dff(
-    const string& name,               ///< [in] DFF名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
-    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
-    const Expr& clock_expr,           ///< [in] クロックの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr,          ///< [in] プリセットの論理式
-    int cell_id                       ///< [in] 対応するセル番号．
+    const string& name, ///< [in] DFF名
+    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset     ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief ラッチを追加する共通の処理を行う関数
   /// @return 生成したラッチ番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - cell はラッチのセルでなければならない．
   SizeType
   _new_latch(
-    const string& name,               ///< [in] ラッチ名
-    SizeType ni,                      ///< [in] 入力端子数
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
-    const Expr& data_in_expr,         ///< [in] 次状態関数の論理式
-    const Expr& enable_expr,          ///< [in] クロックの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr,          ///< [in] プリセットの論理式
-    int cell_id                       ///< [in] 対応するセル番号．
+    const string& name, ///< [in] ラッチ名
+    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset     ///< [in] プリセット端子を持つ時 true にする．
   );
 
   /// @brief 論理式を解析する．

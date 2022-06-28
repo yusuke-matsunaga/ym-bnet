@@ -3,7 +3,7 @@
 /// @brief BnLatchImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BnLatchImpl.h"
@@ -33,85 +33,39 @@ BnLatchImpl::name() const
   return mName;
 }
 
-// @brief 入力数を返す．
-SizeType
-BnLatchImpl::input_num() const
-{
-  return mInputs.size();
-}
-
 // @brief 入力端子のノード番号を返す．
 SizeType
-BnLatchImpl::input(
-  SizeType pos
-) const
+BnLatchImpl::input() const
 {
-  ASSERT_COND( 0 <= pos && pos < input_num() );
-  return mInputs[pos];
+  return mInput;
 }
 
-// @brief 出力数を返す．
+// @brief 出力端子のノード番号を返す．
 SizeType
-BnLatchImpl::output_num() const
+BnLatchImpl::output() const
 {
-  return mOutputs.size();
+  return mOutput;
 }
 
-// @brief 出力のノード番号を返す．
+// @brief ラッチイネーブル端子のノード番号を返す．
 SizeType
-BnLatchImpl::output(
-  SizeType pos
-) const
+BnLatchImpl::enable() const
 {
-  ASSERT_COND( 0 <= pos && pos < output_num() );
-  return mOutputs[pos];
+  return mEnable;
 }
 
-// @brief 出力の論理式を返す．
-Expr
-BnLatchImpl::output_expr(
-  SizeType pos
-) const
+// @brief クリア端子のノード番号を返す．
+SizeType
+BnLatchImpl::clear() const
 {
-  ASSERT_COND( 0 <= pos && pos < output_num() );
-  return mOutputExprs[pos];
+  return mClear;
 }
 
-// @brief データ入力の論理式を返す．
-Expr
-BnLatchImpl::data_in_expr() const
+// @brief プリセット端子のノード番号を返す．
+SizeType
+BnLatchImpl::preset() const
 {
-  return mDataInExpr;
-}
-
-// @brief ラッチイネーブルの論理式を返す．
-Expr
-BnLatchImpl::enable_expr() const
-{
-  return mEnableExpr;
-}
-
-// @brief クリア条件の論理式を返す．
-Expr
-BnLatchImpl::clear_expr() const
-{
-  return mClearExpr;
-}
-
-// @brief プリセット条件の論理式を返す．
-Expr
-BnLatchImpl::preset_expr() const
-{
-  return mPresetExpr;
-}
-
-// @brief セル番号を返す．
-//
-// -1 の場合もある．
-int
-BnLatchImpl::cell_id() const
-{
-  return mCellId;
+  return mPreset;
 }
 
 END_NAMESPACE_YM_BNET

@@ -24,28 +24,21 @@ public:
 
   /// @brief コンストラクタ
   BnDffImpl(
-    SizeType id,                      ///< [in] ID番号
-    const string& name, 	      ///< [in] 名前
-    const vector<SizeType>& inputs,   ///< [in] 入力のノード番号のリスト
-    const vector<SizeType>& outputs,  ///< [in] 出力のノード番号のリスト
-    const vector<Expr>& output_exprs, ///< [in] 出力の論理式のリスト
-    const Expr& next_state_expr,      ///< [in] 次状態関数の論理式
-    const Expr& clock_expr,           ///< [in] クロックの論理式
-    const Expr& clear_expr,           ///< [in] クリアの論理式
-    const Expr& preset_expr,          ///< [in] プリセットの論理式
-    int cell_id                       ///< [in] セル番号
+    SizeType id,        ///< [in] ID番号
+    const string& name, ///< [in] 名前
+    SizeType input,     ///< [in] 入力端子のノード番号
+    SizeType output,    ///< [in] 出力端子のノード番号
+    SizeType clock,     ///< [in] クロック端子のノード番号
+    SizeType clear,     ///< [in] クリア端子のノード番号
+    SizeType preset     ///< [in] プリセット端子のノード番号
   ) : mId{id},
       mName{name},
-      mInputs{inputs},
-      mOutputs{outputs},
-      mOutputExprs{output_exprs},
-      mNextStateExpr{next_state_expr},
-      mClockExpr{clock_expr},
-      mClearExpr{clear_expr},
-      mPresetExpr{preset_expr},
-      mCellId{cell_id}
+      mInput{input},
+      mOutput{output},
+      mClock{clock},
+      mClear{clear},
+      mPreset{preset}
   {
-    ASSERT_COND( mOutputs.size() == mOutputExprs.size() );
   }
 
   /// @brief デストラクタ
@@ -66,53 +59,25 @@ public:
   string
   name() const override;
 
-  /// @brief 入力数を返す．
-  SizeType
-  input_num() const override;
-
   /// @brief 入力端子のノード番号を返す．
   SizeType
-  input(
-    SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
-  ) const override;
+  input() const override;
 
-  /// @brief 出力数を返す．
+  /// @brief 出力端子のノード番号を返す．
   SizeType
-  output_num() const override;
+  output() const override;
 
-  /// @brief 出力のノード番号を返す．
+  /// @brief クロック端子のノード番号を返す．
   SizeType
-  output(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const override;
+  clock() const override;
 
-  /// @brief 出力の論理式を返す．
-  Expr
-  output_expr(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const override;
+  /// @brief クリア端子のノード番号を返す．
+  SizeType
+  clear() const override;
 
-  /// @brief 次状態関数の論理式を返す．
-  Expr
-  next_state_expr() const override;
-
-  /// @brief クロックの論理式を返す．
-  Expr
-  clock_expr() const override;
-
-  /// @brief クリア条件の論理式を返す．
-  Expr
-  clear_expr() const override;
-
-  /// @brief プリセット条件の論理式を返す．
-  Expr
-  preset_expr() const override;
-
-  /// @brief セル番号を返す．
-  ///
-  /// -1 の場合もある．
-  int
-  cell_id() const override;
+  /// @brief プリセット端子のノード番号を返す．
+  SizeType
+  preset() const override;
 
 
 private:
@@ -127,28 +92,19 @@ private:
   string mName;
 
   // 入力のノード番号
-  vector<SizeType> mInputs;
+  SizeType mInput;
 
   // 出力のノード番号
-  vector<SizeType> mOutputs;
+  SizeType mOutput;
 
-  // 出力の論理式
-  vector<Expr> mOutputExprs;
+  // クロックのノード番号
+  SizeType mClock;
 
-  // 次状態関数の論理式
-  Expr mNextStateExpr;
+  // クリアのノード番号
+  SizeType mClear;
 
-  // クロックの論理式
-  Expr mClockExpr;
-
-  // クリアの論理式
-  Expr mClearExpr;
-
-  // プリセットの論理式
-  Expr mPresetExpr;
-
-  // セル番号
-  int mCellId;
+  // プリセットのノード番号
+  SizeType mPreset;
 
 };
 
