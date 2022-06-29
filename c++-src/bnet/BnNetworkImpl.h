@@ -194,17 +194,13 @@ public:
   ///
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は expr.input_num() を用いる．
+  /// - expr 中の変数に抜けがある場合には詰められる．
   SizeType
   new_expr(
     const string& node_name,              ///< [in] ノード名
     const Expr& expr,                     ///< [in] 論理式
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto id = new_expr(node_name, expr);
-    connect_fanins(id, fanin_id_list);
-    return id;
-  }
+  );
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -851,9 +847,12 @@ private:
   /// - 名前の重複に関しては感知しない．
   SizeType
   _new_dff(
-    const string& name, ///< [in] DFF名
-    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset     ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,             ///< [in] DFF名
+    bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
+    int cell_id,                    ///< [in] セルのID番号
+    const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
+    const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト
   );
 
   /// @brief ラッチを追加する共通の処理を行う関数
@@ -862,9 +861,12 @@ private:
   /// - 名前の重複に関しては感知しない．
   SizeType
   _new_latch(
-    const string& name, ///< [in] ラッチ名
-    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset     ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,             ///< [in] ラッチ名
+    bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
+    int cell_id,                    ///< [in] セルのID番号
+    const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
+    const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト
   );
 
   /// @brief 論理式を解析する．

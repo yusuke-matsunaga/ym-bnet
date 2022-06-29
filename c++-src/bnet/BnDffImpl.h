@@ -79,6 +79,24 @@ public:
   SizeType
   preset() const override;
 
+  /// @brief セルに割り当てられている場合のセル番号を返す．
+  ///
+  /// セルが割り当てられていない場合には -1 を返す．
+  int
+  cell_id() const override;
+
+  /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
+  SizeType
+  cell_input(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
+  ) const override;
+
+  /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
+  SizeType
+  cell_output(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell.output_num() )
+  ) const override;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -105,6 +123,80 @@ private:
 
   // プリセットのノード番号
   SizeType mPreset;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnDffCell BnDffImpl.h "BnDffImpl.h"
+/// @brief セルに対応する BnDffImpl の継承クラス
+//////////////////////////////////////////////////////////////////////
+class BnDffCell :
+  public BnDffImpl
+{
+public:
+
+  /// @brief コンストラクタ
+  BnDffCell(
+    SizeType id,                    ///< [in] ID番号
+    const string& name,             ///< [in] 名前
+    SizeType input,                 //< [in] 入力端子のノード番号
+    SizeType output,                ///< [in] 出力端子のノード番号
+    SizeType clock,                 ///< [in] クロック端子のノード番号
+    SizeType clear,                 ///< [in] クリア端子のノード番号
+    SizeType preset,                ///< [in] プリセット端子のノード番号
+    int cell_id,                    ///< [in] セルのID番号
+    const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
+    const vector<SizeType>& outputs ///< [in] セルの入力ノード番号のリスト
+  ) : BnDffImpl{id, name, input, output,
+		clock, clear, preset},
+      mCellId{cell_id},
+      mInputs{inputs},
+      mOutputs{outputs}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnDffCell() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief セルに割り当てられている場合のセル番号を返す．
+  ///
+  /// セルが割り当てられていない場合には -1 を返す．
+  int
+  cell_id() const override;
+
+  /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
+  SizeType
+  cell_input(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
+  ) const override;
+
+  /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
+  SizeType
+  cell_output(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell.output_num() )
+  ) const override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // セル番号
+  int mCellId;
+
+  // セルの入力端子に対応するノード番号のリスト
+  vector<SizeType> mInputs;
+
+  // セルの出力端子に対応するノード番号のリスト
+  vector<SizeType> mOutputs;
 
 };
 

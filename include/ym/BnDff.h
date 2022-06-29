@@ -83,6 +83,27 @@ public:
   SizeType
   preset() const = 0;
 
+  /// @brief セルに割り当てられている場合のセル番号を返す．
+  ///
+  /// セルが割り当てられていない場合には -1 を返す．
+  virtual
+  int
+  cell_id() const = 0;
+
+  /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
+  virtual
+  SizeType
+  cell_input(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
+  ) const = 0;
+
+  /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
+  virtual
+  SizeType
+  cell_output(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell.output_num() )
+  ) const = 0;
+
 };
 
 END_NAMESPACE_YM_BNET

@@ -8,8 +8,7 @@
 
 #include "BnNetworkImpl.h"
 #include "ym/ClibCell.h"
-#include "ym/ClibFFInfo.h"
-#include "ym/ClibLatchInfo.h"
+#include "ym/ClibPin.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Range.h"
@@ -232,7 +231,7 @@ BnNetworkImpl::_copy_dff(
   string dff_name = src_dff.name();
   bool has_clear = src_dff.clear() != BNET_NULLID;
   bool has_preset = src_dff.preset() != BNET_NULLID;
-  auto dst_id = _new_dff(dff_name, has_clear, has_preset);
+  auto dst_id = new_dff(dff_name, has_clear, has_preset);
   auto& dst_dff = dff(dst_id);
 
   // 各端子の対応関係を記録する．
@@ -275,7 +274,7 @@ BnNetworkImpl::_copy_latch(
   string latch_name = src_latch.name();
   bool has_clear = src_latch.clear() != BNET_NULLID;
   bool has_preset = src_latch.preset() != BNET_NULLID;
-  auto dst_id = _new_latch(latch_name, has_clear, has_preset);
+  auto dst_id = _new_latch(latch_name, has_clear, has_preset, -1, {}, {});
   auto& dst_latch = latch(dst_id);
 
   // 各端子の対応関係を記録する．
@@ -410,6 +409,31 @@ BnNetworkImpl::_new_logic(
   return node;
 }
 
+// @brief 論理式型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_expr(
+  const string& node_name,
+  const Expr& expr,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  unordered_map<VarId, VarId> varmap;
+  vector<SizeType> local_inputs;
+  SizeType ni = fanin_id_list.size();
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    if ( expr.literal_num(VarId{i}) > 0 ) {
+      auto lid = local_inputs.size();
+      varmap.emplace(VarId{i}, VarId{lid});
+      SizeType inode = fanin_id_list[i];
+      local_inputs.push_back(inode);
+    }
+  }
+  auto local_expr = expr.remap_var(varmap);
+  auto id = new_expr(node_name, local_expr);
+  connect_fanins(id, local_inputs);
+  return id;
+}
+
 // @brief DFFを追加する．
 SizeType
 BnNetworkImpl::new_dff(
@@ -418,21 +442,16 @@ BnNetworkImpl::new_dff(
   bool has_preset
 )
 {
-  return _new_dff(name, has_clear, has_preset);
+  return _new_dff(name, has_clear, has_preset, -1, {}, {});
 }
 
 // @brief セルの情報を持ったDFFを追加する．
-// @return 生成したDFF番号を返す．
-//
-// - 名前の重複に関しては感知しない．
-// - FFセルでない場合には -1 を返す．
 SizeType
 BnNetworkImpl::new_dff(
-  const string& name, ///< [in] DFF名
-  int cell_id         ///< [in] 対応するセル番号
+  const string& name,
+  int cell_id
 )
 {
-#if 0
   const ClibCell& cell = mCellLibrary.cell(cell_id);
   if ( !cell.is_ff() ) {
     return -1;
@@ -442,25 +461,64 @@ BnNetworkImpl::new_dff(
   }
 
   SizeType ni = cell.input_num();
+  vector<SizeType> inputs(ni);
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    ostringstream buf;
+    buf << name << "." << cell.input(i).name();
+    inputs[i] = new_primitive(buf.str(), 1, BnNodeType::Buff);
+  }
+
   SizeType no = cell.output_num();
-  vector<Expr> output_exprs(no);
+  vector<SizeType> outputs(no);
   for ( SizeType i = 0; i < no; ++ i ) {
     if ( !cell.has_logic(i) || cell.has_tristate(i) ) {
       return -1;
     }
-    output_expr[i] = cell.logic_expr(i);
+    ostringstream buf;
+    buf << name << "." << cell.output(i).name();
+    outputs[i] = new_primitive(buf.str(), 1, BnNodeType::Buff);
   }
+
+  // FFコアを作る．
+  bool has_clear = cell.clear_expr().is_valid();
+  bool has_preset = cell.preset_expr().is_valid();
+  SizeType dff_id = _new_dff(name, has_clear, has_preset,
+			     cell_id, inputs, outputs);
+  auto& dff = this->dff(dff_id);
+
+  inputs.push_back(dff.output());
+
+  // コア周辺のグルーロジックを作る．
   auto next_state_expr = cell.next_state_expr();
+  {
+    auto tmp_id = new_expr(string{}, next_state_expr, inputs);
+    connect(tmp_id, dff.input(), 0);
+  }
+
   auto clock_expr = cell.clock_expr();
-  auto clear_expr = cell.clear_expr();
-  auto preset_expr = cell.preset_expr();
-  return _new_dff(name, ni, output_exprs,
-		  next_state_expr,
-		  clock_expr,
-		  clear_expr,
-		  preset_expr,
-		  cell_id);
-#endif
+  {
+    auto tmp_id = new_expr(string{}, clock_expr, inputs);
+    connect(tmp_id, dff.clock(), 0);
+  }
+
+  if ( has_clear ) {
+    auto clear_expr = cell.clear_expr();
+    auto tmp_id = new_expr(string{}, clear_expr, inputs);
+    connect(tmp_id, dff.clear(), 0);
+  }
+  if ( has_preset ) {
+    auto preset_expr = cell.preset_expr();
+    auto tmp_id = new_expr(string{}, preset_expr, inputs);
+    connect(tmp_id, dff.preset(), 0);
+  }
+
+  for ( SizeType i = 0; i < no; ++ i ) {
+    auto output_expr = cell.logic_expr(i);
+    auto tmp_id = new_expr(string{}, output_expr, inputs);
+    connect(tmp_id, outputs[i], 0);
+  }
+
+  return dff_id;
 }
 
 // @brief ラッチを追加する．
@@ -471,7 +529,7 @@ BnNetworkImpl::new_latch(
   bool has_preset
 )
 {
-  return _new_latch(name, has_clear, has_preset);
+  return _new_latch(name, has_clear, has_preset, -1, {}, {});
 }
 
 // @brief セルの情報を持ったラッチを追加する．
@@ -481,7 +539,6 @@ BnNetworkImpl::new_latch(
   int cell_id
 )
 {
-#if 0
   const ClibCell& cell = mCellLibrary.cell(cell_id);
   if ( !cell.is_latch() ) {
     return -1;
@@ -491,25 +548,65 @@ BnNetworkImpl::new_latch(
   }
 
   SizeType ni = cell.input_num();
+  vector<SizeType> inputs(ni);
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    ostringstream buf;
+    buf << name << "." << cell.input(i).name();
+    inputs[i] = new_primitive(buf.str(), 1, BnNodeType::Buff);
+  }
+
   SizeType no = cell.output_num();
-  vector<Expr> output_exprs(no);
+  vector<SizeType> outputs(no);
   for ( SizeType i = 0; i < no; ++ i ) {
     if ( !cell.has_logic(i) || cell.has_tristate(i) ) {
       return -1;
     }
-    output_expr[i] = cell.logic_expr(i);
+    ostringstream buf;
+    buf << name << "." << cell.output(i).name();
+    outputs[i] = new_primitive(buf.str(), 1, BnNodeType::Buff);
   }
+
+  // latch コアを作る．
+  bool has_clear = cell.clear_expr().is_valid();
+  bool has_preset = cell.preset_expr().is_valid();
+  SizeType latch_id = _new_latch(name, has_clear, has_preset,
+				 cell_id, inputs, outputs);
+  auto& latch = this->latch(latch_id);
+
+  inputs.push_back(latch.output());
+
+  // コア周辺のグルーロジックを作る．
   auto data_in_expr = cell.data_in_expr();
+  {
+    auto tmp_id = new_expr(string{}, data_in_expr, inputs);
+    connect(tmp_id, latch.input(), 0);
+  }
+
   auto enable_expr = cell.enable_expr();
-  auto clear_expr = cell.clear_expr();
-  auto preset_expr = cell.preset_expr();
-  return _new_latch(name, ni, output_exprs,
-		    data_in_expr,
-		    enable_expr,
-		    clear_expr,
-		    preset_expr,
-		    cell_id);
-#endif
+  {
+    auto tmp_id = new_expr(string{}, enable_expr, inputs);
+    connect(tmp_id, latch.enable(), 0);
+  }
+
+  if ( has_clear ) {
+    auto clear_expr = cell.clear_expr();
+    auto tmp_id = new_expr(string{}, clear_expr, inputs);
+    connect(tmp_id, latch.clear(), 0);
+  }
+
+  if ( has_preset ) {
+    auto preset_expr = cell.preset_expr();
+    auto tmp_id = new_expr(string{}, preset_expr, inputs);
+    connect(tmp_id, latch.preset(), 0);
+  }
+
+  for ( SizeType i = 0; i < no; ++ i ) {
+    auto output_expr = cell.logic_expr(i);
+    auto tmp_id = new_expr(string{}, output_expr, inputs);
+    connect(tmp_id, outputs[i], 0);
+  }
+
+  return latch_id;
 }
 
 // @brief 各ノードがプリミティブ型になるように分解する．
@@ -664,7 +761,10 @@ SizeType
 BnNetworkImpl::_new_dff(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  int cell_id,
+  const vector<SizeType>& inputs,
+  const vector<SizeType>& outputs
 )
 {
   auto dff_id = mDffList.size();
@@ -724,8 +824,16 @@ BnNetworkImpl::_new_dff(
     clear_id = node->id();
   }
 
-  auto dff = new BnDffImpl(dff_id, name, input_id, output_id,
-			   clock_id, clear_id, preset_id);
+  BnDff* dff;
+  if ( cell_id != -1 ) {
+    dff = new BnDffCell{dff_id, name, input_id, output_id,
+			clock_id, clear_id, preset_id,
+			cell_id, inputs, outputs};
+  }
+  else {
+    dff = new BnDffImpl(dff_id, name, input_id, output_id,
+			clock_id, clear_id, preset_id);
+  }
   mDffList.push_back(dff);
 
   return dff_id;
@@ -736,7 +844,10 @@ SizeType
 BnNetworkImpl::_new_latch(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  int cell_id,
+  const vector<SizeType>& inputs,
+  const vector<SizeType>& outputs
 )
 {
   auto latch_id = mLatchList.size();
@@ -796,8 +907,16 @@ BnNetworkImpl::_new_latch(
     clear_id = node->id();
   }
 
-  auto latch = new BnLatchImpl(latch_id, name, input_id, output_id,
-			       enable_id, clear_id, preset_id);
+  BnLatch* latch;
+  if ( cell_id != -1 ) {
+    latch = new BnLatchCell(latch_id, name, input_id, output_id,
+			    enable_id, clear_id, preset_id,
+			    cell_id, inputs, outputs);
+  }
+  else {
+    latch = new BnLatchImpl(latch_id, name, input_id, output_id,
+			    enable_id, clear_id, preset_id);
+  }
   mLatchList.push_back(latch);
 
   return latch_id;
