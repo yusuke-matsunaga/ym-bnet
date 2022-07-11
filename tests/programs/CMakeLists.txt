@@ -165,3 +165,29 @@ target_compile_options ( read_truth_test
 target_link_libraries ( read_truth_test
   ${YM_LIB_DEPENDS}
   )
+
+
+# ===================================================================
+#  read_aig_test
+# ===================================================================
+
+set ( read_aig_test_SOURCES
+  bnet/read_aig_test.cc
+  )
+
+add_executable ( read_aig_test
+  ${read_aig_test_SOURCES}
+  $<TARGET_OBJECTS:ym_aig_obj_d>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( read_aig_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( read_aig_test
+  ${YM_LIB_DEPENDS}
+  )
