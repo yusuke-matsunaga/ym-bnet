@@ -25,6 +25,7 @@ ym_add_gtest ( bnet_FuncAnalyzer_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   )
 
 target_include_directories ( bnet_FuncAnalyzer_test
@@ -38,6 +39,7 @@ ym_add_gtest ( bnet_read_blif_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   DEFINITIONS
   "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
   )
@@ -53,6 +55,7 @@ ym_add_gtest ( bnet_read_iscas89_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   DEFINITIONS
   "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
   )
@@ -68,6 +71,7 @@ ym_add_gtest ( bnet_import_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   )
 
 ym_add_gtest ( bnet_substitute_fanout_test
@@ -76,6 +80,7 @@ ym_add_gtest ( bnet_substitute_fanout_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   )
 
 ym_add_gtest ( bnet_simple_decomp_test
@@ -84,4 +89,5 @@ ym_add_gtest ( bnet_simple_decomp_test
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_aig_obj_d>
   )

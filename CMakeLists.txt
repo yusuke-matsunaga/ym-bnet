@@ -80,6 +80,7 @@ set ( bnet_SOURCES
   c++-src/bnet/Iscas89Writer.cc
   c++-src/bnet/VerilogWriter.cc
   c++-src/bnet/read_truth.cc
+  c++-src/bnet/read_aig.cc
   )
 
 set ( iscas89_SOURCES
