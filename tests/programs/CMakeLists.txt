@@ -134,3 +134,28 @@ target_compile_options ( loop_test
 target_link_libraries ( loop_test
   ${YM_LIB_DEPENDS}
   )
+
+
+# ===================================================================
+#  read_truth_test
+# ===================================================================
+
+set ( read_truth_test_SOURCES
+  bnet/read_truth_test.cc
+  )
+
+add_executable ( read_truth_test
+  ${read_truth_test_SOURCES}
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( read_truth_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( read_truth_test
+  ${YM_LIB_DEPENDS}
+  )

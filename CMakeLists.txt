@@ -79,6 +79,7 @@ set ( bnet_SOURCES
   c++-src/bnet/BlifWriter.cc
   c++-src/bnet/Iscas89Writer.cc
   c++-src/bnet/VerilogWriter.cc
+  c++-src/bnet/read_truth.cc
   )
 
 set ( iscas89_SOURCES

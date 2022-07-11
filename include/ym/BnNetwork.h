@@ -799,6 +799,14 @@ public:
     const string& clock_name = string{} ///< [in] クロック端子名
   );
 
+  /// @brief .truth 形式のファイルを読み込む．
+  /// @return ネットワークを返す．
+  static
+  BnNetwork
+  read_truth(
+    const string& filename ///< [in] ファイル名
+  );
+
   /// @brief 内容を blif 形式で出力する．
   ///
   /// ポートの情報は無視される．
