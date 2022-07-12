@@ -9,7 +9,7 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
-#include "ym/Aig.h"
+#include "AigReader.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -19,7 +19,7 @@ BEGIN_NONAMESPACE
 // Aig を BnNetwork に変換する．
 BnNetwork
 aig2bnet(
-  const Aig& aig,
+  const AigReader& aig,
   const string& clock_name,
   const string& reset_name
 )
@@ -37,9 +37,13 @@ aig2bnet(
 
   // 入力ポートの生成
   for ( SizeType i = 0; i < ni; ++ i ) {
-    ostringstream buf;
-    buf << "i" << i;
-    auto id = network.new_input_port(buf.str());
+    auto name = aig.input_symbol(i);
+    if ( name == string{} ) {
+      ostringstream buf;
+      buf << "i" << i;
+      name = buf.str();
+    }
+    auto id = network.new_input_port(name);
     const auto& port = network.port(id);
     auto node_id = port.bit(0);
     auto lit = aig.input(i);
@@ -49,9 +53,13 @@ aig2bnet(
   // 出力ポートの生成
   vector<SizeType> output_list(no);
   for ( SizeType i = 0; i < no; ++ i ) {
-    ostringstream buf;
-    buf << "o" << i;
-    auto id = network.new_output_port(buf.str());
+    auto name = aig.output_symbol(i);
+    if ( name == string{} ) {
+      ostringstream buf;
+      buf << "o" << i;
+      name = buf.str();
+    }
+    auto id = network.new_output_port(name);
     const auto& port = network.port(id);
     auto node_id = port.bit(0);
     output_list[i] = node_id;
@@ -72,9 +80,13 @@ aig2bnet(
     reset_id = reset_port.bit(0);
   }
   for ( SizeType i = 0; i < nl; ++ i ) {
-    ostringstream buf;
-    buf << "l" << i;
-    auto id = network.new_dff(buf.str(), true);
+    auto name = aig.latch_symbol(i);
+    if ( name == string{} ) {
+      ostringstream buf;
+      buf << "l" << i;
+      name = buf.str();
+    }
+    auto id = network.new_dff(name, true);
     const auto& dff = network.dff(id);
     network.connect(clock_id, dff.clock(), 0);
     network.connect(reset_id, dff.clear(), 0);
@@ -178,8 +190,8 @@ BnNetwork::read_aag(
   const string& reset_name
 )
 {
-  Aig aig;
-  if ( !aig.read_aig(filename) ) {
+  AigReader aig;
+  if ( !aig.read_aag(filename) ) {
     throw BnetError{"Error in read_aag"};
   }
 
@@ -194,7 +206,7 @@ BnNetwork::read_aig(
   const string& reset_name
 )
 {
-  Aig aig;
+  AigReader aig;
   if ( !aig.read_aig(filename) ) {
     throw BnetError{"Error in read_aag"};
   }

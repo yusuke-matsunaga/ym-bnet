@@ -21,7 +21,6 @@ set ( blifparser_test_SOURCES
 
 add_executable ( blifparser_test
   ${blifparser_test_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -47,7 +46,6 @@ set ( iscas89parser_test_SOURCES
 
 add_executable ( iscas89parser_test
   ${iscas89parser_test_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -73,7 +71,6 @@ set ( BnBlifReaderTest_SOURCES
 
 add_executable ( BnBlifReaderTest
   ${BnBlifReaderTest_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -99,7 +96,6 @@ set ( BnIscas89ReaderTest_SOURCES
 
 add_executable ( BnIscas89ReaderTest
   ${BnIscas89ReaderTest_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -125,7 +121,6 @@ set ( loop_test_SOURCES
 
 add_executable ( loop_test
   ${loop_test_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -151,7 +146,6 @@ set ( read_truth_test_SOURCES
 
 add_executable ( read_truth_test
   ${read_truth_test_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
@@ -177,7 +171,6 @@ set ( read_aig_test_SOURCES
 
 add_executable ( read_aig_test
   ${read_aig_test_SOURCES}
-  $<TARGET_OBJECTS:ym_aig_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>

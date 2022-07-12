@@ -22,10 +22,20 @@ read_aig_test(
   }
 
   string filename = argv[1];
+  auto pos = filename.find_last_of(".");
+  string ext;
+  if ( pos != string::npos ) {
+    ext = filename.substr(pos + 1);
+  }
+  BnNetwork network;
+  if ( ext == "aig" ) {
+    network = BnNetwork::read_aig(filename);
+  }
+  else if ( ext == "aag" ) {
+    network = BnNetwork::read_aag(filename);
+  }
 
-  auto network = BnNetwork::read_aig(filename);
-
-  network.write_blif(cout);
+  network.write(cout);
 
   return 0;
 }
