@@ -64,6 +64,7 @@ set ( blif_SOURCES
 
 set ( bnet_SOURCES
   c++-src/bnet/AigReader.cc
+  c++-src/bnet/AigWriter.cc
   c++-src/bnet/BnBlifHandler.cc
   c++-src/bnet/BnDffImpl.cc
   c++-src/bnet/BnIscas89Handler.cc

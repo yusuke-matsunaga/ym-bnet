@@ -184,3 +184,28 @@ target_compile_options ( read_aig_test
 target_link_libraries ( read_aig_test
   ${YM_LIB_DEPENDS}
   )
+
+
+# ===================================================================
+#  write_aig_test
+# ===================================================================
+
+set ( write_aig_test_SOURCES
+  bnet/write_aig_test.cc
+  )
+
+add_executable ( write_aig_test
+  ${write_aig_test_SOURCES}
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( write_aig_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( write_aig_test
+  ${YM_LIB_DEPENDS}
+  )

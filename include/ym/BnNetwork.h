@@ -859,6 +859,21 @@ public:
     const string& instance_suffix = string{}  ///< [in] インスタンス自動生成名の接尾語
   ) const;
 
+  /// @brief 内容を aig 形式で出力する．
+  void
+  write_aig(
+    const string& filename,          ///< [in] ファイル名
+    const string& comment = string{} ///< [in] コメント文字列
+  ) const;
+
+  /// @brief 内容を aag (ascii aig) 形式で出力する．
+  void
+  write_aag(
+    const string& filename,          ///< [in] ファイル名
+    const string& comment = string{} ///< [in] コメント文字列
+  ) const;
+
+
   //////////////////////////////////////////////////////////////////////
   /// @}
   //////////////////////////////////////////////////////////////////////
@@ -900,6 +915,20 @@ public:
     const string& node_suffix = string{},     ///< [in] ノード自動生成名の接尾語
     const string& instance_prefix = string{}, ///< [in] インスタンス自動生成名の接頭語
     const string& instance_suffix = string{}  ///< [in] インスタンス自動生成名の接尾語
+  ) const;
+
+  /// @brief 内容を aig 形式で出力する．
+  void
+  write_aig(
+    ostream& s,                      ///< [in] 出力先のストリーム
+    const string& comment = string{} ///< [in] コメント文字列
+  ) const;
+
+  /// @brief 内容を aag (ascii aig) 形式で出力する．
+  void
+  write_aag(
+    ostream& s,                      ///< [in] 出力先のストリーム
+    const string& comment = string{} ///< [in] コメント文字列
   ) const;
 
   /// @brief 内容を出力する．
