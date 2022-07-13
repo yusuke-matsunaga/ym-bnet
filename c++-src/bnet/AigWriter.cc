@@ -98,7 +98,7 @@ make_xor_sub(
   SizeType ni = to - from;
   ASSERT_COND( ni > 0 );
   if ( ni == 1 ) {
-    return fanin_lits[0];
+    return fanin_lits[from];
   }
   // ni >= 2
   SizeType nh = ni / 2;
