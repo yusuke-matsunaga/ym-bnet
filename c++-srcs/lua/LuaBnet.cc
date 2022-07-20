@@ -643,19 +643,7 @@ LuaBnet::init(
 
   Luapp lua{L};
 
-  // BnNetwork に対応する Lua の metatable を作る．
-  lua.L_newmetatable(BNET_SIGNATURE);
-
-  // metatable 自身を __index に登録する．
-  lua.push_value(-1);
-  lua.set_field(-2, "__index");
-
-  // デストラクタを __gc い登録する．
-  lua.push_cfunction(bnet_gc);
-  lua.set_field(-2, "__gc");
-
-  // メソッドテーブルを登録する．
-  lua.L_setfuncs(mt, 0);
+  lua.reg_metatable(BNET_SIGNATURE, bnet_gc, mt);
 
   // 生成関数を登録する．
   mylib.push_back({"read_blif",    bnet_read_blif});
@@ -663,18 +651,6 @@ LuaBnet::init(
   mylib.push_back({"read_aig",     bnet_read_aig});
   mylib.push_back({"read_aag",     bnet_read_aag});
   mylib.push_back({"read_truth",   bnet_read_truth});
-}
-
-
-// @brief 対象が BnNetwork の時 true を返す．
-bool
-LuaBnet::is_bnet(
-  lua_State*L,
-  int idx
-)
-{
-  auto bnet = to_bnet(L, idx);
-  return bnet != nullptr;
 }
 
 // @brief 対象を BnNetwork として取り出す．

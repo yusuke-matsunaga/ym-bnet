@@ -39,7 +39,11 @@ public:
   is_bnet(
     lua_State* L, ///< [in] lua インタープリタ
     int idx       ///< [in] スタック上のインデックス
-  );
+  )
+  {
+    auto obj = to_bnet(L, idx);
+    return obj != nullptr;
+  }
 
   /// @brief 対象を BnNetwork として取り出す．
   ///
