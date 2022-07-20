@@ -30,7 +30,7 @@ ym_add_gtest ( bnet_FuncAnalyzer_test
 
 target_include_directories ( bnet_FuncAnalyzer_test
   PRIVATE
-  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-src/bnet
+  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-srcs/bnet
   )
 
 ym_add_gtest ( bnet_read_blif_test
@@ -46,7 +46,7 @@ ym_add_gtest ( bnet_read_blif_test
 
 target_include_directories ( bnet_read_blif_test
   PRIVATE
-  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-src/blif
+  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-srcs/blif
   )
 
 ym_add_gtest ( bnet_read_iscas89_test
@@ -62,7 +62,7 @@ ym_add_gtest ( bnet_read_iscas89_test
 
 target_include_directories ( bnet_read_iscas89_test
   PRIVATE
-  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-src/iscas89
+  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-srcs/iscas89
   )
 
 ym_add_gtest ( bnet_import_test

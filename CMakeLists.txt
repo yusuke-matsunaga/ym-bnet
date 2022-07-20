@@ -16,6 +16,7 @@
 # ===================================================================
 # パッケージの検査
 # ===================================================================
+ym_init_lua()
 
 
 # ===================================================================
@@ -56,46 +57,50 @@ add_subdirectory ( tests/programs )
 # ===================================================================
 
 set ( blif_SOURCES
-  c++-src/blif/BlifCoverMgr.cc
-  c++-src/blif/BlifHandler.cc
-  c++-src/blif/BlifParserImpl.cc
-  c++-src/blif/BlifScanner.cc
+  c++-srcs/blif/BlifCoverMgr.cc
+  c++-srcs/blif/BlifHandler.cc
+  c++-srcs/blif/BlifParserImpl.cc
+  c++-srcs/blif/BlifScanner.cc
   )
 
 set ( bnet_SOURCES
-  c++-src/bnet/AigReader.cc
-  c++-src/bnet/AigWriter.cc
-  c++-src/bnet/BnBlifHandler.cc
-  c++-src/bnet/BnDffImpl.cc
-  c++-src/bnet/BnIscas89Handler.cc
-  c++-src/bnet/BnLatchImpl.cc
-  c++-src/bnet/BnNetwork.cc
-  c++-src/bnet/BnNetworkImpl.cc
-  c++-src/bnet/BnNodeImpl.cc
-  c++-src/bnet/BnInputNode.cc
-  c++-src/bnet/BnOutputNode.cc
-  c++-src/bnet/BnLogicNode.cc
-  c++-src/bnet/BnPortImpl.cc
-  c++-src/bnet/FuncAnalyzer.cc
-  c++-src/bnet/WriterBase.cc
-  c++-src/bnet/BlifWriter.cc
-  c++-src/bnet/Iscas89Writer.cc
-  c++-src/bnet/VerilogWriter.cc
-  c++-src/bnet/read_truth.cc
-  c++-src/bnet/read_aig.cc
+  c++-srcs/bnet/AigReader.cc
+  c++-srcs/bnet/AigWriter.cc
+  c++-srcs/bnet/BnBlifHandler.cc
+  c++-srcs/bnet/BnDffImpl.cc
+  c++-srcs/bnet/BnIscas89Handler.cc
+  c++-srcs/bnet/BnLatchImpl.cc
+  c++-srcs/bnet/BnNetwork.cc
+  c++-srcs/bnet/BnNetworkImpl.cc
+  c++-srcs/bnet/BnNodeImpl.cc
+  c++-srcs/bnet/BnInputNode.cc
+  c++-srcs/bnet/BnOutputNode.cc
+  c++-srcs/bnet/BnLogicNode.cc
+  c++-srcs/bnet/BnPortImpl.cc
+  c++-srcs/bnet/FuncAnalyzer.cc
+  c++-srcs/bnet/WriterBase.cc
+  c++-srcs/bnet/BlifWriter.cc
+  c++-srcs/bnet/Iscas89Writer.cc
+  c++-srcs/bnet/VerilogWriter.cc
+  c++-srcs/bnet/read_truth.cc
+  c++-srcs/bnet/read_aig.cc
   )
 
 set ( iscas89_SOURCES
-  c++-src/iscas89/Iscas89Handler.cc
-  c++-src/iscas89/Iscas89Parser.cc
-  c++-src/iscas89/Iscas89ParserImpl.cc
-  c++-src/iscas89/Iscas89Scanner.cc
+  c++-srcs/iscas89/Iscas89Handler.cc
+  c++-srcs/iscas89/Iscas89Parser.cc
+  c++-srcs/iscas89/Iscas89ParserImpl.cc
+  c++-srcs/iscas89/Iscas89Scanner.cc
   )
 
 set ( ym_bnet_SOURCES
   ${blif_SOURCES}
   ${bnet_SOURCES}
   ${iscas89_SOURCES}
+  )
+
+set ( ym_luabnet_SOURCES
+  c++-srcs/lua/LuaBnet.cc
   )
 
 
@@ -106,3 +111,21 @@ set ( ym_bnet_SOURCES
 ym_add_object_library ( ym_bnet
   ${ym_bnet_SOURCES}
   )
+
+if ( LUA_FOUND )
+  ym_add_object_library ( ym_luabnet
+    ${ym_luabnet_SOURCES}
+    )
+
+  target_include_directories ( ym_luabnet_obj
+    PRIVATE ${LUA_INCLUDE_DIR}
+    )
+
+  target_include_directories ( ym_luabnet_obj_d
+    PRIVATE ${LUA_INCLUDE_DIR}
+    )
+
+  target_include_directories ( ym_luabnet_obj_p
+    PRIVATE ${LUA_INCLUDE_DIR}
+    )
+endif ( LUA_FOUND )
