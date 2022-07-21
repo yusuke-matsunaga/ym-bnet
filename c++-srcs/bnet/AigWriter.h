@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -51,6 +52,55 @@ public:
   make_and(
     SizeType src1, ///< [in] ソース1のリテラル
     SizeType src2  ///< [in] ソース2のリテラル
+  );
+
+  /// @brief AND ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_and(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  /// @brief NAND ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_nand(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  /// @brief OR ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_or(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  /// @brief NOR ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_nor(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  /// @brief XOR ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_xor(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  /// @brief XNOR ゲートをAIGに変換する．
+  /// @return 作成したANDノードのリテラルを返す．
+  SizeType
+  make_xnor(
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
+  );
+
+  // @brief Expr を AIG に変換する．
+  SizeType
+  make_expr(
+    const Expr& expr,                  ///< [in] 論理式
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラル
   );
 
   /// @brief ラッチのソースを追加する．
@@ -164,6 +214,28 @@ private:
   {
     return mAndList.size();
   }
+
+  /// @brief make_and の下請け関数
+  ///
+  /// 単純に fanin_lits を二等分して各々の結果のANDをとる．
+  /// iinv が true の時には入力を反転する．
+  SizeType
+  make_and_sub(
+    const vector<SizeType>& fanin_lits, ///< [in] ファンインのリテラル
+    SizeType from,                      ///< [in] 開始位置
+    SizeType to,                        ///< [in] 終了位置
+    bool iinv                           ///< [in] 入力の反転フラグ
+  );
+
+  /// @brief make_xor の下請け関数
+  ///
+  /// 単純に fanin_lits を二等分して各々の結果のXORをとる．
+  SizeType
+  make_xor_sub(
+    const vector<SizeType>& fanin_lits, ///< [in] ファンインのリテラル
+    SizeType from,                      ///< [in] 開始位置
+    SizeType to                         ///< [in] 終了位置
+  );
 
   /// @brief シンボルテーブルとコメントを出力する．
   void
