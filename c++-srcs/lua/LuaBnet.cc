@@ -7,8 +7,6 @@
 /// All rights reserved.
 
 #include "ym/LuaBnet.h"
-#include "ym/Luapp.h"
-#include "ym/LuaClib.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
 #include "ym/ClibCellLibrary.h"
@@ -49,7 +47,9 @@ bnet_gc(
   lua_State* L
 )
 {
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  LuaBnet lua{L};
+
+  auto bnet = lua.to_bnet(L, 1);
   if ( bnet ) {
     // デストラクタを明示的に起動する．
     bnet->~BnNetwork();
@@ -65,7 +65,7 @@ bnet_read_blif(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   string clock_str{};
   string reset_str{};
@@ -98,7 +98,7 @@ bnet_read_blif(
       ;
     }
     else {
-      auto lib = LuaClib::to_clib(L, -1);
+      auto lib = lua.to_clib(-1);
       if ( lib == nullptr ) {
 	return lua.error_end("Error in read_blif(): ClibCellLibrary required for 'cell_library' field.");
       }
@@ -139,7 +139,7 @@ bnet_read_iscas89(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   string filename{};
   string clock_str{};
@@ -623,10 +623,11 @@ END_NONAMESPACE
 
 void
 LuaBnet::init(
-  lua_State* L,
   vector<struct luaL_Reg>& mylib
 )
 {
+  LuaClib::init(mylib);
+
   // メンバ関数(メソッド)テーブル
   static const struct luaL_Reg mt[] = {
     {"write_blif",    bnet_write_blif},
@@ -641,9 +642,7 @@ LuaBnet::init(
     {nullptr,         nullptr}
   };
 
-  Luapp lua{L};
-
-  lua.reg_metatable(BNET_SIGNATURE, bnet_gc, mt);
+  reg_metatable(BNET_SIGNATURE, bnet_gc, mt);
 
   // 生成関数を登録する．
   mylib.push_back({"read_blif",    bnet_read_blif});
@@ -656,12 +655,11 @@ LuaBnet::init(
 // @brief 対象を BnNetwork として取り出す．
 BnNetwork*
 LuaBnet::to_bnet(
-  lua_State*L,
   int idx
 )
 {
-  Luapp lua{L};
-  return reinterpret_cast<BnNetwork*>(lua.L_checkudata(idx, BNET_SIGNATURE));
+  auto p = L_checkudata(idx, BNET_SIGNATURE);
+  return reinterpret_cast<BnNetwork*>(p);
 }
 
 END_NAMESPACE_YM

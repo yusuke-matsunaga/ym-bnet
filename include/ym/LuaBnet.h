@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include <lua.hpp>
+#include "ym/LuaClib.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -18,8 +18,75 @@ BEGIN_NAMESPACE_YM
 /// @class LuaBnet LuaBnet.h "LuaBnet.h"
 /// @brief lua の BnNetwork 拡張
 //////////////////////////////////////////////////////////////////////
-class LuaBnet
+class LuaBnet :
+  public LuaClib
 {
+public:
+  //////////////////////////////////////////////////////////////////////
+  // コンストラクタ/デストラクタ
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 空のコンストラクタ
+  ///
+  /// デフォルトの状態で初期化される．<br>
+  /// このオブジェクトとともに Lua インタプリタも破壊される．
+  LuaBnet() = default;
+
+  /// @brief 詳細なパラメータを指定したコンストラクタ
+  ///
+  /// このオブジェクトとともに Lua インタプリタも破壊される．
+  LuaBnet(
+    lua_Alloc f, ///< [in] メモリアロケータ
+    void* ud     ///< [in] ユーザーデータ
+  ) : LuaClib{f, ud}
+  {
+  }
+
+  /// @brief すでに生成済みのインタプリタを用いるコンストラクタ
+  ///
+  /// このオブジェクトが破壊されても Lua インタプリタは破壊されない．
+  LuaBnet(
+    lua_State* L ///< [in] lua インタプリタ
+  ) : LuaClib{L}
+  {
+  }
+
+  /// @brief デストラクタ
+  ///
+  /// 自前で Lua インタプリタを生成した場合には破壊される．
+  ~LuaBnet() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief BnNetwork 関係の初期化を行う．
+  void
+  init(
+    vector<struct luaL_Reg>& mylib ///< [out] モジュールに登録する関数のリスト
+  );
+
+  /// @brief 対象が BnNetwork の時 true を返す．
+  bool
+  is_bnet(
+    int idx       ///< [in] スタック上のインデックス
+  )
+  {
+    auto obj = to_bnet(idx);
+    return obj != nullptr;
+  }
+
+  /// @brief 対象を BnNetwork として取り出す．
+  ///
+  /// BnNetwork でない時は nullptr を返す．
+  BnNetwork*
+  to_bnet(
+    int idx       ///< [in] スタック上のインデックス
+  );
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -31,7 +98,11 @@ public:
   init(
     lua_State* L,                  ///< [in] lua インタープリタ
     vector<struct luaL_Reg>& mylib ///< [out] モジュールに登録する関数のリスト
-  );
+  )
+  {
+    LuaBnet lua{L};
+    lua.init(mylib);
+  }
 
   /// @brief 対象が BnNetwork の時 true を返す．
   static
@@ -53,7 +124,11 @@ public:
   to_bnet(
     lua_State* L, ///< [in] lua インタープリタ
     int idx       ///< [in] スタック上のインデックス
-  );
+  )
+  {
+    LuaBnet lua{L};
+    return lua.to_bnet(idx);
+  }
 
 };
 
