@@ -43,6 +43,11 @@ BnNetwork::write_blif(
   const string& suffix
 ) const
 {
+  if ( !is_concrete() ) {
+    cerr << "Cannot convert to blif." << endl;
+    return;
+  }
+
   BlifWriter writer(*this, prefix, suffix);
   writer(s);
 }

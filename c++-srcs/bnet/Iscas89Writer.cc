@@ -43,6 +43,11 @@ BnNetwork::write_iscas89(
   const string& suffix
 ) const
 {
+  if ( !is_concrete() ) {
+    cerr << "Cannot convert to iscas89(.bench)" << endl;
+    return;
+  }
+
   // 個々のノードが単純なゲートか調べる．
   bool ng = false;
   for ( auto id: logic_id_list() ) {

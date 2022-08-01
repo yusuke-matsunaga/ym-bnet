@@ -37,6 +37,11 @@ BnNetwork::write_verilog(
   const string& instance_suffix
 ) const
 {
+  if ( !is_concrete() ) {
+    cerr << "Cannot convert to Verilog-HDL" << endl;
+    return;
+  }
+
   VerilogWriter writer(*this,
 		       port_prefix, port_suffix,
 		       node_prefix, node_suffix,

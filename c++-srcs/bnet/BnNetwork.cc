@@ -740,6 +740,16 @@ BnNetwork::connect_fanins(
   }
 }
 
+// @brief 実装可能な構造を持っている時 true を返す．
+bool
+BnNetwork::is_concrete() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->is_concrete();
+}
+
+
 // @brief ネットワーク名を得る．
 string
 BnNetwork::name() const

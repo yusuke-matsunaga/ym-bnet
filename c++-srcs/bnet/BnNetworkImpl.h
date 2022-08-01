@@ -496,6 +496,10 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 実装可能な構造を持っている時 true を返す．
+  bool
+  is_concrete() const;
+
   /// @brief ネットワーク名を得る．
   string
   name() const { return mName; }

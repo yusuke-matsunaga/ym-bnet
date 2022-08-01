@@ -189,6 +189,11 @@ BnNetwork::write_aig(
   const string& comment
 ) const
 {
+  if ( !is_concrete() ) {
+    cerr << "Cannot convert to aig." << endl;
+    return;
+  }
+
   AigWriter aig;
   bnet2aig(aig, *this, comment);
   aig.write_aig(s);
@@ -201,6 +206,11 @@ BnNetwork::write_aag(
   const string& comment
 ) const
 {
+  if ( !is_concrete() ) {
+    cerr << "Cannot convert to aag." << endl;
+    return;
+  }
+
   AigWriter aig;
   bnet2aig(aig, *this, comment);
   aig.write_aag(s);

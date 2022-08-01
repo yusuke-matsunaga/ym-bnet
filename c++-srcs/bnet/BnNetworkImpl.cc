@@ -1248,6 +1248,23 @@ BnNetworkImpl::wrap_up()
   return true;
 }
 
+// @brief 実装可能な構造を持っている時 true を返す．
+bool
+BnNetworkImpl::is_concrete() const
+{
+  for ( auto id: logic_id_list() ) {
+    auto node_p = mNodeList[id];
+    switch ( node_p->type() ) {
+    case BnNodeType::TvFunc:
+    case BnNodeType::Bdd:
+      return false;
+    default:
+      break;
+    }
+  }
+  return true;
+}
+
 // @brief 論理式を解析する．
 tuple<SizeType, BnNodeType, SizeType>
 BnNetworkImpl::_analyze_expr(
