@@ -63,11 +63,18 @@ BnNetwork::read_truth(
       output_list[i] = port.bit(0);
     }
     // 論理ノードの生成
+    // 注意が必要なのは .truth フォーマットでは最上位の変数が
+    // 最後の変数だということ．
+    // ファンインリストは input_list の逆順になる．
+    vector<SizeType> fanin_id_list(ni);
+    for ( SizeType i = 0; i < ni; ++ i ) {
+      fanin_id_list[i] = input_list[ni - i - 1];
+    }
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "l" << i;
       auto node_id = network.new_logic(buf.str(), func_vect[i],
-				       input_list);
+				       fanin_id_list);
       network.connect(node_id, output_list[i], 0);
     }
     if ( !network.wrap_up() ) {
