@@ -14,7 +14,7 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnLogicNode BnNodeImpl.h "BnNodeImpl.h"
+/// @class BnLogicNode BnLogicNode.h "BnLogicNode.h"
 /// @brief 論理ノードを表すクラス
 //////////////////////////////////////////////////////////////////////
 class BnLogicNode :
@@ -106,7 +106,7 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnPrimNode BnNodeImpl.h "BnNodeImpl.h"
+/// @class BnPrimNode BnLogicNode.h "BnLogicNode.h"
 /// @brief プリミティブ型の論理ノードを表すクラス
 //////////////////////////////////////////////////////////////////////
 class BnPrimNode :
@@ -139,7 +139,7 @@ public:
 
   /// @brief タイプを返す．
   BnNodeType
-  type() const;
+  type() const override;
 
 
 private:
@@ -154,7 +154,7 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnExprNode BnNodeImpl.h "BnNodeImpl.h"
+/// @class BnExprNode BnLogicNode.h "BnLogicNode.h"
 /// @brief 論理式型の論理ノードのクラス
 //////////////////////////////////////////////////////////////////////
 class BnExprNode :
@@ -184,7 +184,7 @@ public:
 
   /// @brief タイプを返す．
   BnNodeType
-  type() const;
+  type() const override;
 
 
 public:
@@ -197,7 +197,7 @@ public:
   /// logic_type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
   SizeType
-  expr_id() const;
+  expr_id() const override;
 
 
 private:
@@ -212,7 +212,7 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnTvNode BnNodeImpl.h "BnNodeImpl.h"
+/// @class BnTvNode BnLogicNode.h "BnLogicNode.h"
 /// @brief 真理値表型の論理ノードのクラス
 //////////////////////////////////////////////////////////////////////
 class BnTvNode :
@@ -242,7 +242,7 @@ public:
 
   /// @brief タイプを返す．
   BnNodeType
-  type() const;
+  type() const override;
 
 
 public:
@@ -255,7 +255,7 @@ public:
   /// logic_type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
   SizeType
-  func_id() const;
+  func_id() const override;
 
 
 private:
@@ -265,6 +265,63 @@ private:
 
   // 関数番号
   SizeType mFuncId;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnBddNode BnLogicNode.h "BnLogicNode.h"
+/// @brief Bdd型の論理ノードのクラス
+//////////////////////////////////////////////////////////////////////
+class BnBddNode :
+  public BnLogicNode
+{
+public:
+
+  /// @brief コンストラクタ
+  BnBddNode(
+    const string& name, ///< [in] ノード名
+    SizeType ni,        ///< [in] 入力数
+    const Bdd& bdd,     ///< [in] BDD
+    int cell_id         ///< [in] セル 番号(-1 の場合もあり)
+  ) : BnLogicNode{name, ni, cell_id},
+      mBdd{bdd}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnBddNode() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 全タイプ共通の外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief タイプを返す．
+  BnNodeType
+  type() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief Bdd を返す．
+  ///
+  /// - type() == Bdd の時のみ意味を持つ．
+  Bdd
+  bdd() const override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // BDD
+  Bdd mBdd;
 
 };
 

@@ -11,6 +11,7 @@
 #include "ym/bnet.h"
 #include "ym/logic.h"
 #include "ym/clib.h"
+#include "ym/Bdd.h"
 #include "ym/BnNodeType.h"
 
 
@@ -286,6 +287,13 @@ public:
   virtual
   SizeType
   func_id() const = 0;
+
+  /// @brief Bdd を返す．
+  ///
+  /// - type() == Bdd の時のみ意味を持つ．
+  virtual
+  Bdd
+  bdd() const = 0;
 
   /// @brief セル番号を返す．
   ///

@@ -296,6 +296,20 @@ BnNetwork::new_logic(
   return id;
 }
 
+// @brief BDD型の論理ノードを追加する．
+SizeType
+BnNetwork::new_logic(
+  const string& node_name,
+  const Bdd& bdd,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  SizeType id = mImpl->new_bdd(node_name, bdd, fanin_id_list);
+  return id;
+}
+
 // @brief 論理セルを追加する．
 SizeType
 BnNetwork::new_logic(
@@ -1037,6 +1051,7 @@ operator<<(
   case BnNodeType::Xnor:   s << "Xnor"; break;
   case BnNodeType::Expr:   s << "Expr"; break;
   case BnNodeType::TvFunc: s << "TvFunc"; break;
+  case BnNodeType::Bdd:    s << "Bdd"; break;
   defult: ASSERT_NOT_REACHED; break;
   }
   return s;
@@ -1062,6 +1077,7 @@ __bnnodetype_to_int(BnNodeType type)
   case BnNodeType::Xnor:   return 12;
   case BnNodeType::Expr:   return 13;
   case BnNodeType::TvFunc: return 14;
+  case BnNodeType::Bdd:    return 15;
   defult: ASSERT_NOT_REACHED; break;
   }
   return 0;
@@ -1085,7 +1101,8 @@ __int_to_bnnodetype(int val)
     BnNodeType::Xor,
     BnNodeType::Xnor,
     BnNodeType::Expr,
-    BnNodeType::TvFunc
+    BnNodeType::TvFunc,
+    BnNodeType::Bdd
   };
 
   ASSERT_COND( val >= 0 && val < 15 );

@@ -25,7 +25,7 @@ read_truth_test(
 
   auto network = BnNetwork::read_truth(filename);
 
-  network.write_blif(cout);
+  network.write(cout);
 
   return 0;
 }

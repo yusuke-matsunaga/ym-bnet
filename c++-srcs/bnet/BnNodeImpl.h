@@ -217,6 +217,12 @@ public:
   SizeType
   func_id() const override;
 
+  /// @brief Bdd を返す．
+  ///
+  /// - type() == Bdd の時のみ意味を持つ．
+  Bdd
+  bdd() const override;
+
   /// @brief セル番号を返す．
   ///
   /// is_logic() == false の時の動作は不定

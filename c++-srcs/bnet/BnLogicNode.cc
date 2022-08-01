@@ -127,4 +127,23 @@ BnTvNode::func_id() const
   return mFuncId;
 }
 
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnBddNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief タイプを返す．
+BnNodeType
+BnBddNode::type() const
+{
+  return BnNodeType::Bdd;
+}
+
+// @brief Bdd を返す．
+Bdd
+BnBddNode::bdd() const
+{
+  return mBdd;
+}
+
 END_NAMESPACE_YM_BNET

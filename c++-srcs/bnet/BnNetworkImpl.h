@@ -11,6 +11,7 @@
 #include "ym/bnet.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
+#include "ym/BddMgr.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibFFInfo.h"
@@ -152,7 +153,7 @@ public:
     BnNodeType logic_type    ///< [in] 論理型
   )
   {
-    return _reg_logic(node_name, ni, logic_type, -1, -1, -1);
+    return _reg_logic(node_name, ni, logic_type, -1, -1, Bdd::invalid(), -1);
   }
 
   /// @brief プリミティブ型の論理ノードを追加する．
@@ -186,7 +187,7 @@ public:
     BnNodeType logic_type;
     SizeType expr_id;
     tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    return _reg_logic(node_name, ni, logic_type, expr_id, -1, cell_id);
+    return _reg_logic(node_name, ni, logic_type, expr_id, -1, Bdd::invalid(), cell_id);
   }
 
   /// @brief 論理式型の論理ノードを追加する．
@@ -216,7 +217,7 @@ public:
   {
     auto ni = tv.input_num();
     auto func_id = _reg_tv(tv);
-    return _reg_logic(node_name, ni, BnNodeType::TvFunc, -1, func_id, cell_id);
+    return _reg_logic(node_name, ni, BnNodeType::TvFunc, -1, func_id, Bdd::invalid(), cell_id);
   }
 
   /// @brief 真理値表型の論理ノードを追加する．
@@ -232,6 +233,23 @@ public:
   )
   {
     auto id = new_tv(node_name, tv);
+    connect_fanins(id, fanin_id_list);
+    return id;
+  }
+
+  /// @brief BDD型の論理ノードを追加する．
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  SizeType
+  new_bdd(
+    const string& node_name,              ///< [in] ノード名
+    const Bdd& bdd,                       ///< [in] BDD
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  )
+  {
+    auto ni = fanin_id_list.size();
+    auto id = _reg_logic(node_name, ni, BnNodeType::Bdd, -1, -1, bdd, -1);
     connect_fanins(id, fanin_id_list);
     return id;
   }
@@ -281,7 +299,7 @@ public:
     SizeType ni            ///< [in] 論理型
   )
   {
-    _change_logic(id, ni, logic_type, -1, -1, -1);
+    _change_logic(id, ni, logic_type, -1, -1, Bdd::invalid(), -1);
   }
 
   /// @brief プリミティブ型の論理ノードに変更する．
@@ -311,7 +329,7 @@ public:
     BnNodeType logic_type;
     SizeType expr_id;
     tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    _change_logic(id, ni, logic_type, expr_id, -1, cell_id);
+    _change_logic(id, ni, logic_type, expr_id, -1, Bdd::invalid(), cell_id);
   }
 
   /// @brief 論理式型の論理ノードに変更する．
@@ -342,7 +360,7 @@ public:
   {
     auto ni = tv.input_num();
     auto func_id = _reg_tv(tv);
-    _change_logic(id, ni, BnNodeType::TvFunc, -1, func_id, cell_id);
+    _change_logic(id, ni, BnNodeType::TvFunc, -1, func_id, Bdd::invalid(), cell_id);
   }
 
   /// @brief 真理値表型の論理ノードに変更する．
@@ -358,6 +376,19 @@ public:
     ASSERT_COND( tv.input_num() == fanin_id_list.size() );
 
     change_tv(id, tv);
+    connect_fanins(id, fanin_id_list);
+  }
+
+  /// @brief BDD型の論理ノードに変更する．
+  void
+  change_bdd(
+    SizeType id,                          ///< [in] ノード番号
+    const Bdd& bdd,                       ///< [in] 真理値表
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  )
+  {
+    auto ni = fanin_id_list.size();
+    _change_logic(id, ni, BnNodeType::Bdd, -1, -1, bdd, -1);
     connect_fanins(id, fanin_id_list);
   }
 
@@ -785,6 +816,7 @@ private:
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
+    const Bdd& bdd,        ///< [in] BDD
     int cell_id            ///< [in] セル番号
   );
 
@@ -799,6 +831,7 @@ private:
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
+    const Bdd& bdd,        ///< [in] BDD
     int cell_id            ///< [in] セル番号
   );
 
@@ -813,6 +846,7 @@ private:
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
+    const Bdd& bdd,        ///< [in] BDD
     int cell_id            ///< [in] セル番号
   );
 
@@ -900,6 +934,9 @@ private:
 
   // ネットワーク名
   string mName;
+
+  // Bddマネージャ
+  BddMgr mBddMgr;
 
   // 関連するセルライブラリ
   ClibCellLibrary mCellLibrary;

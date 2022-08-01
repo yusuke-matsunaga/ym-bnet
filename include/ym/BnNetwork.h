@@ -11,6 +11,7 @@
 #include "ym/bnet.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
+#include "ym/Bdd.h"
 #include "ym/clib.h"
 
 
@@ -291,6 +292,17 @@ public:
     const TvFunc& tv,                     ///< [in] 真理値表
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
     = vector<SizeType>{}
+  );
+
+  /// @brief BDD型の論理ノードを追加する．
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  SizeType
+  new_logic(
+    const string& node_name,              ///< [in] ノード名
+    const Bdd& bdd,                       ///< [in] BDD
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 論理セルを追加する．
@@ -801,6 +813,8 @@ public:
 
   /// @brief .truth 形式のファイルを読み込む．
   /// @return ネットワークを返す．
+  ///
+  /// 論理ノードは BDD タイプとなる．
   static
   BnNetwork
   read_truth(

@@ -8,6 +8,7 @@
 
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
+#include "ym/BddMgr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -24,22 +25,25 @@ BnNetwork::read_truth(
     throw BnetError{"Error in read_truth"};
   }
 
-  vector<TvFunc> func_vect;
+  BddMgr mgr;
+  vector<Bdd> func_vect;
   string line;
+  SizeType ni_exp = 0;
   while ( getline(s, line) ) {
-    func_vect.push_back(TvFunc{line});
+    auto bdd = mgr.from_truth(line);
+    func_vect.push_back(bdd);
+    ni_exp = line.size();
   }
+
+  SizeType ni = 0;
+  while ( (1 << ni) < ni_exp ) {
+    ++ ni;
+  }
+  ASSERT_COND( (1 << ni) == ni_exp );
 
   BnNetwork network;
   SizeType no = func_vect.size();
   if ( no > 0 ) {
-    SizeType ni = func_vect[0].input_num();
-    for ( SizeType i = 1; i < no; ++ i ) {
-      if ( func_vect[i].input_num() != ni ) {
-	// TODO: マシなメッセージを作る．
-	throw BnetError{"Error in read_truth"};
-      }
-    }
     // 入力ポートの生成
     vector<SizeType> input_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {

@@ -32,6 +32,7 @@ enum class BnNodeType {
   Xnor,   ///< 論理ノード(XNOR)
   Expr,   ///< 論理ノード(論理式:Expr)
   TvFunc, ///< 論理ノード(真理値表:TvFunc)
+  Bdd,    ///< 論理ノード(BDD:Bdd)
 };
 
 /// @relates BnNodeType

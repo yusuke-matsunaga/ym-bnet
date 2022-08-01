@@ -323,6 +323,7 @@ BnNetworkImpl::_copy_logic(
   auto cell_id = src_node.cell_id();
   SizeType expr_id = BNET_NULLID;
   SizeType func_id = BNET_NULLID;
+  Bdd bdd = Bdd::invalid();
   if ( logic_type == BnNodeType::Expr ) {
     const Expr& expr = src_network.expr(src_node.expr_id());
     expr_id = _reg_expr(expr);
@@ -331,7 +332,11 @@ BnNetworkImpl::_copy_logic(
     const TvFunc& func = src_network.func(src_node.func_id());
     func_id = _reg_tv(func);
   }
-  auto dst_id = _reg_logic(name, nfi, logic_type, expr_id, func_id, cell_id);
+  else if ( logic_type == BnNodeType::Bdd ) {
+    bdd = mBddMgr.copy(src_node.bdd());
+  }
+  auto dst_id = _reg_logic(name, nfi, logic_type,
+			   expr_id, func_id, bdd, cell_id);
   id_map[src_node.id()] = dst_id;
 
   vector<SizeType> fanin_id_list(nfi);
@@ -353,14 +358,15 @@ BnNetworkImpl::_change_logic(
   BnNodeType logic_type,
   SizeType expr_id,
   SizeType func_id,
+  const Bdd& bdd,
   int cell_id
 )
 {
   ASSERT_COND( node_id >= 0 && node_id < mNodeList.size() );
 
   auto old_node = mNodeList[node_id];
-  auto new_node = _new_logic(old_node->name(), fanin_num,
-			     logic_type, expr_id, func_id, cell_id);
+  auto new_node = _new_logic(old_node->name(), fanin_num, logic_type,
+			     expr_id, func_id, bdd, cell_id);
   mNodeList[node_id] = new_node;
   new_node->mId = node_id;
   delete old_node;
@@ -375,10 +381,12 @@ BnNetworkImpl::_reg_logic(
   BnNodeType logic_type,
   SizeType expr_id,
   SizeType func_id,
+  const Bdd& bdd,
   int cell_id
 )
 {
-  auto node = _new_logic(name, fanin_num, logic_type, expr_id, func_id, cell_id);
+  auto node = _new_logic(name, fanin_num, logic_type,
+			 expr_id, func_id, bdd, cell_id);
   _reg_node(node);
   return node->id();
 }
@@ -391,6 +399,7 @@ BnNetworkImpl::_new_logic(
   BnNodeType logic_type,
   SizeType expr_id,
   SizeType func_id,
+  const Bdd& bdd,
   int cell_id
 )
 {
@@ -400,6 +409,9 @@ BnNetworkImpl::_new_logic(
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
     node = new BnTvNode(name, fanin_num, func_id, cell_id);
+  }
+  else if ( logic_type == BnNodeType::Bdd ) {
+    node = new BnBddNode(name, fanin_num, bdd, cell_id);
   }
   else {
     node = new BnPrimNode(name, fanin_num, logic_type, cell_id);
@@ -935,7 +947,8 @@ BnNetworkImpl::dup_logic(
   auto expr_id = src_node->expr_id();
   auto func_id = src_node->func_id();
   auto cell_id = src_node->cell_id();
-  auto id = _reg_logic(node_name, nfi, logic_type, expr_id, func_id, cell_id);
+  auto bdd = src_node->bdd();
+  auto id = _reg_logic(node_name, nfi, logic_type, expr_id, func_id, bdd, cell_id);
   return id;
 }
 
@@ -1421,6 +1434,10 @@ BnNetworkImpl::write(
       break;
     case BnNodeType::TvFunc:
       s << "func#" << node_p->func_id() << ": " << func(node_p->func_id());
+      break;
+    case BnNodeType::Bdd:
+      s << "BDD" << endl;
+      node_p->bdd().display(s);
       break;
     default:
       ASSERT_NOT_REACHED;
