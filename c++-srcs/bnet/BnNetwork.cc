@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
+#include "ym/BnPort.h"
 #include "ym/BnNode.h"
 #include "ym/BnNodeType.h"
 #include "ym/Range.h"
@@ -1020,6 +1021,42 @@ BnNetwork::expr(
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->expr(expr_id);
+}
+
+// @brief ポート情報のみ複製したネットワークを返す．
+BnNetwork
+BnNetwork::make_skelton_copy(
+  unordered_map<SizeType, SizeType>& node_map
+) const
+{
+  BnNetwork dst_network;
+  dst_network.set_name(name());
+
+  SizeType np = port_num();
+  for ( SizeType i = 0; i < np; ++ i ) {
+    auto& src_port = port(i);
+    SizeType nb = src_port.bit_width();
+    vector<BnDir> dir_vect(nb);
+    for ( SizeType j = 0; j < nb; ++ j ) {
+      auto id = src_port.bit(j);
+      auto& src_node = node(id);
+      if ( src_node.is_input() ) {
+	dir_vect[j] = BnDir::INPUT;
+      }
+      else {
+	dir_vect[j] = BnDir::OUTPUT;
+      }
+    }
+    auto pid = dst_network.new_port(src_port.name(), dir_vect);
+    auto& dst_port = dst_network.port(pid);
+    for ( SizeType j = 0; j < nb; ++ j ) {
+      auto src_id = src_port.bit(j);
+      auto dst_id = dst_port.bit(j);
+      node_map.emplace(src_id, dst_id);
+    }
+  }
+
+  return dst_network;
 }
 
 // @brief 内容を出力する．

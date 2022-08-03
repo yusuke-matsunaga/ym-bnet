@@ -85,3 +85,13 @@ ym_add_gtest ( bnet_simple_decomp_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   )
+
+ym_add_gtest ( bnet_make_skelton_copy_test
+  make_skelton_copy_test.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  )
