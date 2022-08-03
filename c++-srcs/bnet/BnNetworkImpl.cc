@@ -411,6 +411,7 @@ BnNetworkImpl::_new_logic(
     node = new BnTvNode(name, fanin_num, func_id, cell_id);
   }
   else if ( logic_type == BnNodeType::Bdd ) {
+    auto new_bdd = mBddMgr.copy(bdd);
     node = new BnBddNode(name, fanin_num, bdd, cell_id);
   }
   else {
