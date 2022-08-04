@@ -38,12 +38,34 @@ enum class BnNodeType {
 /// @relates BnNodeType
 /// @brief BnNodeType の内容をストリームに出力する．
 /// @return s を返す．
-extern
+inline
 ostream&
 operator<<(
   ostream& s,     ///< [in] 出力先のストリーム
   BnNodeType type ///< [in] ノードタイプ
-);
+)
+{
+  switch ( type ) {
+  case BnNodeType::None:   s << "None"; break;
+  case BnNodeType::Input:  s << "Input"; break;
+  case BnNodeType::Output: s << "Output"; break;
+  case BnNodeType::C0:     s << "C0"; break;
+  case BnNodeType::C1:     s << "C1"; break;
+  case BnNodeType::Buff:   s << "Buff"; break;
+  case BnNodeType::Not:    s << "Not"; break;
+  case BnNodeType::And:    s << "And"; break;
+  case BnNodeType::Nand:   s << "Nand"; break;
+  case BnNodeType::Or:     s << "Or"; break;
+  case BnNodeType::Nor:    s << "Nor"; break;
+  case BnNodeType::Xor:    s << "Xor"; break;
+  case BnNodeType::Xnor:   s << "Xnor"; break;
+  case BnNodeType::Expr:   s << "Expr"; break;
+  case BnNodeType::TvFunc: s << "TvFunc"; break;
+  case BnNodeType::Bdd:    s << "Bdd"; break;
+  defult: ASSERT_NOT_REACHED; break;
+  }
+  return s;
+}
 
 // cython 用の変換関数
 extern

@@ -12,7 +12,6 @@
 #include "ym/BnNodeType.h"
 #include "ym/Range.h"
 #include "BnNetworkImpl.h"
-#include "BnetWriter.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -1060,30 +1059,6 @@ BnNetwork::make_skelton_copy(
   return dst_network;
 }
 
-// @brief 内容を出力する．
-void
-BnNetwork::write(
-  ostream& s
-) const
-{
-  BnetWriter writer;
-
-  writer(s, *this);
-}
-
-// @brief 内容を独自形式でバイナリダンプする．
-void
-BnNetwork::dump(
-  BinEnc& s
-) const
-{
-#if 0
-  BnetDumper dumper;
-
-  dumper(s, *this);
-#endif
-}
-
 // @brief バイナリダンプされた内容を復元する．
 BnNetwork
 BnNetwork::restore(
@@ -1096,35 +1071,6 @@ BnNetwork::restore(
 //////////////////////////////////////////////////////////////////////
 // BnNodeType
 //////////////////////////////////////////////////////////////////////
-
-// @relates BnNodeType
-ostream&
-operator<<(
-  ostream& s,
-  BnNodeType type
-)
-{
-  switch ( type ) {
-  case BnNodeType::None:   s << "None"; break;
-  case BnNodeType::Input:  s << "Input"; break;
-  case BnNodeType::Output: s << "Output"; break;
-  case BnNodeType::C0:     s << "C0"; break;
-  case BnNodeType::C1:     s << "C1"; break;
-  case BnNodeType::Buff:   s << "Buff"; break;
-  case BnNodeType::Not:    s << "Not"; break;
-  case BnNodeType::And:    s << "And"; break;
-  case BnNodeType::Nand:   s << "Nand"; break;
-  case BnNodeType::Or:     s << "Or"; break;
-  case BnNodeType::Nor:    s << "Nor"; break;
-  case BnNodeType::Xor:    s << "Xor"; break;
-  case BnNodeType::Xnor:   s << "Xnor"; break;
-  case BnNodeType::Expr:   s << "Expr"; break;
-  case BnNodeType::TvFunc: s << "TvFunc"; break;
-  case BnNodeType::Bdd:    s << "Bdd"; break;
-  defult: ASSERT_NOT_REACHED; break;
-  }
-  return s;
-}
 
 // cython 用の変換関数
 int
