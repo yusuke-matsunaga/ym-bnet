@@ -67,6 +67,7 @@ set ( bnet_SOURCES
   c++-srcs/bnet/AigReader.cc
   c++-srcs/bnet/AigWriter.cc
   c++-srcs/bnet/Bnet2Aig.cc
+  c++-srcs/bnet/BnetWriter.cc
   c++-srcs/bnet/BnBlifHandler.cc
   c++-srcs/bnet/BnDffImpl.cc
   c++-srcs/bnet/BnIscas89Handler.cc

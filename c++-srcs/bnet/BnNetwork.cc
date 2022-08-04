@@ -12,6 +12,7 @@
 #include "ym/BnNodeType.h"
 #include "ym/Range.h"
 #include "BnNetworkImpl.h"
+#include "BnetWriter.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -1065,9 +1066,30 @@ BnNetwork::write(
   ostream& s
 ) const
 {
-  ASSERT_COND( mImpl != nullptr );
+  BnetWriter writer;
 
-  mImpl->write(s);
+  writer(s, *this);
+}
+
+// @brief 内容を独自形式でバイナリダンプする．
+void
+BnNetwork::dump(
+  BinEnc& s
+) const
+{
+#if 0
+  BnetDumper dumper;
+
+  dumper(s, *this);
+#endif
+}
+
+// @brief バイナリダンプされた内容を復元する．
+BnNetwork
+BnNetwork::restore(
+  BinDec& s
+)
+{
 }
 
 
