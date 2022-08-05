@@ -1,6 +1,6 @@
 
-/// @file BnetDumper
-/// @brief BnetDumper の実装ファイル
+/// @file BnNetwork_dump_restore.cc
+/// @brief BnNetwork::dump(), restore() の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022 Yusuke Matsunaga

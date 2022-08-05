@@ -1,12 +1,11 @@
 
-/// @file BnetWriter
-/// @brief BnetWriter の実装ファイル
+/// @file BnNetwork_write.cc
+/// @brief BnNetwork::write() の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "BnetWriter.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
@@ -27,29 +26,12 @@ BnNetwork::write(
   ostream& s
 ) const
 {
-  BnetWriter writer;
-
-  writer(s, *this);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnetWriter
-//////////////////////////////////////////////////////////////////////
-
-// @brief 内容を出力する．
-void
-BnetWriter::operator()(
-  ostream& s,
-  const BnNetwork& network
-) const
-{
-  s << "network name : " << network.name() << endl
+  s << "network name : " << name() << endl
     << endl;
 
-  SizeType np = network.port_num();
+  SizeType np = port_num();
   for ( SizeType i = 0; i < np; ++ i ) {
-    auto& port = network.port(i);
+    auto& port = this->port(i);
     s << "port#" << port.id() << ": ";
     s << "(" << port.name() << ") : ";
     for ( auto i: Range(port.bit_width()) ) {
@@ -59,25 +41,25 @@ BnetWriter::operator()(
   }
   s << endl;
 
-  for ( auto id: network.input_id_list() ) {
-    auto& node = network.node(id);
+  for ( auto id: input_id_list() ) {
+    auto& node = this->node(id);
     ASSERT_COND( node.type() == BnNodeType::Input );
     s << "input: " << node.id()
       << "(" << node.name() << ")" << endl;
   }
   s << endl;
 
-  for ( auto id: network.output_id_list() ) {
-    auto& node = network.node(id);
+  for ( auto id: output_id_list() ) {
+    auto& node = this->node(id);
     s << "output: " << node.id()
       << "(" << node.name() << ")" << endl
       << "    input: " << node.fanin_id(0) << endl;
   }
   s << endl;
 
-  SizeType ndff = network.dff_num();
+  SizeType ndff = dff_num();
   for ( SizeType i = 0; i < ndff; ++ i ) {
-    auto& dff = network.dff(i);
+    auto& dff = this->dff(i);
     s << "dff#" << dff.id()
       << "(" << dff.name() << ")" << endl
       << "    input:  " << dff.input() << endl
@@ -93,9 +75,9 @@ BnetWriter::operator()(
   }
   s << endl;
 
-  SizeType nlatch = network.latch_num();
+  SizeType nlatch = latch_num();
   for ( SizeType i = 0; i < nlatch; ++ i ) {
-    auto& latch = network.latch(i);
+    auto& latch = this->latch(i);
     s << "latch#" << latch.id()
       << "(" << latch.name() << ")" << endl
       << "    input:  " << latch.input() << endl
@@ -110,8 +92,8 @@ BnetWriter::operator()(
   }
   s << endl;
 
-  for ( auto id: network.logic_id_list() ) {
-    auto& node = network.node(id);
+  for ( auto id: logic_id_list() ) {
+    auto& node = this->node(id);
     s << "logic: " << id
       << "(" << node.name() << ")" << endl
       << "    fanins: ";
@@ -156,11 +138,11 @@ BnetWriter::operator()(
       break;
     case BnNodeType::Expr:
       s << "expr#" << node.expr_id() << ": "
-	<< network.expr(node.expr_id());
+	<< expr(node.expr_id());
       break;
     case BnNodeType::TvFunc:
       s << "func#" << node.func_id() << ": "
-	<< network.func(node.func_id());
+	<< func(node.func_id());
       break;
     case BnNodeType::Bdd:
       s << "BDD" << endl;
@@ -172,7 +154,7 @@ BnetWriter::operator()(
     s << endl;
     int cell_id = node.cell_id();
     if ( cell_id != BNET_NULLID ) {
-      const ClibCell& cell = network.library().cell(cell_id);
+      const ClibCell& cell = library().cell(cell_id);
       s << "    cell: " << cell.name() << endl;
     }
     s << endl;

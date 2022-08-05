@@ -67,13 +67,13 @@ set ( bnet_SOURCES
   c++-srcs/bnet/AigReader.cc
   c++-srcs/bnet/AigWriter.cc
   c++-srcs/bnet/Bnet2Aig.cc
-  c++-srcs/bnet/BnetDumper.cc
-  c++-srcs/bnet/BnetWriter.cc
   c++-srcs/bnet/BnBlifHandler.cc
   c++-srcs/bnet/BnDffImpl.cc
   c++-srcs/bnet/BnIscas89Handler.cc
   c++-srcs/bnet/BnLatchImpl.cc
   c++-srcs/bnet/BnNetwork.cc
+  c++-srcs/bnet/BnNetwork_dump_restore.cc
+  c++-srcs/bnet/BnNetwork_write.cc
   c++-srcs/bnet/BnNetworkImpl.cc
   c++-srcs/bnet/BnNodeImpl.cc
   c++-srcs/bnet/BnInputNode.cc
