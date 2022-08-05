@@ -234,3 +234,28 @@ target_compile_options ( write_aag_test
 target_link_libraries ( write_aag_test
   ${YM_LIB_DEPENDS}
   )
+
+
+# ===================================================================
+#  dump_restore_test
+# ===================================================================
+
+set ( dump_restore_test_SOURCES
+  bnet/dump_restore_test.cc
+  )
+
+add_executable ( dump_restore_test
+  ${dump_restore_test_SOURCES}
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( dump_restore_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( dump_restore_test
+  ${YM_LIB_DEPENDS}
+  )

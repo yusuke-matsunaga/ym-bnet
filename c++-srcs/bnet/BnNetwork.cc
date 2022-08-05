@@ -1059,14 +1059,6 @@ BnNetwork::make_skelton_copy(
   return dst_network;
 }
 
-// @brief バイナリダンプされた内容を復元する．
-BnNetwork
-BnNetwork::restore(
-  BinDec& s
-)
-{
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // BnNodeType

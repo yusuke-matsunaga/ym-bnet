@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/BinEnc.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -36,7 +37,7 @@ public:
   /// @brief BnNetwork の内容をバイナリダンプする．
   void
   operator()(
-    ostream& s,              ///< [in] 出力ストリーム
+    BinEnc& s,               ///< [in] 出力ストリーム
     const BnNetwork& network ///< [in] ネットワーク
   ) const;
 

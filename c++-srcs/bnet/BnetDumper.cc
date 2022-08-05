@@ -6,7 +6,6 @@
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "BnetDumper.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
@@ -17,9 +16,52 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Range.h"
+#include "BnNetworkImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
+
+BEGIN_NONAMESPACE
+
+// シグネチャ
+const char* BNET_SIG{"ym_bnet1.0"};
+
+// BNET_NULLID のチェックを含めてダンプする．
+inline
+void
+dump_id(
+  BinEnc& s,
+  SizeType id
+)
+{
+  if ( id == BNET_NULLID ) {
+    s.write_8(0);
+  }
+  else {
+    s.write_8(1);
+    s.write_vint(id);
+  }
+}
+
+// id を取り出す．
+inline
+SizeType
+restore_id(
+  BinDec& s,
+  bool& has_id
+)
+{
+  has_id = static_cast<bool>(s.read_8());
+  if ( has_id ) {
+    return s.read_vint();
+  }
+  else {
+    return BNET_NULLID;
+  }
+}
+
+END_NONAMESPACE
+
 
 // @brief 内容を独自形式でバイナリダンプする．
 void
@@ -27,179 +69,350 @@ BnNetwork::dump(
   BinEnc& s
 ) const
 {
-  BnetDumper dumper;
-
-  dumper(s, *this);
-}
-
-BEGIN_NONAMESPACE
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnetDumper
-//////////////////////////////////////////////////////////////////////
-
-// シグネチャ
-const char* BNET_SIG{"ym_bnet1.0"};
-
-END_NONAMESPACE
-
-// @brief 内容を出力する．
-void
-BnetDumper::operator()(
-  BinEnc& s,
-  const BnNetwork& network
-) const
-{
   // シグネチャ
   s.write_signature(BNET_SIG);
 
   // 名前
-  s.write_string(network.name());
+  s.write_string(name());
+
+  // 論理式
+  SizeType ne = expr_num();
+  s.write_vint(ne);
+  for ( SizeType i = 0; i < ne; ++ i ) {
+    const auto& expr = this->expr(i);
+    expr.dump(s);
+  }
+
+  // 真理値表型の関数
+  SizeType nf = func_num();
+  s.write_vint(nf);
+  for ( SizeType i = 0; i < nf; ++ i ) {
+    auto& func = this->func(i);
+    func.dump(s);
+  }
+
+  // BDD
+  unordered_map<Bdd, SizeType> bdd_map;
+  {
+    vector<Bdd> bdd_list;
+    for ( auto id: logic_id_list() ) {
+      auto& node = this->node(id);
+      if ( node.type() == BnNodeType::Bdd ) {
+	auto bdd = node.bdd();
+	if ( bdd_map.count(bdd) == 0 ) {
+	  SizeType bdd_id = bdd_list.size();
+	  bdd_list.push_back(bdd);
+	  bdd_map.emplace(bdd, bdd_id);
+	}
+      }
+    }
+    Bdd::dump(s, bdd_list);
+  }
 
   // ポート
-  SizeType np = network.port_num();
+  SizeType np = port_num();
   s.write_vint(np);
   for ( SizeType i = 0; i < np; ++ i ) {
-    auto& port = network.port(i);
+    auto& port = this->port(i);
     s.write_string(port.name());
     SizeType nb = port.bit_width();
     s.write_vint(nb);
     for ( auto i: Range(nb) ) {
+      SizeType id = port.bit(i);
+      auto& node = this->node(id);
+      if ( node.is_input() ) {
+	s.write_8(0);
+      }
+      else if ( node.is_output() ) {
+	s.write_8(1);
+      }
+      else {
+	ASSERT_NOT_REACHED;
+      }
       s.write_vint(port.bit(i));
     }
   }
 
-  // 入力ノード
-  SizeType ni = network.input_num();
-  s.write_vint(ni);
-  for ( auto id: network.input_id_list() ) {
-    auto& node = network.node(id);
-    ASSERT_COND( node.type() == BnNodeType::Input );
-    s.write_vint(node.id());
-    s.write_string(node.name());
-  }
-
-  // 出力ノード
-  SizeType no = network.output_num();
-  s.write_vint(no);
-  for ( auto id: network.output_id_list() ) {
-    auto& node = network.node(id);
-    s.write_vint(node.id());
-    s.write_string(node.name());
-    s.write_vint(node.fanin_id(0));
-  }
-
   // D-FF
-  SizeType ndff = network.dff_num();
+  SizeType ndff = dff_num();
   s.write_vint(ndff);
   for ( SizeType i = 0; i < ndff; ++ i ) {
-    auto& dff = network.dff(i);
-    s.write_string(dff.name);
+    auto& dff = this->dff(i);
+    s.write_string(dff.name());
     s.write_vint(dff.input());
     s.write_vint(dff.output());
     s.write_vint(dff.clock());
-    s.write_vint(dff);
-    s << "dff#" << dff.id()
-      << "(" << dff.name() << ")" << endl
-      << "    input:  " << dff.input() << endl
-      << "    output: " << dff.output() << endl
-      << "    clock:  " << dff.clock() << endl;
-    if ( dff.clear() != BNET_NULLID ) {
-      s << "    clear:  " << dff.clear() << endl;
-    }
-    if ( dff.preset() != BNET_NULLID ) {
-      s << "    preset: " << dff.preset() << endl;
-    }
-    s << endl;
+    dump_id(s, dff.clear());
+    dump_id(s, dff.preset());
   }
-  s << endl;
 
-  SizeType nlatch = network.latch_num();
+  // ラッチ
+  SizeType nlatch = latch_num();
+  s.write_vint(nlatch);
   for ( SizeType i = 0; i < nlatch; ++ i ) {
-    auto& latch = network.latch(i);
-    s << "latch#" << latch.id()
-      << "(" << latch.name() << ")" << endl
-      << "    input:  " << latch.input() << endl
-      << "    output: " << latch.output() << endl
-      << "    enable: " << latch.enable() << endl;
-    if ( latch.clear() != BNET_NULLID ) {
-      s << "    clear:  " << latch.clear() << endl;
-    }
-    if ( latch.preset() != BNET_NULLID ) {
-      s << "    preset: " << latch.preset() << endl;
-    }
+    auto& latch = this->latch(i);
+    s.write_string(latch.name());
+    s.write_vint(latch.input());
+    s.write_vint(latch.output());
+    s.write_vint(latch.enable());
+    dump_id(s, latch.clear());
+    dump_id(s, latch.preset());
   }
-  s << endl;
 
-  for ( auto id: network.logic_id_list() ) {
-    auto& node = network.node(id);
-    s << "logic: " << id
-      << "(" << node.name() << ")" << endl
-      << "    fanins: ";
+  // 論理ノード
+  SizeType nl = logic_num();
+  s.write_vint(nl);
+  for ( auto id: logic_id_list() ) {
+    auto& node = this->node(id);
+    s.write_vint(id);
+    s.write_string(node.name());
+    SizeType nfi = node.fanin_num();
+    s.write_vint(nfi);
     for ( auto fanin_id: node.fanin_id_list() ) {
-    s << " " << fanin_id;
+      s.write_vint(fanin_id);
     }
-    s << endl;
-    s << "    ";
     switch ( node.type() ) {
     case BnNodeType::None:
-      s << "NONE";
+      s.write_8(0);
       break;
     case BnNodeType::C0:
-      s << "C0";
+      s.write_8(1);
       break;
     case BnNodeType::C1:
-      s << "C1";
+      s.write_8(2);
       break;
     case BnNodeType::Buff:
-      s << "BUFF";
+      s.write_8(3);
       break;
     case BnNodeType::Not:
-      s << "NOT";
+      s.write_8(4);
       break;
     case BnNodeType::And:
-      s << "AND";
+      s.write_8(5);
       break;
     case BnNodeType::Nand:
-      s << "NAND";
+      s.write_8(6);
       break;
     case BnNodeType::Or:
-      s << "OR";
+      s.write_8(7);
       break;
     case BnNodeType::Nor:
-      s << "NOR";
+      s.write_8(8);
       break;
     case BnNodeType::Xor:
-      s << "XOR";
+      s.write_8(9);
       break;
     case BnNodeType::Xnor:
-      s << "XNOR";
+      s.write_8(10);
       break;
     case BnNodeType::Expr:
-      s << "expr#" << node.expr_id() << ": "
-	<< network.expr(node.expr_id());
+      s.write_8(11);
+      s.write_vint(node.expr_id());
       break;
     case BnNodeType::TvFunc:
-      s << "func#" << node.func_id() << ": "
-	<< network.func(node.func_id());
+      s.write_8(12);
+      s.write_vint(node.func_id());
       break;
     case BnNodeType::Bdd:
-      s << "BDD" << endl;
-      node.bdd().display(s);
+      s.write_8(13);
+      {
+	SizeType id = bdd_map.at(node.bdd());
+	s.write_vint(id);
+      }
       break;
     default:
       ASSERT_NOT_REACHED;
     }
-    s << endl;
-    int cell_id = node.cell_id();
-    if ( cell_id != BNET_NULLID ) {
-      const ClibCell& cell = network.library().cell(cell_id);
-      s << "    cell: " << cell.name() << endl;
-    }
-    s << endl;
+    //dump_id(s, node.cell_id());
   }
 
-  s << endl;
+  // 出力ノード
+  SizeType no = output_num();
+  s.write_vint(no);
+  for ( auto id: output_id_list() ) {
+    auto& node = this->node(id);
+    s.write_vint(id);
+    dump_id(s, node.fanin_id(0));
+  }
+}
+
+// @brief バイナリダンプされた内容を復元する．
+BnNetwork
+BnNetwork::restore(
+  BinDec& s
+)
+{
+  // シグネチャ
+  if ( !s.read_signature(BNET_SIG) ) {
+    throw BnetError{"BnNetwork::restore(): Wrong signature."};
+  }
+
+  // 結果を格納するネットワーク
+  BnNetwork network;
+
+  // 名前
+  auto name = s.read_string();
+  network.set_name(name);
+
+  // 論理式
+  SizeType ne = s.read_vint();
+  vector<Expr> expr_list(ne);
+  for ( SizeType i = 0; i < ne; ++ i ) {
+    expr_list[i] = Expr::restore(s);
+  }
+
+  // 真理値表型の関数
+  SizeType nf = s.read_vint();
+  vector<TvFunc> func_list(nf);
+  for ( SizeType i = 0; i < nf; ++ i ) {
+    func_list[i].restore(s);
+  }
+
+  // Bdd
+  vector<Bdd> bdd_list = network.mImpl->restore_bdds(s);
+
+  // ノード番号の対応表
+  unordered_map<SizeType, SizeType> node_map;
+
+  // ポート
+  SizeType np = s.read_vint();
+  for ( SizeType i = 0; i < np; ++ i ) {
+    auto name = s.read_string();
+    SizeType nb = s.read_vint();
+    vector<BnDir> dir_vect(nb);
+    vector<SizeType> id_list(nb);
+    for ( SizeType j = 0; j < nb; ++ j ) {
+      ymuint8 dir = s.read_8();
+      dir_vect[j] = static_cast<BnDir>(dir);
+      id_list[j] = s.read_vint();
+    }
+    SizeType id = network.new_port(name, dir_vect);
+    auto& port = network.port(id);
+    for ( SizeType j = 0; j < nb; ++ j ) {
+      SizeType dst_id = port.bit(j);
+      node_map[id_list[j]] = dst_id;
+    }
+  }
+
+  // D-FF
+  SizeType ndff = s.read_vint();
+  for ( SizeType i = 0; i < ndff; ++ i ) {
+    auto name = s.read_string();
+    SizeType src_input_id = s.read_vint();
+    SizeType src_output_id = s.read_vint();
+    SizeType src_clock_id = s.read_vint();
+    bool has_clear;
+    SizeType src_clear_id = restore_id(s, has_clear);
+    bool has_preset;
+    SizeType src_preset_id = restore_id(s, has_preset);
+    SizeType id = network.new_dff(name, has_clear, has_preset);
+    auto& dff = network.dff(id);
+    node_map[src_input_id] = dff.input();
+    node_map[src_output_id] = dff.output();
+    node_map[src_clock_id] = dff.clock();
+    if ( has_clear ) {
+      node_map[src_clear_id] = dff.clear();
+    }
+    if ( has_preset ) {
+      node_map[src_preset_id] = dff.preset();
+    }
+  }
+
+  // ラッチ
+  SizeType nlatch = s.read_vint();
+  for ( SizeType i = 0; i < nlatch; ++ i ) {
+    auto name = s.read_string();
+    SizeType src_input_id = s.read_vint();
+    SizeType src_output_id = s.read_vint();
+    SizeType src_enable_id = s.read_vint();
+    bool has_clear;
+    SizeType src_clear_id = restore_id(s, has_clear);
+    bool has_preset;
+    SizeType src_preset_id = restore_id(s, has_preset);
+    SizeType id = network.new_latch(name, has_clear, has_preset);
+    auto& latch = network.latch(id);
+    node_map[src_input_id] = latch.input();
+    node_map[src_output_id] = latch.output();
+    node_map[src_enable_id] = latch.enable();
+    if ( has_clear ) {
+      node_map[src_clear_id] = latch.clear();
+    }
+    if ( has_preset ) {
+      node_map[src_preset_id] = latch.preset();
+    }
+  }
+
+  // 論理ノード
+  SizeType nl = s.read_vint();
+  for ( SizeType i = 0; i < nl; ++ i ) {
+    SizeType id = s.read_vint();
+    auto name = s.read_string();
+    SizeType nfi = s.read_vint();
+    vector<SizeType> fanin_id_list(nfi);
+    for ( SizeType j = 0; j < nfi; ++ j ) {
+      SizeType src_id = s.read_vint();
+      ASSERT_COND( node_map.count(src_id) > 0 );
+      fanin_id_list[j] = node_map.at(src_id);
+    }
+    ymuint8 type_code = s.read_8();
+    BnNodeType type{BnNodeType::None};
+    SizeType node_id = BNET_NULLID;
+    switch ( type_code ) {
+    case 0: // None:
+      ASSERT_NOT_REACHED;
+      break;
+    case 1: type = BnNodeType::C0; break;
+    case 2: type = BnNodeType::C1; break;
+    case 3: type = BnNodeType::Buff; break;
+    case 4: type = BnNodeType::Not; break;
+    case 5: type = BnNodeType::And; break;
+    case 6: type = BnNodeType::Nand; break;
+    case 7: type = BnNodeType::Or; break;
+    case 8: type = BnNodeType::Nor; break;
+    case 9: type = BnNodeType::Xor; break;
+    case 10: type = BnNodeType::Xnor; break;
+    default: break;
+    }
+    if ( type != BnNodeType::None ) {
+      node_id = network.new_logic(name, type, fanin_id_list);
+    }
+    else if ( type_code == 11 ) {
+      // Expr
+      SizeType id = s.read_vint();
+      auto& expr = expr_list[id];
+      node_id = network.new_logic(name, expr, fanin_id_list);
+    }
+    else if ( type_code == 12 ) {
+      // TvFunc
+      SizeType id = s.read_vint();
+      auto& func = func_list[id];
+      node_id = network.new_logic(name, func, fanin_id_list);
+    }
+    else if ( type_code == 13 ) {
+      // Bdd
+      SizeType id = s.read_vint();
+      auto bdd = bdd_list[id];
+      node_id = network.new_logic(name, bdd, fanin_id_list);
+    }
+    node_map[id] = node_id;
+  }
+
+  // 出力ノード
+  SizeType no = s.read_vint();
+  for ( SizeType i = 0; i < no; ++ i ) {
+    SizeType src_output_id = s.read_vint();
+    ASSERT_COND( node_map.count(src_output_id) > 0 );
+    bool has_input;
+    SizeType src_input_id = restore_id(s, has_input);
+    if ( has_input ) {
+      ASSERT_COND( node_map.count(src_input_id) > 0 );
+      network.connect(node_map[src_input_id], node_map[src_output_id], 0);
+    }
+  }
+
+  network.wrap_up();
+
+  return network;
 }
 
 END_NAMESPACE_YM_BNET
