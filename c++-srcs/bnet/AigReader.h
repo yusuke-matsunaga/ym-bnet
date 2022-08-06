@@ -210,32 +210,6 @@ public:
     istream& s ///< [in] 入力ストリーム
   );
 
-#if 0
-  /// @brief 内容を Ascii AIG フォーマットで書き出す．
-  void
-  write_aag(
-    const string& filename ///< [in] ファイル名
-  ) const;
-
-  /// @brief 内容を Ascii AIG フォーマットで書き出す．
-  void
-  write_aag(
-    ostream& s ///< [in] 出力先のストリーム
-  ) const;
-
-  /// @brief 内容を AIG フォーマットで書き出す．
-  void
-  write_aig(
-    const string& filename ///< [in] ファイル名
-  ) const;
-
-  /// @brief 内容を AIG フォーマットで書き出す．
-  void
-  write_aig(
-    ostream& s ///< [in] 出力先のストリーム
-  ) const;
-#endif
-
   /// @}
   //////////////////////////////////////////////////////////////////////
 
@@ -327,18 +301,6 @@ private:
   read_symbols(
     istream& s ///< [in] 入力ストリーム
   );
-
-#if 0
-  /// @brief シンボルテーブルとコメントを出力する．
-  void
-  write_symbols(
-    ostream& s ///< [in] 出力ストリーム
-  ) const;
-
-  /// @brief ノードのID番号を振り直す．
-  void
-  reordering();
-#endif
 
 
 private:
