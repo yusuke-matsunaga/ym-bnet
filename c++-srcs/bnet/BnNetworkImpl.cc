@@ -182,7 +182,8 @@ BnNetworkImpl::import_subnetwork(
   ASSERT_COND( input_list.size() == input_num );
 
   auto output_num = src_network.output_num();
-  vector<SizeType> output_list(output_num);
+  vector<SizeType> output_list;
+  output_list.reserve(output_num);
 
   // src_network のノード番号をキーにして生成したノード番号を入れる配列
   vector<SizeType> id_map(src_network.node_num());
