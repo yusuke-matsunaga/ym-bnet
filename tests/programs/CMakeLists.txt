@@ -259,3 +259,28 @@ target_compile_options ( dump_restore_test
 target_link_libraries ( dump_restore_test
   ${YM_LIB_DEPENDS}
   )
+
+
+# ===================================================================
+#  import_test
+# ===================================================================
+
+set ( import_test_SOURCES
+  bnet/import_test.cc
+  )
+
+add_executable ( import_test
+  ${import_test_SOURCES}
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_compile_options ( import_test
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( import_test
+  ${YM_LIB_DEPENDS}
+  )
