@@ -9,8 +9,6 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include "ym/clib.h"
-#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

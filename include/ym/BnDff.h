@@ -9,8 +9,6 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include "ym/clib.h"
-#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -28,10 +26,8 @@ BEGIN_NAMESPACE_YM_BNET
 /// - 出力のノード番号
 /// - データ入力のノード番号
 /// - クロック入力のノード番号
-/// - クリア入力のノード番号
-/// - プリセット入力のノード番号
-///
-/// クリアとプリセットは存在しない場合もある．
+/// - クリア端子のノード番号: 場合によっては BNET_NULLID となる．
+/// - プリセット端子のノード番号: 場合によっては BNET_NULLID となる．
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {

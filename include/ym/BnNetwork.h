@@ -311,7 +311,6 @@ public:
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  /// - 論理セルでない場合には BNET_NULLID を返す．
   SizeType
   new_logic(
     const string& node_name,              ///< [in] ノード名
@@ -354,7 +353,7 @@ public:
   /// - ノード名の重複に関しては感知しない．
   SizeType
   new_buff(
-    const string& node_name,      ///< [in] ノード名
+    const string& node_name,        ///< [in] ノード名
     SizeType fanin_id = BNET_NULLID ///< [in] ファンインのノード番号
   );
 
@@ -364,7 +363,7 @@ public:
   /// - ノード名の重複に関しては感知しない．
   SizeType
   new_not(
-    const string& node_name,      ///< [in] ノード名
+    const string& node_name,        ///< [in] ノード名
     SizeType fanin_id = BNET_NULLID ///< [in] ファンインのノード番号
   );
 
