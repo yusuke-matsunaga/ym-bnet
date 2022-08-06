@@ -133,8 +133,7 @@ BnNetworkImpl::copy(
   }
 
   // src 本体をインポートする．
-  vector<SizeType> output_list;
-  import_subnetwork(src, input_list, output_list);
+  auto output_list = import_subnetwork(src, input_list);
 
   // 出力端子のファンインの接続
   auto output_num = src.output_num();
@@ -171,11 +170,10 @@ BnNetworkImpl::set_name(
 }
 
 // @brief 部分回路を追加する．
-void
+vector<SizeType>
 BnNetworkImpl::import_subnetwork(
   const BnNetworkImpl& src_network,
-  const vector<SizeType>& input_list,
-  vector<SizeType>& output_list
+  const vector<SizeType>& input_list
 )
 {
   ASSERT_COND( src_network.mSane );
@@ -184,8 +182,7 @@ BnNetworkImpl::import_subnetwork(
   ASSERT_COND( input_list.size() == input_num );
 
   auto output_num = src_network.output_num();
-  output_list.clear();
-  output_list.reserve(output_num);
+  vector<SizeType> output_list(output_num);
 
   // src_network のノード番号をキーにして生成したノード番号を入れる配列
   vector<SizeType> id_map(src_network.node_num());
@@ -219,6 +216,8 @@ BnNetworkImpl::import_subnetwork(
     auto dst_id = id_map[src_id];
     output_list.push_back(dst_id);
   }
+
+  return output_list;
 }
 
 // @brief DFFを複製する．

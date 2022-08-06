@@ -671,16 +671,15 @@ BnNetwork::change_cell(
 }
 
 // @brief 部分回路を追加する．
-void
+vector<SizeType>
 BnNetwork::import_subnetwork(
   const BnNetwork& src_network,
-  const vector<SizeType>& input_list,
-  vector<SizeType>& output_list
+  const vector<SizeType>& input_list
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  mImpl->import_subnetwork(*src_network.mImpl, input_list, output_list);
+  return mImpl->import_subnetwork(*src_network.mImpl, input_list);
 }
 
 // @brief 単純なノードに分解する．

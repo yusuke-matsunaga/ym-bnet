@@ -565,11 +565,10 @@ public:
   /// * src_network は wrap_up() されている必要がある．
   /// * src_network のポートの情報は失われる．
   /// * 矛盾しない限りセルライブラリの情報も引継がれる．
-  void
+  vector<SizeType>
   import_subnetwork(
-    const BnNetwork& src_network,       ///< [in] 部分回路
-    const vector<SizeType>& input_list, ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
-    vector<SizeType>& output_list       ///< [in] インポートした部分回路の出力ノード番号のリスト
+    const BnNetwork& src_network,      ///< [in] 部分回路
+    const vector<SizeType>& input_list ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
   );
 
   /// @brief 単純なノードに分解する．
@@ -593,7 +592,7 @@ public:
   connect(
     SizeType src_node, ///< [in] ファンアウト元のノード番号
     SizeType dst_node, ///< [in] ファンイン先のノード番号
-    SizeType ipos ///< [in] ファンインの位置
+    SizeType ipos      ///< [in] ファンインの位置
   );
 
   /// @brief ファンアウトをつなぎ替える．

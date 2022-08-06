@@ -58,13 +58,11 @@ TEST(ImportTest, test1)
     auto input4 = port4.bit(0);
 
     vector<SizeType> input_list1{input1, input2};
-    vector<SizeType> output_list1;
-    network2.import_subnetwork(network1, input_list1, output_list1);
+    auto output_list1 = network2.import_subnetwork(network1, input_list1);
     ASSERT_COND( output_list1.size() == 1 );
 
     vector<SizeType> input_list2{input3, input4};
-    vector<SizeType> output_list2;
-    network2.import_subnetwork(network1, input_list2, output_list2);
+    auto output_list2 = network2.import_subnetwork(network1, input_list2);
     ASSERT_COND( output_list2.size() == 1 );
 
     auto or_id = network2.new_or(string(), 2);
