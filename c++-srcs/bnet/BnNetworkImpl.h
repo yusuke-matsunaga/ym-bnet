@@ -575,9 +575,7 @@ public:
     SizeType id ///< [in] ノード番号 ( 0 <= id < node_num() )
   ) const
   {
-    ASSERT_COND( id >= 0 && id < node_num() );
-
-    return *mNodeList[id];
+    return *_node_p(id);
   }
 
   /// @brief 入力数を得る．
@@ -763,14 +761,45 @@ private:
     vector<SizeType>& id_map  ///< [out] 生成したノードの対応関係を記録するハッシュ表
   );
 
+  /// @brief ノード番号が正しいかチェックする．
+  bool
+  _check_node_id(
+    SizeType id
+  ) const
+  {
+    return ( 0 < id && id <= mNodeList.size() );
+  }
+
+  /// @brief ノードを取り出す．
+  BnNodeImpl*
+  _node_p(
+    SizeType id
+  ) const
+  {
+    ASSERT_COND( _check_node_id(id) );
+    return mNodeList[id - 1];
+  }
+
   /// @brief ノードを登録する．
   void
   _reg_node(
     BnNodeImpl* node
   )
   {
-    node->mId = mNodeList.size();
+    node->mId = mNodeList.size() + 1;
     mNodeList.push_back(node);
+  }
+
+  /// @brief ノードを登録し直す．
+  void
+  _set_node(
+    BnNodeImpl* node,
+    SizeType id
+  )
+  {
+    ASSERT_COND( _check_node_id(id) );
+    node->mId = id;
+    mNodeList[id - 1] = node;
   }
 
   /// @brief 入力ノードを登録する．

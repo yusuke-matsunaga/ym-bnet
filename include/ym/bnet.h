@@ -59,7 +59,7 @@ enum class BnDir : ymuint8 {
 };
 
 /// @brief 不正なノード番号を表す定数
-const SizeType BNET_NULLID = -1;
+const SizeType BNET_NULLID = 0;
 
 
 //////////////////////////////////////////////////////////////////////

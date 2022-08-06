@@ -362,13 +362,10 @@ BnNetworkImpl::_change_logic(
   int cell_id
 )
 {
-  ASSERT_COND( node_id >= 0 && node_id < mNodeList.size() );
-
-  auto old_node = mNodeList[node_id];
+  auto old_node = _node_p(node_id);
   auto new_node = _new_logic(old_node->name(), fanin_num, logic_type,
 			     expr_id, func_id, bdd, cell_id);
-  mNodeList[node_id] = new_node;
-  new_node->mId = node_id;
+  _set_node(new_node, node_id);
   delete old_node;
 
 }
@@ -736,8 +733,6 @@ BnNetworkImpl::new_port(
   auto bit_width = dir_vect.size();
   vector<SizeType> bits(bit_width);
   for ( auto i: Range(bit_width) ) {
-    auto node_id = mNodeList.size();
-    bits[i] = node_id;
     string node_name;
     if ( bit_width > 1 ) {
       ostringstream buf;
@@ -750,10 +745,12 @@ BnNetworkImpl::new_port(
     if ( dir_vect[i] == BnDir::INPUT ) {
       auto node = new BnPortInput(node_name, port_id, i);
       _reg_primary_input(node);
+      bits[i] = node->id();
     }
     else { // BnDir::OUTPUT
       auto node = new BnPortOutput(node_name, port_id, i);
       _reg_primary_output(node);
+      bits[i] = node->id();
     }
   }
 
@@ -942,7 +939,7 @@ BnNetworkImpl::dup_logic(
   SizeType src_id
 )
 {
-  auto src_node = mNodeList[src_id];
+  auto src_node = _node_p(src_id);
   auto nfi = src_node->fanin_num();
   auto logic_type = src_node->type();
   auto expr_id = src_node->expr_id();
@@ -960,14 +957,13 @@ BnNetworkImpl::substitute_fanout(
   SizeType new_id
 )
 {
-  ASSERT_COND( old_id >= 0 && old_id < mNodeList.size() );
-  ASSERT_COND( new_id >= 0 && new_id < mNodeList.size() );
+  ASSERT_COND( _check_node_id(new_id) );
 
   // old_id のファンアウトのリストをコピーする．
-  BnNodeImpl* old_node = mNodeList[old_id];
+  auto old_node = _node_p(old_id);
   vector<SizeType> fo_list{old_node->fanout_id_list()};
   for ( auto dst: fo_list ) {
-    BnNodeImpl* dst_node = mNodeList[dst];
+    auto dst_node = _node_p(dst);
     // old_id のファンインを探す．
     SizeType ipos = dst_node->fanin_num() + 1;
     if ( dst_node->is_output() ) {
@@ -996,9 +992,7 @@ BnNetworkImpl::connect_fanins(
   const vector<SizeType>& fanin_id_list
 )
 {
-  ASSERT_COND( id >= 0 && id < mNodeList.size() );
-
-  BnNodeImpl* node = mNodeList[id];
+  auto node = _node_p(id);
   auto ni = node->fanin_num();
 
   ASSERT_COND( fanin_id_list.size() == ni );
@@ -1018,10 +1012,9 @@ BnNetworkImpl::connect(
   SizeType ipos
 )
 {
-  ASSERT_COND( src_id >= 0 && src_id < mNodeList.size() );
-  ASSERT_COND( dst_id >= 0 && dst_id < mNodeList.size() );
+  ASSERT_COND( _check_node_id(src_id) );
 
-  BnNodeImpl* dst_node = mNodeList[dst_id];
+  auto dst_node = _node_p(dst_id);
   dst_node->set_fanin(ipos, src_id);
 
   mSane = false;
@@ -1041,9 +1034,14 @@ BnNetworkImpl::wrap_up()
   for ( auto port_p: mPortList ) {
     for ( auto i: Range(port_p->bit_width()) ) {
       auto id = port_p->bit(i);
-      if ( id == BNET_NULLID || id >= node_num() ) {
+      if ( id == BNET_NULLID ) {
 	cerr << "Port#" << port_p->id() << "(" << port_p->name() << ").bit["
 	     << i << "] is not set" << endl;
+	error = true;
+      }
+      else if ( !_check_node_id(id) ) {
+	cerr << "Port#" << port_p->id() << "(" << port_p->name() << ").bit["
+	     << i << "] is not valid" << endl;
 	error = true;
       }
     }
@@ -1056,7 +1054,7 @@ BnNetworkImpl::wrap_up()
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").input is not set" << endl;
       error = true;
     }
-    else if ( id1 >= node_num() ) {
+    else if ( !_check_node_id(id1) ) {
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").input is not valid" << endl;
       error = true;
     }
@@ -1065,7 +1063,7 @@ BnNetworkImpl::wrap_up()
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").output is not set" << endl;
       error = true;
     }
-    else if ( id2 >= node_num() ) {
+    else if ( !_check_node_id(id2) ) {
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").output is not valid" << endl;
       error = true;
     }
@@ -1074,17 +1072,17 @@ BnNetworkImpl::wrap_up()
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clock is not set" << endl;
       error = true;
     }
-    else if ( id3 >= node_num() ) {
+    else if ( !_check_node_id(id3) ) {
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clock is not valid" << endl;
       error = true;
     }
     auto id4 = dff_p->clear();
-    if ( id4 != BNET_NULLID && id4 >= node_num() ) {
+    if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clear is not valid" << endl;
       error = true;
     }
     auto id5 = dff_p->preset();
-    if ( id5 != BNET_NULLID && id5 >= node_num() ) {
+    if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
       cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").preset is not valid" << endl;
       error = true;
     }
@@ -1098,7 +1096,7 @@ BnNetworkImpl::wrap_up()
 	   << "(" << latch_p->name() << ").input is not set" << endl;
       error = true;
     }
-    else if ( id1 >= node_num() ) {
+    else if ( !_check_node_id(id1) ) {
       cerr << "LATCH#" << latch_p->id()
 	   << "(" << latch_p->name() << ").input is not valid" << endl;
       error = true;
@@ -1109,7 +1107,7 @@ BnNetworkImpl::wrap_up()
 	   << "(" << latch_p->name() << ").output is not set" << endl;
       error = true;
     }
-    else if ( id2 >= node_num() ) {
+    else if ( !_check_node_id(id2) ) {
       cerr << "LATCH#" << latch_p->id()
 	   << "(" << latch_p->name() << ").output is not valid" << endl;
       error = true;
@@ -1120,19 +1118,19 @@ BnNetworkImpl::wrap_up()
 	   << "(" << latch_p->name() << ").enable is not set" << endl;
       error = true;
     }
-    else if ( id3 >= node_num() ) {
+    else if ( !_check_node_id(id3) ) {
       cerr << "LATCH#" << latch_p->id()
 	   << "(" << latch_p->name() << ").enable is not valid" << endl;
       error = true;
     }
     auto id4 = latch_p->clear();
-    if ( id4 != BNET_NULLID && id4 >= node_num() ) {
+    if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
       cerr << "LATCH#" << latch_p->id()
 	   << "(" << latch_p->name() << ").clear is not valid" << endl;
       error = true;
     }
     auto id5 = latch_p->preset();
-    if ( id5 != BNET_NULLID && id5 >= node_num() ) {
+    if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
       cerr << "LATCH#" << latch_p->id()
 	   << "(" << latch_p->name() << ").preset is not valid" << endl;
       error = true;
@@ -1148,7 +1146,7 @@ BnNetworkImpl::wrap_up()
 	     << i << "] is not set" << endl;
 	error = true;
       }
-      else if ( id < 0 || id >= node_num() ) {
+      else if ( !_check_node_id(id) ) {
 	cerr << "NODE#" << node_p->id() << "(" << node_p->name() << ").fanin["
 	     << i << "] is not valid" << endl;
 	error = true;
@@ -1166,7 +1164,7 @@ BnNetworkImpl::wrap_up()
   }
   for ( auto node_p: mNodeList ) {
     for ( auto id: node_p->fanin_id_list() ) {
-      auto src_node_p = mNodeList[id];
+      auto src_node_p = _node_p(id);
       src_node_p->add_fanout(node_p->id());
     }
   }
@@ -1201,7 +1199,7 @@ BnNetworkImpl::wrap_up()
   // キューからノードを取り出してファンアウト先のノードをキューに積む．
   for ( auto rpos = 0; rpos < queue.size(); ++ rpos ) {
     auto id = queue[rpos];
-    auto node_p = mNodeList[id];
+    auto node_p = _node_p(id);
     if ( node_p->is_logic() ) {
       mLogicList.push_back(id);
     }
@@ -1209,7 +1207,7 @@ BnNetworkImpl::wrap_up()
       if ( mark[oid] ) {
 	continue;
       }
-      auto onode_p = mNodeList[oid];
+      auto onode_p = _node_p(oid);
       bool ready = true;
       for ( auto iid: onode_p->fanin_id_list() ) {
 	if ( !mark[iid] ) {
@@ -1229,7 +1227,7 @@ BnNetworkImpl::wrap_up()
   mOutputSrcList.resize(mOutputList.size());
   for ( auto i: Range(mOutputList.size()) ) {
     auto oid = mOutputList[i];
-    auto node_p = mNodeList[oid];
+    auto node_p = _node_p(oid);
     auto iid = node_p->fanin_id(0);
     mOutputSrcList[i] = iid;
   }
@@ -1239,7 +1237,7 @@ BnNetworkImpl::wrap_up()
   mPrimaryOutputSrcList.resize(mPrimaryOutputList.size());
   for ( auto i: Range(mPrimaryOutputList.size()) ) {
     auto oid = mPrimaryOutputList[i];
-    auto node_p = mNodeList[oid];
+    auto node_p = _node_p(oid);
     auto iid = node_p->fanin_id(0);
     mPrimaryOutputSrcList[i] = iid;
   }
@@ -1254,7 +1252,7 @@ bool
 BnNetworkImpl::is_concrete() const
 {
   for ( auto id: logic_id_list() ) {
-    auto node_p = mNodeList[id];
+    auto node_p = _node_p(id);
     switch ( node_p->type() ) {
     case BnNodeType::TvFunc:
     case BnNodeType::Bdd:
