@@ -27,6 +27,10 @@ add_executable ( blifparser_test
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
+target_include_directories ( blifparser_test
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/blif
+  )
+
 target_compile_options ( blifparser_test
   PRIVATE "-g"
   )
@@ -50,6 +54,10 @@ add_executable ( iscas89parser_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_include_directories ( iscas89parser_test
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/iscas89
   )
 
 target_compile_options ( iscas89parser_test
@@ -125,6 +133,10 @@ add_executable ( loop_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
+target_include_directories ( loop_test
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/iscas89
   )
 
 target_compile_options ( loop_test

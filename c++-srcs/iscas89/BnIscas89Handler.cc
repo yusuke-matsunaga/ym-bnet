@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "BnIscas89Handler.h"
-#include "ym/Iscas89Parser.h"
+#include "Iscas89Parser.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"

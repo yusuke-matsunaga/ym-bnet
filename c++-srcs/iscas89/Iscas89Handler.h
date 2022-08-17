@@ -1,7 +1,7 @@
-﻿#ifndef YM_ISCAS89HANDLER_H
-#define YM_ISCAS89HANDLER_H
+﻿#ifndef ISCAS89HANDLER_H
+#define ISCAS89HANDLER_H
 
-/// @file ym/Iscas89Handler.h
+/// @file Iscas89Handler.h
 /// @brief Iscas89Handler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -15,10 +15,10 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
-class Iscas89ParserImpl;
+class Iscas89Parser;
 
 //////////////////////////////////////////////////////////////////////
-/// @class Iscas89Handler Iscas89Handler.h "ym/Iscas89Handler.h"
+/// @class Iscas89Handler Iscas89Handler.h "Iscas89Handler.h"
 /// @ingroup Iscas89Group
 /// @brief iscas89 パーサーのイベントハンドラの基底クラス
 /// @sa Iscas89Parser
@@ -153,10 +153,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーサー本体
-  Iscas89ParserImpl& mParser;
+  Iscas89Parser& mParser;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // YM_ISCAS89HANDLER_H
+#endif // ISCAS89HANDLER_H

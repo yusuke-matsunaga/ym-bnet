@@ -8,7 +8,7 @@
 /// Copyright (C) 2005-2011, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BlifHandler.h"
+#include "BlifHandler.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

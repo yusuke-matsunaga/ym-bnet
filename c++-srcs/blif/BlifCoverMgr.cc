@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "BlifCoverMgr.h"
-#include "ym/BlifCover.h"
+#include "BlifCover.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

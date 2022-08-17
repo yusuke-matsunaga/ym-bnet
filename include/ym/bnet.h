@@ -30,23 +30,12 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_BNET
 
 // クラスの前方宣言
-
-class BnBlifReader;
-class BnIscas89Reader;
-
 class BnNetwork;
 class BnPort;
 class BnDff;
 class BnLatch;
 class BnNode;
 enum class BnNodeType;
-
-class BlifCover;
-class BlifHandler;
-class BlifParser;
-
-class Iscas89Handler;
-class Iscas89Parser;
 
 END_NAMESPACE_YM_BNET
 
@@ -105,8 +94,6 @@ private:
 
 };
 
-using nsBnet::BnBlifReader;
-using nsBnet::BnIscas89Reader;
 using nsBnet::BnNetwork;
 using nsBnet::BnPort;
 using nsBnet::BnDff;

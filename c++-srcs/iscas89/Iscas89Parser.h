@@ -1,34 +1,40 @@
-﻿#ifndef ISCAS89PARSERIMPL_H
-#define ISCAS89PARSERIMPL_H
+﻿#ifndef ISCAS89PARSER_H
+#define ISCAS89PARSER_H
 
-/// @file Iscas89ParserImpl.h
-/// @brief Iscas89ParserImpl のヘッダファイル
+/// @file Iscas89Parser.h
+/// @brief Iscas89Parser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
 #include "ym/FileRegion.h"
-#include "Iscas89Scanner.h"
 #include "Iscas89Token.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
+class Iscas89Handler;
+class Iscas89Scanner;
+
 //////////////////////////////////////////////////////////////////////
-/// @class Iscas89ParserImpl Iscas89ParserImpl.h "ym/Iscas89ParserImpl.h"
-/// @brief Iscas89Parser の実装クラス
+/// @class Iscas89Parser Iscas89Parser.h "Iscas89Parser.h"
+/// @ingroup Iscas89Group
+/// @brief ISCAS89(.bench) 形式のファイルを読み込むパーサークラス
+/// @sa Iscas89Handler
 //////////////////////////////////////////////////////////////////////
-class Iscas89ParserImpl
+class Iscas89Parser
 {
+  friend class Iscas89Handler;
+
 public:
 
   /// @brief コンストラクタ
-  Iscas89ParserImpl() = default;
+  Iscas89Parser() = default;
 
   /// @brief デストラクタ
-  ~Iscas89ParserImpl() = default;
+  ~Iscas89Parser() = default;
 
 
 public:
@@ -353,4 +359,4 @@ private:
 
 END_NAMESPACE_YM_BNET
 
-#endif // ISCAS89PARSERIMPL_H
+#endif // ISCAS89PARSER_H

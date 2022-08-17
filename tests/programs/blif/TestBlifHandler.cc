@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "TestBlifHandler.h"
-#include "ym/BlifCover.h"
+#include "BlifCover.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibPin.h"

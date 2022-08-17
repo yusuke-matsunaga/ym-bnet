@@ -56,24 +56,24 @@ add_subdirectory ( tests/programs )
 #  ソースの設定
 # ===================================================================
 
+set ( aig_SOURCES
+  c++-srcs/aig/AigReader.cc
+  c++-srcs/aig/read_aig.cc
+  )
+
 set ( blif_SOURCES
   c++-srcs/blif/BlifCoverMgr.cc
   c++-srcs/blif/BlifHandler.cc
-  c++-srcs/blif/BlifParserImpl.cc
+  c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
+  c++-srcs/blif/BnBlifHandler.cc
   )
 
 set ( bnet_SOURCES
-  c++-srcs/bnet/AigReader.cc
-  c++-srcs/bnet/AigWriter.cc
-  c++-srcs/bnet/Bnet2Aig.cc
-  c++-srcs/bnet/BnBlifHandler.cc
   c++-srcs/bnet/BnDffImpl.cc
-  c++-srcs/bnet/BnIscas89Handler.cc
   c++-srcs/bnet/BnLatchImpl.cc
   c++-srcs/bnet/BnNetwork.cc
   c++-srcs/bnet/BnNetwork_dump_restore.cc
-  c++-srcs/bnet/BnNetwork_write.cc
   c++-srcs/bnet/BnNetworkImpl.cc
   c++-srcs/bnet/BnNodeImpl.cc
   c++-srcs/bnet/BnInputNode.cc
@@ -81,25 +81,32 @@ set ( bnet_SOURCES
   c++-srcs/bnet/BnLogicNode.cc
   c++-srcs/bnet/BnPortImpl.cc
   c++-srcs/bnet/FuncAnalyzer.cc
-  c++-srcs/bnet/WriterBase.cc
-  c++-srcs/bnet/BlifWriter.cc
-  c++-srcs/bnet/Iscas89Writer.cc
-  c++-srcs/bnet/VerilogWriter.cc
   c++-srcs/bnet/read_truth.cc
-  c++-srcs/bnet/read_aig.cc
   )
 
 set ( iscas89_SOURCES
   c++-srcs/iscas89/Iscas89Handler.cc
   c++-srcs/iscas89/Iscas89Parser.cc
-  c++-srcs/iscas89/Iscas89ParserImpl.cc
   c++-srcs/iscas89/Iscas89Scanner.cc
+  c++-srcs/iscas89/BnIscas89Handler.cc
+  )
+
+set ( writer_SOURCES
+  c++-srcs/writer/AigWriter.cc
+  c++-srcs/writer/BlifWriter.cc
+  c++-srcs/writer/Bnet2Aig.cc
+  c++-srcs/writer/BnNetwork_write.cc
+  c++-srcs/writer/Iscas89Writer.cc
+  c++-srcs/writer/VerilogWriter.cc
+  c++-srcs/writer/WriterBase.cc
   )
 
 set ( ym_bnet_SOURCES
+  ${aig_SOURCES}
   ${blif_SOURCES}
   ${bnet_SOURCES}
   ${iscas89_SOURCES}
+  ${writer_SOURCES}
   )
 
 set ( ym_luabnet_SOURCES

@@ -3,19 +3,21 @@
 /// @brief BlifParser のテストプログラム
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-
-#include "ym/BlifParser.h"
+#include "BlifParser.h"
 #include "ym/ClibCellLibrary.h"
 #include "TestBlifHandler.h"
 #include "NullBlifHandler.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
 
+
 void
-usage(const char* argv0)
+usage(
+  const char* argv0
+)
 {
   using namespace std;
 
@@ -23,8 +25,10 @@ usage(const char* argv0)
 }
 
 int
-main(int argc,
-     char** argv)
+main(
+  int argc,
+  char** argv
+)
 {
   using namespace std;
   using namespace nsYm;

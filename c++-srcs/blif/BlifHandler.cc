@@ -6,9 +6,8 @@
 /// Copyright (C) 2005-2012, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BlifHandler.h"
-#include "ym/BlifParser.h"
-#include "BlifParserImpl.h"
+#include "BlifHandler.h"
+#include "BlifParser.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -20,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 BlifHandler::BlifHandler(
   BlifParser& parser
-) : mParser{*parser.mImpl.get()}
+) : mParser{parser}
 {
   mParser.add_handler(this);
 }

@@ -6,9 +6,8 @@
 /// Copyright (C) 2005-2011, 2014, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/Iscas89Handler.h"
-#include "ym/Iscas89Parser.h"
-#include "Iscas89ParserImpl.h"
+#include "Iscas89Handler.h"
+#include "Iscas89Parser.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -20,7 +19,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 Iscas89Handler::Iscas89Handler(
   Iscas89Parser& parser
-) : mParser(*parser.mRep.get())
+) : mParser{parser}
 {
   mParser.add_handler(this);
 }

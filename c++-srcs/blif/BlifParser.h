@@ -1,11 +1,11 @@
-﻿#ifndef BLIFPARSERIMPL_H
-#define BLIFPARSERIMPL_H
+﻿#ifndef BLIFPARSER_H
+#define BLIFPARSER_H
 
-/// @file BlifParserImpl.h
-/// @brief BlifParserImpl のヘッダファイル
+/// @file BlifParser.h
+/// @brief BlifParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -16,22 +16,26 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BlifHandler;
+
 //////////////////////////////////////////////////////////////////////
-/// @class BlifParserImpl BlifParserImpl.h "BlifParserImpl.h"
-/// @ingroup BlifGroup
+/// @class BlifParser BlifParser.h "BlifParser.h"
 /// @brief blif形式のファイルを読み込むパーサークラス
+///
 /// 適切なハンドラクラスを生成して add_handler() で登録して使う．
 /// @sa BlifHandler MsgHandler
 //////////////////////////////////////////////////////////////////////
-class BlifParserImpl
+class BlifParser
 {
+  friend class BlifHandler;
+
 public:
 
   /// @brief コンストラクタ
-  BlifParserImpl() = default;
+  BlifParser() = default;
 
   /// @brief デストラクタ
-  ~BlifParserImpl() = default;
+  ~BlifParser() = default;
 
 
 public:
@@ -40,6 +44,14 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
+  /// @retval true 読み込みが成功した．
+  /// @retval false 読み込みが失敗した．
+  bool
+  read(
+    const string& filename ///< [in] ファイル名
+  );
+
+  /// @brief 読み込みを行う(セルライブラリ付き)．
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
@@ -192,7 +204,6 @@ private:
     string mName;
 
   };
-
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -355,4 +366,4 @@ private:
 
 END_NAMESPACE_YM_BNET
 
-#endif // BLIFPARSERIMPL_H
+#endif // BLIFPARSER_H

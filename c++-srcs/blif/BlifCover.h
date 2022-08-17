@@ -1,7 +1,7 @@
-#ifndef YM_BLIFCOVER_H
-#define YM_BLIFCOVER_H
+#ifndef BLIFCOVER_H
+#define BLIFCOVER_H
 
-/// @file ym/BlifCover.h
+/// @file BlifCover.h
 /// @brief BlifCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -14,7 +14,7 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifCover BlifCover.h "ym/BlifCover.h"
+/// @class BlifCover BlifCover.h "BlifCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
 ///
 /// 内容は入力のカバーを表す2次元の文字列配列と出力の極性を表す
@@ -99,4 +99,4 @@ private:
 
 END_NAMESPACE_YM_BNET
 
-#endif // YM_BLIFCOVER_H
+#endif // BLIFCOVER_H

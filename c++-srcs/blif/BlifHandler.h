@@ -1,7 +1,7 @@
-﻿#ifndef YM_BLIFHANDLER_H
-#define YM_BLIFHANDLER_H
+﻿#ifndef BLIFHANDLER_H
+#define BLIFHANDLER_H
 
-/// @file ym/BlifHandler.h
+/// @file BlifHandler.h
 /// @brief BlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -15,10 +15,11 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
-class BlifParserImpl;
+class BlifParser;
+class BlifCover;
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifHandler BlifHandler.h "ym/BlifHandler.h"
+/// @class BlifHandler BlifHandler.h "BlifHandler.h"
 /// @ingroup BlifGroup
 /// @brief blif パーサーのイベントハンドラの基底クラス
 ///
@@ -28,7 +29,7 @@ class BlifParserImpl;
 //////////////////////////////////////////////////////////////////////
 class BlifHandler
 {
-  friend class BlifParserImpl;
+  friend class BlifParser;
 
 protected:
 
@@ -193,10 +194,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーサー本体
-  BlifParserImpl& mParser;
+  BlifParser& mParser;
 
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // YM_BLIFHANDLER_H
+#endif // BLIFHANDLER_H

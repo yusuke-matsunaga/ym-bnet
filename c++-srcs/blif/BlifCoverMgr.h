@@ -9,11 +9,10 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "BlifCover.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-class BlifCover;
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCoverMgr BlifCoverMgr.h "BlifCoverMgr.h"

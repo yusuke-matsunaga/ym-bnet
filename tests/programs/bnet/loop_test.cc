@@ -6,16 +6,17 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/BnNetwork.h"
-#include "ym/Iscas89Parser.h"
+#include "Iscas89Parser.h"
 
 
 BEGIN_NAMESPACE_YM
 
 void
-blif_loop_test(int loop_count,
-	       const string& filename)
+blif_loop_test(
+  int loop_count,
+  const string& filename
+)
 {
   for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network = BnNetwork::read_blif(filename);
@@ -23,8 +24,10 @@ blif_loop_test(int loop_count,
 }
 
 void
-iscas89_loop_test(int loop_count,
-		  const string& filename)
+iscas89_loop_test(
+  int loop_count,
+  const string& filename
+)
 {
   for (int i = 0; i < loop_count; ++ i) {
     BnNetwork network = BnNetwork::read_iscas89(filename);
@@ -32,8 +35,10 @@ iscas89_loop_test(int loop_count,
 }
 
 void
-iscas89parser_loop_test(int loop_count,
-		  const string& filename)
+iscas89parser_loop_test(
+  int loop_count,
+  const string& filename
+)
 {
   for (int i = 0; i < loop_count; ++ i) {
     nsBnet::Iscas89Parser parser;
@@ -42,7 +47,9 @@ iscas89parser_loop_test(int loop_count,
 }
 
 void
-usage(char* progname)
+usage(
+  char* progname
+)
 {
   cerr << "USAGE: " << progname << " <blif|iscas89> <# of loop counts> <iscas89 filename>" << endl;
 }
@@ -50,8 +57,10 @@ usage(char* progname)
 END_NAMESPACE_YM
 
 int
-main(int argc,
-     char** argv)
+main(
+  int argc,
+  char** argv
+)
 {
   using namespace std;
   using namespace nsYm;

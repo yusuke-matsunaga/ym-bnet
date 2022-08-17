@@ -7,12 +7,12 @@
 /// All rights reserved.
 
 #include "BnBlifHandler.h"
-#include "ym/BlifParser.h"
+#include "BlifParser.h"
+#include "BlifCover.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
-#include "ym/BlifCover.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/Range.h"
