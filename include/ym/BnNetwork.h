@@ -196,9 +196,10 @@ public:
   /// 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,     ///< [in] DFF名
-    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,      ///< [in] DFF名
+    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
   /// @brief セルの情報を持ったDFFを追加する．
@@ -229,7 +230,8 @@ public:
   new_latch(
     const string& name,      ///< [in] ラッチ名
     bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false  ///< [in] プリセット端子を持つ時 true にする．
+    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
   /// @brief セルの情報を持ったラッチを追加する．
@@ -907,7 +909,6 @@ public:
     const string& filename,          ///< [in] ファイル名
     const string& comment = string{} ///< [in] コメント文字列
   ) const;
-
 
   //////////////////////////////////////////////////////////////////////
   /// @}

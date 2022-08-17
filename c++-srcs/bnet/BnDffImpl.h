@@ -30,14 +30,16 @@ public:
     SizeType output,    ///< [in] 出力端子のノード番号
     SizeType clock,     ///< [in] クロック端子のノード番号
     SizeType clear,     ///< [in] クリア端子のノード番号
-    SizeType preset     ///< [in] プリセット端子のノード番号
+    SizeType preset,    ///< [in] プリセット端子のノード番号
+    BnCPV cpv           ///< [in] クリアとプリセットが衝突した場合の挙動
   ) : mId{id},
       mName{name},
       mInput{input},
       mOutput{output},
       mClock{clock},
       mClear{clear},
-      mPreset{preset}
+      mPreset{preset},
+      mCPV{cpv}
   {
   }
 
@@ -78,6 +80,10 @@ public:
   /// @brief プリセット端子のノード番号を返す．
   SizeType
   preset() const override;
+
+  /// @brief クリアとプリセットが衝突した場合の挙動
+  BnCPV
+  clear_preset_value() const override;
 
   /// @brief セルに割り当てられている場合のセル番号を返す．
   ///
@@ -124,6 +130,9 @@ private:
   // プリセットのノード番号
   SizeType mPreset;
 
+  // クリアとプリセットが衝突した場合の挙動
+  BnCPV mCPV;
+
 };
 
 
@@ -145,11 +154,12 @@ public:
     SizeType clock,                 ///< [in] クロック端子のノード番号
     SizeType clear,                 ///< [in] クリア端子のノード番号
     SizeType preset,                ///< [in] プリセット端子のノード番号
+    BnCPV cpv,                      ///< [in] クリアとプリセットが衝突した場合の挙動
     int cell_id,                    ///< [in] セルのID番号
     const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
     const vector<SizeType>& outputs ///< [in] セルの入力ノード番号のリスト
   ) : BnDffImpl{id, name, input, output,
-		clock, clear, preset},
+		clock, clear, preset, cpv},
       mCellId{cell_id},
       mInputs{inputs},
       mOutputs{outputs}

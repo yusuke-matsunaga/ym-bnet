@@ -105,9 +105,10 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_dff(
-    const string& name,     ///< [in] DFF名
-    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,      ///< [in] DFF名
+    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
   /// @brief セルの情報を持ったDFFを追加する．
@@ -127,9 +128,10 @@ public:
   /// - 名前の重複に関しては感知しない．
   SizeType
   new_latch(
-    const string& name,     ///< [in] ラッチ名
-    bool has_clear = false, ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset = false ///< [in] プリセット端子を持つ時 true にする．
+    const string& name,      ///< [in] ラッチ名
+    bool has_clear = false,  ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset = false, ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
   /// @brief セルの情報を持ったラッチを追加する．
@@ -933,6 +935,7 @@ private:
     const string& name,             ///< [in] DFF名
     bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
     bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv,                      ///< [in] クリアとプリセットが衝突したときの挙動
     int cell_id,                    ///< [in] セルのID番号
     const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
     const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト
@@ -947,6 +950,7 @@ private:
     const string& name,             ///< [in] ラッチ名
     bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
     bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv,                      ///< [in] クリアとプリセットが衝突したときの挙動
     int cell_id,                    ///< [in] セルのID番号
     const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
     const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト

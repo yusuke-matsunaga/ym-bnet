@@ -47,6 +47,15 @@ enum class BnDir : ymuint8 {
   OUTPUT = 1  ///< 出力
 };
 
+/// @brief D-FF/Latch でクリアとプリセットが同時にアサートされた時の挙動
+enum class BnCPV : ymuint8 {
+  L = 0, ///< 0
+  H = 1, ///< 1
+  N = 2, ///< 不変
+  T = 3, ///< 反転
+  X = 4  ///< 不定値
+};
+
 /// @brief 不正なノード番号を表す定数
 const SizeType BNET_NULLID = 0;
 

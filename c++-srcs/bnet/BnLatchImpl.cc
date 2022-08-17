@@ -68,6 +68,13 @@ BnLatchImpl::preset() const
   return mPreset;
 }
 
+// @brief クリアとプリセットが衝突した場合の挙動
+BnCPV
+BnLatchImpl::clear_preset_value() const
+{
+  return mCPV;
+}
+
 // @brief セルに割り当てられている場合のセル番号を返す．
 int
 BnLatchImpl::cell_id() const

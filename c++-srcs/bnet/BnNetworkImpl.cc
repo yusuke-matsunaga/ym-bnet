@@ -25,6 +25,27 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+BEGIN_NONAMESPACE
+
+inline
+BnCPV
+conv(
+  ClibCPV clib_cpv
+)
+{
+  switch ( clib_cpv ) {
+  case ClibCPV::L: return BnCPV::L;
+  case ClibCPV::H: return BnCPV::H;
+  case ClibCPV::N: return BnCPV::N;
+  case ClibCPV::T: return BnCPV::T;
+  case ClibCPV::X: return BnCPV::X;
+  default: ASSERT_NOT_REACHED;
+  }
+  return BnCPV::X;
+}
+
+END_NONAMESPACE
+
 //////////////////////////////////////////////////////////////////////
 // クラス BnNetworkImpl
 //////////////////////////////////////////////////////////////////////
@@ -231,7 +252,8 @@ BnNetworkImpl::_copy_dff(
   string dff_name = src_dff.name();
   bool has_clear = src_dff.clear() != BNET_NULLID;
   bool has_preset = src_dff.preset() != BNET_NULLID;
-  auto dst_id = new_dff(dff_name, has_clear, has_preset);
+  auto cpv = src_dff.clear_preset_value();
+  auto dst_id = new_dff(dff_name, has_clear, has_preset, cpv);
   auto& dst_dff = dff(dst_id);
 
   // 各端子の対応関係を記録する．
@@ -274,7 +296,8 @@ BnNetworkImpl::_copy_latch(
   string latch_name = src_latch.name();
   bool has_clear = src_latch.clear() != BNET_NULLID;
   bool has_preset = src_latch.preset() != BNET_NULLID;
-  auto dst_id = _new_latch(latch_name, has_clear, has_preset, -1, {}, {});
+  auto cpv = src_latch.clear_preset_value();
+  auto dst_id = _new_latch(latch_name, has_clear, has_preset, cpv, -1, {}, {});
   auto& dst_latch = latch(dst_id);
 
   // 各端子の対応関係を記録する．
@@ -449,10 +472,11 @@ SizeType
 BnNetworkImpl::new_dff(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  BnCPV cpv
 )
 {
-  return _new_dff(name, has_clear, has_preset, -1, {}, {});
+  return _new_dff(name, has_clear, has_preset, cpv, -1, {}, {});
 }
 
 // @brief セルの情報を持ったDFFを追加する．
@@ -492,7 +516,9 @@ BnNetworkImpl::new_dff(
   // FFコアを作る．
   bool has_clear = cell.clear_expr().is_valid();
   bool has_preset = cell.preset_expr().is_valid();
+  auto cpv = conv(cell.clear_preset_var1());
   SizeType dff_id = _new_dff(name, has_clear, has_preset,
+			     cpv,
 			     cell_id, inputs, outputs);
   auto& dff = this->dff(dff_id);
 
@@ -536,10 +562,11 @@ SizeType
 BnNetworkImpl::new_latch(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  BnCPV cpv
 )
 {
-  return _new_latch(name, has_clear, has_preset, -1, {}, {});
+  return _new_latch(name, has_clear, has_preset, cpv, -1, {}, {});
 }
 
 // @brief セルの情報を持ったラッチを追加する．
@@ -579,7 +606,9 @@ BnNetworkImpl::new_latch(
   // latch コアを作る．
   bool has_clear = cell.clear_expr().is_valid();
   bool has_preset = cell.preset_expr().is_valid();
+  auto cpv = conv(cell.clear_preset_var1());
   SizeType latch_id = _new_latch(name, has_clear, has_preset,
+				 cpv,
 				 cell_id, inputs, outputs);
   auto& latch = this->latch(latch_id);
 
@@ -772,6 +801,7 @@ BnNetworkImpl::_new_dff(
   const string& name,
   bool has_clear,
   bool has_preset,
+  BnCPV cpv,
   int cell_id,
   const vector<SizeType>& inputs,
   const vector<SizeType>& outputs
@@ -837,12 +867,12 @@ BnNetworkImpl::_new_dff(
   BnDff* dff;
   if ( cell_id != -1 ) {
     dff = new BnDffCell{dff_id, name, input_id, output_id,
-			clock_id, clear_id, preset_id,
+			clock_id, clear_id, preset_id, cpv,
 			cell_id, inputs, outputs};
   }
   else {
     dff = new BnDffImpl(dff_id, name, input_id, output_id,
-			clock_id, clear_id, preset_id);
+			clock_id, clear_id, preset_id, cpv);
   }
   mDffList.push_back(dff);
 
@@ -855,6 +885,7 @@ BnNetworkImpl::_new_latch(
   const string& name,
   bool has_clear,
   bool has_preset,
+  BnCPV cpv,
   int cell_id,
   const vector<SizeType>& inputs,
   const vector<SizeType>& outputs
@@ -920,12 +951,12 @@ BnNetworkImpl::_new_latch(
   BnLatch* latch;
   if ( cell_id != -1 ) {
     latch = new BnLatchCell(latch_id, name, input_id, output_id,
-			    enable_id, clear_id, preset_id,
+			    enable_id, clear_id, preset_id, cpv,
 			    cell_id, inputs, outputs);
   }
   else {
     latch = new BnLatchImpl(latch_id, name, input_id, output_id,
-			    enable_id, clear_id, preset_id);
+			    enable_id, clear_id, preset_id, cpv);
   }
   mLatchList.push_back(latch);
 

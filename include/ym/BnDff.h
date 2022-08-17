@@ -28,6 +28,7 @@ BEGIN_NAMESPACE_YM_BNET
 /// - クロック入力のノード番号
 /// - クリア端子のノード番号: 場合によっては BNET_NULLID となる．
 /// - プリセット端子のノード番号: 場合によっては BNET_NULLID となる．
+/// - クリアとプリセットが衝突した場合の挙動
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {
@@ -78,6 +79,11 @@ public:
   virtual
   SizeType
   preset() const = 0;
+
+  /// @brief クリアとプリセットが衝突した場合の挙動
+  virtual
+  BnCPV
+  clear_preset_value() const = 0;
 
   /// @brief セルに割り当てられている場合のセル番号を返す．
   ///

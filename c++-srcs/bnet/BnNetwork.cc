@@ -193,11 +193,12 @@ SizeType
 BnNetwork::new_dff(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  BnCPV cpv
 )
 {
   ASSERT_COND( mImpl != nullptr );
-  return mImpl->new_dff(name, has_clear, has_preset);
+  return mImpl->new_dff(name, has_clear, has_preset, cpv);
 }
 
 // @brief セルの情報を持ったDFFを追加する．
@@ -217,12 +218,13 @@ SizeType
 BnNetwork::new_latch(
   const string& name,
   bool has_clear,
-  bool has_preset
+  bool has_preset,
+  BnCPV cpv
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_latch(name, has_clear, has_preset);
+  return mImpl->new_latch(name, has_clear, has_preset, cpv);
 }
 
 // @brief セルの情報を持ったラッチを追加する．
