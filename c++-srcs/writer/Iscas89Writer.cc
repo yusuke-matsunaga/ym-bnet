@@ -131,7 +131,8 @@ Iscas89Writer::operator()(
   // DFF 文の出力
   for ( auto id: Range(network().dff_num()) ) {
     auto& dff = network().dff(id);
-    s << node_name(dff.output()) << " = DFF(" << node_name(dff.input()) << ")" << endl;
+    s << node_name(dff.data_out())
+      << " = DFF(" << node_name(dff.data_in()) << ")" << endl;
   }
   s << endl;
 

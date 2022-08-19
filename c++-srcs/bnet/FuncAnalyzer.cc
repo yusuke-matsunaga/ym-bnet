@@ -9,7 +9,6 @@
 #include "FuncAnalyzer.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
-#include "ym/BnNodeType.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

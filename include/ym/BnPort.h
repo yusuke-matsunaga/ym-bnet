@@ -5,7 +5,7 @@
 /// @brief BnPort のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
@@ -17,6 +17,9 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class BnPort BnPort.h "ym/BnPort.h"
 /// @brief Boolean Network (BnNetwork) のポートを表すクラス
 /// @sa BnNetwork
+///
+/// ポートは1つもしくは複数の入力ノード/出力ノードをまとめたもの．
+/// ネットワーク内で唯一の名前を持つ．
 ///
 /// このクラスは実体を持たない純粋仮想基底クラスである．
 //////////////////////////////////////////////////////////////////////

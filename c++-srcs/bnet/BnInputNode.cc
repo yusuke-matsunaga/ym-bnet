@@ -71,46 +71,21 @@ BnPortInput::port_bit() const
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnDffOutput
+// クラス BnDataOut
 //////////////////////////////////////////////////////////////////////
 
 // @brief DFFの出力端子の時 true を返す．
 bool
-BnDffOutput::is_dff_output() const
+BnDataOut::is_data_out() const
 {
   return true;
 }
 
 // @brief 接続しているDFFの番号を返す．
-//
-// is_dff_input() || is_dff_output()
-// の時のみ意味を持つ．
 SizeType
-BnDffOutput::dff_id() const
+BnDataOut::dff_id() const
 {
   return mDffId;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnLatchOutput
-//////////////////////////////////////////////////////////////////////
-
-// @brief ラッチの出力端子の時 true を返す．
-bool
-BnLatchOutput::is_latch_output() const
-{
-  return true;
-}
-
-// @brief 接続しているラッチの番号を返す．
-//
-// is_latch_input() || is_latch_output()
-// の時のみ意味を持つ．
-SizeType
-BnLatchOutput::latch_id() const
-{
-  return mLatchId;
 }
 
 END_NAMESPACE_YM_BNET

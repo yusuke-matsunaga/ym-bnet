@@ -29,12 +29,10 @@ TEST(ImportTest, test1)
     auto input1 = port1.bit(0);
     auto input2 = port2.bit(0);
 
-    auto and1 = network1.new_and(string(), 2);
-    network1.connect(input1, and1, 0);
-    network1.connect(input2, and1, 1);
+    auto and1 = network1.new_and(string(), {input1, input2});
 
     auto output1 = port3.bit(0);
-    network1.connect(and1, output1, 0);
+    network1.set_output(output1, and1);
 
     network1.wrap_up();
   }
@@ -57,23 +55,19 @@ TEST(ImportTest, test1)
     auto input3 = port3.bit(0);
     auto input4 = port4.bit(0);
 
-    vector<SizeType> input_list1{input1, input2};
-    auto output_list1 = network2.import_subnetwork(network1, input_list1);
+    auto output_list1 = network2.import_subnetwork(network1, {input1, input2});
     ASSERT_COND( output_list1.size() == 1 );
 
-    vector<SizeType> input_list2{input3, input4};
-    auto output_list2 = network2.import_subnetwork(network1, input_list2);
+    auto output_list2 = network2.import_subnetwork(network1, {input3, input4});
     ASSERT_COND( output_list2.size() == 1 );
 
-    auto or_id = network2.new_or(string(), 2);
-    network2.connect(output_list1[0], or_id, 0);
-    network2.connect(output_list2[0], or_id, 1);
+    auto or_id = network2.new_or(string(), {output_list1[0], output_list2[0]});
 
     auto port5_id = network2.new_output_port("port5");
     auto& port5 = network2.port(port5_id);
     auto output = port5.bit(0);
 
-    network2.connect(or_id, output, 0);
+    network2.set_output(output, or_id);
 
     network2.wrap_up();
   }

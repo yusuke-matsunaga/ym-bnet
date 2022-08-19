@@ -65,7 +65,8 @@ BnIscas89Handler::init()
   mNetwork.set_name("iscas89_network");
 
   mIdMap.clear();
-  mFaninInfoMap.clear();
+  mNodeMap.clear();
+  mOutputMap.clear();
 
   mClockId = BNET_NULLID;
 
@@ -108,7 +109,7 @@ BnIscas89Handler::read_output(
   auto port_id = mNetwork.new_output_port(name);
   auto& port = mNetwork.port(port_id);
   SizeType id = port.bit(0);
-  add_fanin_info(id, name_id);
+  mOutputMap.emplace(id, name_id);
   return true;
 }
 
@@ -129,24 +130,11 @@ BnIscas89Handler::read_gate(
   const vector<SizeType>& iname_list
 )
 {
-  SizeType ni = iname_list.size();
-  SizeType id = mNetwork.new_logic(oname, logic_type, ni);
-  mIdMap[oname_id] = id;
-
-  add_fanin_info(id, iname_list);
-
+  mNodeMap.emplace(oname_id, NodeInfo{oname, logic_type, false, iname_list});
   return true;
 }
 
 // @brief ゲート文(MUX)を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] oname_id 出力名の ID 番号
-// @param[in] oname 出力名
-// @param[in] iname_list 入力名のリスト
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
-//
-// 入力数のチェックは済んでいるものとする．
 bool
 BnIscas89Handler::read_mux(
   const FileRegion& loc,
@@ -154,7 +142,110 @@ BnIscas89Handler::read_mux(
   const string& oname,
   const vector<SizeType>& iname_list)
 {
-  SizeType ni = iname_list.size();
+  mNodeMap.emplace(oname_id, NodeInfo{oname, BnNodeType::C0, true, iname_list});
+  return true;
+}
+
+// @brief D-FF用のゲート文を読み込む．
+// @param[in] loc ファイル位置
+// @param[in] oname_id 出力名の ID 番号
+// @param[in] oname 出力名
+// @param[in] iname_id 入力名の ID 番号
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+BnIscas89Handler::read_dff(
+  const FileRegion& loc,
+  SizeType oname_id,
+  const string& oname,
+  SizeType iname_id)
+{
+  // この形式ではクロック以外の制御端子はない．
+
+  SizeType dff_id = mNetwork.new_dff(oname);
+  const BnDff& dff = mNetwork.dff(dff_id);
+
+  SizeType output_id = dff.data_out();
+  mIdMap[oname_id] = output_id;
+
+  SizeType input_id = dff.data_in();
+  // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
+  mOutputMap.emplace(input_id, iname_id);
+
+  if ( mClockId == BNET_NULLID ) {
+    // クロックのポートを作る．
+    auto port_id = mNetwork.new_input_port(mClockName);
+    auto& clock_port = mNetwork.port(port_id);
+    // クロックの入力ノード番号を記録する．
+    mClockId = clock_port.bit(0);
+  }
+
+  // クロック入力とdffのクロック端子を結びつける．
+  mNetwork.set_output(dff.clock(), mClockId);
+
+  return true;
+}
+
+// @brief 終了操作
+// @retval true 処理が成功した．
+// @retval false エラーが起こった．
+bool
+BnIscas89Handler::end()
+{
+  // 出力ノードのファンインをセットする．
+  // 入力側のノードはドミノ式に生成される．
+  for ( auto id: mNetwork.output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    if ( node.fanin_id(0) == BNET_NULLID ) {
+      ASSERT_COND( mOutputMap.count(id) > 0 );
+      auto name_id = mOutputMap.at(id);
+      auto inode_id = make_node(name_id);
+      mNetwork.set_output(id, inode_id);
+    }
+  }
+  bool stat = mNetwork.wrap_up();
+  return stat;
+}
+
+// @brief name_id のノードを生成する．
+SizeType
+BnIscas89Handler::make_node(
+  SizeType name_id
+)
+{
+  if ( mIdMap.count(name_id) > 0 ) {
+    return mIdMap.at(name_id);
+  }
+  if ( mNodeMap.count(name_id) > 0 ) {
+    auto& node_info = mNodeMap.at(name_id);
+    // ファンインのノードを作る．
+    SizeType ni = node_info.iname_id_list.size();
+    vector<SizeType> fanin_id_list(ni);
+    for ( SizeType i = 0; i < ni; ++ i ) {
+      fanin_id_list[i] = make_node(node_info.iname_id_list[i]);
+    }
+    SizeType id;
+    if ( node_info.is_mux ) {
+      id = make_mux(node_info.oname, fanin_id_list);
+    }
+    else {
+      id = mNetwork.new_logic(node_info.oname, node_info.gate_type,
+			      fanin_id_list);
+    }
+    mIdMap.emplace(name_id, id);
+    return id;
+  }
+  ASSERT_NOT_REACHED;
+  return BNET_NULLID;
+}
+
+SizeType
+BnIscas89Handler::make_mux(
+  const string& oname,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  SizeType ni = fanin_id_list.size();
   SizeType nc = 0;
   SizeType nd = 1;
   while ( nc + nd < ni ) {
@@ -187,100 +278,8 @@ BnIscas89Handler::read_mux(
     or_fanins[p] = Expr::make_and(and_fanins);
   }
   Expr mux_expr = Expr::make_or(or_fanins);
-  SizeType id = mNetwork.new_logic(oname, mux_expr);
-
-  mIdMap[oname_id] = id;
-
-  add_fanin_info(id, iname_list);
-
-  return true;
-}
-
-// @brief D-FF用のゲート文を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] oname_id 出力名の ID 番号
-// @param[in] oname 出力名
-// @param[in] iname_id 入力名の ID 番号
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
-bool
-BnIscas89Handler::read_dff(
-  const FileRegion& loc,
-  SizeType oname_id,
-  const string& oname,
-  SizeType iname_id)
-{
-  // この形式ではクロック以外の制御端子はない．
-
-  SizeType dff_id = mNetwork.new_dff(oname);
-  const BnDff& dff = mNetwork.dff(dff_id);
-
-  SizeType output_id = dff.output();
-  mIdMap[oname_id] = output_id;
-
-  SizeType input_id = dff.input();
-  // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  add_fanin_info(input_id, iname_id);
-
-  if ( mClockId == BNET_NULLID ) {
-    // クロックのポートを作る．
-    auto port_id = mNetwork.new_input_port(mClockName);
-    auto& clock_port = mNetwork.port(port_id);
-    // クロックの入力ノード番号を記録する．
-    mClockId = clock_port.bit(0);
-  }
-
-  // クロック入力とdffのクロック端子を結びつける．
-  SizeType clock_id = dff.clock();
-  mNetwork.connect(mClockId, clock_id, 0);
-
-  return true;
-}
-
-// @brief 終了操作
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
-bool
-BnIscas89Handler::end()
-{
-  // ノードのファンインを設定する．
-  for ( SizeType node_id = 1; node_id <= mNetwork.node_num(); ++ node_id ) {
-    if ( mFaninInfoMap.count(node_id) == 0 ) {
-      continue;
-    }
-    const auto& fanin_info = mFaninInfoMap[node_id];
-
-    const BnNode& node = mNetwork.node(node_id);
-    if ( node.is_logic() ) {
-      SizeType ni = fanin_info.size();
-      for ( SizeType i: Range(ni) ) {
-	SizeType iname_id = fanin_info[i];
-	if ( mIdMap.count(iname_id) == 0 ) {
-	  ostringstream buf;
-	  buf << id2str(iname_id) << " not found" << endl;
-	  MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
-			  "ISCAS89_PARSER", buf.str());
-	  return false;
-	}
-	SizeType inode_id = mIdMap.at(iname_id);
-	mNetwork.connect(inode_id, node_id, i);
-      }
-    }
-    else if ( node.is_output() ) {
-      SizeType iname_id = fanin_info[0];
-      if ( mIdMap.count(iname_id) == 0 ) {
-	ostringstream buf;
-	buf << id2str(iname_id) << " not found" << endl;
-	MsgMgr::put_msg(__FILE__, __LINE__, MsgType::Error,
-			"ISCAS89_PARSER", buf.str());
-	return false;
-      }
-      SizeType inode_id = mIdMap.at(iname_id);
-      mNetwork.connect(inode_id, node_id, 0);
-    }
-  }
-  bool stat = mNetwork.wrap_up();
-  return stat;
+  auto id = mNetwork.new_logic(oname, mux_expr, fanin_id_list);
+  return id;
 }
 
 // @brief 通常終了時の処理
@@ -294,28 +293,6 @@ void
 BnIscas89Handler::error_exit()
 {
   mNetwork.clear();
-}
-
-// @brief ファンイン情報を追加する．
-// @param[in] id ID番号
-// @param[in] fanin ファンイン番号
-void
-BnIscas89Handler::add_fanin_info(
-  SizeType id,
-  SizeType fanin)
-{
-  mFaninInfoMap[id] = vector<SizeType>{fanin};
-}
-
-// @brief ファンイン情報を追加する．
-// @param[in] id ID番号
-// @param[in] fanin_list ファンイン番号のリスト
-void
-BnIscas89Handler::add_fanin_info(
-  SizeType id,
-  const vector<SizeType>& fanin_list)
-{
-  mFaninInfoMap[id] = fanin_list;
 }
 
 END_NAMESPACE_YM_BNET

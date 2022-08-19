@@ -107,14 +107,7 @@ BnNodeImpl::is_port_input() const
 
 // @brief DFFの出力端子の時 true を返す．
 bool
-BnNodeImpl::is_dff_output() const
-{
-  return false;
-}
-
-// @brief ラッチの出力端子の時 true を返す．
-bool
-BnNodeImpl::is_latch_output() const
+BnNodeImpl::is_data_out() const
 {
   return false;
 }
@@ -139,56 +132,35 @@ BnNodeImpl::is_port_output() const
 
 // @brie DFFの入力端子の時に true を返す．
 bool
-BnNodeImpl::is_dff_input() const
+BnNodeImpl::is_data_in() const
 {
   return false;
 }
 
 // @brie DFFのクロック端子の時に true を返す．
 bool
-BnNodeImpl::is_dff_clock() const
-{
-  return false;
-}
-
-// @brie DFFのクリア端子の時に true を返す．
-bool
-BnNodeImpl::is_dff_clear() const
-{
-  return false;
-}
-
-// @brie DFFのプリセット端子の時に true を返す．
-bool
-BnNodeImpl::is_dff_preset() const
-{
-  return false;
-}
-
-// @brief ラッチの入力端子の時に true を返す．
-bool
-BnNodeImpl::is_latch_input() const
+BnNodeImpl::is_clock() const
 {
   return false;
 }
 
 // @brief ラッチのイネーブル端子の時に true を返す．
 bool
-BnNodeImpl::is_latch_enable() const
+BnNodeImpl::is_enable() const
 {
   return false;
 }
 
-// @brief ラッチのクリア端子の時に true を返す．
+// @brie DFFのクリア端子の時に true を返す．
 bool
-BnNodeImpl::is_latch_clear() const
+BnNodeImpl::is_clear() const
 {
   return false;
 }
 
-// @brief ラッチのプリセット端子の時に true を返す．
+// @brie DFFのプリセット端子の時に true を返す．
 bool
-BnNodeImpl::is_latch_preset() const
+BnNodeImpl::is_preset() const
 {
   return false;
 }
@@ -219,17 +191,6 @@ BnNodeImpl::port_bit() const
 // の時のみ意味を持つ．
 SizeType
 BnNodeImpl::dff_id() const
-{
-  ASSERT_NOT_REACHED;
-  return 0;
-}
-
-// @brief 接続しているラッチの番号を返す．
-//
-// is_latch_input() || is_latch_output()
-// の時のみ意味を持つ．
-SizeType
-BnNodeImpl::latch_id() const
 {
   ASSERT_NOT_REACHED;
   return 0;
@@ -290,16 +251,6 @@ BnNodeImpl::bdd() const
 {
   ASSERT_NOT_REACHED;
   return Bdd::invalid();
-}
-
-// @brief セル番号を返す．
-//
-// is_logic() == false の時の動作は不定
-int
-BnNodeImpl::cell_id() const
-{
-  ASSERT_NOT_REACHED;
-  return -1;
 }
 
 // @brief ファンインを設定する．

@@ -48,15 +48,6 @@ BnLogicNode::fanin_id_list() const
   return mFanins;
 }
 
-// @brief セル番号を返す．
-//
-// is_logic() == false の時の動作は不定
-int
-BnLogicNode::cell_id() const
-{
-  return mCellId;
-}
-
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号

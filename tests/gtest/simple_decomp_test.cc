@@ -3,9 +3,8 @@
 /// @brief simple_decomp_test の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include <gtest/gtest.h>
 #include "ym/BnNetwork.h"
@@ -42,11 +41,10 @@ TEST(SimpleDecompTest, test1)
   Expr lit2{Expr::make_posi_literal(var2)};
 
   Expr expr = (lit0 & ~lit1) | (~lit1 & lit2);
-  vector<SizeType> fanin_id_list{input1, input2, input3};
-  auto id1 = network1.new_logic(string(), expr, fanin_id_list);
+  auto id1 = network1.new_logic(string(), expr, {input1, input2, input3});
 
   auto output1 = port4.bit(0);
-  network1.connect(id1, output1, 0);
+  network1.set_output(output1, id1);
 
   network1.wrap_up();
 

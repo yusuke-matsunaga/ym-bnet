@@ -9,7 +9,6 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
-#include "ym/BnLatch.h"
 #include "ym/BnNode.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
@@ -100,29 +99,17 @@ BnNetwork::dump(
   }
 
   // D-FF
+#warning "TODO: type() 別のコード"
   SizeType ndff = dff_num();
   s.write_vint(ndff);
   for ( SizeType i = 0; i < ndff; ++ i ) {
     auto& dff = this->dff(i);
     s.write_string(dff.name());
-    s.write_vint(dff.input());
-    s.write_vint(dff.output());
+    s.write_vint(dff.data_in());
+    s.write_vint(dff.data_out());
     s.write_vint(dff.clock());
     s.write_vint(dff.clear());
     s.write_vint(dff.preset());
-  }
-
-  // ラッチ
-  SizeType nlatch = latch_num();
-  s.write_vint(nlatch);
-  for ( SizeType i = 0; i < nlatch; ++ i ) {
-    auto& latch = this->latch(i);
-    s.write_string(latch.name());
-    s.write_vint(latch.input());
-    s.write_vint(latch.output());
-    s.write_vint(latch.enable());
-    s.write_vint(latch.clear());
-    s.write_vint(latch.preset());
   }
 
   // 論理ノード
@@ -261,6 +248,7 @@ BnNetwork::restore(
   }
 
   // D-FF
+#warning "TODO: type() 別のコード"
   SizeType ndff = s.read_vint();
   for ( SizeType i = 0; i < ndff; ++ i ) {
     auto name = s.read_string();
@@ -273,38 +261,14 @@ BnNetwork::restore(
     bool has_preset = src_preset_id != BNET_NULLID;
     SizeType id = network.new_dff(name, has_clear, has_preset);
     auto& dff = network.dff(id);
-    node_map[src_input_id] = dff.input();
-    node_map[src_output_id] = dff.output();
+    node_map[src_input_id] = dff.data_in();
+    node_map[src_output_id] = dff.data_out();
     node_map[src_clock_id] = dff.clock();
     if ( has_clear ) {
       node_map[src_clear_id] = dff.clear();
     }
     if ( has_preset ) {
       node_map[src_preset_id] = dff.preset();
-    }
-  }
-
-  // ラッチ
-  SizeType nlatch = s.read_vint();
-  for ( SizeType i = 0; i < nlatch; ++ i ) {
-    auto name = s.read_string();
-    SizeType src_input_id = s.read_vint();
-    SizeType src_output_id = s.read_vint();
-    SizeType src_enable_id = s.read_vint();
-    SizeType src_clear_id = s.read_vint();
-    bool has_clear = src_clear_id != BNET_NULLID;
-    SizeType src_preset_id = s.read_vint();
-    bool has_preset = src_preset_id != BNET_NULLID;
-    SizeType id = network.new_latch(name, has_clear, has_preset);
-    auto& latch = network.latch(id);
-    node_map[src_input_id] = latch.input();
-    node_map[src_output_id] = latch.output();
-    node_map[src_enable_id] = latch.enable();
-    if ( has_clear ) {
-      node_map[src_clear_id] = latch.clear();
-    }
-    if ( has_preset ) {
-      node_map[src_preset_id] = latch.preset();
     }
   }
 
@@ -370,8 +334,7 @@ BnNetwork::restore(
     ASSERT_COND( node_map.count(src_output_id) > 0 );
     SizeType src_input_id = s.read_vint();
     if ( src_input_id != BNET_NULLID ) {
-      ASSERT_COND( node_map.count(src_input_id) > 0 );
-      network.connect(node_map[src_input_id], node_map[src_output_id], 0);
+      network.set_output(node_map[src_output_id], node_map[src_input_id]);
     }
   }
 

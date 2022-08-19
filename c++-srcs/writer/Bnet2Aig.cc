@@ -91,7 +91,7 @@ bnet2aig(
   // ラッチノード(DFFの出力ノード)を登録する．
   for ( SizeType i = 0; i < L; ++ i ) {
     const auto& dff = bnet.dff(i);
-    lit_map.emplace(dff.output(), (i + I + 1) * 2);
+    lit_map.emplace(dff.data_out(), (i + I + 1) * 2);
   }
   // AND ノードを生成する．
   for ( auto id: bnet.logic_id_list() ) {
@@ -111,7 +111,7 @@ bnet2aig(
   // ラッチのソースを設定する．
   for ( SizeType i = 0; i < L; ++ i ) {
     const auto& dff = bnet.dff(i);
-    auto src_id = dff.input();
+    auto src_id = dff.data_in();
     ASSERT_COND( lit_map.count(src_id) > 0 );
     auto src = lit_map.at(src_id);
     aig.set_latch_src(i, src);

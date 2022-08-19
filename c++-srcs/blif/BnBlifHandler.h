@@ -5,10 +5,11 @@
 /// @brief BnBlifHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BlifHandler.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -28,10 +29,10 @@ public:
     BnNetwork& network,                 ///< [in] ネットワーク
     const string& clock_name = "clock", ///< [in] クロック端子名
     const string& reset_name = "reset"  ///< [in] リセット端子名
-  ) : BlifHandler(parser),
-      mNetwork(network),
-      mClockName(clock_name),
-      mResetName(reset_name)
+  ) : BlifHandler{parser},
+      mNetwork{network},
+      mClockName{clock_name},
+      mResetName{reset_name}
   {
   }
 
@@ -103,7 +104,7 @@ public:
     SizeType oname_id,
     const string& oname,
     const vector<SizeType>& inode_id_array,
-    int cell_id
+    SizeType cell_id
   ) override;
 
   /// @brief .latch 文の処理
@@ -136,6 +137,33 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる下請け関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief name_id のノードを生成する．
+  SizeType
+  make_node(
+    SizeType name_id ///< [in] 名前ID
+  );
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  struct NodeInfo
+  {
+    string oname;     ///< [in] 出力名
+    bool has_cell_id; ///< [in] セル番号を持つ時 true
+    Expr expr;        ///< [in] 論理式
+    SizeType cell_id; ///< [in] セル番号
+    vector<SizeType> iname_id_array; ///< [in] 入力の名前IDのリスト
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -151,8 +179,11 @@ private:
   // 名前IDをキーにしてノード番号を格納するハッシュ表
   unordered_map<SizeType, SizeType> mIdMap;
 
-  // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<SizeType, vector<SizeType>> mFaninInfoMap;
+  // 名前IDをキーにしてノード情報を格納するハッシュ表
+  unordered_map<SizeType, NodeInfo> mNodeMap;
+
+  // 出力ノードのノードIDをキーにしてファンインの名前IDを格納するハッシュ表
+  unordered_map<SizeType, SizeType> mOutputMap;
 
   // クロック端子のノード番号
   SizeType mClockId;

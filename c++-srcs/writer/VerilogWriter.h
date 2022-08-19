@@ -162,9 +162,6 @@ private:
   // DFFのインスタンス名を入れた配列
   vector<string> mDffInstanceNameArray;
 
-  // ラッチのインスタンス名を入れた配列
-  vector<string> mLatchInstanceNameArray;
-
 };
 
 END_NAMESPACE_YM_BNET

@@ -118,7 +118,8 @@ TestBlifHandler::gate(
   SizeType onode_id,
   const string& oname,
   const vector<SizeType>& inode_id_array,
-  int cell_id)
+  SizeType cell_id
+)
 {
   mStream << ".gate " << cell_id << " " << oname
 	  << "\t[" << id2loc(onode_id) << "]" << endl;

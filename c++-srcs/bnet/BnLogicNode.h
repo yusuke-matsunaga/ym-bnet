@@ -5,7 +5,7 @@
 /// @brief BnLogicNode のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BnNodeImpl.h"
@@ -28,11 +28,9 @@ public:
   /// @brief コンストラクタ
   BnLogicNode(
     const string& name, ///< [in] ノード名
-    SizeType ni,        ///< [in] 入力数
-    int cell_id         ///< [in] セル番号 (-1 の場合もあり)
+    SizeType ni         ///< [in] 入力数
   ) : BnNodeImpl{name},
-      mFanins(ni, BNET_NULLID),
-      mCellId{cell_id}
+      mFanins(ni, BNET_NULLID)
   {
   }
 
@@ -69,13 +67,6 @@ public:
   vector<SizeType>
   fanin_id_list() const override;
 
-  /// @brief セル番号を返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// 場合によっては -1 を返す．
-  int
-  cell_id() const override;
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -99,9 +90,6 @@ private:
 
   vector<SizeType> mFanins;
 
-  // セル番号
-  int mCellId;
-
 };
 
 
@@ -119,11 +107,10 @@ public:
 
   /// @brief コンストラクタ
   BnPrimNode(
-    const string& name,    ///< [in] ノード名
-    SizeType ni,           ///< [in] 入力数
-    BnNodeType logic_type, ///< [in] 論理タイプ
-    int cell_id            ///< [in] セル番号 (-1 の場合もあり)
-  ) : BnLogicNode{name, ni, cell_id},
+    const string& name,   ///< [in] ノード名
+    SizeType ni,          ///< [in] 入力数
+    BnNodeType logic_type ///< [in] 論理タイプ
+  ) : BnLogicNode{name, ni},
       mLogicType{logic_type}
   {
   }
@@ -166,9 +153,8 @@ public:
   BnExprNode(
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
-    SizeType expr_id,   ///< [in] 関数番号
-    int cell_id         ///< [in] セル番号 (-1 の場合もあり)
-  ) : BnLogicNode{name, ni, cell_id},
+    SizeType expr_id    ///< [in] 関数番号
+  ) : BnLogicNode{name, ni},
       mExprId{expr_id}
   {
   }
@@ -224,9 +210,8 @@ public:
   BnTvNode(
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
-    SizeType func_id,   ///< [in] 関数番号
-    int cell_id         ///< [in] セル 番号(-1 の場合もあり)
-  ) : BnLogicNode{name, ni, cell_id},
+    SizeType func_id    ///< [in] 関数番号
+  ) : BnLogicNode{name, ni},
       mFuncId{func_id}
   {
   }
@@ -282,9 +267,8 @@ public:
   BnBddNode(
     const string& name, ///< [in] ノード名
     SizeType ni,        ///< [in] 入力数
-    const Bdd& bdd,     ///< [in] BDD
-    int cell_id         ///< [in] セル 番号(-1 の場合もあり)
-  ) : BnLogicNode{name, ni, cell_id},
+    const Bdd& bdd      ///< [in] BDD
+  ) : BnLogicNode{name, ni},
       mBdd{bdd}
   {
   }

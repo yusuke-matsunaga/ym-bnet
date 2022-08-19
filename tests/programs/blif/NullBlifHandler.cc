@@ -117,7 +117,8 @@ NullBlifHandler::gate(
   SizeType onode_id,
   const string& oname,
   const vector<SizeType>& inode_id_array,
-  int cell_id)
+  SizeType cell_id
+)
 {
   return true;
 }

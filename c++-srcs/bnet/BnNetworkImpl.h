@@ -5,17 +5,15 @@
 /// @brief BnNetworkImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/bnet.h"
-#include "ym/Expr.h"
-#include "ym/TvFunc.h"
 #include "ym/BddMgr.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
-#include "ym/ClibFFInfo.h"
-#include "ym/ClibLatchInfo.h"
+#include "ym/Expr.h"
+#include "ym/TvFunc.h"
 #include "BnNodeImpl.h"
 #include "BnInputNode.h"
 #include "BnOutputNode.h"
@@ -87,10 +85,6 @@ public:
     const vector<SizeType>& input_list ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
   );
 
-  /// @brief 各ノードがプリミティブ型になるように分解する．
-  void
-  simple_decomp();
-
   /// @brief 入出力混合のポートを作る．
   /// @return 生成したポート番号を返す．
   SizeType
@@ -115,15 +109,15 @@ public:
   /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - FFセルでない場合には -1 を返す．
+  /// - FFセルでない場合にはエラーとなる．
   SizeType
-  new_dff(
+  new_dff_cell(
     const string& name, ///< [in] DFF名
-    int cell_id         ///< [in] 対応するセル番号
+    SizeType cell_id    ///< [in] 対応するセル番号
   );
 
   /// @brief ラッチを追加する．
-  /// @return 生成したラッチ番号を返す．
+  /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
   SizeType
@@ -135,27 +129,15 @@ public:
   );
 
   /// @brief セルの情報を持ったラッチを追加する．
-  /// @return 生成したラッチ番号を返す．
+  /// @return 生成したDFF番号を返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  /// - ラッチセルでない場合には -1 を返す．
+  /// - ラッチセルでない場合にはエラーとなる．
   SizeType
-  new_latch(
+  new_latch_cell(
     const string& name, ///< [in] ラッチ名
-    int cell_id         ///< [in] 対応するセル番号
+    SizeType cell_id    ///< [in] 対応するセル番号
   );
-
-  /// @brief プリミティブ型の論理ノードを追加する．
-  /// @return 生成した論理ノードの番号を返す．
-  SizeType
-  new_primitive(
-    const string& node_name, ///< [in] ノード名
-    SizeType ni,             ///< [in] 入力数
-    BnNodeType logic_type    ///< [in] 論理型
-  )
-  {
-    return _reg_logic(node_name, ni, logic_type, -1, -1, Bdd::invalid(), -1);
-  }
 
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -166,29 +148,10 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    auto ni = fanin_id_list.size();
-    auto id = new_primitive(node_name, ni, logic_type);
-    connect_fanins(id, fanin_id_list);
+    auto id = _reg_logic(node_name, logic_type,
+			 -1, -1, Bdd::invalid(),
+			 fanin_id_list);
     return id;
-  }
-
-  /// @brief 論理式型の論理ノードを追加する．
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 入力数は expr.input_num() を用いる．
-  SizeType
-  new_expr(
-    const string& node_name, ///< [in] ノード名
-    const Expr& expr,        ///< [in] 論理式
-    int cell_id = -1         ///< [in] セル番号
-  )
-  {
-    SizeType ni;
-    BnNodeType logic_type;
-    SizeType expr_id;
-    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    return _reg_logic(node_name, ni, logic_type, expr_id, -1, Bdd::invalid(), cell_id);
   }
 
   /// @brief 論理式型の論理ノードを追加する．
@@ -202,23 +165,17 @@ public:
     const string& node_name,              ///< [in] ノード名
     const Expr& expr,                     ///< [in] 論理式
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  );
-
-  /// @brief 真理値表型の論理ノードを追加する．
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 入力数は tv.input_num() を用いる．
-  SizeType
-  new_tv(
-    const string& node_name, ///< [in] ノード名
-    const TvFunc& tv,        ///< [in] 真理値表
-    int cell_id = -1         ///< [in] セル番号
   )
   {
-    auto ni = tv.input_num();
-    auto func_id = _reg_tv(tv);
-    return _reg_logic(node_name, ni, BnNodeType::TvFunc, -1, func_id, Bdd::invalid(), cell_id);
+    SizeType ni;
+    BnNodeType logic_type;
+    SizeType expr_id;
+    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
+    ASSERT_COND( ni == fanin_id_list.size() );
+    auto id = _reg_logic(node_name, logic_type,
+			 expr_id, -1, Bdd::invalid(),
+			 fanin_id_list);
+    return id;
   }
 
   /// @brief 真理値表型の論理ノードを追加する．
@@ -233,9 +190,10 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    auto id = new_tv(node_name, tv);
-    connect_fanins(id, fanin_id_list);
-    return id;
+    auto func_id = _reg_tv(tv);
+    return _reg_logic(node_name, BnNodeType::TvFunc,
+		      -1, func_id, Bdd::invalid(),
+		      fanin_id_list);
   }
 
   /// @brief BDD型の論理ノードを追加する．
@@ -249,10 +207,9 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    auto ni = fanin_id_list.size();
-    auto id = _reg_logic(node_name, ni, BnNodeType::Bdd, -1, -1, bdd, -1);
-    connect_fanins(id, fanin_id_list);
-    return id;
+    return _reg_logic(node_name, BnNodeType::Bdd,
+		      -1, -1, bdd,
+		      fanin_id_list);
   }
 
   /// @brief 論理セルを追加する．
@@ -261,47 +218,11 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 論理セルでない場合には BNET_NULLID を返す．
   SizeType
-  new_cell(
-    const string& node_name, ///< [in] ノード名
-    int cell_id              ///< [in] セル番号
-  )
-  {
-    auto& cell = mCellLibrary.cell(cell_id);
-    if ( cell.type() != ClibCellType::Logic || cell.output_num() != 1 ) {
-      return BNET_NULLID;
-    }
-
-    Expr expr = cell.logic_expr(0);
-    return new_expr(node_name, expr, cell_id);
-  }
-
-  /// @brief 論理セルを追加する．
-  /// @return 生成した論理ノードの番号を返す．
-  ///
-  /// - ノード名の重複に関しては感知しない．
-  /// - 論理セルでない場合には BNET_NULLID を返す．
-  SizeType
-  new_cell(
+  new_logic_cell(
     const string& node_name,              ///< [in] ノード名
-    int cell_id,                          ///< [in] セル番号
+    SizeType cell_id,                     ///< [in] セル番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto id = new_cell(node_name, cell_id);
-    connect_fanins(id, fanin_id_list);
-    return id;
-  }
-
-  /// @brief プリミティブ型の論理ノードに変更する．
-  void
-  change_primitive(
-    SizeType id,           ///< [in] ノード番号
-    BnNodeType logic_type, ///< [in] 入力数
-    SizeType ni            ///< [in] 論理型
-  )
-  {
-    _change_logic(id, ni, logic_type, -1, -1, Bdd::invalid(), -1);
-  }
+  );
 
   /// @brief プリミティブ型の論理ノードに変更する．
   void
@@ -311,26 +232,9 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    auto ni = fanin_id_list.size();
-    change_primitive(id, logic_type, ni);
-    connect_fanins(id, fanin_id_list);
-  }
-
-  /// @brief 論理式型の論理ノードに変更する．
-  ///
-  /// 入力数は expr.input_size() を用いる．
-  void
-  change_expr(
-    SizeType id,           ///< [in] ノード番号
-    const Expr& expr, ///< [in] 論理式
-    int cell_id = -1  ///< [in] セル番号
-  )
-  {
-    SizeType ni;
-    BnNodeType logic_type;
-    SizeType expr_id;
-    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    _change_logic(id, ni, logic_type, expr_id, -1, Bdd::invalid(), cell_id);
+    _change_logic(id, logic_type,
+		  -1, -1, Bdd::invalid(),
+		  fanin_id_list);
   }
 
   /// @brief 論理式型の論理ノードに変更する．
@@ -343,25 +247,15 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    ASSERT_COND( expr.input_size() == fanin_id_list.size() );
 
-    change_expr(id, expr);
-    connect_fanins(id, fanin_id_list);
-  }
-
-  /// @brief 真理値表型の論理ノードに変更する．
-  ///
-  /// - 入力数は tv.input_num() を用いる．
-  void
-  change_tv(
-    SizeType id,      ///< [in] ノード番号
-    const TvFunc& tv, ///< [in] 真理値表
-    int cell_id = -1  ///< [in] セル番号
-  )
-  {
-    auto ni = tv.input_num();
-    auto func_id = _reg_tv(tv);
-    _change_logic(id, ni, BnNodeType::TvFunc, -1, func_id, Bdd::invalid(), cell_id);
+    SizeType ni;
+    BnNodeType logic_type;
+    SizeType expr_id;
+    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
+    ASSERT_COND( ni == fanin_id_list.size() );
+    _change_logic(id, logic_type,
+		  expr_id, -1, Bdd::invalid(),
+		  fanin_id_list);
   }
 
   /// @brief 真理値表型の論理ノードに変更する．
@@ -374,10 +268,12 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   )
   {
-    ASSERT_COND( tv.input_num() == fanin_id_list.size() );
-
-    change_tv(id, tv);
-    connect_fanins(id, fanin_id_list);
+    auto ni = tv.input_num();
+    ASSERT_COND( ni == fanin_id_list.size() );
+    auto func_id = _reg_tv(tv);
+    _change_logic(id, BnNodeType::TvFunc,
+		  -1, func_id, Bdd::invalid(),
+		  fanin_id_list);
   }
 
   /// @brief BDD型の論理ノードに変更する．
@@ -389,18 +285,19 @@ public:
   )
   {
     auto ni = fanin_id_list.size();
-    _change_logic(id, ni, BnNodeType::Bdd, -1, -1, bdd, -1);
-    connect_fanins(id, fanin_id_list);
+    _change_logic(id, BnNodeType::Bdd,
+		  -1, -1, bdd,
+		  fanin_id_list);
   }
 
+#if 0
   /// @brief セル型の論理ノードに変更する．
   ///
   /// - 入力数はセルから取得する．
   /// - 論理セルでない場合にはなにもしない．
   void
   change_cell(
-    SizeType id,     ///< [in] ノード番号
-    SizeType cell_id ///< [in] セル番号
+    SizeType id     ///< [in] ノード番号
   )
   {
     auto& cell = mCellLibrary.cell(cell_id);
@@ -426,13 +323,7 @@ public:
     change_cell(id, cell_id);
     connect_fanins(id, fanin_id_list);
   }
-
-  /// @brief ノードを複製する．
-  SizeType
-  dup_logic(
-    const string& node_name, ///< [in] ノード名
-    SizeType src_id          ///< [in] もとのノード番号
-  );
+#endif
 
   /// @brief ノードを複製する．
   SizeType
@@ -440,12 +331,7 @@ public:
     const string& node_name,              ///< [in] ノード名
     SizeType src_id,                      ///< [in] もとのノード番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto id = dup_logic(node_name, src_id);
-    connect_fanins(id, fanin_id_list);
-    return id;
-  }
+  );
 
   /// @brief ファンアウトをつなぎ替える．
   void
@@ -461,12 +347,11 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
-  /// @brief ノード間を接続する．
+  /// @brief 出力ノードのファンインを設定する．
   void
-  connect(
-    SizeType src_node, ///< [in] ファンアウト元のノード番号
-    SizeType dst_node, ///< [in] ファンイン先のノード番号
-    SizeType ipos      ///< [in] ファンインの位置 ( 0 <= ipos < dst_node->fanin_num() )
+  set_output(
+    SizeType output_id, ///< [in] 出力ノードのID番号
+    SizeType src_id     ///< [in] ファンインノードのID番号
   );
 
   /// @brief 整合性のチェックを行う．
@@ -548,20 +433,6 @@ public:
   {
     ASSERT_COND( pos >= 0 && pos < dff_num() );
     return *mDffList[pos];
-  }
-
-  /// @brief ラッチ数を得る．
-  SizeType
-  latch_num() const { return mLatchList.size(); }
-
-  /// @brief ラッチを得る．
-  const BnLatch&
-  latch(
-    SizeType pos ///< [in] 位置番号 ( 0 <= pos < latch_num() )
-  ) const
-  {
-    ASSERT_COND( pos >= 0 && pos < latch_num() );
-    return *mLatchList[pos];
   }
 
   /// @brief ノード数を得る．
@@ -689,6 +560,10 @@ public:
     return mLogicList;
   }
 
+  /// @brief セル割当情報を持つ時 true を返す．
+  bool
+  is_mapped() const;
+
   /// @brief 関数の数を得る．
   SizeType
   func_num() const
@@ -753,14 +628,6 @@ private:
   _copy_dff(
     const BnDff& src_dff,    ///< [in] 元のDFF
     vector<SizeType>& id_map ///< [out] 生成したノードの対応関係を記録するハッシュ表
-  );
-
-  /// @brief ラッチを複製する．
-  /// @return 生成したラッチ番号を返す．
-  SizeType
-  _copy_latch(
-    const BnLatch& src_latch, ///< [in] 元のラッチ
-    vector<SizeType>& id_map  ///< [out] 生成したノードの対応関係を記録するハッシュ表
   );
 
   /// @brief ノード番号が正しいかチェックする．
@@ -863,12 +730,11 @@ private:
   void
   _change_logic(
     SizeType node_id,      ///< [in] ノード番号
-    SizeType fanin_num,    ///< [in] ファンイン数
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
     const Bdd& bdd,        ///< [in] BDD
-    int cell_id            ///< [in] セル番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 新しい論理ノードを作って登録する．
@@ -878,12 +744,11 @@ private:
   SizeType
   _reg_logic(
     const string& name,    ///< [in] ノード名
-    SizeType fanin_num,    ///< [in] ファンイン数
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
     const Bdd& bdd,        ///< [in] BDD
-    int cell_id            ///< [in] セル番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 論理ノードを作る最も低レベルの関数
@@ -897,63 +762,20 @@ private:
     BnNodeType logic_type, ///< [in] 論理ノードの型
     SizeType expr_id,      ///< [in] 論理式番号
     SizeType func_id,      ///< [in] 論理関数番号
-    const Bdd& bdd,        ///< [in] BDD
-    int cell_id            ///< [in] セル番号
-  );
-
-  /// @brief 論理式型のノードを分解する．
-  /// @return ノード番号を返す．
-  ///
-  /// * id が BNET_NULLID 以外ならそのノードを置き換える．
-  /// * そうでなければ新規のノードを作る．
-  /// * term_list は入力数の2倍のサイズ(i * 2 + 0 で肯定のリテラルを表す)
-  SizeType
-  _decomp_expr(
-    SizeType id,                ///< [in] ノード番号
-    const Expr& expr,           ///< [in] 論理式
-    vector<SizeType>& term_list ///< [in] リテラルに対するノード番号のリスト
-  );
-
-  /// @brief 真理値表型のノードを分解する．
-  /// @return ノード番号を返す．
-  ///
-  /// * id が BNET_NULLID 以外ならそのノードを置き換える．
-  /// * そうでなければ新規のノードを作る．
-  SizeType
-  _decomp_tvfunc(
-    SizeType id,                          ///< [in] ノード番号
-    const TvFunc& func,                   ///< [in] 関数
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const Bdd& bdd         ///< [in] BDD
   );
 
   /// @brief DFFを追加する共通の処理を行う関数
-  /// @return 生成したDFF番号を返す．
+  /// @return 生成したDFFを返す．
   ///
   /// - 名前の重複に関しては感知しない．
-  SizeType
+  BnDff&
   _new_dff(
-    const string& name,             ///< [in] DFF名
-    bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
-    BnCPV cpv,                      ///< [in] クリアとプリセットが衝突したときの挙動
-    int cell_id,                    ///< [in] セルのID番号
-    const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
-    const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト
-  );
-
-  /// @brief ラッチを追加する共通の処理を行う関数
-  /// @return 生成したラッチ番号を返す．
-  ///
-  /// - 名前の重複に関しては感知しない．
-  SizeType
-  _new_latch(
-    const string& name,             ///< [in] ラッチ名
-    bool has_clear,                 ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset,                ///< [in] プリセット端子を持つ時 true にする．
-    BnCPV cpv,                      ///< [in] クリアとプリセットが衝突したときの挙動
-    int cell_id,                    ///< [in] セルのID番号
-    const vector<SizeType>& inputs, ///< [in] セルの入力ノード番号のリスト
-    const vector<SizeType>& outputs ///< [in] セルの出力ノード番号のリスト
+    const string& name, ///< [in] DFF名
+    BnDffType type,     ///< [in] タイプ
+    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
+    bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
+    BnCPV cpv           ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
   /// @brief 論理式を解析する．
@@ -997,11 +819,11 @@ private:
   // ポートのリスト
   vector<const BnPort*> mPortList;
 
+  // 名前をキーにしてポートを持つ辞書
+  unordered_map<string, BnPort*> mPortDict;
+
   // DFFのリスト
   vector<const BnDff*> mDffList;
-
-  // ラッチのリスト
-  vector<const BnLatch*> mLatchList;
 
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNodeImpl*> mNodeList;

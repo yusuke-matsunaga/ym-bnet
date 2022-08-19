@@ -75,7 +75,7 @@ BnNetwork::read_truth(
       buf << "l" << i;
       auto node_id = network.new_logic(buf.str(), func_vect[i],
 				       fanin_id_list);
-      network.connect(node_id, output_list[i], 0);
+      network.set_output(output_list[i], node_id);
     }
     if ( !network.wrap_up() ) {
       throw BnetError{"Error in read_truth"};

@@ -86,7 +86,8 @@ BnBlifHandler::init()
   mNetwork.clear();
 
   mIdMap.clear();
-  mFaninInfoMap.clear();
+  mNodeMap.clear();
+  mOutputMap.clear();
 
   mClockId = BNET_NULLID;
   mResetId = BNET_NULLID;
@@ -129,7 +130,7 @@ BnBlifHandler::inputs_elem(
   auto port_id = mNetwork.new_input_port(name);
   const auto& port = mNetwork.port(port_id);
   auto id = port.bit(0);
-  mIdMap[name_id] = id;
+  mIdMap.emplace(name_id, id);
 
   return true;
 }
@@ -144,7 +145,7 @@ BnBlifHandler::outputs_elem(
   auto port_id = mNetwork.new_output_port(name);
   const auto& port = mNetwork.port(port_id);
   auto id = port.bit(0);
-  mFaninInfoMap[id] = vector<SizeType>({name_id});
+  mOutputMap.emplace(id, name_id);
 
   return true;
 }
@@ -207,10 +208,7 @@ BnBlifHandler::names(
   auto expr = cover2expr(cover);
   ASSERT_COND( inode_id_array.size() == expr.input_size() );
 
-  auto node_id = mNetwork.new_logic(oname, expr);
-  mIdMap[oname_id] = node_id;
-
-  mFaninInfoMap[node_id] = inode_id_array;
+  mNodeMap.emplace(oname_id, NodeInfo{oname, false, expr, 0, inode_id_array});
 
   return true;
 }
@@ -221,16 +219,18 @@ BnBlifHandler::gate(
   SizeType oname_id,
   const string& oname,
   const vector<SizeType>& inode_id_array,
-  int cell_id
+  SizeType cell_id
 )
 {
   auto ni = inode_id_array.size();
   const ClibCell& cell = mNetwork.library().cell(cell_id);
-  ASSERT_COND( ni == cell.input_num() );
-  auto node_id = mNetwork.new_logic(oname, cell_id);
-  mIdMap[oname_id] = node_id;
+  ASSERT_COND( cell.input_num() == ni );
+  ASSERT_COND( cell.output_num() == 1 );
+  ASSERT_COND( cell.inout_num() == 0 );
 
-  mFaninInfoMap[node_id] = inode_id_array;
+  mNodeMap.emplace(oname_id, NodeInfo{oname, true,
+				      Expr::make_invalid(), cell_id,
+				      inode_id_array});
 
   return true;
 }
@@ -256,12 +256,12 @@ BnBlifHandler::latch(
   auto dff_id = mNetwork.new_dff(oname, has_clear, has_preset);
   const auto& dff = mNetwork.dff(dff_id);
 
-  auto output_id = dff.output();
+  auto output_id = dff.data_out();
   mIdMap[oname_id] = output_id;
 
-  auto input_id = dff.input();
+  auto input_id = dff.data_in();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  mFaninInfoMap[input_id] = vector<SizeType>{iname_id};
+  mOutputMap.emplace(input_id, iname_id);
 
   if ( mClockId == BNET_NULLID ) {
     // クロックのポートを作る．
@@ -272,8 +272,7 @@ BnBlifHandler::latch(
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  auto clock_id = dff.clock();
-  mNetwork.connect(mClockId, clock_id, 0);
+  mNetwork.set_output(dff.clock(), mClockId);
 
   if ( has_clear || has_preset ) {
     if ( mResetId == BNET_NULLID ) {
@@ -286,13 +285,11 @@ BnBlifHandler::latch(
   }
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
-    auto clear_id = dff.clear();
-    mNetwork.connect(mResetId, clear_id, 0);
+    mNetwork.set_output(dff.clear(), mResetId);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
-    auto preset_id = dff.preset();
-    mNetwork.connect(mResetId, preset_id, 0);
+    mNetwork.set_output(dff.preset(), mResetId);
   }
 
   return true;
@@ -304,34 +301,54 @@ BnBlifHandler::end(
   const FileRegion& loc
 )
 {
-  // ノードのファンインを設定する．
-  for ( SizeType node_id = 1; node_id <= mNetwork.node_num(); ++ node_id ) {
-    if ( mFaninInfoMap.count(node_id) == 0 ) {
-      continue;
-    }
-    const auto& fanin_info = mFaninInfoMap.at(node_id);
-
-    const BnNode& node = mNetwork.node(node_id);
-    if ( node.is_logic() ) {
-      auto ni = fanin_info.size();
-      for ( SizeType i: Range(ni) ) {
-	auto iname_id = fanin_info[i];
-	ASSERT_COND( mIdMap.count(iname_id) > 0 );
-	auto inode_id = mIdMap.at(iname_id);
-	mNetwork.connect(inode_id, node_id, i);
-      }
-    }
-    else if ( node.is_output() ) {
-      auto iname_id = fanin_info[0];
-      ASSERT_COND( mIdMap.count(iname_id) > 0 );
-      auto inode_id = mIdMap.at(iname_id);
-      mNetwork.connect(inode_id, node_id, 0);
+  // 出力ノードのファンインをセットする．
+  // 入力側のノードはドミノ式に生成される．
+  for ( auto id: mNetwork.output_id_list() ) {
+    auto& node = mNetwork.node(id);
+    if ( node.fanin_id(0) == BNET_NULLID ) {
+      ASSERT_COND( mOutputMap.count(id) > 0 );
+      auto name_id = mOutputMap.at(id);
+      auto inode_id = make_node(name_id);
+      mNetwork.set_output(id, inode_id);
     }
   }
 
   bool stat = mNetwork.wrap_up();
 
   return stat;
+}
+
+// @brief name_id のノードを生成する．
+SizeType
+BnBlifHandler::make_node(
+  SizeType name_id
+)
+{
+  if ( mIdMap.count(name_id) > 0 ) {
+    return mIdMap.at(name_id);
+  }
+  if ( mNodeMap.count(name_id) > 0 ) {
+    auto& node_info = mNodeMap.at(name_id);
+    // ファンインのノードを作る．
+    SizeType ni = node_info.iname_id_array.size();
+    vector<SizeType> fanin_id_list(ni);
+    for ( SizeType i = 0; i < ni; ++ i ) {
+      fanin_id_list[i] = make_node(node_info.iname_id_array[i]);
+    }
+    SizeType id;
+    if ( node_info.has_cell_id ) {
+      id = mNetwork.new_logic(node_info.oname, node_info.cell_id,
+			      fanin_id_list);
+    }
+    else {
+      id = mNetwork.new_logic(node_info.oname, node_info.expr,
+			      fanin_id_list);
+    }
+    mIdMap.emplace(name_id, id);
+    return id;
+  }
+  ASSERT_NOT_REACHED;
+  return BNET_NULLID;
 }
 
 // @brief 通常終了時の処理

@@ -22,8 +22,6 @@ TEST(DumpRestoreTest, test1)
   BinEnc enc{obuf};
   network.dump(enc);
 
-  cout << "dump end: " << obuf.str().size() << " bytes" << endl;
-
   istringstream ibuf{obuf.str()};
   BinDec dec{ibuf};
   BnNetwork network2 = BnNetwork::restore(dec);

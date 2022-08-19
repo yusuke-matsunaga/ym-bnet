@@ -94,11 +94,7 @@ public:
 
   /// @brief DFFの出力端子の時 true を返す．
   bool
-  is_dff_output() const override;
-
-  /// @brief ラッチの出力端子の時 true を返す．
-  bool
-  is_latch_output() const override;
+  is_data_out() const override;
 
 
 public:
@@ -119,35 +115,23 @@ public:
 
   /// @brie DFFの入力端子の時に true を返す．
   bool
-  is_dff_input() const override;
+  is_data_in() const override;
 
   /// @brief DFFのクロック端子の時に true を返す．
   bool
-  is_dff_clock() const override;
-
-  /// @brief DFFのクリア端子の時に true を返す．
-  bool
-  is_dff_clear() const override;
-
-  /// @brief DFFのプリセット端子の時に true を返す．
-  bool
-  is_dff_preset() const override;
-
-  /// @brief ラッチの入力端子の時に true を返す．
-  bool
-  is_latch_input() const override;
+  is_clock() const override;
 
   /// @brief ラッチのイネーブル端子の時に true を返す．
   bool
-  is_latch_enable() const override;
+  is_enable() const override;
 
-  /// @brief ラッチのクリア端子の時に true を返す．
+  /// @brief DFFのクリア端子の時に true を返す．
   bool
-  is_latch_clear() const override;
+  is_clear() const override;
 
-  /// @brief ラッチのプリセット端子の時に true を返す．
+  /// @brief DFFのプリセット端子の時に true を返す．
   bool
-  is_latch_preset() const override;
+  is_preset() const override;
 
 
 public:
@@ -169,19 +153,11 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_xoutput() ||
-  /// is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output()
+  /// is_clock() || is_enable() || is_clear() || is_preset()
   /// の時のみ意味を持つ．
   SizeType
   dff_id() const override;
-
-  /// @brief 接続しているラッチの番号を返す．
-  ///
-  /// is_latch_input() || is_latch_output() || is_latch_xoutput() ||
-  /// is_latch_enable() || is_latch_clear() || is_latch_preset()
-  /// の時のみ意味を持つ．
-  SizeType
-  latch_id() const override;
 
 
 public:
@@ -222,13 +198,6 @@ public:
   /// - type() == Bdd の時のみ意味を持つ．
   Bdd
   bdd() const override;
-
-  /// @brief セル番号を返す．
-  ///
-  /// is_logic() == false の時の動作は不定
-  /// 場合によっては -1 の場合もある．
-  int
-  cell_id() const override;
 
 
 public:

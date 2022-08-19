@@ -123,8 +123,8 @@ public:
   gate(
     SizeType onode_id,                       ///< [in] 出力ノードのID番号
     const string& oname,                     ///< [in] 出力名
-    const vector<SizeType>& inode_id_array,  ///< [in] セル番号
-    int cell_id                              ///< [in] 入力ノードのID番号の配列
+    const vector<SizeType>& inode_id_array,  ///< [in] 入力ノードのID番号の配列
+    SizeType cell_id                         ///< [in] セル番号
   ) = 0;
 
   /// @brief .latch 文の処理

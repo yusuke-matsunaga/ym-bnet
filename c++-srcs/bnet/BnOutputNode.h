@@ -174,18 +174,18 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDffControl BnOutputNode.h "BnOutputNode.h"
+/// @class BnControl BnOutputNode.h "BnOutputNode.h"
 /// @brief DFf の入力系端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnDffControl :
+class BnControl :
   public BnOutputNode
 {
 public:
 
   /// @brief コンストラクタ
-  BnDffControl(
+  BnControl(
     const string& name, ///< [in] ノード名
     SizeType dff_id     ///< [in] DFF番号
   ) : BnOutputNode{name},
@@ -194,7 +194,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnDffControl() = default;
+  ~BnControl() = default;
 
 
 public:
@@ -204,7 +204,8 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output() || is_dff_clock() || is_dff_clear() || is_dff_preset()
+  /// is_dff_input() || is_dff_output() || is_clock() || is_enable() ||
+  /// is_clear() || is_preset()
   /// の時のみ意味を持つ．
   SizeType
   dff_id() const override;
@@ -222,26 +223,26 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDffInput BnOutputNode.h "BnOutputNode.h"
+/// @class BnDataIn BnOutputNode.h "BnOutputNode.h"
 /// @brief DFf の入力端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnDffInput :
-  public BnDffControl
+class BnDataIn:
+  public BnControl
 {
 public:
 
   /// @brief コンストラクタ
-  BnDffInput(
+  BnDataIn(
     const string& name, ///< [in] ノード名
     SizeType dff_id     ///< [in] DFF番号
-  ) : BnDffControl{name, dff_id}
+  ) : BnControl{name, dff_id}
   {
   }
 
   /// @brief デストラクタ
-  ~BnDffInput() = default;
+  ~BnDataIn() = default;
 
 
 public:
@@ -251,32 +252,32 @@ public:
 
   /// @brie DFFの入力端子の時に true を返す．
   bool
-  is_dff_input() const override;
+  is_data_in() const override;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDffClock BnOutputNode.h "BnOutputNode.h"
+/// @class BnClock BnOutputNode.h "BnOutputNode.h"
 /// @brief DFf のクロック端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnDffClock :
-  public BnDffControl
+class BnClock :
+  public BnControl
 {
 public:
 
   /// @brief コンストラクタ
-  BnDffClock(
+  BnClock(
     const string& name, ///< [in] ノード名
     SizeType dff_id     ///< [in] DFF番号
-  ) : BnDffControl{name, dff_id}
+  ) : BnControl{name, dff_id}
   {
   }
 
   /// @brief デストラクタ
-  ~BnDffClock() = default;
+  ~BnClock() = default;
 
 
 public:
@@ -286,186 +287,32 @@ public:
 
   /// @brie DFFのクロック端子の時に true を返す．
   bool
-  is_dff_clock() const override;
+  is_clock() const override;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDffClear BnOutputNode.h "BnOutputNode.h"
-/// @brief DFf のクリア端子を表すクラス
-///
-/// 名前が紛らわしいが出力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnDffClear :
-  public BnDffControl
-{
-public:
-
-  /// @brief コンストラクタ
-  BnDffClear(
-    const string& name, ///< [in] ノード名
-    SizeType dff_id     ///< [in] DFF番号
-  ) : BnDffControl{name, dff_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnDffClear() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 出力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brie DFFのクリア端子の時に true を返す．
-  bool
-  is_dff_clear() const override;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnDffPreset BnOutputNode.h "BnOutputNode.h"
-/// @brief DFf のプリセット端子を表すクラス
-///
-/// 名前が紛らわしいが出力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnDffPreset :
-  public BnDffControl
-{
-public:
-
-  /// @brief コンストラクタ
-  BnDffPreset(
-    const string& name, ///< [in] ノード名
-    SizeType dff_id     ///< [in] DFF番号
-  ) : BnDffControl{name, dff_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnDffPreset() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 出力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brie DFFのプリセット端子の時に true を返す．
-  bool
-  is_dff_preset() const override;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchControl BnOutputNode.h "BnOutputNode.h"
-/// @brief ラッチの入力系端子を表すクラス
-///
-/// 名前が紛らわしいが出力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnLatchControl :
-  public BnOutputNode
-{
-public:
-
-  /// @brief コンストラクタ
-  BnLatchControl(
-    const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnOutputNode{name},
-      mLatchId{latch_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnLatchControl() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力タイプ/出力タイプに共通なインターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 接続しているラッチの番号を返す．
-  ///
-  /// is_latch_input() || is_latch_output() || is_latch_enable() ||
-  /// is_latch_clear() || is_latch_preset()
-  /// の時のみ意味を持つ．
-  SizeType
-  latch_id() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ラッチ番号
-  SizeType mLatchId;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchInput BnOutputNode.h "BnOutputNode.h"
-/// @brief ラッチの入力端子を表すクラス
-///
-/// 名前が紛らわしいが出力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnLatchInput :
-  public BnLatchControl
-{
-public:
-
-  /// @brief コンストラクタ
-  BnLatchInput(
-    const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnLatchControl{name, latch_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnLatchInput() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 出力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brie ラッチの入力端子の時に true を返す．
-  bool
-  is_latch_input() const override;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchEnable BnOutputNode.h "BnOutputNode.h"
+/// @class BnEnable BnOutputNode.h "BnOutputNode.h"
 /// @brief ラッチのイネーブル端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnLatchEnable :
-  public BnLatchControl
+class BnEnable :
+  public BnControl
 {
 public:
 
   /// @brief コンストラクタ
-  BnLatchEnable(
+  BnEnable(
     const string& name, ///< [in] ノード名
     SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnLatchControl{name, latch_id}
+  ) : BnControl{name, latch_id}
   {
   }
 
   /// @brief デストラクタ
-  ~BnLatchEnable() = default;
+  ~BnEnable() = default;
 
 
 public:
@@ -475,32 +322,32 @@ public:
 
   /// @brie ラッチのイネーブル端子の時に true を返す．
   bool
-  is_latch_enable() const override;
+  is_enable() const override;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnLatchClear BnOutputNode.h "BnOutputNode.h"
-/// @brief ラッチのクリア端子を表すクラス
+/// @class BnClear BnOutputNode.h "BnOutputNode.h"
+/// @brief DFf のクリア端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnLatchClear :
-  public BnLatchControl
+class BnClear :
+  public BnControl
 {
 public:
 
   /// @brief コンストラクタ
-  BnLatchClear(
+  BnClear(
     const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnLatchControl{name, latch_id}
+    SizeType dff_id     ///< [in] DFF番号
+  ) : BnControl{name, dff_id}
   {
   }
 
   /// @brief デストラクタ
-  ~BnLatchClear() = default;
+  ~BnClear() = default;
 
 
 public:
@@ -508,34 +355,34 @@ public:
   // 出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brie ラッチのクリア端子の時に true を返す．
+  /// @brie DFFのクリア端子の時に true を返す．
   bool
-  is_latch_clear() const override;
+  is_clear() const override;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnLatchPreset BnOutputNode.h "BnOutputNode.h"
-/// @brief ラッチのプリセット端子を表すクラス
+/// @class BnPreset BnOutputNode.h "BnOutputNode.h"
+/// @brief DFf のプリセット端子を表すクラス
 ///
 /// 名前が紛らわしいが出力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnLatchPreset :
-  public BnLatchControl
+class BnPreset :
+  public BnControl
 {
 public:
 
   /// @brief コンストラクタ
-  BnLatchPreset(
+  BnPreset(
     const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnLatchControl{name, latch_id}
+    SizeType dff_id     ///< [in] DFF番号
+  ) : BnControl{name, dff_id}
   {
   }
 
   /// @brief デストラクタ
-  ~BnLatchPreset() = default;
+  ~BnPreset() = default;
 
 
 public:
@@ -543,9 +390,9 @@ public:
   // 出力ノードの外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brie ラッチのプリセット端子の時に true を返す．
+  /// @brie DFFのプリセット端子の時に true を返す．
   bool
-  is_latch_preset() const override;
+  is_preset() const override;
 
 };
 

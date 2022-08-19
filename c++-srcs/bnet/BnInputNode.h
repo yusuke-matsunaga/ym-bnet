@@ -143,18 +143,18 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDffOutput BnDffOutput.h "BnDffOutput.h"
+/// @class BnDataOut BnDffOutput.h "BnDffOutput.h"
 /// @brief DFf の出力端子を表すクラス
 ///
 /// 名前が紛らわしいが入力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnDffOutput :
+class BnDataOut :
   public BnInputNode
 {
 public:
 
   /// @brief コンストラクタ
-  BnDffOutput(
+  BnDataOut(
     const string& name, ///< [in] ノード名
     SizeType dff_id     ///< [in] DFF番号
   ) : BnInputNode{name},
@@ -163,7 +163,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnDffOutput() = default;
+  ~BnDataOut() = default;
 
 
 public:
@@ -173,7 +173,7 @@ public:
 
   /// @brief DFFの出力端子の時 true を返す．
   bool
-  is_dff_output() const override;
+  is_data_out() const override;
 
 
 public:
@@ -183,7 +183,7 @@ public:
 
   /// @brief 接続しているDFFの番号を返す．
   ///
-  /// is_dff_input() || is_dff_output()
+  /// is_data_in() || is_data_out()
   /// の時のみ意味を持つ．
   SizeType
   dff_id() const override;
@@ -196,64 +196,6 @@ private:
 
   // DFF 番号
   SizeType mDffId;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchOutput BnLatchOutput.h "BnLatchOutput.h"
-/// @brief ラッチの出力端子を表すクラス
-///
-/// 名前が紛らわしいが入力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnLatchOutput :
-  public BnInputNode
-{
-public:
-
-  /// @brief コンストラクタ
-  BnLatchOutput(
-    const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnInputNode{name},
-      mLatchId{latch_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnLatchOutput() override = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ラッチの出力端子の時 true を返す．
-  bool
-  is_latch_output() const override;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力タイプ/出力タイプに共通なインターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 接続しているラッチの番号を返す．
-  ///
-  /// is_latch_input() || is_latch_output()
-  /// の時のみ意味を持つ．
-  SizeType
-  latch_id() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ラッチ番号
-  SizeType mLatchId;
 
 };
 

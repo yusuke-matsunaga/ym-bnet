@@ -5,7 +5,7 @@
 /// @brief BnIscas89Handler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2012, 2014, 2016, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Iscas89Handler.h"
@@ -27,9 +27,9 @@ public:
     Iscas89Parser& parser,             ///< [in] パーサー
     BnNetwork& network,                ///< [in] 設定対象のネットワーク
     const string& clock_name = "clock" ///< [in] クロック端子名
-  ) : Iscas89Handler(parser),
-      mNetwork(network),
-      mClockName(clock_name)
+  ) : Iscas89Handler{parser},
+      mNetwork{network},
+      mClockName{clock_name}
   {
   }
 
@@ -121,23 +121,35 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ノードの情報
+  struct NodeInfo
+  {
+    string oname;         ///< 出力名
+    BnNodeType gate_type; ///< ゲートタイプ
+    bool is_mux;          ///< MUXタイプの時 true
+    vector<SizeType> iname_id_list; ///< 入力の名前IDのリスト
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief ファンイン情報を追加する．
-  void
-  add_fanin_info(
-    SizeType id,   ///< [in] ID番号
-    SizeType fanin ///< [in] ファンイン番号
+  /// @brief name_id のノードを生成する．
+  SizeType
+  make_node(
+    SizeType name_id ///< [in] 名前ID
   );
 
-  /// @brief ファンイン情報を追加する．
-  void
-  add_fanin_info(
-    SizeType id,                       ///< [in] ID番号
-    const vector<SizeType>& fanin_list ///< [in] ファンイン番号のリスト
+  SizeType
+  make_mux(
+    const string& oname,                  ///< [in] 出力名
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノードIDのリスト
   );
-
 
 
 private:
@@ -154,8 +166,11 @@ private:
   // 名前IDをキーにしてノード番号を格納するハッシュ表
   unordered_map<SizeType, SizeType> mIdMap;
 
-  // ノードIDをキーにしてファンイン情報を格納するハッシュ表
-  unordered_map<SizeType, vector<SizeType>> mFaninInfoMap;
+  // 名前IDをキーにしてノード情報を格納するハッシュ表
+  unordered_map<SizeType, NodeInfo> mNodeMap;
+
+  // 出力のノードIDをキーにしてファンインの名前IDを格納するハッシュ表
+  unordered_map<SizeType, SizeType> mOutputMap;
 
   // クロック端子のノード番号
   SizeType mClockId;

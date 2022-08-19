@@ -9,7 +9,6 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
-#include "ym/BnLatch.h"
 #include "ym/BnNode.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
@@ -62,8 +61,8 @@ BnNetwork::write(
     auto& dff = this->dff(i);
     s << "dff#" << dff.id()
       << "(" << dff.name() << ")" << endl
-      << "    input:  " << dff.input() << endl
-      << "    output: " << dff.output() << endl
+      << "    input:  " << dff.data_in() << endl
+      << "    output: " << dff.data_out() << endl
       << "    clock:  " << dff.clock() << endl;
     if ( dff.clear() != BNET_NULLID ) {
       s << "    clear:  " << dff.clear() << endl;
@@ -72,23 +71,6 @@ BnNetwork::write(
       s << "    preset: " << dff.preset() << endl;
     }
     s << endl;
-  }
-  s << endl;
-
-  SizeType nlatch = latch_num();
-  for ( SizeType i = 0; i < nlatch; ++ i ) {
-    auto& latch = this->latch(i);
-    s << "latch#" << latch.id()
-      << "(" << latch.name() << ")" << endl
-      << "    input:  " << latch.input() << endl
-      << "    output: " << latch.output() << endl
-      << "    enable: " << latch.enable() << endl;
-    if ( latch.clear() != BNET_NULLID ) {
-      s << "    clear:  " << latch.clear() << endl;
-    }
-    if ( latch.preset() != BNET_NULLID ) {
-      s << "    preset: " << latch.preset() << endl;
-    }
   }
   s << endl;
 
@@ -150,12 +132,6 @@ BnNetwork::write(
       break;
     default:
       ASSERT_NOT_REACHED;
-    }
-    s << endl;
-    int cell_id = node.cell_id();
-    if ( cell_id != BNET_NULLID ) {
-      const ClibCell& cell = library().cell(cell_id);
-      s << "    cell: " << cell.name() << endl;
     }
     s << endl;
   }

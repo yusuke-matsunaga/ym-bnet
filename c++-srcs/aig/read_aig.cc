@@ -88,12 +88,12 @@ aig2bnet(
     }
     auto id = network.new_dff(name, true);
     const auto& dff = network.dff(id);
-    network.connect(clock_id, dff.clock(), 0);
-    network.connect(reset_id, dff.clear(), 0);
-    auto node_id = dff.output();
+    network.set_output(dff.clock(), clock_id);
+    network.set_output(dff.clear(), reset_id);
+    auto node_id = dff.data_out();
     auto lit = aig.latch(i);
     lit_map.emplace(lit, node_id);
-    latch_list[i] = dff.input();
+    latch_list[i] = dff.data_in();
   }
 
   // 必要とされている極性を調べる．
@@ -165,7 +165,7 @@ aig2bnet(
     auto src_lit = aig.output_src(i);
     ASSERT_COND ( lit_map.count(src_lit) >  0 );
     auto src_id = lit_map.at(src_lit);
-    network.connect(src_id, output_list[i], 0);
+    network.set_output(output_list[i], src_id);
   }
 
   // ラッチの入力の接続
@@ -173,7 +173,7 @@ aig2bnet(
     auto src_lit = aig.latch_src(i);
     ASSERT_COND( lit_map.count(src_lit) > 0 );
     auto src_id = lit_map.at(src_lit);
-    network.connect(src_id, latch_list[i], 0);
+    network.set_output(latch_list[i], src_id);
   }
   network.wrap_up();
 

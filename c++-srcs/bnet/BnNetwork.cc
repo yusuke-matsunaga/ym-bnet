@@ -9,7 +9,6 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnNode.h"
-#include "ym/BnNodeType.h"
 #include "ym/Range.h"
 #include "BnNetworkImpl.h"
 
@@ -24,14 +23,14 @@ BEGIN_NAMESPACE_YM_BNET
 //
 // 空の状態で初期化される．
 BnNetwork::BnNetwork(
-) : mImpl{new BnNetworkImpl()}
+) : mImpl{new BnNetworkImpl{}}
 {
 }
 
 // @brief コピーコンストラクタ
 BnNetwork::BnNetwork(
   const BnNetwork& src
-) : mImpl{new BnNetworkImpl()}
+) : mImpl{new BnNetworkImpl{}}
 {
   mImpl->copy(*src.mImpl);
 }
@@ -137,7 +136,6 @@ BnNetwork::new_input_port(
 {
   ASSERT_COND( mImpl != nullptr );
 
-  //return mImpl->new_port(port_name, vector<BnDir>({BnDir::INPUT}));
   return mImpl->new_port(port_name, {BnDir::INPUT});
 }
 
@@ -150,7 +148,8 @@ BnNetwork::new_input_port(
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_port(port_name, vector<BnDir>(bit_width, BnDir::INPUT));
+  return mImpl->new_port(port_name,
+			 vector<BnDir>(bit_width, BnDir::INPUT));
 }
 
 // @brief 1ビットの出力ポートを作る．
@@ -173,7 +172,8 @@ BnNetwork::new_output_port(
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->new_port(port_name, vector<BnDir>(bit_width, BnDir::OUTPUT));
+  return mImpl->new_port(port_name,
+			 vector<BnDir>(bit_width, BnDir::OUTPUT));
 }
 
 // @brief 入出力混合のポートを作る．
@@ -203,14 +203,13 @@ BnNetwork::new_dff(
 
 // @brief セルの情報を持ったDFFを追加する．
 SizeType
-BnNetwork::new_dff(
+BnNetwork::new_dff_cell(
   const string& name,
-  int cell_id
+  SizeType cell_id
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_dff(name, cell_id);
+  return mImpl->new_dff_cell(name, cell_id);
 }
 
 // @brief ラッチを追加する．
@@ -229,27 +228,13 @@ BnNetwork::new_latch(
 
 // @brief セルの情報を持ったラッチを追加する．
 SizeType
-BnNetwork::new_latch(
+BnNetwork::new_latch_cell(
   const string& name,
-  int cell_id
+  SizeType cell_id
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_latch(name, cell_id);
-}
-
-// @brief プリミティブ型の論理ノードを追加する．
-SizeType
-BnNetwork::new_logic(
-  const string& node_name,
-  BnNodeType logic_type,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, logic_type);
+  return mImpl->new_latch_cell(name, cell_id);
 }
 
 // @brief プリミティブ型の論理ノードを追加する．
@@ -261,7 +246,6 @@ BnNetwork::new_logic(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   return mImpl->new_primitive(node_name, logic_type, fanin_id_list);
 }
 
@@ -274,12 +258,7 @@ BnNetwork::new_logic(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_expr(node_name, expr);
-  if ( id != BNET_NULLID && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  return mImpl->new_expr(node_name, expr, fanin_id_list);
 }
 
 // @brief 真理値表型の論理ノードを追加する．
@@ -291,12 +270,7 @@ BnNetwork::new_logic(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_tv(node_name, tv);
-  if ( id != BNET_NULLID && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  return mImpl->new_tv(node_name, tv, fanin_id_list);
 }
 
 // @brief BDD型の論理ノードを追加する．
@@ -308,26 +282,19 @@ BnNetwork::new_logic(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_bdd(node_name, bdd, fanin_id_list);
-  return id;
+  return mImpl->new_bdd(node_name, bdd, fanin_id_list);
 }
 
 // @brief 論理セルを追加する．
 SizeType
 BnNetwork::new_logic(
   const string& node_name,
-  int cell_id,
+  SizeType cell_id,
   const vector<SizeType>& fanin_id_list
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_cell(node_name, cell_id);
-  if ( id != BNET_NULLID && !fanin_id_list.empty() ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  return mImpl->new_logic_cell(node_name, cell_id, fanin_id_list);
 }
 
 // @brief 与えられたノードと同型の論理ノードを追加する．
@@ -339,7 +306,6 @@ BnNetwork::dup_logic(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   return mImpl->dup_logic(node_name, node_id, fanin_id_list);
 }
 
@@ -350,8 +316,7 @@ BnNetwork::new_c0(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, 1, BnNodeType::C0);
+  return mImpl->new_primitive(node_name, BnNodeType::C0, {});
 }
 
 // @brief C1型(定数1)の論理ノードを追加する．
@@ -361,8 +326,7 @@ BnNetwork::new_c1(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, 1, BnNodeType::C1);
+  return mImpl->new_primitive(node_name, BnNodeType::C1, {});
 }
 
 // @brief Buff型の論理ノードを追加する．
@@ -373,12 +337,7 @@ BnNetwork::new_buff(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_primitive(node_name, 1, BnNodeType::Buff);
-  if ( fanin_id != BNET_NULLID ) {
-    connect(fanin_id, id, 0);
-  }
-  return id;
+  return mImpl->new_primitive(node_name, BnNodeType::Buff, {fanin_id});
 }
 
 // @brief Not型の論理ノードを追加する．
@@ -389,24 +348,7 @@ BnNetwork::new_not(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType id = mImpl->new_primitive(node_name, 1, BnNodeType::Not);
-  if ( fanin_id != BNET_NULLID ) {
-    connect(fanin_id, id, 0);
-  }
-  return id;
-}
-
-// @brief And型の論理ノードを追加する．
-SizeType
-BnNetwork::new_and(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::And);
+  return mImpl->new_primitive(node_name, BnNodeType::Not, {fanin_id});
 }
 
 // @brief AND型の論理ノードを追加する．
@@ -417,25 +359,8 @@ BnNetwork::new_and(
 )
 {
   ASSERT_COND( mImpl != nullptr );
+  return mImpl->new_primitive(node_name, BnNodeType::And, fanin_id_list);
 
-  SizeType ni = fanin_id_list.size();
-  SizeType id = mImpl->new_primitive(node_name, ni, BnNodeType::And);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
-}
-
-// @brief Nand型の論理ノードを追加する．
-SizeType
-BnNetwork::new_nand(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::Nand);
 }
 
 // @brief NAND型の論理ノードを追加する．
@@ -446,25 +371,7 @@ BnNetwork::new_nand(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType ni = fanin_id_list.size();
-  SizeType id = mImpl->new_primitive(node_name, ni, BnNodeType::Nand);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
-}
-
-// @brief Or型の論理ノードを追加する．
-SizeType
-BnNetwork::new_or(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::Or);
+  return mImpl->new_primitive(node_name, BnNodeType::Nand, fanin_id_list);
 }
 
 // @brief OR型の論理ノードを追加する．
@@ -475,25 +382,7 @@ BnNetwork::new_or(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  auto ni = fanin_id_list.size();
-  auto id = mImpl->new_primitive(node_name, ni, BnNodeType::Or);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
-}
-
-// @brief Nor型の論理ノードを追加する．
-SizeType
-BnNetwork::new_nor(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::Nor);
+  return mImpl->new_primitive(node_name, BnNodeType::Or, fanin_id_list);
 }
 
 // @brief NOR型の論理ノードを追加する．
@@ -504,25 +393,7 @@ BnNetwork::new_nor(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType ni = fanin_id_list.size();
-  SizeType id = mImpl->new_primitive(node_name, ni, BnNodeType::Nor);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
-}
-
-// @brief Xor型の論理ノードを追加する．
-SizeType
-BnNetwork::new_xor(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::Xor);
+  return mImpl->new_primitive(node_name, BnNodeType::Nor, fanin_id_list);
 }
 
 // @brief XOR型の論理ノードを追加する．
@@ -533,25 +404,7 @@ BnNetwork::new_xor(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType ni = fanin_id_list.size();
-  SizeType id = mImpl->new_primitive(node_name, ni, BnNodeType::Xor);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
-}
-
-// @brief Xnor型の論理ノードを追加する．
-SizeType
-BnNetwork::new_xnor(
-  const string& node_name,
-  SizeType ni
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->new_primitive(node_name, ni, BnNodeType::Xnor);
+  return mImpl->new_primitive(node_name, BnNodeType::Xor, fanin_id_list);
 }
 
 // @brief XNOR型の論理ノードを追加する．
@@ -562,15 +415,10 @@ BnNetwork::new_xnor(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
-  SizeType ni = fanin_id_list.size();
-  SizeType id = mImpl->new_primitive(node_name, ni, BnNodeType::Xnor);
-  if ( id != BNET_NULLID ) {
-    connect_fanins(id, fanin_id_list);
-  }
-  return id;
+  return mImpl->new_primitive(node_name, BnNodeType::Xnor, fanin_id_list);
 }
 
+#if 0
 // @brief プリミティブ型の論理ノードに変更する．
 void
 BnNetwork::change_primitive(
@@ -583,6 +431,7 @@ BnNetwork::change_primitive(
 
   mImpl->change_primitive(id, logic_type, ni);
 }
+#endif
 
 // @brief プリミティブ型の論理ノードに変更する．
 void
@@ -593,10 +442,10 @@ BnNetwork::change_primitive(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_primitive(id, logic_type, fanin_id_list);
 }
 
+#if 0
 // @brief 論理式型の論理ノードに変更する．
 void
 BnNetwork::change_expr(
@@ -605,9 +454,9 @@ BnNetwork::change_expr(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_expr(id, expr);
 }
+#endif
 
 // @brief 論理式型の論理ノードに変更する．
 void
@@ -618,10 +467,10 @@ BnNetwork::change_expr(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_expr(id, expr, fanin_id_list);
 }
 
+#if 0
 // @brief 真理値表型の論理ノードに変更する．
 void
 BnNetwork::change_tv(
@@ -630,9 +479,9 @@ BnNetwork::change_tv(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_tv(id, tv);
 }
+#endif
 
 // @brief 真理値表型の論理ノードに変更する．
 void
@@ -643,19 +492,18 @@ BnNetwork::change_tv(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_tv(id, tv, fanin_id_list);
 }
 
+#if 0
 // @brief 論理セルに変更する．
 void
 BnNetwork::change_cell(
   SizeType id,
-  int cell_id
+  SizeType cell_id
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->change_cell(id, cell_id);
 }
 
@@ -663,7 +511,7 @@ BnNetwork::change_cell(
 void
 BnNetwork::change_cell(
   SizeType id,
-  int cell_id,
+  SizeType cell_id,
   const vector<SizeType>& fanin_id_list
 )
 {
@@ -671,6 +519,7 @@ BnNetwork::change_cell(
 
   mImpl->change_cell(id, cell_id, fanin_id_list);
 }
+#endif
 
 // @brief 部分回路を追加する．
 vector<SizeType>
@@ -684,26 +533,16 @@ BnNetwork::import_subnetwork(
   return mImpl->import_subnetwork(*src_network.mImpl, input_list);
 }
 
-// @brief 単純なノードに分解する．
+// @brief 出力ノードのファンインを設定する．
 void
-BnNetwork::simple_decomp()
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  mImpl->simple_decomp();
-}
-
-// @brief ノード間を接続する．
-void
-BnNetwork::connect(
-  SizeType src_id,
-  SizeType dst_id,
-  SizeType ipos
+BnNetwork::set_output(
+  SizeType output_id,
+  SizeType src_id
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  mImpl->connect(src_id, dst_id, ipos);
+  mImpl->set_output(output_id, src_id);
 }
 
 // @brief ファンアウトをつなぎ替える．
@@ -734,12 +573,9 @@ BnNetwork::connect_fanins(
   const vector<SizeType>& fanin_id_list
 )
 {
-  SizeType ni = fanin_id_list.size();
-  ASSERT_COND( mImpl->node(id).fanin_num() == ni );
-  for ( SizeType i: Range(ni) ) {
-    SizeType iid = fanin_id_list[i];
-    mImpl->connect(iid, id, i);
-  }
+  ASSERT_COND( mImpl != nullptr );
+
+  mImpl->connect_fanins(id, fanin_id_list);
 }
 
 // @brief 実装可能な構造を持っている時 true を返す．
@@ -808,26 +644,6 @@ BnNetwork::dff(
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->dff(pos);
-}
-
-// @brief ラッチ数を得る．
-SizeType
-BnNetwork::latch_num() const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->latch_num();
-}
-
-// @brief ラッチを得る．
-const BnLatch&
-BnNetwork::latch(
-  SizeType pos
-) const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->latch(pos);
 }
 
 // @brief ノード数を得る．

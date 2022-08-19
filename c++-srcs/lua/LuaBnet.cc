@@ -584,11 +584,6 @@ bnet_stats(
     lua.push_integer(n);
     lua.set_field(tbl_idx, "dff_num");
   }
-  { // latch_num
-    SizeType n = bnet->latch_num();
-    lua.push_integer(n);
-    lua.set_field(tbl_idx, "latch_num");
-  }
   { // input_num
     SizeType n = bnet->input_num();
     lua.push_integer(n);
