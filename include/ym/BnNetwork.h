@@ -200,17 +200,6 @@ public:
     BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
-  /// @brief セルの情報を持ったDFFを追加する．
-  /// @return 生成したDFF番号を返す．
-  ///
-  /// 名前の重複に関しては感知しない．
-  /// cell_id が FFセルでない場合はエラーとなる．
-  SizeType
-  new_dff_cell(
-    const string& name, ///< [in] DFF名
-    SizeType cell_id    ///< [in] 対応するセル番号
-  );
-
   /// @brief ラッチを追加する．
   /// @return 生成したDFF番号を返す．
   ///
@@ -230,14 +219,14 @@ public:
     BnCPV cpv = BnCPV::L     ///< [in] クリアとプリセットが衝突したときの挙動
   );
 
-  /// @brief セルの情報を持ったラッチを追加する．
+  /// @brief セルの情報を持ったDFFを追加する．
   /// @return 生成したDFF番号を返す．
   ///
   /// 名前の重複に関しては感知しない．
-  /// cell_id がラッチセルでない場合にはエラーとなる．
+  /// cell_id が FFセルでない場合はエラーとなる．
   SizeType
-  new_latch_cell(
-    const string& name, ///< [in] ラッチ名
+  new_dff_cell(
+    const string& name, ///< [in] DFF名
     SizeType cell_id    ///< [in] 対応するセル番号
   );
 

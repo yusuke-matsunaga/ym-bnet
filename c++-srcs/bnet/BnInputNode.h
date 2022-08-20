@@ -143,18 +143,18 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDataOut BnDffOutput.h "BnDffOutput.h"
-/// @brief DFf の出力端子を表すクラス
+/// @class BnDffOut BnInputNode.h "BnInputNode.h"
+/// @brief DFF の出力端子を表すクラス
 ///
 /// 名前が紛らわしいが入力ノードである．
 //////////////////////////////////////////////////////////////////////
-class BnDataOut :
+class BnDffOut :
   public BnInputNode
 {
 public:
 
   /// @brief コンストラクタ
-  BnDataOut(
+  BnDffOut(
     const string& name, ///< [in] ノード名
     SizeType dff_id     ///< [in] DFF番号
   ) : BnInputNode{name},
@@ -163,17 +163,7 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnDataOut() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 入力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief DFFの出力端子の時 true を返す．
-  bool
-  is_data_out() const override;
+  ~BnDffOut() = default;
 
 
 public:
@@ -196,6 +186,91 @@ private:
 
   // DFF 番号
   SizeType mDffId;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnDataOut BnDffOutput.h "BnDffOutput.h"
+/// @brief DFF のデータ出力を表すクラス
+///
+/// 名前が紛らわしいが入力ノードである．
+//////////////////////////////////////////////////////////////////////
+class BnDataOut :
+  public BnDffOut
+{
+public:
+
+  /// @brief コンストラクタ
+  BnDataOut(
+    const string& name, ///< [in] ノード名
+    SizeType dff_id     ///< [in] DFF番号
+  ) : BnDffOut{name, dff_id}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnDataOut() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFFの出力端子の時 true を返す．
+  bool
+  is_data_out() const override;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnCellOutput BnDffOutput.h "BnDffOutput.h"
+/// @brief DFFセルの出力端子を表すクラス
+///
+/// 名前が紛らわしいが入力ノードである．
+//////////////////////////////////////////////////////////////////////
+class BnCellOutput :
+  public BnDffOut
+{
+public:
+
+  /// @brief コンストラクタ
+  BnCellOutput(
+    const string& name, ///< [in] ノード名
+    SizeType dff_id,    ///< [in] DFF番号
+    SizeType oid        ///< [in] 出力ピン番号
+  ) : BnDffOut{name, dff_id},
+      mOid{oid}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnCellOutput() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 入力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFFセルの出力端子の時 true を返す．
+  bool
+  is_cell_output() const override;
+
+  /// @brief DFFセルの出力ピン番号を返す．
+  SizeType
+  cell_output_pos() const override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // 出力ピン番号
+  SizeType mOid;
 
 };
 

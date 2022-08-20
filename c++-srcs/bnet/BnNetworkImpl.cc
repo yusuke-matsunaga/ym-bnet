@@ -286,57 +286,6 @@ BnNetworkImpl::new_dff(
   return dff->id();
 }
 
-// @brief セルの情報を持ったDFFを追加する．
-SizeType
-BnNetworkImpl::new_dff_cell(
-  const string& name,
-  SizeType cell_id
-)
-{
-  auto dff_id = mDffList.size();
-
-  const ClibCell& cell = mCellLibrary.cell(cell_id);
-  if ( !cell.is_ff() ) {
-    ostringstream buf;
-    buf << "BnNetwork::new_dff_cell(): "
-	<< cell.name() << " is not a latch cell.";
-    throw BnetError{buf.str()};
-  }
-  if ( cell.inout_num() > 0 ) {
-    ostringstream buf;
-    buf << "BnNetwork::new_dff_cell(): "
-	<< cell.name() << " has inout pins.";
-    throw BnetError{buf.str()};
-  }
-
-  SizeType ni = cell.input_num();
-  vector<SizeType> input_list(ni);
-  for ( SizeType i = 0; i < ni; ++ i ) {
-    ostringstream buf;
-    buf << name << ".input" << (i + 1);
-    auto oname = buf.str();
-    auto node = new BnControl(oname, dff_id);
-    _reg_output(node);
-    input_list[i] = node->id();
-  }
-
-  SizeType no = cell.output_num();
-  vector<SizeType> output_list(no);
-  for ( SizeType i = 0; i < no; ++ i ) {
-    ostringstream buf;
-    buf << name << ".output" << (i + 1);
-    auto oname = buf.str();
-    auto node = new BnDataOut(oname, dff_id);
-    _reg_input(node);
-    output_list[i] = node->id();
-  }
-
-  auto dff = new BnDffCell{dff_id, name, cell_id, input_list, output_list};
-  mDffList.push_back(dff);
-
-  return dff_id;
-}
-
 // @brief ラッチを追加する．
 SizeType
 BnNetworkImpl::new_latch(
@@ -376,7 +325,7 @@ BnNetworkImpl::new_latch(
     ostringstream buf;
     buf << name << ".enable";
     auto oname = buf.str();
-    auto node = new BnEnable(oname, dff_id);
+    auto node = new BnClock(oname, dff_id);
     _reg_output(node);
     enable_id = node->id();
   }
@@ -410,9 +359,9 @@ BnNetworkImpl::new_latch(
   return dff_id;
 }
 
-// @brief セルの情報を持ったラッチを追加する．
+// @brief セルの情報を持ったDFFを追加する．
 SizeType
-BnNetworkImpl::new_latch_cell(
+BnNetworkImpl::new_dff_cell(
   const string& name,
   SizeType cell_id
 )
@@ -420,15 +369,15 @@ BnNetworkImpl::new_latch_cell(
   auto dff_id = mDffList.size();
 
   const ClibCell& cell = mCellLibrary.cell(cell_id);
-  if ( !cell.is_latch() ) {
+  if ( !cell.is_ff() ) {
     ostringstream buf;
-    buf << "BnNetwork::new_latch_cell(): "
+    buf << "BnNetwork::new_dff_cell(): "
 	<< cell.name() << " is not a latch cell.";
     throw BnetError{buf.str()};
   }
   if ( cell.inout_num() > 0 ) {
     ostringstream buf;
-    buf << "BnNetwork::new_latch_cell(): "
+    buf << "BnNetwork::new_dff_cell(): "
 	<< cell.name() << " has inout pins.";
     throw BnetError{buf.str()};
   }
@@ -439,7 +388,7 @@ BnNetworkImpl::new_latch_cell(
     ostringstream buf;
     buf << name << ".input" << (i + 1);
     auto oname = buf.str();
-    auto node = new BnControl(oname, dff_id);
+    auto node = new BnCellInput(oname, dff_id, i);
     _reg_output(node);
     input_list[i] = node->id();
   }
@@ -450,12 +399,12 @@ BnNetworkImpl::new_latch_cell(
     ostringstream buf;
     buf << name << ".output" << (i + 1);
     auto oname = buf.str();
-    auto node = new BnDataOut(oname, dff_id);
+    auto node = new BnCellOutput(oname, dff_id, i);
     _reg_input(node);
     output_list[i] = node->id();
   }
 
-  auto dff = new BnLatchCell{dff_id, name, cell_id, input_list, output_list};
+  auto dff = new BnDffCell{dff_id, name, cell_id, input_list, output_list};
   mDffList.push_back(dff);
 
   return dff_id;

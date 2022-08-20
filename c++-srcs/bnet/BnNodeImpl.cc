@@ -112,6 +112,21 @@ BnNodeImpl::is_data_out() const
   return false;
 }
 
+// @brief DFFセルの出力端子の時 true を返す．
+bool
+BnNodeImpl::is_cell_output() const
+{
+  return false;
+}
+
+// @brief DFFセルの出力ピン番号を返す．
+SizeType
+BnNodeImpl::cell_output_pos() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
 // @brief 出力番号を返す．
 //
 // is_output() == false の時の動作は不定<br>
@@ -144,13 +159,6 @@ BnNodeImpl::is_clock() const
   return false;
 }
 
-// @brief ラッチのイネーブル端子の時に true を返す．
-bool
-BnNodeImpl::is_enable() const
-{
-  return false;
-}
-
 // @brie DFFのクリア端子の時に true を返す．
 bool
 BnNodeImpl::is_clear() const
@@ -163,6 +171,21 @@ bool
 BnNodeImpl::is_preset() const
 {
   return false;
+}
+
+// @brief DFFセルの入力端子の時 true を返す．
+bool
+BnNodeImpl::is_cell_input() const
+{
+  return false;
+}
+
+// @brief DFFセルの入力ピン番号を返す．
+SizeType
+BnNodeImpl::cell_input_pos() const
+{
+  ASSERT_NOT_REACHED;
+  return 0;
 }
 
 // @brief 接続しているポート番号を返す．

@@ -96,6 +96,15 @@ public:
   bool
   is_data_out() const override;
 
+  /// @brief DFFセルの出力端子の時 true を返す．
+  virtual
+  bool
+  is_cell_output() const override;
+
+  /// @brief DFFセルの出力ピン番号を返す．
+  SizeType
+  cell_output_pos() const override;
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -121,10 +130,6 @@ public:
   bool
   is_clock() const override;
 
-  /// @brief ラッチのイネーブル端子の時に true を返す．
-  bool
-  is_enable() const override;
-
   /// @brief DFFのクリア端子の時に true を返す．
   bool
   is_clear() const override;
@@ -132,6 +137,14 @@ public:
   /// @brief DFFのプリセット端子の時に true を返す．
   bool
   is_preset() const override;
+
+  /// @brief DFFセルの入力端子の時 true を返す．
+  bool
+  is_cell_input() const override;
+
+  /// @brief DFFセルの入力ピン番号を返す．
+  SizeType
+  cell_input_pos() const override;
 
 
 public:
@@ -154,7 +167,7 @@ public:
   /// @brief 接続しているDFFの番号を返す．
   ///
   /// is_dff_input() || is_dff_output()
-  /// is_clock() || is_enable() || is_clear() || is_preset()
+  /// is_clock() || is_clear() || is_preset()
   /// の時のみ意味を持つ．
   SizeType
   dff_id() const override;

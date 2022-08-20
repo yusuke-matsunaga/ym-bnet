@@ -61,10 +61,6 @@ public:
   SizeType
   clock() const override;
 
-  /// @brief ラッチイネーブル端子のノード番号を返す．
-  SizeType
-  enable() const override;
-
   /// @brief クリア端子のノード番号を返す．
   SizeType
   clear() const override;
@@ -111,7 +107,7 @@ private:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDLBase BnDLBase.h "BnDLBase.h"
+/// @class BnDLBase BnDffImpl.h "BnDffImpl.h"
 /// @brief BnDff の実装クラス
 //////////////////////////////////////////////////////////////////////
 class BnDLBase :
@@ -125,6 +121,7 @@ public:
     const string& name, ///< [in] 名前
     SizeType input,     ///< [in] 入力端子のノード番号
     SizeType output,    ///< [in] 出力端子のノード番号
+    SizeType clock,     ///< [in] クロック端子のノード番号
     SizeType clear,     ///< [in] クリア端子のノード番号
     SizeType preset,    ///< [in] プリセット端子のノード番号
     BnCPV cpv           ///< [in] クリアとプリセットが衝突した場合の挙動
@@ -146,13 +143,17 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力端子のノード番号を返す．
+  /// @brief データ入力端子のノード番号を返す．
   SizeType
   data_in() const override;
 
-  /// @brief 出力端子のノード番号を返す．
+  /// @brief データ出力端子のノード番号を返す．
   SizeType
   data_out() const override;
+
+  /// @brief クロック端子のノード番号を返す．
+  SizeType
+  clock() const override;
 
   /// @brief クリア端子のノード番号を返す．
   SizeType
@@ -178,11 +179,14 @@ private:
   // 名前
   string mName;
 
-  // 入力のノード番号
+  // データ入力のノード番号
   SizeType mInput;
 
-  // 出力のノード番号
+  // データ出力のノード番号
   SizeType mOutput;
+
+  // クロックのノード番号
+  SizeType mClock;
 
   // クリアのノード番号
   SizeType mClear;
@@ -215,8 +219,7 @@ public:
     SizeType clear,     ///< [in] クリア端子のノード番号
     SizeType preset,    ///< [in] プリセット端子のノード番号
     BnCPV cpv           ///< [in] クリアとプリセットが衝突した場合の挙動
-  ) : BnDLBase{id, name, input, output, clear, preset, cpv},
-      mClock{clock}
+  ) : BnDLBase{id, name, input, output, clock, clear, preset, cpv}
   {
   }
 
@@ -233,24 +236,11 @@ public:
   BnDffType
   type() const override;
 
-  /// @brief クロック端子のノード番号を返す．
-  SizeType
-  clock() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // クロックのノード番号
-  SizeType mClock;
-
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnLatchImpl BnLatchImpl.h "BnLatchImpl.h"
+/// @class BnLatchImpl BnDffImpl.h "BnDffImpl.h"
 /// @brief BnLatch の実装クラス
 //////////////////////////////////////////////////////////////////////
 class BnLatchImpl :
@@ -268,8 +258,7 @@ public:
     SizeType clear,     ///< [in] クリア端子のノード番号
     SizeType preset,    ///< [in] プリセット端子のノード番号
     BnCPV cpv           ///< [in] クリアとプリセットが衝突した場合の挙動
-  ) : BnDLBase{id, name, input, output, clear, preset, cpv},
-      mEnable{enable}
+  ) : BnDLBase{id, name, input, output, enable, clear, preset, cpv}
   {
   }
 
@@ -286,33 +275,20 @@ public:
   BnDffType
   type() const override;
 
-  /// @brief ラッチイネーブル端子のノード番号を返す．
-  SizeType
-  enable() const override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // イネーブルのノード番号
-  SizeType mEnable;
-
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnDLCell BnDLCell.h "BnDLCell.h"
+/// @class BnDffCell BnDffImpl.h "BnDffImpl.h"
 /// @brief BnDff の実装クラス
 //////////////////////////////////////////////////////////////////////
-class BnDLCell :
+class BnDffCell :
   public BnDffBase
 {
 public:
 
   /// @brief コンストラクタ
-  BnDLCell(
+  BnDffCell(
     SizeType id,                        ///< [in] ID番号
     const string& name,                 ///< [in] 名前
     SizeType cell_id,                   ///< [in] セル番号
@@ -326,13 +302,17 @@ public:
   }
 
   /// @brief デストラクタ
-  ~BnDLCell() = default;
+  ~BnDffCell() = default;
 
 
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief タイプを返す．
+  BnDffType
+  type() const override;
 
   /// @brief セルに割り当てられている場合のセル番号を返す．
   ///
@@ -366,78 +346,6 @@ private:
 
   // 出力端子のノード番号のリスト
   vector<SizeType> mOutputList;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnDffCell BnDffCell.h "BnDffCell.h"
-/// @brief BnDff の実装クラス
-//////////////////////////////////////////////////////////////////////
-class BnDffCell :
-  public BnDLCell
-{
-public:
-
-  /// @brief コンストラクタ
-  BnDffCell(
-    SizeType id,                        ///< [in] ID番号
-    const string& name,                 ///< [in] 名前
-    SizeType cell_id,                   ///< [in] セル番号
-    const vector<SizeType>& input_list, ///< [in] 入力ノード番号のリスト
-    const vector<SizeType>& output_list ///< [in] 出力ノード番号のリスト
-  ) : BnDLCell{id, name, cell_id, input_list, output_list}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnDffCell() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief タイプを返す．
-  BnDffType
-  type() const override;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class BnLatchCell BnLatchCell.h "BnLatchCell.h"
-/// @brief BnDff の実装クラス
-//////////////////////////////////////////////////////////////////////
-class BnLatchCell :
-  public BnDLCell
-{
-public:
-
-  /// @brief コンストラクタ
-  BnLatchCell(
-    SizeType id,                        ///< [in] ID番号
-    const string& name,                 ///< [in] 名前
-    SizeType cell_id,                   ///< [in] セル番号
-    const vector<SizeType>& input_list, ///< [in] 入力ノード番号のリスト
-    const vector<SizeType>& output_list ///< [in] 出力ノード番号のリスト
-  ) : BnDLCell{id, name, cell_id, input_list, output_list}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnLatchCell() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief タイプを返す．
-  BnDffType
-  type() const override;
 
 };
 

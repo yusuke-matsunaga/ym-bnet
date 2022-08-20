@@ -125,11 +125,10 @@ operator<<(
 /// @brief BnDff のタイプ
 //////////////////////////////////////////////////////////////////////
 enum class BnDffType : ymuint8 {
-  None      = 0, ///< 不正値
-  Dff       = 1, ///< D-FF
-  Latch     = 2, ///< ラッチ
-  DffCell   = 3, ///< D-FF セル
-  LatchCell = 4  ///< ラッチセル
+  None   = 0, ///< 不正値
+  Dff    = 1, ///< D-FF
+  Latch  = 2, ///< ラッチ
+  Cell   = 3, ///< セル
 };
 
 

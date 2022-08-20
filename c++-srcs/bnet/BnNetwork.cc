@@ -226,17 +226,6 @@ BnNetwork::new_latch(
   return mImpl->new_latch(name, has_clear, has_preset, cpv);
 }
 
-// @brief セルの情報を持ったラッチを追加する．
-SizeType
-BnNetwork::new_latch_cell(
-  const string& name,
-  SizeType cell_id
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-  return mImpl->new_latch_cell(name, cell_id);
-}
-
 // @brief プリミティブ型の論理ノードを追加する．
 SizeType
 BnNetwork::new_logic(

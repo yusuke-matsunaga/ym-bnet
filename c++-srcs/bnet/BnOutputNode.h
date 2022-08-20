@@ -293,41 +293,6 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class BnEnable BnOutputNode.h "BnOutputNode.h"
-/// @brief ラッチのイネーブル端子を表すクラス
-///
-/// 名前が紛らわしいが出力ノードである．
-//////////////////////////////////////////////////////////////////////
-class BnEnable :
-  public BnControl
-{
-public:
-
-  /// @brief コンストラクタ
-  BnEnable(
-    const string& name, ///< [in] ノード名
-    SizeType latch_id   ///< [in] ラッチ番号
-  ) : BnControl{name, latch_id}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~BnEnable() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 出力ノードの外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brie ラッチのイネーブル端子の時に true を返す．
-  bool
-  is_enable() const override;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class BnClear BnOutputNode.h "BnOutputNode.h"
 /// @brief DFf のクリア端子を表すクラス
 ///
@@ -393,6 +358,56 @@ public:
   /// @brie DFFのプリセット端子の時に true を返す．
   bool
   is_preset() const override;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnCellInput BnOutputNode.h "BnOutputNode.h"
+/// @brief DFFセル の入力端子を表すクラス
+///
+/// 名前が紛らわしいが出力ノードである．
+//////////////////////////////////////////////////////////////////////
+class BnCellInput :
+  public BnControl
+{
+public:
+
+  /// @brief コンストラクタ
+  BnCellInput(
+    const string& name, ///< [in] ノード名
+    SizeType dff_id,    ///< [in] DFF番号
+    SizeType iid        ///< [in] セルの入力ピン番号
+  ) : BnControl{name, dff_id},
+      mIid{iid}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnCellInput() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 出力ノードの外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFFセルの入力端子の時 true を返す．
+  bool
+  is_cell_input() const override;
+
+  /// @brief DFFセルの入力ピン番号を返す．
+  SizeType
+  cell_input_pos() const override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // 入力ピン番号
+  SizeType mIid;
 
 };
 

@@ -18,7 +18,6 @@
 BEGIN_NAMESPACE_YM_BNET
 
 // @brief コンストラクタ
-// @param[in] network 対象のネットワーク
 WriterBase::WriterBase(
   const BnNetwork& network
 ) : mNetwork(network),
@@ -28,8 +27,6 @@ WriterBase::WriterBase(
 }
 
 // @brief ノード名の解決を行う．
-// @param[in] prefix 自動生成名の接頭語
-// @param[in] suffix 自動生成名の接尾語
 void
 WriterBase::init_name_array(
   const string& prefix,
@@ -37,7 +34,7 @@ WriterBase::init_name_array(
 )
 {
   // ノード名を管理するクラス
-  NameMgr name_mgr(prefix, suffix);
+  NameMgr name_mgr{prefix, suffix};
 
   // ノード名のハッシュ
   unordered_set<string> name_hash;

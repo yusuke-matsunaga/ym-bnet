@@ -151,10 +151,20 @@ public:
   bool
   is_port_input() const = 0;
 
-  /// @brief DFFの出力端子の時 true を返す．
+  /// @brief DFF/ラッチのデータ出力端子の時 true を返す．
   virtual
   bool
   is_data_out() const = 0;
+
+  /// @brief DFFセルの出力端子の時 true を返す．
+  virtual
+  bool
+  is_cell_output() const = 0;
+
+  /// @brief DFFセルの出力ピン番号を返す．
+  virtual
+  SizeType
+  cell_output_pos() const = 0;
 
   /// @}
   //////////////////////////////////////////////////////////////////////
@@ -179,30 +189,35 @@ public:
   bool
   is_port_output() const = 0;
 
-  /// @brief DFFの入力端子の時に true を返す．
+  /// @brief DFF/ラッチののデータ入力端子の時に true を返す．
   virtual
   bool
   is_data_in() const = 0;
 
-  /// @brief DFFのクロック端子の時に true を返す．
+  /// @brief DFF/ラッチのクロック/イネーブル端子の時に true を返す．
   virtual
   bool
   is_clock() const = 0;
 
-  /// @brief ラッチのイネーブル端子の時に true を返す．
-  virtual
-  bool
-  is_enable() const = 0;
-
-  /// @brief DFFのクリア端子の時に true を返す．
+  /// @brief DFF/ラッチのクリア端子の時に true を返す．
   virtual
   bool
   is_clear() const = 0;
 
-  /// @brief DFFのプリセット端子の時に true を返す．
+  /// @brief DFF/ラッチのプリセット端子の時に true を返す．
   virtual
   bool
   is_preset() const = 0;
+
+  /// @brief DFF/ラッチセルの入力端子の時 true を返す．
+  virtual
+  bool
+  is_cell_input() const = 0;
+
+  /// @brief DFF/ラッチセルの入力ピン番号を返す．
+  virtual
+  SizeType
+  cell_input_pos() const = 0;
 
   /// @}
   //////////////////////////////////////////////////////////////////////
