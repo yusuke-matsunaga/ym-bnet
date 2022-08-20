@@ -169,17 +169,17 @@ BnNetworkImpl::_new_logic(
 {
   BnNodeImpl* node = nullptr;
   if ( logic_type == BnNodeType::Expr ) {
-    node = new BnExprNode(name, fanin_num, expr_id);
+    node = new BnExprNode{name, fanin_num, expr_id};
   }
   else if ( logic_type == BnNodeType::TvFunc ) {
-    node = new BnTvNode(name, fanin_num, func_id);
+    node = new BnTvNode{name, fanin_num, func_id};
   }
   else if ( logic_type == BnNodeType::Bdd ) {
     auto new_bdd = mBddMgr.copy(bdd);
-    node = new BnBddNode(name, fanin_num, bdd);
+    node = new BnBddNode{name, fanin_num, bdd};
   }
   else {
-    node = new BnPrimNode(name, fanin_num, logic_type);
+    node = new BnPrimNode{name, fanin_num, logic_type};
   }
   ASSERT_COND( node != nullptr );
 
@@ -225,62 +225,22 @@ BnNetworkImpl::new_dff(
   auto dff_id = mDffList.size();
 
   // 入力端子
-  SizeType input_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".input";
-    auto iname = buf.str();
-    auto node = new BnDataIn(iname, dff_id);
-    _reg_output(node);
-    input_id = node->id();
-  }
+  auto input_id = _new_data_in(name, dff_id);
 
   // 出力端子
-  SizeType output_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".output";
-    auto oname = buf.str();
-    auto node = new BnDataOut(oname, dff_id);
-    _reg_input(node);
-    output_id = node->id();
-  }
+  auto output_id = _new_data_out(name, dff_id);
 
   // クロック端子
-  SizeType clock_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".clock";
-    auto oname = buf.str();
-    auto node = new BnClock(oname, dff_id);
-    _reg_output(node);
-    clock_id = node->id();
-  }
+  auto clock_id = _new_clock(name, dff_id);
 
   // クリア端子
-  SizeType clear_id{BNET_NULLID};
-  if ( has_clear ) {
-    ostringstream buf;
-    buf << name << ".clear";
-    auto oname = buf.str();
-    auto node = new BnClear(oname, dff_id);
-    _reg_output(node);
-    clear_id = node->id();
-  }
+  auto clear_id = _new_clear(name, dff_id, has_clear);
 
   // プリセット端子
-  SizeType preset_id{BNET_NULLID};
-  if ( has_preset ) {
-    ostringstream buf;
-    buf << name << ".preset";
-    auto oname = buf.str();
-    auto node = new BnPreset(oname, dff_id);
-    _reg_output(node);
-    clear_id = node->id();
-  }
+  auto preset_id = _new_preset(name, dff_id, has_preset);
 
-  auto dff = new BnDffImpl(dff_id, name, input_id, output_id,
-			   clock_id, clear_id, preset_id, cpv);
+  auto dff = new BnDffImpl{dff_id, name, input_id, output_id,
+			   clock_id, clear_id, preset_id, cpv};
   mDffList.push_back(dff);
 
   return dff->id();
@@ -298,62 +258,22 @@ BnNetworkImpl::new_latch(
   auto dff_id = mDffList.size();
 
   // 入力端子
-  SizeType input_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".input";
-    auto iname = buf.str();
-    auto node = new BnDataIn(iname, dff_id);
-    _reg_output(node);
-    input_id = node->id();
-  }
+  auto input_id = _new_data_in(name, dff_id);
 
   // 出力端子
-  SizeType output_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".output";
-    auto oname = buf.str();
-    auto node = new BnDataOut(oname, dff_id);
-    _reg_input(node);
-    output_id = node->id();
-  }
+  auto output_id = _new_data_out(name, dff_id);
 
   // イネーブル端子
-  SizeType enable_id{BNET_NULLID};
-  {
-    ostringstream buf;
-    buf << name << ".enable";
-    auto oname = buf.str();
-    auto node = new BnClock(oname, dff_id);
-    _reg_output(node);
-    enable_id = node->id();
-  }
+  auto enable_id = _new_clock(name, dff_id);
 
   // クリア端子
-  SizeType clear_id{BNET_NULLID};
-  if ( has_clear ) {
-    ostringstream buf;
-    buf << name << ".clear";
-    auto oname = buf.str();
-    auto node = new BnClear(oname, dff_id);
-    _reg_output(node);
-    clear_id = node->id();
-  }
+  auto clear_id = _new_clear(name, dff_id, has_clear);
 
   // プリセット端子
-  SizeType preset_id{BNET_NULLID};
-  if ( has_preset ) {
-    ostringstream buf;
-    buf << name << ".preset";
-    auto oname = buf.str();
-    auto node = new BnPreset(oname, dff_id);
-    _reg_output(node);
-    clear_id = node->id();
-  }
+  auto preset_id = _new_preset(name, dff_id, has_preset);
 
-  auto dff = new BnLatchImpl(dff_id, name, input_id, output_id,
-			     enable_id, clear_id, preset_id, cpv);
+  auto dff = new BnLatchImpl{dff_id, name, input_id, output_id,
+			     enable_id, clear_id, preset_id, cpv};
   mDffList.push_back(dff);
 
   return dff_id;
@@ -385,29 +305,134 @@ BnNetworkImpl::new_dff_cell(
   SizeType ni = cell.input_num();
   vector<SizeType> input_list(ni);
   for ( SizeType i = 0; i < ni; ++ i ) {
-    ostringstream buf;
-    buf << name << ".input" << (i + 1);
-    auto oname = buf.str();
-    auto node = new BnCellInput(oname, dff_id, i);
-    _reg_output(node);
-    input_list[i] = node->id();
+    input_list[i] = _new_cell_input(name, dff_id, i);
   }
 
   SizeType no = cell.output_num();
   vector<SizeType> output_list(no);
   for ( SizeType i = 0; i < no; ++ i ) {
-    ostringstream buf;
-    buf << name << ".output" << (i + 1);
-    auto oname = buf.str();
-    auto node = new BnCellOutput(oname, dff_id, i);
-    _reg_input(node);
-    output_list[i] = node->id();
+    output_list[i] = _new_cell_output(name, dff_id, i);
   }
 
   auto dff = new BnDffCell{dff_id, name, cell_id, input_list, output_list};
   mDffList.push_back(dff);
 
   return dff_id;
+}
+
+// @brief data_in ノードを作る．
+SizeType
+BnNetworkImpl::_new_data_in(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".input";
+  auto iname = buf.str();
+  auto node = new BnDataIn{iname, dff_id};
+  _reg_output(node);
+  return node->id();
+}
+
+// @brief データ出力ノードを作る．
+SizeType
+BnNetworkImpl::_new_data_out(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".output";
+  auto oname = buf.str();
+  auto node = new BnDataOut{oname, dff_id};
+  _reg_input(node);
+  return node->id();
+}
+
+// @brief クロック端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_clock(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".clock";
+  auto oname = buf.str();
+  auto node = new BnClock{oname, dff_id};
+  _reg_output(node);
+  return node->id();
+}
+
+// @brief クリア端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_clear(
+  const string& dff_name,
+  SizeType dff_id,
+  bool has_clear
+)
+{
+  if ( has_clear ) {
+    ostringstream buf;
+    buf << dff_name << ".clear";
+    auto oname = buf.str();
+    auto node = new BnClear{oname, dff_id};
+    _reg_output(node);
+    return node->id();
+  }
+  return BNET_NULLID;
+}
+
+// @brief プリセット端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_preset(
+  const string& dff_name,
+  SizeType dff_id,
+  bool has_clear
+)
+{
+  if ( has_clear ) {
+    ostringstream buf;
+    buf << dff_name << ".preset";
+    auto oname = buf.str();
+    auto node = new BnPreset{oname, dff_id};
+    _reg_output(node);
+    return node->id();
+  }
+  return BNET_NULLID;
+}
+
+// @brief DFFセルの入力端子を作る．
+SizeType
+BnNetworkImpl::_new_cell_input(
+  const string& dff_name,
+  SizeType dff_id,
+  SizeType pos
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".input" << (pos + 1);
+  auto oname = buf.str();
+  auto node = new BnCellInput{oname, dff_id, pos};
+  _reg_output(node);
+  return node->id();
+}
+
+// @brief DFFセルの出力端子を作る．
+SizeType
+BnNetworkImpl::_new_cell_output(
+  const string& dff_name,
+  SizeType dff_id,
+  SizeType pos
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".output" << (pos + 1);
+  auto oname = buf.str();
+  auto node = new BnCellOutput{oname, dff_id, pos};
+  _reg_input(node);
+  return node->id();
 }
 
 // @brief 入出力混合のポートを作る．
@@ -427,7 +452,7 @@ BnNetworkImpl::new_port(
   auto port_id = mPortList.size();
   auto bit_width = dir_vect.size();
   vector<SizeType> bits(bit_width);
-  for ( auto i: Range(bit_width) ) {
+  for ( SizeType i: Range(bit_width) ) {
     string node_name;
     if ( bit_width > 1 ) {
       ostringstream buf;
@@ -438,12 +463,12 @@ BnNetworkImpl::new_port(
       node_name = port_name;
     }
     if ( dir_vect[i] == BnDir::INPUT ) {
-      auto node = new BnPortInput(node_name, port_id, i);
+      auto node = new BnPortInput{node_name, port_id, i};
       _reg_primary_input(node);
       bits[i] = node->id();
     }
     else { // BnDir::OUTPUT
-      auto node = new BnPortOutput(node_name, port_id, i);
+      auto node = new BnPortOutput{node_name, port_id, i};
       _reg_primary_output(node);
       bits[i] = node->id();
     }
@@ -451,10 +476,10 @@ BnNetworkImpl::new_port(
 
   BnPort* port;
   if ( bit_width == 1 ) {
-    port = new BnPort1(port_id, port_name, bits[0]);
+    port = new BnPort1{port_id, port_name, bits[0]};
   }
   else {
-    port = new BnPortN(port_id, port_name, bits);
+    port = new BnPortN{port_id, port_name, bits};
   }
   mPortList.push_back(port);
   mPortDict.emplace(port_name, port);

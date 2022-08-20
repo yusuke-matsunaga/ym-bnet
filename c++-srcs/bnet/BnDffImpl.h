@@ -128,6 +128,7 @@ public:
   ) : BnDffBase{id, name},
       mInput{input},
       mOutput{output},
+      mClock{clock},
       mClear{clear},
       mPreset{preset},
       mCPV{cpv}

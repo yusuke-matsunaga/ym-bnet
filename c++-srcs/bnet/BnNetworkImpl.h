@@ -619,6 +619,70 @@ private:
     vector<SizeType>& id_map ///< [out] 生成したノードの対応関係を記録するハッシュ表
   );
 
+  /// @brief データ入力ノードを作る．
+  /// @return 生成したノード番号を返す．
+  SizeType
+  _new_data_in(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id         ///< [in] DFF番号
+  );
+
+  /// @brief データ出力ノードを作る．
+  /// @return 生成したノード番号を返す．
+  SizeType
+  _new_data_out(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id         ///< [in] DFF番号
+  );
+
+  /// @brief クロック端子ノードを作る．
+  /// @return 生成したノード番号を返す．
+  SizeType
+  _new_clock(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id         ///< [in] DFF番号
+  );
+
+  /// @brief クリア端子ノードを作る．
+  /// @return 生成したノード番号を返す．
+  ///
+  /// has_clear が false の時は BNET_NULLID を返す．
+  SizeType
+  _new_clear(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id,        ///< [in] DFF番号
+    bool has_clear          ///< [in] クリア端子を持つ時 true
+  );
+
+  /// @brief プリセット端子ノードを作る．
+  /// @return 生成したノード番号を返す．
+  ///
+  /// has_clear が false の時は BNET_NULLID を返す．
+  SizeType
+  _new_preset(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id,        ///< [in] DFF番号
+    bool has_clear          ///< [in] クリア端子を持つ時 true
+  );
+
+  /// @brief DFFセルの入力端子を作る．
+  /// @return 生成したノード番号を返す．
+  SizeType
+  _new_cell_input(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id,        ///< [in] DFF番号
+    SizeType pos            ///< [in] ピン番号
+  );
+
+  /// @brief DFFセルの出力端子を作る．
+  /// @return 生成したノード番号を返す．
+  SizeType
+  _new_cell_output(
+    const string& dff_name, ///< [in] DFF名
+    SizeType dff_id,        ///< [in] DFF番号
+    SizeType pos            ///< [in] ピン番号
+  );
+
   /// @brief ノード番号が正しいかチェックする．
   bool
   _check_node_id(
