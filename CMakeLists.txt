@@ -83,6 +83,7 @@ set ( bnet_SOURCES
   c++-srcs/bnet/FuncAnalyzer.cc
   c++-srcs/bnet/read_truth.cc
   c++-srcs/bnet/simple_decomp.cc
+  c++-srcs/bnet/BinIO.cc
   )
 
 set ( iscas89_SOURCES

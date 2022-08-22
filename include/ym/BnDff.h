@@ -20,15 +20,27 @@ BEGIN_NAMESPACE_YM_BNET
 /// @sa BnNode
 ///
 /// このクラスは実体を持たない純粋仮想基底クラスである．
-/// 以下の情報を持つ．
+///
+/// 大きく分けて以下の3種類のタイプがある．
+/// - BnDffType::Dff: クリア・プリセット（オプション）付きのDフリップフロップ
+/// - BnDffType::Latch: クリア・プリセット（オプション）付きのラッチ
+/// - BnDffType::Cell: DFF/ラッチタイプのセル
+///
+/// Dff/Latch タイプの場合，予め定義された入出力端子を持つ．
+/// Cell タイプの場合，そのセルに応じた入出力端子を持つ．
+///
+/// 具体的には以下の情報を持つ．
 /// - ID番号: これは親の BnNetwork 内で唯一のもの．
 /// - 名前: 場合によっては空文字列となる．
-/// - 出力のノード番号
+/// - データ出力のノード番号
 /// - データ入力のノード番号
 /// - クロック/イネーブル入力のノード番号
 /// - クリア端子のノード番号: 場合によっては BNET_NULLID となる．
 /// - プリセット端子のノード番号: 場合によっては BNET_NULLID となる．
 /// - クリアとプリセットが衝突した場合の挙動
+/// - セルタイプの場合のセル番号
+/// - セルタイプの場合の入力端子のノード番号
+/// - セルタイプの場合の出力端子のノード番号
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {
@@ -145,14 +157,24 @@ public:
   SizeType
   cell_id() const = 0;
 
+  /// @brief セルに割り当てられている場合の入力端子数を返す．
+  virtual
+  SizeType
+  cell_input_num() const = 0;
+
   /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
   ///
   /// 入力端子だが実体は外部出力ノードとなる．
   virtual
   SizeType
   cell_input(
-    SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell_input_num() )
   ) const = 0;
+
+  /// @brief セルに割り当てられている場合の出力端子数を返す．
+  virtual
+  SizeType
+  cell_output_num() const = 0;
 
   /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
   ///
@@ -160,7 +182,7 @@ public:
   virtual
   SizeType
   cell_output(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell.output_num() )
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell_output_num() )
   ) const = 0;
 
 };

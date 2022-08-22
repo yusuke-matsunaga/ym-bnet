@@ -80,6 +80,13 @@ BnDffBase::cell_id() const
   return CLIB_NULLID;
 }
 
+// @brief セルに割り当てられている場合の入力端子数を返す．
+SizeType
+BnDffBase::cell_input_num() const
+{
+  return 0;
+}
+
 // @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
 SizeType
 BnDffBase::cell_input(
@@ -87,6 +94,13 @@ BnDffBase::cell_input(
 ) const
 {
   return BNET_NULLID;
+}
+
+// @brief セルに割り当てられている場合の出力端子数を返す．
+SizeType
+BnDffBase::cell_output_num() const
+{
+  return 0;
 }
 
 // @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
@@ -188,14 +202,28 @@ BnDffCell::cell_id() const
   return mCellId;
 }
 
+// @brief セルに割り当てられている場合の入力端子数を返す．
+SizeType
+BnDffCell::cell_input_num() const
+{
+  return mInputList.size();
+}
+
 // @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
 SizeType
 BnDffCell::cell_input(
   SizeType pos
 ) const
 {
-  ASSERT_COND( 0 <= pos && pos < mInputList.size() );
+  ASSERT_COND( 0 <= pos && pos < cell_input_num() );
   return mInputList[pos];
+}
+
+// @brief セルに割り当てられている場合の出力端子数を返す．
+SizeType
+BnDffCell::cell_output_num() const
+{
+  return mOutputList.size();
 }
 
 // @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
@@ -204,7 +232,7 @@ BnDffCell::cell_output(
   SizeType pos
 ) const
 {
-  ASSERT_COND( 0 <= pos && pos < mOutputList.size() );
+  ASSERT_COND( 0 <= pos && pos < cell_output_num() );
   return mOutputList[pos];
 }
 

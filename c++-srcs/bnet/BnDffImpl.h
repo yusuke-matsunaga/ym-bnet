@@ -79,11 +79,19 @@ public:
   SizeType
   cell_id() const override;
 
+  /// @brief セルに割り当てられている場合の入力端子数を返す．
+  SizeType
+  cell_input_num() const override;
+
   /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
   SizeType
   cell_input(
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
   ) const override;
+
+  /// @brief セルに割り当てられている場合の出力端子数を返す．
+  SizeType
+  cell_output_num() const override;
 
   /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
   SizeType
@@ -321,11 +329,19 @@ public:
   SizeType
   cell_id() const override;
 
+  /// @brief セルに割り当てられている場合の入力端子数を返す．
+  SizeType
+  cell_input_num() const override;
+
   /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
   SizeType
   cell_input(
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell.input_num() )
   ) const override;
+
+  /// @brief セルに割り当てられている場合の出力端子数を返す．
+  SizeType
+  cell_output_num() const override;
 
   /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
   SizeType
