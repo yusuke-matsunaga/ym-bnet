@@ -70,9 +70,9 @@ set ( blif_SOURCES
   )
 
 set ( bnet_SOURCES
+  c++-srcs/bnet/BinIO.cc
   c++-srcs/bnet/BnDffImpl.cc
   c++-srcs/bnet/BnNetwork.cc
-  c++-srcs/bnet/BnNetwork_dump_restore.cc
   c++-srcs/bnet/BnNetworkImpl.cc
   c++-srcs/bnet/BnNetworkImpl_copy.cc
   c++-srcs/bnet/BnNodeImpl.cc
@@ -83,7 +83,6 @@ set ( bnet_SOURCES
   c++-srcs/bnet/FuncAnalyzer.cc
   c++-srcs/bnet/read_truth.cc
   c++-srcs/bnet/simple_decomp.cc
-  c++-srcs/bnet/BinIO.cc
   )
 
 set ( iscas89_SOURCES

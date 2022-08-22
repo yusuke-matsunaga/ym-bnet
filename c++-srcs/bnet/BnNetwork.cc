@@ -555,6 +555,17 @@ BnNetwork::wrap_up()
   return mImpl->wrap_up();
 }
 
+// @brief BDDの情報を復元する．
+vector<Bdd>
+BnNetwork::restore_bdds(
+  BinDec& s
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->restore_bdds(s);
+}
+
 // @brief ファンインの接続を行う．
 void
 BnNetwork::connect_fanins(
