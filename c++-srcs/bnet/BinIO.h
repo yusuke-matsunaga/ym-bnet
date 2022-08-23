@@ -17,6 +17,8 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BnNetworkImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BinIO BinIO.h "BinIO.h"
 /// @brief BnNetwork のバイナリダンプ/リストアを行うクラス
@@ -48,7 +50,7 @@ public:
   void
   restore(
     BinDec& s,         ///< [in] 入力ストリーム
-    BnNetwork& network ///< [in] 対象のネットワーク
+    BnNetworkImpl* network_impl ///< [in] 対象のネットワーク
   );
 
 
@@ -69,7 +71,7 @@ private:
   void
   restore_dff(
     BinDec& s,         ///< [in] 入力ストリーム
-    BnNetwork& network ///< [in] 対象のネットワーク
+    BnNetworkImpl* network_impl ///< [in] 対象のネットワーク
   );
 
   /// @brief 論理ノードの内容をダンプする．
@@ -83,7 +85,7 @@ private:
   void
   restore_logic(
     BinDec& s,         ///< [in] 入力ストリーム
-    BnNetwork& network ///< [in] 対象のネットワーク
+    BnNetworkImpl* network_impl ///< [in] 対象のネットワーク
   );
 
 

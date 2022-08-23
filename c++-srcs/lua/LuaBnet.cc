@@ -9,6 +9,7 @@
 #include "ym/LuaBnet.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
+#include "ym/BnModifier.h"
 #include "ym/ClibCellLibrary.h"
 
 #include "ym/MsgMgr.h"
@@ -516,7 +517,9 @@ bnet_set_name(
   auto bnet = LuaBnet::to_bnet(L, 1);
   auto name = lua.to_string(2);
 
-  bnet->set_name(name);
+  BnModifier mod{std::move(*bnet)};
+  mod.set_name(name);
+  bnet->move(std::move(mod));
 
   lua.push_boolean(true);
   return 1;

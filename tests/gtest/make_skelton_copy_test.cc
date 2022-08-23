@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "ym/BnNetwork.h"
+#include "ym/BnModifier.h"
 #include "ym/BnPort.h"
 
 
@@ -19,8 +20,9 @@ TEST(BnNetworkTest, make_skelton_copy)
   string path = DATAPATH + filename;
   BnNetwork src_network = BnNetwork::read_blif(path);
 
-  unordered_map<SizeType, SizeType> node_map;
-  auto dst_network = src_network.make_skelton_copy(node_map);
+  BnModifier mod;
+  auto node_map = mod.make_skelton_copy(src_network);
+  BnNetwork dst_network{std::move(mod)};
 
   SizeType np = src_network.port_num();
   for ( SizeType i = 0; i < np; ++ i ) {

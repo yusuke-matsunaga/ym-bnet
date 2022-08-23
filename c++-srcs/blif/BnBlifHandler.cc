@@ -63,7 +63,7 @@ BnNetwork::read_blif(
   if ( _reset_name == string{} ) {
     _reset_name = "reset";
   }
-  BnBlifHandler handler(parser, network, _clock_name, _reset_name);
+  BnBlifHandler handler(parser, _clock_name, _reset_name);
 
   bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
@@ -71,13 +71,20 @@ BnNetwork::read_blif(
     throw BnetError{"Error in read_blif"};
   }
 
-  return network;
+  return handler.get_network();
 }
 
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnBlifHandler
 //////////////////////////////////////////////////////////////////////
+
+// @brief 結果のネットワークを返す．
+BnNetwork
+BnBlifHandler::get_network()
+{
+  return BnNetwork{std::move(mNetwork)};
+}
 
 // @brief 初期化
 bool
@@ -313,9 +320,7 @@ BnBlifHandler::end(
     }
   }
 
-  bool stat = mNetwork.wrap_up();
-
-  return stat;
+  return true;
 }
 
 // @brief name_id のノードを生成する．

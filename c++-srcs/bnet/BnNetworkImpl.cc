@@ -575,12 +575,56 @@ BnNetworkImpl::set_output(
   mSane = false;
 }
 
+BEGIN_NONAMESPACE
+
+inline
+string
+port_name(
+  const BnPort* port,
+  SizeType bit_pos
+)
+{
+  ostringstream buf;
+  buf << "Port#" << port->id()
+      << "(" << port->name() << ").bit["
+      << bit_pos << "]";
+  return buf.str();
+}
+
+inline
+string
+dff_name(
+  const BnDff* dff
+)
+{
+  ostringstream buf;
+  buf << "DFF#" << dff->id()
+      << "(" << dff->name() << ")";
+  return buf.str();
+}
+
+inline
+string
+node_fanin_name(
+  const BnNodeImpl* node,
+  SizeType ipos
+)
+{
+  ostringstream buf;
+  buf << "NODE#" << node->id()
+      << "(" << node->name() << ").fanin["
+      << ipos << "]";
+  return buf.str();
+}
+
+END_NONAMESPACE
+
 // @brief 整合性のチェックを行う．
-bool
+void
 BnNetworkImpl::wrap_up()
 {
   if ( mSane ) {
-    return true;
+    return;
   }
 
   bool error = false;
@@ -590,131 +634,129 @@ BnNetworkImpl::wrap_up()
     for ( auto i: Range(port_p->bit_width()) ) {
       auto id = port_p->bit(i);
       if ( id == BNET_NULLID ) {
-	cerr << "Port#" << port_p->id() << "(" << port_p->name() << ").bit["
-	     << i << "] is not set" << endl;
+	cerr << port_name(port_p, i)
+	     << " is not set" << endl;
 	error = true;
       }
       else if ( !_check_node_id(id) ) {
-	cerr << "Port#" << port_p->id() << "(" << port_p->name() << ").bit["
-	     << i << "] is not valid" << endl;
+	cerr << port_name(port_p, i)
+	     << " is not valid" << endl;
 	error = true;
       }
     }
   }
 
   // DFF のチェック
-#warning "TODO: type() 別のコード"
   for ( auto dff_p: mDffList ) {
-    auto id1 = dff_p->data_in();
-    if ( id1 == BNET_NULLID ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").input is not set" << endl;
-      error = true;
+    if ( dff_p->is_dff() || dff_p->is_latch() ) {
+      { // data_in
+	auto id1 = dff_p->data_in();
+	if ( id1 == BNET_NULLID ) {
+	  cerr << dff_name(dff_p)
+	       << ".data_in is not set" << endl;
+	  error = true;
+	}
+	else if ( !_check_node_id(id1) ) {
+	  cerr << dff_name(dff_p)
+	       << ".data_in is not valid" << endl;
+	  error = true;
+	}
+      }
+      { // data_out
+	auto id2 = dff_p->data_out();
+	if ( id2 == BNET_NULLID ) {
+	  cerr << dff_name(dff_p)
+	       << ".data_out is not set" << endl;
+	  error = true;
+	}
+	else if ( !_check_node_id(id2) ) {
+	  cerr << dff_name(dff_p)
+	       << ".data_out is not valid" << endl;
+	  error = true;
+	}
+      }
+      { // clock
+	auto id3 = dff_p->clock();
+	if ( id3 == BNET_NULLID ) {
+	  cerr << dff_name(dff_p)
+	       << ".clock is not set" << endl;
+	  error = true;
+	}
+	else if ( !_check_node_id(id3) ) {
+	  cerr << dff_name(dff_p)
+	       << ".clock is not valid" << endl;
+	  error = true;
+	}
+      }
+      { // clear
+	auto id4 = dff_p->clear();
+	if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
+	  cerr << dff_name(dff_p)
+	       << ".clear is not valid" << endl;
+	  error = true;
+	}
+      }
+      { // preset
+	auto id5 = dff_p->preset();
+	if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
+	  cerr << dff_name(dff_p)
+	       << ".preset is not valid" << endl;
+	  error = true;
+	}
+      }
     }
-    else if ( !_check_node_id(id1) ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").input is not valid" << endl;
-      error = true;
-    }
-    auto id2 = dff_p->data_out();
-    if ( id2 == BNET_NULLID ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").output is not set" << endl;
-      error = true;
-    }
-    else if ( !_check_node_id(id2) ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").output is not valid" << endl;
-      error = true;
-    }
-    auto id3 = dff_p->clock();
-    if ( id3 == BNET_NULLID ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clock is not set" << endl;
-      error = true;
-    }
-    else if ( !_check_node_id(id3) ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clock is not valid" << endl;
-      error = true;
-    }
-    auto id4 = dff_p->clear();
-    if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").clear is not valid" << endl;
-      error = true;
-    }
-    auto id5 = dff_p->preset();
-    if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
-      cerr << "DFF#" << dff_p->id() << "(" << dff_p->name() << ").preset is not valid" << endl;
-      error = true;
+    else if ( dff_p->is_cell() ) {
+      SizeType ni = dff_p->cell_input_num();
+      for ( SizeType i = 0; i < ni; ++ i ) {
+	auto id = dff_p->cell_input(i);
+	if ( id == BNET_NULLID ) {
+	  cerr << dff_name(dff_p)
+	       << ".input" << i << " is not set" << endl;
+	  error = true;
+	}
+	else if ( !_check_node_id(id) ) {
+	  cerr << dff_name(dff_p)
+	       << ".input" << i << " is not valid" << endl;
+	  error = true;
+	}
+      }
+      SizeType no = dff_p->cell_output_num();
+      for ( SizeType i = 0; i < no; ++ i ) {
+	auto id = dff_p->cell_output(i);
+	if ( id == BNET_NULLID ) {
+	  cerr << dff_name(dff_p)
+	       << ".output" << i << " is not set" << endl;
+	  error = true;
+	}
+	else if ( !_check_node_id(id) ) {
+	  cerr << dff_name(dff_p)
+	       << ".output" << i << " is not valid" << endl;
+	  error = true;
+	}
+      }
     }
   }
-
-#if 0
-  // ラッチのチェック
-  for ( auto latch_p: mLatchList ) {
-    auto id1 = latch_p->input();
-    if ( id1 == BNET_NULLID ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").input is not set" << endl;
-      error = true;
-    }
-    else if ( !_check_node_id(id1) ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").input is not valid" << endl;
-      error = true;
-    }
-    auto id2 = latch_p->output();
-    if ( id2 == BNET_NULLID ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").output is not set" << endl;
-      error = true;
-    }
-    else if ( !_check_node_id(id2) ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").output is not valid" << endl;
-      error = true;
-    }
-    auto id3 = latch_p->enable();
-    if ( id3 == BNET_NULLID ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").enable is not set" << endl;
-      error = true;
-    }
-    else if ( !_check_node_id(id3) ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").enable is not valid" << endl;
-      error = true;
-    }
-    auto id4 = latch_p->clear();
-    if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").clear is not valid" << endl;
-      error = true;
-    }
-    auto id5 = latch_p->preset();
-    if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
-      cerr << "LATCH#" << latch_p->id()
-	   << "(" << latch_p->name() << ").preset is not valid" << endl;
-      error = true;
-    }
-  }
-#endif
 
   // ノードのチェック
   for ( auto node_p: mNodeList ) {
     for ( auto i: Range(node_p->fanin_num()) ) {
       auto id = node_p->fanin_id(i);
       if ( id == BNET_NULLID ) {
-	cerr << "NODE#" << node_p->id() << "(" << node_p->name() << ").fanin["
-	     << i << "] is not set" << endl;
-	error = true;
+	if ( node_p->is_logic() ) {
+	  cerr << node_fanin_name(node_p, i)
+	       << " is not set" << endl;
+	  error = true;
+	}
       }
       else if ( !_check_node_id(id) ) {
-	cerr << "NODE#" << node_p->id() << "(" << node_p->name() << ").fanin["
-	     << i << "] is not valid" << endl;
+	cerr << node_fanin_name(node_p, i)
+	     << " is not valid" << endl;
 	error = true;
       }
     }
   }
 
-  if ( error ) {
-    return false;
-  }
+  ASSERT_COND( !error );
 
   // 各ノードのファンアウトリストの作成
   for ( auto node_p: mNodeList ) {
@@ -722,8 +764,10 @@ BnNetworkImpl::wrap_up()
   }
   for ( auto node_p: mNodeList ) {
     for ( auto id: node_p->fanin_id_list() ) {
-      auto src_node_p = _node_p(id);
-      src_node_p->add_fanout(node_p->id());
+      if ( id != BNET_NULLID ) {
+	auto src_node_p = _node_p(id);
+	src_node_p->add_fanout(node_p->id());
+      }
     }
   }
 
@@ -801,8 +845,6 @@ BnNetworkImpl::wrap_up()
   }
 
   mSane = true;
-
-  return true;
 }
 
 // @brief 実装可能な構造を持っている時 true を返す．

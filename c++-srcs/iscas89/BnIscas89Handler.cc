@@ -33,26 +33,31 @@ BnNetwork::read_iscas89(
 )
 {
   Iscas89Parser parser;
-  BnNetwork network;
   string _clock_name{clock_name};
   if ( _clock_name == string{} ) {
     _clock_name = "clock";
   }
-  BnIscas89Handler handler{parser, network, _clock_name};
+  BnIscas89Handler handler{parser, _clock_name};
 
   bool stat = parser.read(filename);
   if ( !stat ) {
-    network.clear();
     throw BnetError{"Error in read_iscas89"};
   }
 
-  return network;
+  return handler.get_network();
 }
 
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnIscas89Handler
 //////////////////////////////////////////////////////////////////////
+
+// @brief 結果のネットワークを取り出す．
+BnNetwork
+BnIscas89Handler::get_network()
+{
+  return BnNetwork{std::move(mNetwork)};
+}
 
 // @brief 初期化
 // @retval true 処理が成功した．
@@ -203,8 +208,7 @@ BnIscas89Handler::end()
       mNetwork.set_output(id, inode_id);
     }
   }
-  bool stat = mNetwork.wrap_up();
-  return stat;
+  return true;
 }
 
 // @brief name_id のノードを生成する．

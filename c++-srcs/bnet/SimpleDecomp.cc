@@ -9,49 +9,22 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
 #include "ym/Range.h"
+#include "SimpleDecomp.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-class Decomp
-{
-public:
-
-  Decomp(
-    BnNetwork& network,
-    const BnNode& node
-  );
-
-  ~Decomp() = default;
-
-
-public:
-
-  /// @brief 論理式を分解する．
-  SizeType
-  decomp_expr(
-    SizeType id,
-    const Expr& expr
-  );
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ネットワーク
-  BnNetwork& mNetwork;
-
-  // 入力のノード番号
-  vector<SizeType> mTermList;
-
-};
-
-
 // @brief 単純なノードに分解する．
+BnNetwork
+BnNetwork::simple_decomp() const
+{
+  SimpleDecomp op;
+  return BnNetwork{std::move(op)};
+}
+
+// @brief 各ノードが simple primitive になるように分解する．
 void
-BnNetwork::simple_decomp()
+SimpleDecomp::decomp()
 {
   // 分解するノードのリストを作る．
   vector<SizeType> node_id_list;
@@ -66,31 +39,30 @@ BnNetwork::simple_decomp()
   // node_list の各ノードを分解する．
   for ( auto id: node_id_list ) {
     auto& node = this->node(id);
-    const Expr& expr = this->expr(node.expr_id());
-    SizeType ni = expr.input_size();
-    Decomp decomp{*this, node};
-    decomp.decomp_expr(id, expr);
+    decomp_node(node);
   }
-
-  wrap_up();
 }
 
-Decomp::Decomp(
-  BnNetwork& network,
+// @brief ノードを分解する．
+void
+SimpleDecomp::decomp_node(
   const BnNode& node
-) : mNetwork{network},
-    mTermList(node.fanin_num(), BNET_NULLID)
+)
 {
   SizeType ni = node.fanin_num();
+  mTermList.clear();
+  mTermList.resize(ni * 2, BNET_NULLID);
   for ( SizeType i = 0; i < ni; ++ i ) {
     auto iid = node.fanin_id(i);
     mTermList[i * 2 + 0] = iid;
   }
+  const Expr& expr = this->expr(node.expr_id());
+  decomp_expr(node.id(), expr);
 }
 
 // @brief 論理式型のノードを分解する．
 SizeType
-Decomp::decomp_expr(
+SimpleDecomp::decomp_expr(
   SizeType id,
   const Expr& expr
 )
@@ -104,8 +76,7 @@ Decomp::decomp_expr(
     VarId varid = expr.varid();
     auto index = varid.val() * 2 + 1;
     if ( mTermList[index] == BNET_NULLID ) {
-      mTermList[index] = mNetwork.new_not(string(),
-					  mTermList[index - 1]);
+      mTermList[index] = new_not(string{}, mTermList[index - 1]);
     }
     return mTermList[index];
   }
@@ -133,10 +104,10 @@ Decomp::decomp_expr(
   }
 
   if ( id == BNET_NULLID ) {
-    id = mNetwork.new_logic(string(), node_type, new_fanin_list);
+    id = new_logic(string(), node_type, new_fanin_list);
   }
   else {
-    mNetwork.change_primitive(id, node_type, new_fanin_list);
+    change_primitive(id, node_type, new_fanin_list);
   }
   return id;
 }

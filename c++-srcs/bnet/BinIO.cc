@@ -12,6 +12,7 @@
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
 #include "ym/Range.h"
+#include "BnNetworkImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -226,7 +227,7 @@ BinIO::dump_logic(
 void
 BinIO::restore(
   BinDec& s,
-  BnNetwork& network
+  BnNetworkImpl* network_impl
 )
 {
   // シグネチャ
@@ -236,7 +237,7 @@ BinIO::restore(
 
   // 名前
   auto name = s.read_string();
-  network.set_name(name);
+  network_impl->set_name(name);
 
   // 論理式
   SizeType ne = s.read_vint();
@@ -255,7 +256,7 @@ BinIO::restore(
   }
 
   // Bdd
-  mBddList = network.restore_bdds(s);
+  mBddList = network_impl->restore_bdds(s);
 
   mNodeMap.clear();
 
@@ -271,8 +272,8 @@ BinIO::restore(
       dir_vect[j] = static_cast<BnDir>(dir);
       id_list[j] = s.read_vint();
     }
-    SizeType id = network.new_port(name, dir_vect);
-    auto& port = network.port(id);
+    SizeType id = network_impl->new_port(name, dir_vect);
+    auto& port = network_impl->port(id);
     for ( SizeType j = 0; j < nb; ++ j ) {
       SizeType dst_id = port.bit(j);
       mNodeMap[id_list[j]] = dst_id;
@@ -282,13 +283,13 @@ BinIO::restore(
   // D-FF
   SizeType ndff = s.read_vint();
   for ( SizeType i = 0; i < ndff; ++ i ) {
-    restore_dff(s, network);
+    restore_dff(s, network_impl);
   }
 
   // 論理ノード
   SizeType nl = s.read_vint();
   for ( SizeType i = 0; i < nl; ++ i ) {
-    restore_logic(s, network);
+    restore_logic(s, network_impl);
   }
 
   // 出力ノード
@@ -298,18 +299,18 @@ BinIO::restore(
     ASSERT_COND( mNodeMap.count(src_output_id) > 0 );
     SizeType src_input_id = s.read_vint();
     if ( src_input_id != BNET_NULLID ) {
-      network.set_output(mNodeMap[src_output_id], mNodeMap[src_input_id]);
+      network_impl->set_output(mNodeMap[src_output_id], mNodeMap[src_input_id]);
     }
   }
 
-  network.wrap_up();
+  network_impl->wrap_up();
 }
 
 // @brief DFFを復元する．
 void
 BinIO::restore_dff(
   BinDec& s,
-  BnNetwork& network
+  BnNetworkImpl* network_impl
 )
 {
   auto name = s.read_string();
@@ -325,12 +326,12 @@ BinIO::restore_dff(
     // clear_preset_value()
     SizeType id;
     if ( type == 0 ) {
-      id = network.new_dff(name, has_clear, has_preset);
+      id = network_impl->new_dff(name, has_clear, has_preset);
     }
     else {
-      id = network.new_latch(name, has_clear, has_preset);
+      id = network_impl->new_latch(name, has_clear, has_preset);
     }
-    auto& dff = network.dff(id);
+    auto& dff = network_impl->dff(id);
     mNodeMap[src_input_id] = dff.data_in();
     mNodeMap[src_output_id] = dff.data_out();
     mNodeMap[src_clock_id] = dff.clock();
@@ -343,8 +344,8 @@ BinIO::restore_dff(
   }
   else if ( type == 3 ) {
     SizeType cell_id = s.read_vint();
-    SizeType id = network.new_dff_cell(name, cell_id);
-    auto& dff = network.dff(id);
+    SizeType id = network_impl->new_dff_cell(name, cell_id);
+    auto& dff = network_impl->dff(id);
     SizeType ni = s.read_vint();
     for ( SizeType i = 0; i < ni; ++ i ) {
       auto src_id = s.read_vint();
@@ -362,7 +363,7 @@ BinIO::restore_dff(
 void
 BinIO::restore_logic(
   BinDec& s,
-  BnNetwork& network
+  BnNetworkImpl* network_impl
 )
 {
   SizeType id = s.read_vint();
@@ -394,25 +395,25 @@ BinIO::restore_logic(
   default: break;
   }
   if ( type != BnNodeType::None ) {
-    node_id = network.new_logic(name, type, fanin_id_list);
+    node_id = network_impl->new_primitive(name, type, fanin_id_list);
   }
   else if ( type_code == 11 ) {
     // Expr
     SizeType id = s.read_vint();
     auto& expr = mExprList[id];
-    node_id = network.new_logic(name, expr, fanin_id_list);
+    node_id = network_impl->new_expr(name, expr, fanin_id_list);
   }
   else if ( type_code == 12 ) {
     // TvFunc
     SizeType id = s.read_vint();
     auto& func = mFuncList[id];
-    node_id = network.new_logic(name, func, fanin_id_list);
+    node_id = network_impl->new_tv(name, func, fanin_id_list);
   }
   else if ( type_code == 13 ) {
     // Bdd
     SizeType id = s.read_vint();
     auto bdd = mBddList[id];
-    node_id = network.new_logic(name, bdd, fanin_id_list);
+    node_id = network_impl->new_bdd(name, bdd, fanin_id_list);
   }
   mNodeMap[id] = node_id;
 }
@@ -440,7 +441,7 @@ BnNetwork::restore(
 {
   BinIO bio;
   BnNetwork network;
-  bio.restore(s, network);
+  bio.restore(s, network.mImpl.get());
   return network;
 }
 

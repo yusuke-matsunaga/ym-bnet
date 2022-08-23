@@ -10,25 +10,20 @@
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "AigReader.h"
+#include "Aig2Bnet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
-BEGIN_NONAMESPACE
-
 // Aig を BnNetwork に変換する．
-BnNetwork
-aig2bnet(
+void
+Aig2Bnet::conv(
   const AigReader& aig,
   const string& clock_name,
   const string& reset_name
 )
 {
-  // 結果のネットワーク
-  BnNetwork network;
-
-  // AIG のリテラルと BnNetwork のノード番号の対応表
-  unordered_map<SizeType, SizeType> lit_map;
+  mLitMap.clear();
 
   SizeType ni = aig.I();
   SizeType no = aig.O();
@@ -43,11 +38,11 @@ aig2bnet(
       buf << "i" << i;
       name = buf.str();
     }
-    auto id = network.new_input_port(name);
-    const auto& port = network.port(id);
+    auto id = new_input_port(name);
+    const auto& port = this->port(id);
     auto node_id = port.bit(0);
     auto lit = aig.input(i);
-    lit_map.emplace(lit, node_id);
+    mLitMap.emplace(lit, node_id);
   }
 
   // 出力ポートの生成
@@ -59,8 +54,8 @@ aig2bnet(
       buf << "o" << i;
       name = buf.str();
     }
-    auto id = network.new_output_port(name);
-    const auto& port = network.port(id);
+    auto id = new_output_port(name);
+    const auto& port = this->port(id);
     auto node_id = port.bit(0);
     output_list[i] = node_id;
   }
@@ -71,12 +66,12 @@ aig2bnet(
   SizeType reset_id{BNET_NULLID};
   if ( nl > 0 ) {
     // クロック入力の生成
-    auto clock_port_id = network.new_input_port(clock_name);
-    const auto& clock_port = network.port(clock_port_id);
+    auto clock_port_id = new_input_port(clock_name);
+    const auto& clock_port = this->port(clock_port_id);
     clock_id = clock_port.bit(0);
     // リセット入力の生成
-    auto reset_port_id = network.new_input_port(reset_name);
-    const auto& reset_port = network.port(reset_port_id);
+    auto reset_port_id = new_input_port(reset_name);
+    const auto& reset_port = this->port(reset_port_id);
     reset_id = reset_port.bit(0);
   }
   for ( SizeType i = 0; i < nl; ++ i ) {
@@ -86,13 +81,13 @@ aig2bnet(
       buf << "l" << i;
       name = buf.str();
     }
-    auto id = network.new_dff(name, true);
-    const auto& dff = network.dff(id);
-    network.set_output(dff.clock(), clock_id);
-    network.set_output(dff.clear(), reset_id);
+    auto id = new_dff(name, true);
+    const auto& dff = this->dff(id);
+    set_output(dff.clock(), clock_id);
+    set_output(dff.clear(), reset_id);
     auto node_id = dff.data_out();
     auto lit = aig.latch(i);
-    lit_map.emplace(lit, node_id);
+    mLitMap.emplace(lit, node_id);
     latch_list[i] = dff.data_in();
   }
 
@@ -113,9 +108,9 @@ aig2bnet(
     auto lit = aig.input(i);
     auto lit1 = lit ^ 1UL;
     if ( req_map[lit1] ) {
-      auto src_id = lit_map.at(lit);
-      auto id1 = network.new_not(string{}, src_id);
-      lit_map.emplace(lit1, id1);
+      auto src_id = mLitMap.at(lit);
+      auto id1 = new_not(string{}, src_id);
+      mLitMap.emplace(lit1, id1);
     }
   }
 
@@ -127,35 +122,35 @@ aig2bnet(
     auto src2 = aig.and_src2(i);
 
     auto l1 = Expr::make_posi_literal(VarId{0});
-    if ( lit_map.count(src1) == 0 ) {
+    if ( mLitMap.count(src1) == 0 ) {
       l1 = ~l1;
       src1 ^= 1UL;
     }
-    ASSERT_COND( lit_map.count(src1) > 0 );
-    SizeType i1 = lit_map.at(src1);
+    ASSERT_COND( mLitMap.count(src1) > 0 );
+    SizeType i1 = mLitMap.at(src1);
 
     auto l2 = Expr::make_posi_literal(VarId{1});
-    if ( lit_map.count(src2) == 0 ) {
+    if ( mLitMap.count(src2) == 0 ) {
       l2 = ~l2;
       src2 ^= 1UL;
     }
-    ASSERT_COND( lit_map.count(src2) > 0 );
-    SizeType i2 = lit_map.at(src2);
+    ASSERT_COND( mLitMap.count(src2) > 0 );
+    SizeType i2 = mLitMap.at(src2);
 
     auto expr = l1 & l2;
     auto lit = aig.and_node(i);
     auto lit1 = lit ^ 1UL;
     if ( !req_map[lit] && req_map[lit1] ) {
       expr = ~expr;
-      auto id1 = network.new_logic(buf.str(), expr, {i1, i2});
-      lit_map.emplace(lit1, id1);
+      auto id1 = new_logic(buf.str(), expr, {i1, i2});
+      mLitMap.emplace(lit1, id1);
     }
     else {
-      auto id = network.new_logic(buf.str(), expr, {i1, i2});
-      lit_map.emplace(lit, id);
+      auto id = new_logic(buf.str(), expr, {i1, i2});
+      mLitMap.emplace(lit, id);
       if ( req_map[lit1] ) {
-	auto id1 = network.new_not(string{}, id);
-	lit_map.emplace(lit1, id1);
+	auto id1 = new_not(string{}, id);
+	mLitMap.emplace(lit1, id1);
       }
     }
   }
@@ -163,24 +158,19 @@ aig2bnet(
   // 出力の接続
   for ( SizeType i = 0; i < no; ++ i ) {
     auto src_lit = aig.output_src(i);
-    ASSERT_COND ( lit_map.count(src_lit) >  0 );
-    auto src_id = lit_map.at(src_lit);
-    network.set_output(output_list[i], src_id);
+    ASSERT_COND ( mLitMap.count(src_lit) >  0 );
+    auto src_id = mLitMap.at(src_lit);
+    set_output(output_list[i], src_id);
   }
 
   // ラッチの入力の接続
   for ( SizeType i = 0; i < nl; ++ i ) {
     auto src_lit = aig.latch_src(i);
-    ASSERT_COND( lit_map.count(src_lit) > 0 );
-    auto src_id = lit_map.at(src_lit);
-    network.set_output(latch_list[i], src_id);
+    ASSERT_COND( mLitMap.count(src_lit) > 0 );
+    auto src_id = mLitMap.at(src_lit);
+    set_output(latch_list[i], src_id);
   }
-  network.wrap_up();
-
-  return network;
 }
-
-END_NONAMESPACE
 
 // @brief .aag 形式のファイルを読み込む．
 BnNetwork
@@ -195,7 +185,9 @@ BnNetwork::read_aag(
     throw BnetError{"Error in read_aag"};
   }
 
-  return aig2bnet(aig, clock_name, reset_name);
+  Aig2Bnet op;
+  op.conv(aig, clock_name, reset_name);
+  return BnNetwork{std::move(op)};
 }
 
 // @brief .aig 形式のファイルを読み込む．
@@ -211,7 +203,9 @@ BnNetwork::read_aig(
     throw BnetError{"Error in read_aag"};
   }
 
-  return aig2bnet(aig, clock_name, reset_name);
+  Aig2Bnet op;
+  op.conv(aig, clock_name, reset_name);
+  return BnNetwork{std::move(op)};
 }
 
 END_NAMESPACE_YM_BNET

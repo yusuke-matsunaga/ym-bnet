@@ -62,6 +62,13 @@ public:
     const BnNetworkImpl& src ///< [in] コピー元のオブジェクト
   );
 
+  /// @brief ポートの情報のみをコピーする．
+  /// @return ノード番号の対応関係を返す．
+  unordered_map<SizeType, SizeType>
+  make_skelton_copy(
+    const BnNetworkImpl& src ///< [in] コピー元のオブジェクト
+  );
+
   /// @brief セルライブラリをセットする．
   void
   set_library(
@@ -75,6 +82,7 @@ public:
   );
 
   /// @brief 部分回路を追加する．
+  /// @return src_network の出力に対応するノード番号のリストを返す．
   ///
   /// * src_network は wrap_up() されている必要がある．
   /// * src_network のポートの情報は失われる．
@@ -83,6 +91,34 @@ public:
   import_subnetwork(
     const BnNetworkImpl& src_network,  ///< [in] 追加する部分回路
     const vector<SizeType>& input_list ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
+  );
+
+  /// @brief ポートの情報をコピーする．
+  /// @return 生成したポートのポート番号を返す．
+  SizeType
+  copy_port(
+    const BnPort& src_port,                   ///< [in] コピー元のオブジェクト
+    const BnNetworkImpl& src_network,         ///< [in] 元のネットワーク
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
+  );
+
+  /// @brief DFFの情報をコピーする．
+  /// @return 生成したDFFのDFF番号を返す．
+  SizeType
+  copy_dff(
+    const BnDff& src_dff,                     ///< [in] コピー元のオブジェクト
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
+  );
+
+  /// @brief 論理ノードを複製する．
+  /// @return 生成したノード番号を返す．
+  ///
+  /// id_map の内容の基づいてファンイン間の接続を行う．
+  SizeType
+  copy_logic(
+    const BnNode& src_node,           ///< [in] 元のノード
+    const BnNetworkImpl& src_network, ///< [in] 元のネットワーク
+    unordered_map<SizeType, SizeType>& id_map ///< [out] 生成したノードの対応関係を記録するハッシュ表
   );
 
   /// @brief 入出力混合のポートを作る．
@@ -344,7 +380,6 @@ public:
   );
 
   /// @brief 整合性のチェックを行う．
-  /// @return チェック結果を返す．
   ///
   /// チェック項目は以下の通り
   /// - name() が設定されているか？
@@ -357,7 +392,7 @@ public:
   ///
   /// この関数を呼んだあとは論理ノードがトポロジカルソートされる．
   /// というかこの関数を呼ばないと logic_num(), logic() は正しくない．
-  bool
+  void
   wrap_up();
 
   /// @brief BDDの情報を復元する．
@@ -611,14 +646,6 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief DFFを複製する．
-  /// @return 生成した DFF 番号を返す．
-  SizeType
-  _copy_dff(
-    const BnDff& src_dff,    ///< [in] 元のDFF
-    vector<SizeType>& id_map ///< [out] 生成したノードの対応関係を記録するハッシュ表
-  );
-
   /// @brief データ入力ノードを作る．
   /// @return 生成したノード番号を返す．
   SizeType
@@ -765,17 +792,6 @@ private:
     _reg_output(node);
     mPrimaryOutputList.push_back(node->id());
   }
-
-  /// @brief 論理ノードを複製する．
-  /// @return 生成したノード番号を返す．
-  ///
-  /// id_map の内容の基づいてファンイン間の接続を行う．
-  SizeType
-  _copy_logic(
-    const BnNode& src_node,           ///< [in] 元のノード
-    const BnNetworkImpl& src_network, ///< [in] 元のネットワーク
-    vector<SizeType>& id_map          ///< [out] 生成したノードの対応関係を記録するハッシュ表
-  );
 
   /// @brief 既存の論理ノードを変更する最も低レベルの関数
   ///

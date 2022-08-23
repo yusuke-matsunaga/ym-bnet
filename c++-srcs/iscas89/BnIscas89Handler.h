@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "Iscas89Handler.h"
+#include "ym/BnModifier.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -25,16 +26,24 @@ public:
   /// @brief コンストラクタ
   BnIscas89Handler(
     Iscas89Parser& parser,             ///< [in] パーサー
-    BnNetwork& network,                ///< [in] 設定対象のネットワーク
     const string& clock_name = "clock" ///< [in] クロック端子名
   ) : Iscas89Handler{parser},
-      mNetwork{network},
       mClockName{clock_name}
   {
   }
 
   /// @brief デストラクタ
   ~BnIscas89Handler() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 結果のネットワークを取り出す．
+  BnNetwork
+  get_network();
 
 
 public:
@@ -158,7 +167,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ネットワーク
-  BnNetwork& mNetwork;
+  BnModifier mNetwork;
 
   // クロック端子名
   string mClockName;

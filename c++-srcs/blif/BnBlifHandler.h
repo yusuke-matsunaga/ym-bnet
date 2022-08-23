@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "BlifHandler.h"
+#include "ym/BnModifier.h"
 #include "ym/Expr.h"
 
 
@@ -26,11 +27,9 @@ public:
   /// @brief コンストラクタ
   BnBlifHandler(
     BlifParser& parser,                 ///< [in] パーサー
-    BnNetwork& network,                 ///< [in] ネットワーク
     const string& clock_name = "clock", ///< [in] クロック端子名
     const string& reset_name = "reset"  ///< [in] リセット端子名
   ) : BlifHandler{parser},
-      mNetwork{network},
       mClockName{clock_name},
       mResetName{reset_name}
   {
@@ -38,6 +37,16 @@ public:
 
   /// @brief デストラクタ
   ~BnBlifHandler() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 結果のネットワークを返す．
+  BnNetwork
+  get_network();
 
 
 public:
@@ -168,7 +177,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ネットワーク
-  BnNetwork& mNetwork;
+  BnModifier mNetwork;
 
   // クロック端子名
   string mClockName;

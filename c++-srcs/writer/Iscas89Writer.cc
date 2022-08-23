@@ -72,8 +72,7 @@ BnNetwork::write_iscas89(
   }
   if ( ng ) {
     // iscas89 フォーマットに合うように変形する
-    BnNetwork network(*this);
-    network.simple_decomp();
+    auto network = simple_decomp();
     Iscas89Writer writer(network, prefix, suffix);
     writer(s);
     return;

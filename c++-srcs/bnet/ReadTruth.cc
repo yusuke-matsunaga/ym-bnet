@@ -1,11 +1,12 @@
 
-/// @file read_truth.cc
-/// @brief read_truth の実装ファイル
+/// @file ReadTruth.cc
+/// @brief ReadTruth の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "ReadTruth.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BddMgr.h"
@@ -25,6 +26,18 @@ BnNetwork::read_truth(
     throw BnetError{"Error in read_truth"};
   }
 
+  ReadTruth op;
+  op.read(s);
+  return BnNetwork{std::move(op)};
+}
+
+
+// @brief 真理値表形式のファイルを読み込む．
+void
+ReadTruth::read(
+  istream& s
+)
+{
   BddMgr mgr;
   vector<Bdd> func_vect;
   string line;
@@ -41,7 +54,6 @@ BnNetwork::read_truth(
   }
   ASSERT_COND( (1 << ni) == ni_exp );
 
-  BnNetwork network;
   SizeType no = func_vect.size();
   if ( no > 0 ) {
     // 入力ポートの生成
@@ -49,8 +61,8 @@ BnNetwork::read_truth(
     for ( SizeType i = 0; i < ni; ++ i ) {
       ostringstream buf;
       buf << "i" << i;
-      auto port_id = network.new_input_port(buf.str());
-      const auto& port = network.port(port_id);
+      auto port_id = new_input_port(buf.str());
+      const auto& port = this->port(port_id);
       input_list[i] = port.bit(0);
     }
     // 出力ポートの生成
@@ -58,8 +70,8 @@ BnNetwork::read_truth(
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "o" << i;
-      auto port_id = network.new_output_port(buf.str());
-      const auto& port = network.port(port_id);
+      auto port_id = new_output_port(buf.str());
+      const auto& port = this->port(port_id);
       output_list[i] = port.bit(0);
     }
     // 論理ノードの生成
@@ -73,15 +85,11 @@ BnNetwork::read_truth(
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "l" << i;
-      auto node_id = network.new_logic(buf.str(), func_vect[i],
-				       fanin_id_list);
-      network.set_output(output_list[i], node_id);
-    }
-    if ( !network.wrap_up() ) {
-      throw BnetError{"Error in read_truth"};
+      auto node_id = new_logic(buf.str(), func_vect[i],
+			       fanin_id_list);
+      set_output(output_list[i], node_id);
     }
   }
-  return network;
 }
 
 END_NAMESPACE_YM_BNET

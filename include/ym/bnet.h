@@ -34,6 +34,7 @@ class BnNetwork;
 class BnPort;
 class BnDff;
 class BnNode;
+class BnModifier;
 
 END_NAMESPACE_YM_BNET
 
@@ -197,6 +198,7 @@ using nsBnet::BnNetwork;
 using nsBnet::BnPort;
 using nsBnet::BnDff;
 using nsBnet::BnNode;
+using nsBnet::BnModifier;
 
 END_NAMESPACE_YM
 

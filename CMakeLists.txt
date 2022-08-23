@@ -58,7 +58,7 @@ add_subdirectory ( tests/programs )
 
 set ( aig_SOURCES
   c++-srcs/aig/AigReader.cc
-  c++-srcs/aig/read_aig.cc
+  c++-srcs/aig/Aig2Bnet.cc
   )
 
 set ( blif_SOURCES
@@ -72,6 +72,7 @@ set ( blif_SOURCES
 set ( bnet_SOURCES
   c++-srcs/bnet/BinIO.cc
   c++-srcs/bnet/BnDffImpl.cc
+  c++-srcs/bnet/BnModifier.cc
   c++-srcs/bnet/BnNetwork.cc
   c++-srcs/bnet/BnNetworkImpl.cc
   c++-srcs/bnet/BnNetworkImpl_copy.cc
@@ -81,8 +82,8 @@ set ( bnet_SOURCES
   c++-srcs/bnet/BnLogicNode.cc
   c++-srcs/bnet/BnPortImpl.cc
   c++-srcs/bnet/FuncAnalyzer.cc
-  c++-srcs/bnet/read_truth.cc
-  c++-srcs/bnet/simple_decomp.cc
+  c++-srcs/bnet/ReadTruth.cc
+  c++-srcs/bnet/SimpleDecomp.cc
   )
 
 set ( iscas89_SOURCES

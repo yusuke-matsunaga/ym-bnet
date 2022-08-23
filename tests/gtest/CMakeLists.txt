@@ -52,6 +52,16 @@ ym_add_gtest ( bnet_read_iscas89_test
   "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
   )
 
+ym_add_gtest ( bnet_read_truth_test
+  read_truth_test.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  DEFINITIONS
+  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  )
+
 ym_add_gtest ( bnet_import_test
   import_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
