@@ -166,19 +166,34 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
+  // BnNetwork からの変換
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief BnNetwork の内容を変換する．
+  /// @return 変換できない場合は false を返す．
+  bool
+  conv_from_bnet(
+    const BnNetwork& src_network
+  );
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
   // ストリーム出力用の関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief aig 形式のストリームに出力する．
   void
   write_aig(
-    ostream& s
+    ostream& s,           ///< [in] 出力ストリーム
+    const string& comment ///< [in] コメント
   ) const;
 
   /// @brief aag 形式のストリームに出力する．
   void
   write_aag(
-    ostream& s
+    ostream& s,           ///< [in] 出力ストリーム
+    const string& comment ///< [in] コメント
   ) const;
 
 
@@ -237,16 +252,26 @@ private:
     SizeType to                         ///< [in] 終了位置
   );
 
+  /// @brief BnNode に対応する AIG を作る．
+  /// @return 根のリテラルを返す．
+  SizeType
+  make_bnnode(
+    const BnNode& node,                ///< [in] ノード
+    const BnNetwork& network,          ///< [in] ネットワーク
+    const vector<SizeType>& fanin_lits ///< [in] ファンインのリテラルのリスト
+  );
+
   /// @brief シンボルテーブルとコメントを出力する．
   void
   write_symbols(
-    ostream& s
+    ostream& s,           ///< [in] 出力ストリーム
+    const string& comment ///< [in] コメント
   ) const;
 
   /// @brief リテラルを定義済みにする．
   void
   reg_literal(
-    SizeType lit
+    SizeType lit ///< [in] リテラル
   )
   {
     mDefined.emplace(lit);

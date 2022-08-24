@@ -204,7 +204,8 @@ END_NONAMESPACE
 // @brief aag 形式のストリームに出力する．
 void
 AigWriter::write_aig(
-  ostream& s
+  ostream& s,
+  const string& comment
 ) const
 {
   // ヘッダ行の出力
@@ -238,13 +239,14 @@ AigWriter::write_aig(
   }
 
   // シンボルテーブルとコメントの出力
-  write_symbols(s);
+  write_symbols(s, comment);
 }
 
 // @brief aag 形式のストリームに出力する．
 void
 AigWriter::write_aag(
-  ostream& s
+  ostream& s,
+  const string& comment
 ) const
 {
   // ヘッダ行の出力
@@ -283,7 +285,7 @@ AigWriter::write_aag(
   }
 
   // シンボルテーブルとコメントの出力
-  write_symbols(s);
+  write_symbols(s, comment);
 }
 
 // make_and の下請け関数
@@ -333,7 +335,8 @@ AigWriter::make_xor_sub(
 // @brief シンボルテーブルとコメントを出力する．
 void
 AigWriter::write_symbols(
-  ostream& s ///< [in] 出力ストリーム
+  ostream& s,
+  const string& comment
 ) const
 {
   // 入力のシンボルテーブルの出力
@@ -361,9 +364,10 @@ AigWriter::write_symbols(
   }
 
   // コメントの出力
-  if ( mComment != string{} ) {
+  auto tmp_str = mComment + comment;
+  if ( tmp_str != string{} ) {
     s << "c" << endl;
-    s << mComment;
+    s << tmp_str;
   }
 }
 
