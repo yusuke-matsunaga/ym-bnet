@@ -32,6 +32,14 @@ AigWriter::conv_from_bnet(
       return false;
     }
   }
+  // TvFuncタイプ，Bddタイプの論理ノードを持つ時変換不能
+  for ( auto id: src_network.logic_id_list() ) {
+    auto& node = src_network.node(id);
+    if ( node.type() == BnNodeType::TvFunc ||
+	 node.type() == BnNodeType::Bdd ) {
+      return false;
+    }
+  }
 
   initialize(I, L, O);
 
@@ -101,6 +109,7 @@ AigWriter::conv_from_bnet(
       set_output_symbol(i, name);
     }
   }
+  return true;
 }
 
 // BnNode の内容を AIG に変換する．
@@ -173,14 +182,14 @@ BnNetwork::write_aig(
   const string& comment
 ) const
 {
-  if ( !is_concrete() ) {
+  AigWriter aig;
+  if ( aig.conv_from_bnet(*this) ) {
+    aig.write_aig(s, comment);
+  }
+  else {
     cerr << "Cannot convert to aig." << endl;
     return;
   }
-
-  AigWriter aig;
-  aig.conv_from_bnet(*this);
-  aig.write_aig(s, comment);
 }
 
 // @brief 内容を aag (ascii aig) 形式で出力する．
@@ -190,14 +199,14 @@ BnNetwork::write_aag(
   const string& comment
 ) const
 {
-  if ( !is_concrete() ) {
+  AigWriter aig;
+  if ( aig.conv_from_bnet(*this) ) {
+    aig.write_aag(s, comment);
+  }
+  else {
     cerr << "Cannot convert to aag." << endl;
     return;
   }
-
-  AigWriter aig;
-  aig.conv_from_bnet(*this);
-  aig.write_aag(s, comment);
 }
 
 END_NAMESPACE_YM_BNET
