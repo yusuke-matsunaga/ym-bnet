@@ -39,10 +39,30 @@ BnInputNode::input_pos() const
   return mInputPos;
 }
 
+// @brief 入力位置を設定する．
+void
+BnInputNode::set_input_pos(
+  SizeType ipos
+)
+{
+  mInputPos = ipos;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnPortInput
 //////////////////////////////////////////////////////////////////////
+
+// @brief 外部入力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_port_input(
+  const string& name,
+  SizeType port_id,
+  SizeType port_bit
+)
+{
+  return new BnPortInput{name, port_id, port_bit};
+}
 
 // @brief 外部入力端子の時 true を返す．
 bool
@@ -51,9 +71,14 @@ BnPortInput::is_port_input() const
   return true;
 }
 
+// @brief 外部入力番号を返す．
+SizeType
+BnPortInput::primary_input_pos() const
+{
+  return mPrimaryInputPos;
+}
+
 // @brief 接続しているポート番号を返す．
-//
-// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
 SizeType
 BnPortInput::port_id() const
 {
@@ -61,12 +86,19 @@ BnPortInput::port_id() const
 }
 
 // @brief 接続しているポート中のビット番号を返す．
-//
-// is_port_input() || is_port_output() の時のみ意味を持つ．
 SizeType
 BnPortInput::port_bit() const
 {
   return mPortBit;
+}
+
+// @brief 外部入力端子番号を設定する．
+void
+BnPortInput::set_primary_input_pos(
+  SizeType pos
+)
+{
+  mPrimaryInputPos = pos;
 }
 
 
@@ -86,6 +118,16 @@ BnDffOut::dff_id() const
 // クラス BnDataOut
 //////////////////////////////////////////////////////////////////////
 
+// @brief DFFの出力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_data_out(
+  const string& name,
+  SizeType dff_id
+)
+{
+  return new BnDataOut{name, dff_id};
+}
+
 // @brief DFFの出力端子の時 true を返す．
 bool
 BnDataOut::is_data_out() const
@@ -97,6 +139,17 @@ BnDataOut::is_data_out() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnCellOutput
 //////////////////////////////////////////////////////////////////////
+
+// @brief DFFセルの出力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_cell_output(
+  const string& name,
+  SizeType dff_id,
+  SizeType oid
+)
+{
+  return new BnCellOutput{name, dff_id, oid};
+}
 
 // @brief DFFセルの出力端子の時 true を返す．
 bool

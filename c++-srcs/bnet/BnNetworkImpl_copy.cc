@@ -52,7 +52,7 @@ BnNetworkImpl::copy(
 
     auto dst_id = id_map[src_id];
     auto dst_fanin_id = output_list[i];
-    set_output(dst_id, dst_fanin_id);
+    set_output_src(dst_id, dst_fanin_id);
   }
 
   wrap_up();
@@ -129,6 +129,7 @@ BnNetworkImpl::import_subnetwork(
     auto dst_id = id_map.at(src_id);
     output_list.push_back(dst_id);
   }
+  cout << endl;
 
   return output_list;
 }
@@ -257,20 +258,6 @@ BnNetworkImpl::copy_logic(
   auto nfi = src_node.fanin_num();
   string name = src_node.name();
   BnNodeType logic_type = src_node.type();
-  SizeType expr_id = BNET_NULLID;
-  SizeType func_id = BNET_NULLID;
-  Bdd bdd = Bdd::invalid();
-  if ( logic_type == BnNodeType::Expr ) {
-    const Expr& expr = src_network.expr(src_node.expr_id());
-    expr_id = _reg_expr(expr);
-  }
-  else if ( logic_type == BnNodeType::TvFunc ) {
-    const TvFunc& func = src_network.func(src_node.func_id());
-    func_id = _reg_tv(func);
-  }
-  else if ( logic_type == BnNodeType::Bdd ) {
-    bdd = mBddMgr.copy(src_node.bdd());
-  }
   vector<SizeType> fanin_id_list(nfi);
   for ( auto i: Range(nfi) ) {
     auto src_iid = src_node.fanin_id(i);
@@ -278,9 +265,25 @@ BnNetworkImpl::copy_logic(
     auto iid = id_map.at(src_iid);
     fanin_id_list[i] = iid;
   }
-  auto dst_id = _reg_logic(name, logic_type,
-			   expr_id, func_id, bdd,
-			   fanin_id_list);
+  SizeType dst_id{BNET_NULLID};
+  if ( logic_type == BnNodeType::Expr ) {
+    const Expr& expr = src_network.expr(src_node.expr_id());
+    dst_id = new_logic_expr(name, expr, fanin_id_list);
+  }
+  else if ( logic_type == BnNodeType::TvFunc ) {
+    const TvFunc& func = src_network.func(src_node.func_id());
+    dst_id = new_logic_tv(name, func, fanin_id_list);
+  }
+  else if ( logic_type == BnNodeType::Bdd ) {
+    dst_id = new_logic_bdd(name, src_node.bdd(), fanin_id_list);
+  }
+  else if ( logic_type == BnNodeType::Cell ) {
+    dst_id = new_logic_cell(name, src_node.cell_id(), fanin_id_list);
+  }
+  else { // 残りはプリミティブ型のはず
+    dst_id = new_logic_primitive(name, logic_type, fanin_id_list);
+  }
+  ASSERT_COND( _check_node_id(dst_id) );
   id_map.emplace(src_node.id(), dst_id);
 
   return dst_id;

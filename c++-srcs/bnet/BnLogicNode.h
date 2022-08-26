@@ -27,10 +27,10 @@ public:
 
   /// @brief コンストラクタ
   BnLogicNode(
-    const string& name, ///< [in] ノード名
-    SizeType ni         ///< [in] 入力数
+    const string& name,                   ///< [in] ノード名
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   ) : BnNodeImpl{name},
-      mFanins(ni, BNET_NULLID)
+      mFanins{fanin_id_list}
   {
   }
 
@@ -107,10 +107,10 @@ public:
 
   /// @brief コンストラクタ
   BnPrimNode(
-    const string& name,   ///< [in] ノード名
-    SizeType ni,          ///< [in] 入力数
-    BnNodeType logic_type ///< [in] 論理タイプ
-  ) : BnLogicNode{name, ni},
+    const string& name,                   ///< [in] ノード名
+    BnNodeType logic_type,                ///< [in] 論理タイプ
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  ) : BnLogicNode{name, fanin_id_list},
       mLogicType{logic_type}
   {
   }
@@ -127,6 +127,19 @@ public:
   /// @brief タイプを返す．
   BnNodeType
   type() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNodeImpl の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 自分と同じタイプのノードを作る．
+  BnNodeImpl*
+  duplicate(
+    const string& name,                   ///< [in] 名前
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  ) override;
 
 
 private:
@@ -151,10 +164,10 @@ public:
 
   /// @brief コンストラクタ
   BnExprNode(
-    const string& name, ///< [in] ノード名
-    SizeType ni,        ///< [in] 入力数
-    SizeType expr_id    ///< [in] 関数番号
-  ) : BnLogicNode{name, ni},
+    const string& name,                   ///< [in] ノード名
+    SizeType expr_id,                     ///< [in] 関数番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  ) : BnLogicNode{name, fanin_id_list},
       mExprId{expr_id}
   {
   }
@@ -171,6 +184,19 @@ public:
   /// @brief タイプを返す．
   BnNodeType
   type() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNodeImpl の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 自分と同じタイプのノードを作る．
+  BnNodeImpl*
+  duplicate(
+    const string& name,                   ///< [in] 名前
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  ) override;
 
 
 public:
@@ -208,10 +234,10 @@ public:
 
   /// @brief コンストラクタ
   BnTvNode(
-    const string& name, ///< [in] ノード名
-    SizeType ni,        ///< [in] 入力数
-    SizeType func_id    ///< [in] 関数番号
-  ) : BnLogicNode{name, ni},
+    const string& name,                   ///< [in] ノード名
+    SizeType func_id,                     ///< [in] 関数番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  ) : BnLogicNode{name, fanin_id_list},
       mFuncId{func_id}
   {
   }
@@ -228,6 +254,19 @@ public:
   /// @brief タイプを返す．
   BnNodeType
   type() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNodeImpl の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 自分と同じタイプのノードを作る．
+  BnNodeImpl*
+  duplicate(
+    const string& name,                   ///< [in] 名前
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  ) override;
 
 
 public:
@@ -265,10 +304,10 @@ public:
 
   /// @brief コンストラクタ
   BnBddNode(
-    const string& name, ///< [in] ノード名
-    SizeType ni,        ///< [in] 入力数
-    const Bdd& bdd      ///< [in] BDD
-  ) : BnLogicNode{name, ni},
+    const string& name,                   ///< [in] ノード名
+    const Bdd& bdd,                       ///< [in] BDD
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  ) : BnLogicNode{name, fanin_id_list},
       mBdd{bdd}
   {
   }
@@ -285,6 +324,19 @@ public:
   /// @brief タイプを返す．
   BnNodeType
   type() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNodeImpl の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 自分と同じタイプのノードを作る．
+  BnNodeImpl*
+  duplicate(
+    const string& name,                   ///< [in] 名前
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  ) override;
 
 
 public:
@@ -306,6 +358,72 @@ private:
 
   // BDD
   Bdd mBdd;
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class BnCellNode BnLogicNode.h "BnLogicNode.h"
+/// @brief セル型の論理ノードを表すクラス
+//////////////////////////////////////////////////////////////////////
+class BnCellNode :
+  public BnLogicNode
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // コンストラクタ/デストラクタ
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief コンストラクタ
+  BnCellNode(
+    const string& name,                   ///< [in] ノード名
+    SizeType cell_id,                     ///< [in] セル番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  ) : BnLogicNode{name, fanin_id_list},
+      mCellId{cell_id}
+  {
+  }
+
+  /// @brief デストラクタ
+  ~BnCellNode() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 全タイプ共通の外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief タイプを返す．
+  BnNodeType
+  type() const override;
+
+  /// @brief セル番号を返す．
+  ///
+  /// - type() == Cell の時のみ意味を持つ．
+  SizeType
+  cell_id() const override;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BnNodeImpl の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 自分と同じタイプのノードを作る．
+  BnNodeImpl*
+  duplicate(
+    const string& name,                   ///< [in] 名前
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  ) override;
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // セル番号
+  SizeType mCellId;
 
 };
 

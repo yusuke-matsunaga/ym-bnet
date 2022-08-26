@@ -36,7 +36,7 @@ BnNetwork::read_blif(
   const string& reset_name
 )
 {
-  return read_blif(filename, ClibCellLibrary(), clock_name, reset_name);
+  return read_blif(filename, ClibCellLibrary{}, clock_name, reset_name);
 }
 
 // @brief blif ファイルを読み込む．
@@ -54,7 +54,6 @@ BnNetwork::read_blif(
 )
 {
   BlifParser parser;
-  BnNetwork network;
   string _clock_name{clock_name};
   if ( _clock_name == string{} ) {
     _clock_name = "clock";
@@ -63,11 +62,10 @@ BnNetwork::read_blif(
   if ( _reset_name == string{} ) {
     _reset_name = "reset";
   }
-  BnBlifHandler handler(parser, _clock_name, _reset_name);
+  BnBlifHandler handler{parser, _clock_name, _reset_name};
 
   bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
-    network.clear();
     throw BnetError{"Error in read_blif"};
   }
 
@@ -279,7 +277,7 @@ BnBlifHandler::latch(
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  mNetwork.set_output(dff.clock(), mClockId);
+  mNetwork.set_output_src(dff.clock(), mClockId);
 
   if ( has_clear || has_preset ) {
     if ( mResetId == BNET_NULLID ) {
@@ -292,11 +290,11 @@ BnBlifHandler::latch(
   }
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
-    mNetwork.set_output(dff.clear(), mResetId);
+    mNetwork.set_output_src(dff.clear(), mResetId);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
-    mNetwork.set_output(dff.preset(), mResetId);
+    mNetwork.set_output_src(dff.preset(), mResetId);
   }
 
   return true;
@@ -316,7 +314,7 @@ BnBlifHandler::end(
       ASSERT_COND( mOutputMap.count(id) > 0 );
       auto name_id = mOutputMap.at(id);
       auto inode_id = make_node(name_id);
-      mNetwork.set_output(id, inode_id);
+      mNetwork.set_output_src(id, inode_id);
     }
   }
 
@@ -342,12 +340,12 @@ BnBlifHandler::make_node(
     }
     SizeType id;
     if ( node_info.has_cell_id ) {
-      id = mNetwork.new_logic(node_info.oname, node_info.cell_id,
-			      fanin_id_list);
+      id = mNetwork.new_logic_cell(node_info.oname, node_info.cell_id,
+				   fanin_id_list);
     }
     else {
-      id = mNetwork.new_logic(node_info.oname, node_info.expr,
-			      fanin_id_list);
+      id = mNetwork.new_logic_expr(node_info.oname, node_info.expr,
+				   fanin_id_list);
     }
     mIdMap.emplace(name_id, id);
     return id;

@@ -151,6 +151,15 @@ public:
   bool
   is_port_input() const = 0;
 
+  /// @brief 外部入力番号を返す．
+  ///
+  /// is_port_input() == true の時のみ意味を持つ<br>
+  /// node_id = BnNetwork::primary_input_id(pos) の時
+  /// node->primary_input_pos() = pos となる．
+  virtual
+  SizeType
+  primary_input_pos() const = 0;
+
   /// @brief DFF/ラッチのデータ出力端子の時 true を返す．
   virtual
   bool
@@ -188,6 +197,15 @@ public:
   virtual
   bool
   is_port_output() const = 0;
+
+  /// @brief 外部出力端子番号を返す．
+  ///
+  /// is_port_output() == true の時のみ意味を持つ．<br>
+  /// node_id = BnNetwork::primary_output_id(pos) の時
+  /// node->primary_output_pos() = pos となる．
+  virtual
+  SizeType
+  primary_output_pos() const = 0;
 
   /// @brief DFF/ラッチののデータ入力端子の時に true を返す．
   virtual
@@ -306,6 +324,13 @@ public:
   virtual
   Bdd
   bdd() const = 0;
+
+  /// @brief セル番号を返す．
+  ///
+  /// - type() == Cell の時のみ意味を持つ．
+  virtual
+  SizeType
+  cell_id() const = 0;
 
   /// @}
   //////////////////////////////////////////////////////////////////////

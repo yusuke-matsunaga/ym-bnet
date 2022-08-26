@@ -185,7 +185,7 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   SizeType
-  new_logic(
+  new_logic_primitive(
     const string& node_name,              ///< [in] ノード名
     BnNodeType logic_type,                ///< [in] 論理型
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -197,7 +197,7 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は expr.input_num() を用いる．
   SizeType
-  new_logic(
+  new_logic_expr(
     const string& node_name,              ///< [in] ノード名
     const Expr& expr,                     ///< [in] 論理式
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -209,7 +209,7 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は tv.input_num() を用いる．
   SizeType
-  new_logic(
+  new_logic_tv(
     const string& node_name,              ///< [in] ノード名
     const TvFunc& tv,                     ///< [in] 真理値表
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -220,7 +220,7 @@ public:
   ///
   /// - ノード名の重複に関しては感知しない．
   SizeType
-  new_logic(
+  new_logic_bdd(
     const string& node_name,              ///< [in] ノード名
     const Bdd& bdd,                       ///< [in] BDD
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -231,7 +231,7 @@ public:
   ///
   /// - ノード名の重複に関しては感知しない．
   SizeType
-  new_logic(
+  new_logic_cell(
     const string& node_name,              ///< [in] ノード名
     SizeType cell_id,                     ///< [in] セル番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -397,7 +397,7 @@ public:
 
   /// @brief 出力ノードのファンインを設定する．
   void
-  set_output(
+  set_output_src(
     SizeType output_id, ///< [in] 出力ノードのID番号
     SizeType src_id     ///< [in] ファンインノードのID番号
   );
@@ -412,19 +412,6 @@ public:
   //////////////////////////////////////////////////////////////////////
   /// @}
   //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ファンインの接続を行う．
-  void
-  connect_fanins(
-    SizeType id,                          ///< [in] 対象のノード番号
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  );
 
 };
 

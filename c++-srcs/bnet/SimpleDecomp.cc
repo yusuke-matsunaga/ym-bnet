@@ -104,7 +104,7 @@ SimpleDecomp::decomp_expr(
   }
 
   if ( id == BNET_NULLID ) {
-    id = new_logic(string(), node_type, new_fanin_list);
+    id = new_logic_primitive({}, node_type, new_fanin_list);
   }
   else {
     change_primitive(id, node_type, new_fanin_list);

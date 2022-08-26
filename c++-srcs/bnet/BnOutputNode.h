@@ -20,8 +20,6 @@ BEGIN_NAMESPACE_YM_BNET
 class BnOutputNode :
   public BnNodeImpl
 {
-  friend class BnNetworkImpl;
-
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -85,6 +83,12 @@ public:
   // 設定用のインターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 出力位置を設定する．
+  void
+  set_output_pos(
+    SizeType opos ///< [in] 出力位置
+  ) override;
+
   /// @brief ファンインを設定する．
   void
   set_fanin(
@@ -123,7 +127,8 @@ public:
     SizeType port_bit   ///< [in] ポート中のビット位置
   ) : BnOutputNode{name},
       mPortId{port_id},
-      mPortBit{port_bit}
+      mPortBit{port_bit},
+      mPrimaryOutputPos{BNET_NULLID}
   {
   }
 
@@ -139,6 +144,14 @@ public:
   /// @brief 外部出力端子の時に true を返す．
   bool
   is_port_output() const override;
+
+  /// @brief 外部出力端子番号を返す．
+  ///
+  /// is_port_output() == true の時のみ意味を持つ．<br>
+  /// node_id = BnNetwork::primary_output_id(pos) の時
+  /// node->primary_output_pos() = pos となる．
+  SizeType
+  primary_output_pos() const override;
 
 
 public:
@@ -159,10 +172,27 @@ public:
   port_bit() const override;
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 外部出力端子番号を設定する．
+  ///
+  /// 外部出力ノード専用
+  void
+  set_primary_output_pos(
+    SizeType pos ///< [in] 位置番号
+  ) override;
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // 外部出力番号
+  SizeType mPrimaryOutputPos;
 
   // ポート番号
   SizeType mPortId;

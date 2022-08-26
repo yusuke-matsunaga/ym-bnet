@@ -14,9 +14,7 @@
 #include "ym/Range.h"
 
 #include "BnPortImpl.h"
-#include "BnInputNode.h"
-#include "BnOutputNode.h"
-#include "BnLogicNode.h"
+#include "BnNodeImpl.h"
 #include "BnDffImpl.h"
 
 #include "FuncAnalyzer.h"
@@ -97,121 +95,6 @@ BnNetworkImpl::set_name(
 {
   mName = name;
 }
-
-// @brief 論理セルを追加する．
-SizeType
-BnNetworkImpl::new_logic_cell(
-  const string& node_name,
-  SizeType cell_id,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  auto& cell = mCellLibrary.cell(cell_id);
-  if ( cell.type() != ClibCellType::Logic || cell.output_num() != 1 ) {
-    return BNET_NULLID;
-  }
-
-  Expr expr = cell.logic_expr(0);
-  auto id = new_expr(node_name, expr, fanin_id_list);
-  return id;
-}
-
-// @brief 既存の論理ノードを変更する最も低レベルの関数
-void
-BnNetworkImpl::_change_logic(
-  SizeType node_id,
-  BnNodeType logic_type,
-  SizeType expr_id,
-  SizeType func_id,
-  const Bdd& bdd,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  auto old_node = _node_p(node_id);
-  SizeType nfi = fanin_id_list.size();
-  auto new_node = _new_logic(old_node->name(), nfi, logic_type,
-			     expr_id, func_id, bdd);
-  _set_node(new_node, node_id);
-  delete old_node;
-  connect_fanins(node_id, fanin_id_list);
-
-}
-
-// @brief 論理ノードを作る最も低レベルの関数
-SizeType
-BnNetworkImpl::_reg_logic(
-  const string& name,
-  BnNodeType logic_type,
-  SizeType expr_id,
-  SizeType func_id,
-  const Bdd& bdd,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  SizeType nfi = fanin_id_list.size();
-  auto node = _new_logic(name, nfi, logic_type,
-			 expr_id, func_id, bdd);
-  _reg_node(node);
-  connect_fanins(node->id(), fanin_id_list);
-  return node->id();
-}
-
-// @brief 論理ノードを作る最も低レベルの関数
-BnNodeImpl*
-BnNetworkImpl::_new_logic(
-  const string& name,
-  SizeType fanin_num,
-  BnNodeType logic_type,
-  SizeType expr_id,
-  SizeType func_id,
-  const Bdd& bdd
-)
-{
-  BnNodeImpl* node = nullptr;
-  if ( logic_type == BnNodeType::Expr ) {
-    node = new BnExprNode{name, fanin_num, expr_id};
-  }
-  else if ( logic_type == BnNodeType::TvFunc ) {
-    node = new BnTvNode{name, fanin_num, func_id};
-  }
-  else if ( logic_type == BnNodeType::Bdd ) {
-    auto new_bdd = mBddMgr.copy(bdd);
-    node = new BnBddNode{name, fanin_num, bdd};
-  }
-  else {
-    node = new BnPrimNode{name, fanin_num, logic_type};
-  }
-  ASSERT_COND( node != nullptr );
-
-  return node;
-}
-
-#if 0
-// @brief 論理式型の論理ノードを追加する．
-SizeType
-BnNetworkImpl::new_expr(
-  const string& node_name,
-  const Expr& expr,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  unordered_map<VarId, VarId> varmap;
-  vector<SizeType> local_inputs;
-  SizeType ni = fanin_id_list.size();
-  for ( SizeType i = 0; i < ni; ++ i ) {
-    if ( expr.literal_num(VarId{i}) > 0 ) {
-      auto lid = local_inputs.size();
-      varmap.emplace(VarId{i}, VarId{lid});
-      SizeType inode = fanin_id_list[i];
-      local_inputs.push_back(inode);
-    }
-  }
-  auto local_expr = expr.remap_var(varmap);
-  auto id = new_expr(node_name, local_expr);
-  connect_fanins(id, local_inputs);
-  return id;
-}
-#endif
 
 // @brief DFFを追加する．
 SizeType
@@ -320,121 +203,6 @@ BnNetworkImpl::new_dff_cell(
   return dff_id;
 }
 
-// @brief data_in ノードを作る．
-SizeType
-BnNetworkImpl::_new_data_in(
-  const string& dff_name,
-  SizeType dff_id
-)
-{
-  ostringstream buf;
-  buf << dff_name << ".input";
-  auto iname = buf.str();
-  auto node = new BnDataIn{iname, dff_id};
-  _reg_output(node);
-  return node->id();
-}
-
-// @brief データ出力ノードを作る．
-SizeType
-BnNetworkImpl::_new_data_out(
-  const string& dff_name,
-  SizeType dff_id
-)
-{
-  ostringstream buf;
-  buf << dff_name << ".output";
-  auto oname = buf.str();
-  auto node = new BnDataOut{oname, dff_id};
-  _reg_input(node);
-  return node->id();
-}
-
-// @brief クロック端子ノードを作る．
-SizeType
-BnNetworkImpl::_new_clock(
-  const string& dff_name,
-  SizeType dff_id
-)
-{
-  ostringstream buf;
-  buf << dff_name << ".clock";
-  auto oname = buf.str();
-  auto node = new BnClock{oname, dff_id};
-  _reg_output(node);
-  return node->id();
-}
-
-// @brief クリア端子ノードを作る．
-SizeType
-BnNetworkImpl::_new_clear(
-  const string& dff_name,
-  SizeType dff_id,
-  bool has_clear
-)
-{
-  if ( has_clear ) {
-    ostringstream buf;
-    buf << dff_name << ".clear";
-    auto oname = buf.str();
-    auto node = new BnClear{oname, dff_id};
-    _reg_output(node);
-    return node->id();
-  }
-  return BNET_NULLID;
-}
-
-// @brief プリセット端子ノードを作る．
-SizeType
-BnNetworkImpl::_new_preset(
-  const string& dff_name,
-  SizeType dff_id,
-  bool has_clear
-)
-{
-  if ( has_clear ) {
-    ostringstream buf;
-    buf << dff_name << ".preset";
-    auto oname = buf.str();
-    auto node = new BnPreset{oname, dff_id};
-    _reg_output(node);
-    return node->id();
-  }
-  return BNET_NULLID;
-}
-
-// @brief DFFセルの入力端子を作る．
-SizeType
-BnNetworkImpl::_new_cell_input(
-  const string& dff_name,
-  SizeType dff_id,
-  SizeType pos
-)
-{
-  ostringstream buf;
-  buf << dff_name << ".input" << (pos + 1);
-  auto oname = buf.str();
-  auto node = new BnCellInput{oname, dff_id, pos};
-  _reg_output(node);
-  return node->id();
-}
-
-// @brief DFFセルの出力端子を作る．
-SizeType
-BnNetworkImpl::_new_cell_output(
-  const string& dff_name,
-  SizeType dff_id,
-  SizeType pos
-)
-{
-  ostringstream buf;
-  buf << dff_name << ".output" << (pos + 1);
-  auto oname = buf.str();
-  auto node = new BnCellOutput{oname, dff_id, pos};
-  _reg_input(node);
-  return node->id();
-}
-
 // @brief 入出力混合のポートを作る．
 SizeType
 BnNetworkImpl::new_port(
@@ -463,14 +231,12 @@ BnNetworkImpl::new_port(
       node_name = port_name;
     }
     if ( dir_vect[i] == BnDir::INPUT ) {
-      auto node = new BnPortInput{node_name, port_id, i};
-      _reg_primary_input(node);
-      bits[i] = node->id();
+      auto node = BnNodeImpl::new_port_input(node_name, port_id, i);
+      bits[i] = _reg_primary_input(node);
     }
     else { // BnDir::OUTPUT
-      auto node = new BnPortOutput{node_name, port_id, i};
-      _reg_primary_output(node);
-      bits[i] = node->id();
+      auto node = BnNodeImpl::new_port_output(node_name, port_id, i);
+      bits[i] = _reg_primary_output(node);
     }
   }
 
@@ -487,6 +253,136 @@ BnNetworkImpl::new_port(
   return port_id;
 }
 
+// @brief プリミティブ型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_primitive(
+  const string& node_name,
+  BnNodeType logic_type,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_primitive(node_name, logic_type, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief 論理式型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_expr(
+  const string& node_name,
+  const Expr& expr,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_expr(node_name, expr, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_tv(
+  const string& node_name,
+  const TvFunc& tv,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_tv(node_name, tv, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief BDD型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_bdd(
+  const string& node_name,
+  const Bdd& bdd,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_bdd(node_name, bdd, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief 論理セルを追加する．
+SizeType
+BnNetworkImpl::new_logic_cell(
+  const string& node_name,
+  SizeType cell_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_cell(node_name, cell_id, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief プリミティブ型の論理ノードに変更する．
+void
+BnNetworkImpl::change_primitive(
+  SizeType id,
+  BnNodeType logic_type,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto old_node = _node_p(id);
+  auto new_node = _new_logic_primitive(old_node->name(),
+				       logic_type, fanin_id_list);
+  _chg_node(old_node, new_node);
+}
+
+// @brief 論理式型の論理ノードに変更する．
+void
+BnNetworkImpl::change_expr(
+  SizeType id,
+  const Expr& expr,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto old_node = _node_p(id);
+  auto new_node = _new_logic_expr(old_node->name(),
+				  expr, fanin_id_list);
+  _chg_node(old_node, new_node);
+}
+
+// @brief 真理値表型の論理ノードに変更する．
+void
+BnNetworkImpl::change_tv(
+  SizeType id,
+  const TvFunc& tv,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto old_node = _node_p(id);
+  auto new_node = _new_logic_tv(old_node->name(),
+				tv, fanin_id_list);
+  _chg_node(old_node, new_node);
+}
+
+// @brief BDD型の論理ノードに変更する．
+void
+BnNetworkImpl::change_bdd(
+  SizeType id,
+  const Bdd& bdd,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto old_node = _node_p(id);
+  auto new_node = _new_logic_bdd(old_node->name(),
+				 bdd, fanin_id_list);
+  _chg_node(old_node, new_node);
+}
+
+// @brief セル型の論理ノードに変更する．
+void
+BnNetworkImpl::change_cell(
+  SizeType id,
+  int cell_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto old_node = _node_p(id);
+  auto new_node = _new_logic_cell(old_node->name(),
+				  cell_id, fanin_id_list);
+  _chg_node(old_node, new_node);
+}
+
 // @brief ノードを複製する．
 SizeType
 BnNetworkImpl::dup_logic(
@@ -497,13 +393,8 @@ BnNetworkImpl::dup_logic(
 {
   auto src_node = _node_p(src_id);
   ASSERT_COND( src_node->fanin_num() == fanin_id_list.size() );
-  auto logic_type = src_node->type();
-  auto expr_id = src_node->expr_id();
-  auto func_id = src_node->func_id();
-  auto bdd = src_node->bdd();
-  auto id = _reg_logic(node_name, logic_type, expr_id, func_id, bdd,
-		       fanin_id_list);
-  return id;
+  auto node = src_node->duplicate(node_name, fanin_id_list);
+  return _reg_node(node);
 }
 
 // @brief ファンアウトをつなぎ替える．
@@ -521,56 +412,41 @@ BnNetworkImpl::substitute_fanout(
   for ( auto dst: fo_list ) {
     auto dst_node = _node_p(dst);
     // old_id のファンインを探す．
-    SizeType ipos = dst_node->fanin_num() + 1;
     if ( dst_node->is_output() ) {
       ASSERT_COND( dst_node->fanin_id(0) == old_id );
-      ipos = 0;
+      set_output_src(dst, new_id);
     }
     else {
+      SizeType ipos = dst_node->fanin_num() + 1;
       for ( auto i: Range(dst_node->fanin_num()) ) {
 	if ( dst_node->fanin_id(i) == old_id ) {
 	  ipos = i;
 	  break;
 	}
       }
+      ASSERT_COND( ipos < dst_node->fanin_num() );
+      dst_node->set_fanin(ipos, new_id);
     }
-    ASSERT_COND( ipos < dst_node->fanin_num() );
-    dst_node->set_fanin(ipos, new_id);
   }
 
   mSane = false;
 }
 
-// @brief ファンインをつなぎ替える．
-void
-BnNetworkImpl::connect_fanins(
-  SizeType id,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  auto node = _node_p(id);
-  auto ni = node->fanin_num();
-
-  ASSERT_COND( fanin_id_list.size() == ni );
-
-  for ( auto i: Range(ni) ) {
-    node->set_fanin(i, fanin_id_list[i]);
-  }
-
-  mSane = true;
-}
-
 // @brief 出力ノードのファンインを設定する．
 void
-BnNetworkImpl::set_output(
+BnNetworkImpl::set_output_src(
   SizeType output_id,
   SizeType src_id
 )
 {
   ASSERT_COND( _check_node_id(src_id) );
-
   auto dst_node = _node_p(output_id);
+  ASSERT_COND( dst_node->is_output() );
   dst_node->set_fanin(0, src_id);
+  mOutputSrcList[dst_node->output_pos()] = src_id;
+  if ( dst_node->is_port_output() ) {
+    mPrimaryOutputSrcList[dst_node->primary_output_pos()] = src_id;
+  }
 
   mSane = false;
 }
@@ -650,55 +526,55 @@ BnNetworkImpl::wrap_up()
   for ( auto dff_p: mDffList ) {
     if ( dff_p->is_dff() || dff_p->is_latch() ) {
       { // data_in
-	auto id1 = dff_p->data_in();
-	if ( id1 == BNET_NULLID ) {
+	auto id = dff_p->data_in();
+	if ( id == BNET_NULLID ) {
 	  cerr << dff_name(dff_p)
 	       << ".data_in is not set" << endl;
 	  error = true;
 	}
-	else if ( !_check_node_id(id1) ) {
+	else if ( !_check_node_id(id) ) {
 	  cerr << dff_name(dff_p)
 	       << ".data_in is not valid" << endl;
 	  error = true;
 	}
       }
       { // data_out
-	auto id2 = dff_p->data_out();
-	if ( id2 == BNET_NULLID ) {
+	auto id = dff_p->data_out();
+	if ( id == BNET_NULLID ) {
 	  cerr << dff_name(dff_p)
 	       << ".data_out is not set" << endl;
 	  error = true;
 	}
-	else if ( !_check_node_id(id2) ) {
+	else if ( !_check_node_id(id) ) {
 	  cerr << dff_name(dff_p)
 	       << ".data_out is not valid" << endl;
 	  error = true;
 	}
       }
       { // clock
-	auto id3 = dff_p->clock();
-	if ( id3 == BNET_NULLID ) {
+	auto id = dff_p->clock();
+	if ( id == BNET_NULLID ) {
 	  cerr << dff_name(dff_p)
 	       << ".clock is not set" << endl;
 	  error = true;
 	}
-	else if ( !_check_node_id(id3) ) {
+	else if ( !_check_node_id(id) ) {
 	  cerr << dff_name(dff_p)
 	       << ".clock is not valid" << endl;
 	  error = true;
 	}
       }
       { // clear
-	auto id4 = dff_p->clear();
-	if ( id4 != BNET_NULLID && !_check_node_id(id4) ) {
+	auto id = dff_p->clear();
+	if ( id != BNET_NULLID && !_check_node_id(id) ) {
 	  cerr << dff_name(dff_p)
 	       << ".clear is not valid" << endl;
 	  error = true;
 	}
       }
       { // preset
-	auto id5 = dff_p->preset();
-	if ( id5 != BNET_NULLID && !_check_node_id(id5) ) {
+	auto id = dff_p->preset();
+	if ( id != BNET_NULLID && !_check_node_id(id) ) {
 	  cerr << dff_name(dff_p)
 	       << ".preset is not valid" << endl;
 	  error = true;
@@ -737,7 +613,7 @@ BnNetworkImpl::wrap_up()
     }
   }
 
-  // ノードのチェック
+  // 論理ノードのファンイン番号のチェック
   for ( auto node_p: mNodeList ) {
     for ( auto i: Range(node_p->fanin_num()) ) {
       auto id = node_p->fanin_id(i);
@@ -771,69 +647,7 @@ BnNetworkImpl::wrap_up()
     }
   }
 
-  // 論理ノードをトポロジカル順にソートする．
-
-  // ノード番号を入れるキュー
-  vector<SizeType> queue;
-  queue.reserve(node_num());
-
-  // キューの印を表すマーク配列
-  vector<bool> mark(node_num(), false);
-
-  // 入力ノードをキューに積む．
-  for ( auto id: input_id_list() ) {
-    queue.push_back(id);
-    mark[id] = true;
-  }
-
-  // 定数ノードをキューに積む．
-  for ( auto node: mNodeList ) {
-    if ( node->is_logic() && node->fanin_num() == 0 ) {
-      int id = node->id();
-      queue.push_back(id);
-      mark[id] = true;
-    }
-  }
-
-  mLogicList.clear();
-  mLogicList.reserve(node_num() - input_num() - output_num());
-
-  // キューからノードを取り出してファンアウト先のノードをキューに積む．
-  for ( auto rpos = 0; rpos < queue.size(); ++ rpos ) {
-    auto id = queue[rpos];
-    auto node_p = _node_p(id);
-    if ( node_p->is_logic() ) {
-      mLogicList.push_back(id);
-    }
-    for ( auto oid: node_p->fanout_id_list() ) {
-      if ( mark[oid] ) {
-	continue;
-      }
-      auto onode_p = _node_p(oid);
-      bool ready = true;
-      for ( auto iid: onode_p->fanin_id_list() ) {
-	if ( !mark[iid] ) {
-	  ready = false;
-	  break;
-	}
-      }
-      if ( ready ) {
-	queue.push_back(oid);
-	mark[oid] = true;
-      }
-    }
-  }
-
-  // mOutputSrcList を作る．
-  mOutputSrcList.clear();
-  mOutputSrcList.resize(mOutputList.size());
-  for ( auto i: Range(mOutputList.size()) ) {
-    auto oid = mOutputList[i];
-    auto node_p = _node_p(oid);
-    auto iid = node_p->fanin_id(0);
-    mOutputSrcList[i] = iid;
-  }
-
+#if 0
   // mPrimaryOutputSrcList を作る．
   mPrimaryOutputSrcList.clear();
   mPrimaryOutputSrcList.resize(mPrimaryOutputList.size());
@@ -843,6 +657,7 @@ BnNetworkImpl::wrap_up()
     auto iid = node_p->fanin_id(0);
     mPrimaryOutputSrcList[i] = iid;
   }
+#endif
 
   mSane = true;
 }
@@ -862,6 +677,280 @@ BnNetworkImpl::is_concrete() const
     }
   }
   return true;
+}
+
+// @brief data_in ノードを作る．
+SizeType
+BnNetworkImpl::_new_data_in(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".input";
+  auto iname = buf.str();
+  auto node = BnNodeImpl::new_data_in(iname, dff_id);
+  return _reg_output(node);
+}
+
+// @brief データ出力ノードを作る．
+SizeType
+BnNetworkImpl::_new_data_out(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".output";
+  auto oname = buf.str();
+  auto node = BnNodeImpl::new_data_out(oname, dff_id);
+  return _reg_input(node);
+}
+
+// @brief クロック端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_clock(
+  const string& dff_name,
+  SizeType dff_id
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".clock";
+  auto oname = buf.str();
+  auto node = BnNodeImpl::new_clock(oname, dff_id);
+  return _reg_output(node);
+}
+
+// @brief クリア端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_clear(
+  const string& dff_name,
+  SizeType dff_id,
+  bool has_clear
+)
+{
+  if ( has_clear ) {
+    ostringstream buf;
+    buf << dff_name << ".clear";
+    auto oname = buf.str();
+    auto node = BnNodeImpl::new_clear(oname, dff_id);
+    return _reg_output(node);
+  }
+  return BNET_NULLID;
+}
+
+// @brief プリセット端子ノードを作る．
+SizeType
+BnNetworkImpl::_new_preset(
+  const string& dff_name,
+  SizeType dff_id,
+  bool has_clear
+)
+{
+  if ( has_clear ) {
+    ostringstream buf;
+    buf << dff_name << ".preset";
+    auto oname = buf.str();
+    auto node = BnNodeImpl::new_preset(oname, dff_id);
+    return _reg_output(node);
+  }
+  return BNET_NULLID;
+}
+
+// @brief DFFセルの入力端子を作る．
+SizeType
+BnNetworkImpl::_new_cell_input(
+  const string& dff_name,
+  SizeType dff_id,
+  SizeType pos
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".input" << (pos + 1);
+  auto oname = buf.str();
+  auto node = BnNodeImpl::new_cell_input(oname, dff_id, pos);
+  return _reg_output(node);
+}
+
+// @brief DFFセルの出力端子を作る．
+SizeType
+BnNetworkImpl::_new_cell_output(
+  const string& dff_name,
+  SizeType dff_id,
+  SizeType pos
+)
+{
+  ostringstream buf;
+  buf << dff_name << ".output" << (pos + 1);
+  auto oname = buf.str();
+  auto node = BnNodeImpl::new_cell_output(oname, dff_id, pos);
+  return _reg_input(node);
+}
+
+// @brief プリミティブ型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_primitive(
+  const string& node_name,
+  BnNodeType type,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return BnNodeImpl::new_primitive(node_name, type, fanin_id_list);
+}
+
+// @brief 論理式型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_expr(
+  const string& node_name,
+  const Expr& expr,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  SizeType ni;
+  BnNodeType logic_type;
+  SizeType expr_id;
+  tie(ni, logic_type, expr_id) = _analyze_expr(expr);
+  ASSERT_COND( ni == fanin_id_list.size() );
+  if ( logic_type == BnNodeType::Expr ) {
+    return BnNodeImpl::new_expr(node_name, expr_id, fanin_id_list);
+  }
+  else {
+    return BnNodeImpl::new_primitive(node_name, logic_type, fanin_id_list);
+  }
+}
+
+// @brief 真理値表型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_tv(
+  const string& node_name,
+  const TvFunc& tv,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto func_id = _reg_tv(tv);
+  return BnNodeImpl::new_tv(node_name, func_id, fanin_id_list);
+}
+
+// @brief BDD型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_bdd(
+  const string& node_name,
+  const Bdd& bdd,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  // ローカルなBDDを作る．
+  // bdd がローカルなBDDの場合はなにも変わらない．
+  auto local_bdd = mBddMgr.copy(bdd);
+  return BnNodeImpl::new_bdd(node_name, local_bdd, fanin_id_list);
+}
+
+// @brief セル型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_cell(
+  const string& node_name,
+  SizeType cell_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto& cell = mCellLibrary.cell(cell_id);
+  if ( cell.type() != ClibCellType::Logic ||
+       cell.output_num() != 1 ||
+       cell.has_tristate(0) ) {
+    // 単純な論理セルではない．
+    ostringstream buf;
+    buf << "Error in BnNetworkImpl::_new_logic_cell(): "
+	<< cell.name() << " is not a valid logic cell.";
+    throw BnetError{buf.str()};
+  }
+  return BnNodeImpl::new_cell(node_name, cell_id, fanin_id_list);
+}
+
+// @brief 入力ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_input(
+  BnNodeImpl* node
+)
+{
+  auto id = _reg_node(node);
+  node->set_input_pos(mInputList.size());
+  mInputList.push_back(id);
+  return id;
+}
+
+// @brief 外部入力ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_primary_input(
+  BnNodeImpl* node
+)
+{
+  auto id = _reg_input(node);
+  auto pi_pos = mPrimaryInputList.size();
+  mPrimaryInputList.push_back(id);
+  node->set_primary_input_pos(pi_pos);
+  return id;
+}
+
+// @brief 出力ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_output(
+  BnNodeImpl* node
+)
+{
+  auto id = _reg_node(node);
+  node->set_output_pos(mOutputList.size());
+  mOutputList.push_back(id);
+  mOutputSrcList.push_back(BNET_NULLID);
+  return id;
+}
+
+// @brief 外部出力ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_primary_output(
+  BnNodeImpl* node
+)
+{
+  auto id = _reg_output(node);
+  auto po_pos = mPrimaryOutputList.size();
+  mPrimaryOutputList.push_back(id);
+  mPrimaryOutputSrcList.push_back(BNET_NULLID);
+  node->set_primary_output_pos(po_pos);
+  return id;
+}
+
+// @brief 論理ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_logic(
+  BnNodeImpl* node
+)
+{
+  auto id = _reg_node(node);
+  mLogicList.push_back(id);
+  return id;
+}
+
+// @brief ノードを登録する．
+SizeType
+BnNetworkImpl::_reg_node(
+  BnNodeImpl* node
+)
+{
+  node->mId = mNodeList.size() + 1;
+  mNodeList.push_back(node);
+  return node->mId;
+}
+
+// @brief ノードを取り替える．
+void
+BnNetworkImpl::_chg_node(
+  BnNodeImpl* old_node,
+  BnNodeImpl* new_node
+)
+{
+  auto id = old_node->mId;
+  new_node->mId = id;
+  mNodeList[id - 1] = new_node;
+  delete old_node;
 }
 
 // @brief 論理式を解析する．

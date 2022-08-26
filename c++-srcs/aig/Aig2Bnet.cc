@@ -83,8 +83,8 @@ Aig2Bnet::conv(
     }
     auto id = new_dff(name, true);
     const auto& dff = this->dff(id);
-    set_output(dff.clock(), clock_id);
-    set_output(dff.clear(), reset_id);
+    set_output_src(dff.clock(), clock_id);
+    set_output_src(dff.clear(), reset_id);
     auto node_id = dff.data_out();
     auto lit = aig.latch(i);
     mLitMap.emplace(lit, node_id);
@@ -142,11 +142,11 @@ Aig2Bnet::conv(
     auto lit1 = lit ^ 1UL;
     if ( !req_map[lit] && req_map[lit1] ) {
       expr = ~expr;
-      auto id1 = new_logic(buf.str(), expr, {i1, i2});
+      auto id1 = new_logic_expr(buf.str(), expr, {i1, i2});
       mLitMap.emplace(lit1, id1);
     }
     else {
-      auto id = new_logic(buf.str(), expr, {i1, i2});
+      auto id = new_logic_expr(buf.str(), expr, {i1, i2});
       mLitMap.emplace(lit, id);
       if ( req_map[lit1] ) {
 	auto id1 = new_not(string{}, id);
@@ -160,7 +160,7 @@ Aig2Bnet::conv(
     auto src_lit = aig.output_src(i);
     ASSERT_COND ( mLitMap.count(src_lit) >  0 );
     auto src_id = mLitMap.at(src_lit);
-    set_output(output_list[i], src_id);
+    set_output_src(output_list[i], src_id);
   }
 
   // ラッチの入力の接続
@@ -168,7 +168,7 @@ Aig2Bnet::conv(
     auto src_lit = aig.latch_src(i);
     ASSERT_COND( mLitMap.count(src_lit) > 0 );
     auto src_id = mLitMap.at(src_lit);
-    set_output(latch_list[i], src_id);
+    set_output_src(latch_list[i], src_id);
   }
 }
 

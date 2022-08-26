@@ -186,7 +186,7 @@ BnIscas89Handler::read_dff(
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  mNetwork.set_output(dff.clock(), mClockId);
+  mNetwork.set_output_src(dff.clock(), mClockId);
 
   return true;
 }
@@ -205,7 +205,7 @@ BnIscas89Handler::end()
       ASSERT_COND( mOutputMap.count(id) > 0 );
       auto name_id = mOutputMap.at(id);
       auto inode_id = make_node(name_id);
-      mNetwork.set_output(id, inode_id);
+      mNetwork.set_output_src(id, inode_id);
     }
   }
   return true;
@@ -233,8 +233,8 @@ BnIscas89Handler::make_node(
       id = make_mux(node_info.oname, fanin_id_list);
     }
     else {
-      id = mNetwork.new_logic(node_info.oname, node_info.gate_type,
-			      fanin_id_list);
+      id = mNetwork.new_logic_primitive(node_info.oname, node_info.gate_type,
+					fanin_id_list);
     }
     mIdMap.emplace(name_id, id);
     return id;
@@ -282,7 +282,7 @@ BnIscas89Handler::make_mux(
     or_fanins[p] = Expr::make_and(and_fanins);
   }
   Expr mux_expr = Expr::make_or(or_fanins);
-  auto id = mNetwork.new_logic(oname, mux_expr, fanin_id_list);
+  auto id = mNetwork.new_logic_expr(oname, mux_expr, fanin_id_list);
   return id;
 }
 

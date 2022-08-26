@@ -33,7 +33,7 @@ TEST(ImportTest, test1)
     auto and1 = mod1.new_and(string(), {input1, input2});
 
     auto output1 = port3.bit(0);
-    mod1.set_output(output1, and1);
+    mod1.set_output_src(output1, and1);
 
     network1.move(std::move(mod1));
   }
@@ -68,7 +68,7 @@ TEST(ImportTest, test1)
     auto& port5 = mod2.port(port5_id);
     auto output = port5.bit(0);
 
-    mod2.set_output(output, or_id);
+    mod2.set_output_src(output, or_id);
 
     network2.move(std::move(mod2));
   }

@@ -65,6 +65,15 @@ BnOutputNode::fanin_id_list() const
   return vector<SizeType>{mFanin};
 }
 
+// @brief 出力位置を設定する．
+void
+BnOutputNode::set_output_pos(
+  SizeType opos
+)
+{
+  mOutputPos = opos;
+}
+
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
@@ -83,11 +92,29 @@ BnOutputNode::set_fanin(
 // クラス BnPortOutput
 //////////////////////////////////////////////////////////////////////
 
+// @brief 外部出力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_port_output(
+  const string& name,
+  SizeType port_id,
+  SizeType port_bit
+)
+{
+  return new BnPortOutput{name, port_id, port_bit};
+}
+
 // @brief 外部出力端子の時に true を返す．
 bool
 BnPortOutput::is_port_output() const
 {
   return true;
+}
+
+// @brief 外部出力端子番号を返す．
+SizeType
+BnPortOutput::primary_output_pos() const
+{
+  return mPrimaryOutputPos;
 }
 
 // @brief 接続しているポート番号を返す．
@@ -108,6 +135,15 @@ BnPortOutput::port_bit() const
   return mPortBit;
 }
 
+// @brief 外部出力端子番号を設定する．
+void
+BnPortOutput::set_primary_output_pos(
+  SizeType pos
+)
+{
+  mPrimaryOutputPos = pos;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnControl
@@ -125,6 +161,16 @@ BnControl::dff_id() const
 // クラス BnDataIn
 //////////////////////////////////////////////////////////////////////
 
+// @brief DFFの入力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_data_in(
+  const string& name,
+  SizeType dff_id
+)
+{
+  return new BnDataIn{name, dff_id};
+}
+
 // @brie DFFの入力端子の時に true を返す．
 bool
 BnDataIn::is_data_in() const
@@ -136,6 +182,16 @@ BnDataIn::is_data_in() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnClock
 //////////////////////////////////////////////////////////////////////
+
+// @brief DFFのクロック端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_clock(
+  const string& name,
+  SizeType dff_id
+)
+{
+  return new BnClock{name, dff_id};
+}
 
 // @brie DFFのクロック端子の時に true を返す．
 bool
@@ -149,6 +205,16 @@ BnClock::is_clock() const
 // クラス BnClear
 //////////////////////////////////////////////////////////////////////
 
+// @brief DFFのクリア端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_clear(
+  const string& name,
+  SizeType dff_id
+)
+{
+  return new BnClear{name, dff_id};
+}
+
 // @brie DFFのクリア端子の時に true を返す．
 bool
 BnClear::is_clear() const
@@ -161,6 +227,16 @@ BnClear::is_clear() const
 // クラス BnPreset
 //////////////////////////////////////////////////////////////////////
 
+// @brief DFFのプリセット端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_preset(
+  const string& name,
+  SizeType dff_id
+)
+{
+  return new BnPreset{name, dff_id};
+}
+
 // @brie DFFのプリセット端子の時に true を返す．
 bool
 BnPreset::is_preset() const
@@ -172,6 +248,17 @@ BnPreset::is_preset() const
 //////////////////////////////////////////////////////////////////////
 // クラス BnCellInput
 //////////////////////////////////////////////////////////////////////
+
+// @brief DFFセルの入力端子のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_cell_input(
+  const string& name,
+  SizeType dff_id,
+  SizeType iid
+)
+{
+  return new BnCellInput{name, dff_id, iid};
+}
 
 // @brief DFFセルの入力端子の時 true を返す．
 bool

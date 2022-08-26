@@ -85,9 +85,9 @@ ReadTruth::read(
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "l" << i;
-      auto node_id = new_logic(buf.str(), func_vect[i],
-			       fanin_id_list);
-      set_output(output_list[i], node_id);
+      auto node_id = new_logic_bdd(buf.str(), func_vect[i],
+				   fanin_id_list);
+      set_output_src(output_list[i], node_id);
     }
   }
 }

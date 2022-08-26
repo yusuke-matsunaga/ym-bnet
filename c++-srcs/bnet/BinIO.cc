@@ -217,10 +217,13 @@ BinIO::dump_logic(
       s.write_vint(id);
     }
     break;
+  case BnNodeType::Cell:
+    s.write_8(14);
+    s.write_vint(node.cell_id());
+    break;
   default:
     ASSERT_NOT_REACHED;
   }
-  //s.write_vint(node.cell_id());
 }
 
 // @brief BnNetwork を復元する．
@@ -299,7 +302,7 @@ BinIO::restore(
     ASSERT_COND( mNodeMap.count(src_output_id) > 0 );
     SizeType src_input_id = s.read_vint();
     if ( src_input_id != BNET_NULLID ) {
-      network_impl->set_output(mNodeMap[src_output_id], mNodeMap[src_input_id]);
+      network_impl->set_output_src(mNodeMap[src_output_id], mNodeMap[src_input_id]);
     }
   }
 
@@ -395,25 +398,31 @@ BinIO::restore_logic(
   default: break;
   }
   if ( type != BnNodeType::None ) {
-    node_id = network_impl->new_primitive(name, type, fanin_id_list);
+    node_id = network_impl->new_logic_primitive(name, type, fanin_id_list);
   }
   else if ( type_code == 11 ) {
     // Expr
     SizeType id = s.read_vint();
+    ASSERT_COND( id < mExprList.size() );
     auto& expr = mExprList[id];
-    node_id = network_impl->new_expr(name, expr, fanin_id_list);
+    node_id = network_impl->new_logic_expr(name, expr, fanin_id_list);
   }
   else if ( type_code == 12 ) {
     // TvFunc
     SizeType id = s.read_vint();
     auto& func = mFuncList[id];
-    node_id = network_impl->new_tv(name, func, fanin_id_list);
+    node_id = network_impl->new_logic_tv(name, func, fanin_id_list);
   }
   else if ( type_code == 13 ) {
     // Bdd
     SizeType id = s.read_vint();
     auto bdd = mBddList[id];
-    node_id = network_impl->new_bdd(name, bdd, fanin_id_list);
+    node_id = network_impl->new_logic_bdd(name, bdd, fanin_id_list);
+  }
+  else if ( type_code == 14 ) {
+    // Cell
+    SizeType cell_id = s.read_vint();
+    node_id = network_impl->new_logic_cell(name, cell_id, fanin_id_list);
   }
   mNodeMap[id] = node_id;
 }

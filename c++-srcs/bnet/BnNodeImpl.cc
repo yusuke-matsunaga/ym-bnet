@@ -105,6 +105,14 @@ BnNodeImpl::is_port_input() const
   return false;
 }
 
+// @brief 外部入力番号を返す．
+SizeType
+BnNodeImpl::primary_input_pos() const
+{
+  ASSERT_NOT_REACHED;
+  return BNET_NULLID;
+}
+
 // @brief DFFの出力端子の時 true を返す．
 bool
 BnNodeImpl::is_data_out() const
@@ -143,6 +151,14 @@ bool
 BnNodeImpl::is_port_output() const
 {
   return false;
+}
+
+// @brief 外部出力端子番号を返す．
+SizeType
+BnNodeImpl::primary_output_pos() const
+{
+  ASSERT_NOT_REACHED;
+  return BNET_NULLID;
 }
 
 // @brie DFFの入力端子の時に true を返す．
@@ -276,6 +292,50 @@ BnNodeImpl::bdd() const
   return Bdd::invalid();
 }
 
+// @brief セル番号を返す．
+SizeType
+BnNodeImpl::cell_id() const
+{
+  ASSERT_NOT_REACHED;
+  return CLIB_NULLID;
+}
+
+// @brief 入力位置を設定する．
+void
+BnNodeImpl::set_input_pos(
+  SizeType ipos
+)
+{
+  ASSERT_NOT_REACHED;
+}
+
+// @brief 外部入力端子番号を設定する．
+void
+BnNodeImpl::set_primary_input_pos(
+  SizeType pos
+)
+{
+  ASSERT_NOT_REACHED;
+}
+
+// @brief 出力位置を設定する．
+void
+BnNodeImpl::set_output_pos(
+  SizeType opos
+)
+{
+  ASSERT_NOT_REACHED;
+}
+
+// @brief 外部出力端子番号を設定する．
+void
+BnNodeImpl::set_primary_output_pos(
+  SizeType pos
+)
+{
+  ASSERT_NOT_REACHED;
+}
+
 // @brief ファンインを設定する．
 // @param[in] ipos 入力位置
 // @param[in] fanin_id ファンインのノード番号
@@ -302,6 +362,17 @@ BnNodeImpl::add_fanout(
 )
 {
   mFanoutList.push_back(node_id);
+}
+
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnNodeImpl::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  ASSERT_NOT_REACHED;
+  return nullptr;
 }
 
 END_NAMESPACE_YM_BNET

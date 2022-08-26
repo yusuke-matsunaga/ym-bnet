@@ -36,7 +36,7 @@ import_test(
     auto and1 = mod1.new_and(string(), {input1, input2});
 
     auto output1 = port3.bit(0);
-    mod1.set_output(output1, and1);
+    mod1.set_output_src(output1, and1);
     network1.move(std::move(mod1));
   }
 
@@ -49,9 +49,9 @@ import_test(
     auto port4_id = mod2.new_input_port("port4");
 
     auto& port1 = mod2.port(port1_id);
-    auto& port2 = mod2.port(port1_id);
-    auto& port3 = mod2.port(port1_id);
-    auto& port4 = mod2.port(port1_id);
+    auto& port2 = mod2.port(port2_id);
+    auto& port3 = mod2.port(port3_id);
+    auto& port4 = mod2.port(port4_id);
 
     auto input1 = port1.bit(0);
     auto input2 = port2.bit(0);
@@ -72,7 +72,7 @@ import_test(
     auto& port5 = mod2.port(port5_id);
     auto output = port5.bit(0);
 
-    mod2.set_output(output, or_id);
+    mod2.set_output_src(output, or_id);
     network2.move(std::move(mod2));
   }
 

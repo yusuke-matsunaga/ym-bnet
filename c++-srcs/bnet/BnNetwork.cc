@@ -378,7 +378,9 @@ BnNetwork::expr(
 
 // cython 用の変換関数
 int
-__bnnodetype_to_int(BnNodeType type)
+__bnnodetype_to_int(
+  BnNodeType type
+)
 {
   switch ( type ) {
   case BnNodeType::None:   return 0;
@@ -397,13 +399,16 @@ __bnnodetype_to_int(BnNodeType type)
   case BnNodeType::Expr:   return 13;
   case BnNodeType::TvFunc: return 14;
   case BnNodeType::Bdd:    return 15;
+  case BnNodeType::Cell:   return 16;
   defult: ASSERT_NOT_REACHED; break;
   }
   return 0;
 }
 
 BnNodeType
-__int_to_bnnodetype(int val)
+__int_to_bnnodetype(
+  int val
+)
 {
   static BnNodeType tbl[] {
     BnNodeType::None,
@@ -421,10 +426,11 @@ __int_to_bnnodetype(int val)
     BnNodeType::Xnor,
     BnNodeType::Expr,
     BnNodeType::TvFunc,
-    BnNodeType::Bdd
+    BnNodeType::Bdd,
+    BnNodeType::Cell
   };
 
-  ASSERT_COND( val >= 0 && val < 15 );
+  ASSERT_COND( 0 <= val && val < sizeof(tbl) / sizeof(BnNodeType) );
   return tbl[val];
 }
 

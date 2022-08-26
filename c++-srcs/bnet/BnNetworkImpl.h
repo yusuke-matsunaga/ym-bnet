@@ -15,8 +15,6 @@
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "BnNodeImpl.h"
-#include "BnInputNode.h"
-#include "BnOutputNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -167,17 +165,11 @@ public:
   /// @brief プリミティブ型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   SizeType
-  new_primitive(
+  new_logic_primitive(
     const string& node_name,              ///< [in] ノード名
     BnNodeType logic_type,                ///< [in] 論理型
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto id = _reg_logic(node_name, logic_type,
-			 -1, -1, Bdd::invalid(),
-			 fanin_id_list);
-    return id;
-  }
+  );
 
   /// @brief 論理式型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -186,22 +178,11 @@ public:
   /// - 入力数は expr.input_num() を用いる．
   /// - expr 中の変数に抜けがある場合には詰められる．
   SizeType
-  new_expr(
+  new_logic_expr(
     const string& node_name,              ///< [in] ノード名
     const Expr& expr,                     ///< [in] 論理式
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    SizeType ni;
-    BnNodeType logic_type;
-    SizeType expr_id;
-    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    ASSERT_COND( ni == fanin_id_list.size() );
-    auto id = _reg_logic(node_name, logic_type,
-			 expr_id, -1, Bdd::invalid(),
-			 fanin_id_list);
-    return id;
-  }
+  );
 
   /// @brief 真理値表型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -209,33 +190,22 @@ public:
   /// - ノード名の重複に関しては感知しない．
   /// - 入力数は tv.input_num() を用いる．
   SizeType
-  new_tv(
+  new_logic_tv(
     const string& node_name,              ///< [in] ノード名
     const TvFunc& tv,                     ///< [in] 真理値表
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto func_id = _reg_tv(tv);
-    return _reg_logic(node_name, BnNodeType::TvFunc,
-		      -1, func_id, Bdd::invalid(),
-		      fanin_id_list);
-  }
+  );
 
   /// @brief BDD型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
   /// - ノード名の重複に関しては感知しない．
   SizeType
-  new_bdd(
+  new_logic_bdd(
     const string& node_name,              ///< [in] ノード名
     const Bdd& bdd,                       ///< [in] BDD
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    return _reg_logic(node_name, BnNodeType::Bdd,
-		      -1, -1, bdd,
-		      fanin_id_list);
-  }
+  );
 
   /// @brief 論理セルを追加する．
   /// @return 生成した論理ノードの番号を返す．
@@ -255,12 +225,7 @@ public:
     SizeType id,                          ///< [in] ノード番号
     BnNodeType logic_type,                ///< [in] 論理型
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    _change_logic(id, logic_type,
-		  -1, -1, Bdd::invalid(),
-		  fanin_id_list);
-  }
+  );
 
   /// @brief 論理式型の論理ノードに変更する．
   ///
@@ -270,18 +235,7 @@ public:
     SizeType id,                          ///< [in] ノード番号
     const Expr& expr,                     ///< [in] 論理式
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-
-    SizeType ni;
-    BnNodeType logic_type;
-    SizeType expr_id;
-    tie(ni, logic_type, expr_id) = _analyze_expr(expr);
-    ASSERT_COND( ni == fanin_id_list.size() );
-    _change_logic(id, logic_type,
-		  expr_id, -1, Bdd::invalid(),
-		  fanin_id_list);
-  }
+  );
 
   /// @brief 真理値表型の論理ノードに変更する．
   ///
@@ -291,15 +245,7 @@ public:
     SizeType id,                          ///< [in] ノード番号
     const TvFunc& tv,                     ///< [in] 真理値表
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto ni = tv.input_num();
-    ASSERT_COND( ni == fanin_id_list.size() );
-    auto func_id = _reg_tv(tv);
-    _change_logic(id, BnNodeType::TvFunc,
-		  -1, func_id, Bdd::invalid(),
-		  fanin_id_list);
-  }
+  );
 
   /// @brief BDD型の論理ノードに変更する．
   void
@@ -307,48 +253,15 @@ public:
     SizeType id,                          ///< [in] ノード番号
     const Bdd& bdd,                       ///< [in] 真理値表
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    auto ni = fanin_id_list.size();
-    _change_logic(id, BnNodeType::Bdd,
-		  -1, -1, bdd,
-		  fanin_id_list);
-  }
-
-#if 0
-  /// @brief セル型の論理ノードに変更する．
-  ///
-  /// - 入力数はセルから取得する．
-  /// - 論理セルでない場合にはなにもしない．
-  void
-  change_cell(
-    SizeType id     ///< [in] ノード番号
-  )
-  {
-    auto& cell = mCellLibrary.cell(cell_id);
-    if ( !cell.is_logic() || cell.output_num() != 1 ) {
-      return;
-    }
-
-    Expr expr = cell.logic_expr(0);
-    change_expr(id, expr, cell_id);
-  }
+  );
 
   /// @brief セル型の論理ノードに変更する．
-  ///
-  /// - 入力数はセルから取得する．
-  /// - 論理セルでない場合にはなにもしない．
   void
   change_cell(
     SizeType id,                          ///< [in] ノード番号
     int cell_id,                          ///< [in] セル番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  )
-  {
-    change_cell(id, cell_id);
-    connect_fanins(id, fanin_id_list);
-  }
-#endif
+  );
 
   /// @brief ノードを複製する．
   SizeType
@@ -365,16 +278,9 @@ public:
     SizeType new_id  ///< [in] つなぎ替える新しいノード番号
   );
 
-  /// @brief ファンインをつなぎ替える．
-  void
-  connect_fanins(
-    SizeType id,                          ///< [in] ノード番号
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  );
-
   /// @brief 出力ノードのファンインを設定する．
   void
-  set_output(
+  set_output_src(
     SizeType output_id, ///< [in] 出力ノードのID番号
     SizeType src_id     ///< [in] ファンインノードのID番号
   );
@@ -382,16 +288,10 @@ public:
   /// @brief 整合性のチェックを行う．
   ///
   /// チェック項目は以下の通り
-  /// - name() が設定されているか？
-  ///   設定されていない場合にはデフォルト値を設定する．
-  ///   エラーとはならない．
   /// - 各ポートの各ビットのノード番号が適切か？
   /// - 各DFFの入力，出力およびクロックが設定されているか？
   /// - 各ラッチの入力，出力およびイネーブルが設定されているか？
   /// - 各ノードのファンインが設定されているか？
-  ///
-  /// この関数を呼んだあとは論理ノードがトポロジカルソートされる．
-  /// というかこの関数を呼ばないと logic_num(), logic() は正しくない．
   void
   wrap_up();
 
@@ -710,6 +610,46 @@ private:
     SizeType pos            ///< [in] ピン番号
   );
 
+  /// @brief プリミティブ型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_primitive(
+    const string& node_name,              ///< [in] ノード名
+    BnNodeType type,                      ///< [in] ノードの型(プリミティブ型のみ)
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 論理式型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_expr(
+    const string& node_name,              ///< [in] ノード名
+    const Expr& expr,			  ///< [in] 論理式
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 真理値表型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_tv(
+    const string& node_name,              ///< [in] ノード名
+    const TvFunc& tv,                     ///< [in] 真理値表
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief BDD型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_bdd(
+    const string& node_name,              ///< [in] ノード名
+    const Bdd& bdd,                       ///< [in] BDD
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief セル型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_cell(
+    const string& node_name,              ///< [in] ノード名
+    SizeType cell_id,                     ///< [in] セル番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
   /// @brief ノード番号が正しいかチェックする．
   bool
   _check_node_id(
@@ -729,122 +669,48 @@ private:
     return mNodeList[id - 1];
   }
 
-  /// @brief ノードを登録する．
-  void
-  _reg_node(
-    BnNodeImpl* node
-  )
-  {
-    node->mId = mNodeList.size() + 1;
-    mNodeList.push_back(node);
-  }
-
-  /// @brief ノードを登録し直す．
-  void
-  _set_node(
-    BnNodeImpl* node,
-    SizeType id
-  )
-  {
-    ASSERT_COND( _check_node_id(id) );
-    node->mId = id;
-    mNodeList[id - 1] = node;
-  }
-
   /// @brief 入力ノードを登録する．
-  void
+  SizeType
   _reg_input(
-    BnInputNode* node
-  )
-  {
-    _reg_node(node);
-    node->mInputPos = mInputList.size();
-    mInputList.push_back(node->id());
-  }
+    BnNodeImpl* node
+  );
 
   /// @brief 外部入力ノードを登録する．
-  void
+  SizeType
   _reg_primary_input(
-    BnInputNode* node
-  )
-  {
-    _reg_input(node);
-    mPrimaryInputList.push_back(node->id());
-  }
+    BnNodeImpl* node
+  );
 
   /// @brief 出力ノードを登録する．
-  void
+  SizeType
   _reg_output(
-    BnOutputNode* node
-  )
-  {
-    _reg_node(node);
-    node->mOutputPos = mOutputList.size();
-    mOutputList.push_back(node->id());
-  }
+    BnNodeImpl* node
+  );
 
   /// @brief 外部出力ノードを登録する．
-  void
+  SizeType
   _reg_primary_output(
-    BnOutputNode* node
-  )
-  {
-    _reg_output(node);
-    mPrimaryOutputList.push_back(node->id());
-  }
-
-  /// @brief 既存の論理ノードを変更する最も低レベルの関数
-  ///
-  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
-  void
-  _change_logic(
-    SizeType node_id,      ///< [in] ノード番号
-    BnNodeType logic_type, ///< [in] 論理ノードの型
-    SizeType expr_id,      ///< [in] 論理式番号
-    SizeType func_id,      ///< [in] 論理関数番号
-    const Bdd& bdd,        ///< [in] BDD
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    BnNodeImpl* node
   );
 
-  /// @brief 新しい論理ノードを作って登録する．
-  /// @return 生成したノード番号を返す．
-  ///
-  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
+  /// @brief 論理ノードを登録する．
   SizeType
   _reg_logic(
-    const string& name,    ///< [in] ノード名
-    BnNodeType logic_type, ///< [in] 論理ノードの型
-    SizeType expr_id,      ///< [in] 論理式番号
-    SizeType func_id,      ///< [in] 論理関数番号
-    const Bdd& bdd,        ///< [in] BDD
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    BnNodeImpl* node
   );
 
-  /// @brief 論理ノードを作る最も低レベルの関数
-  /// @return 生成したノード番号を返す．
-  ///
-  /// expr_id, func_id, cell_id は場合によっては無効な値が入る．
-  BnNodeImpl*
-  _new_logic(
-    const string& name,    ///< [in] ノード名
-    SizeType fanin_num,    ///< [in] ファンイン数
-    BnNodeType logic_type, ///< [in] 論理ノードの型
-    SizeType expr_id,      ///< [in] 論理式番号
-    SizeType func_id,      ///< [in] 論理関数番号
-    const Bdd& bdd         ///< [in] BDD
+  /// @brief ノードを登録する．
+  /// @return 登録したノードの番号を返す．
+  SizeType
+  _reg_node(
+    BnNodeImpl* node
   );
 
-  /// @brief DFFを追加する共通の処理を行う関数
-  /// @return 生成したDFFを返す．
-  ///
-  /// - 名前の重複に関しては感知しない．
-  BnDff&
-  _new_dff(
-    const string& name, ///< [in] DFF名
-    BnDffType type,     ///< [in] タイプ
-    bool has_clear,     ///< [in] クリア端子を持つ時 true にする．
-    bool has_preset,    ///< [in] プリセット端子を持つ時 true にする．
-    BnCPV cpv           ///< [in] クリアとプリセットが衝突したときの挙動
+  /// @brief ノードを取り替える．
+  void
+  _chg_node(
+    BnNodeImpl* old_node,
+    BnNodeImpl* new_node
   );
 
   /// @brief 論理式を解析する．

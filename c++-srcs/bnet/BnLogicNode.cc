@@ -67,6 +67,17 @@ BnLogicNode::set_fanin(
 // クラス BnPrimNode
 //////////////////////////////////////////////////////////////////////
 
+// @brief プリミティブ型のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_primitive(
+  const string& name,                   ///< [in] 名前
+  BnNodeType type,                      ///< [in] タイプ
+  const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+)
+{
+  return new BnPrimNode{name, type, fanin_id_list};
+}
+
 // @brief タイプを返す．
 BnNodeType
 BnPrimNode::type() const
@@ -74,10 +85,31 @@ BnPrimNode::type() const
   return mLogicType;
 }
 
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnPrimNode::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnPrimNode{name, type(), fanin_id_list};
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnExprNode
 //////////////////////////////////////////////////////////////////////
+
+// @brief 論理式型のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_expr(
+  const string& name,
+  SizeType expr_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnExprNode{name, expr_id, fanin_id_list};
+}
 
 // @brief タイプを返す．
 BnNodeType
@@ -96,10 +128,31 @@ BnExprNode::expr_id() const
   return mExprId;
 }
 
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnExprNode::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnExprNode{name, expr_id(), fanin_id_list};
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnTvNode
 //////////////////////////////////////////////////////////////////////
+
+// @brief 真理値表型のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_tv(
+  const string& name,
+  SizeType func_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnTvNode{name, func_id, fanin_id_list};
+}
 
 // @brief タイプを返す．
 BnNodeType
@@ -118,10 +171,31 @@ BnTvNode::func_id() const
   return mFuncId;
 }
 
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnTvNode::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnTvNode{name, func_id(), fanin_id_list};
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnBddNode
 //////////////////////////////////////////////////////////////////////
+
+// @brief BDD型のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_bdd(
+  const string& name,
+  const Bdd& bdd,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnBddNode{name, bdd, fanin_id_list};
+}
 
 // @brief タイプを返す．
 BnNodeType
@@ -135,6 +209,56 @@ Bdd
 BnBddNode::bdd() const
 {
   return mBdd;
+}
+
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnBddNode::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnBddNode{name, bdd(), fanin_id_list};
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス BnCellNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief 論理セル型のノードを作る．
+BnNodeImpl*
+BnNodeImpl::new_cell(
+  const string& name,
+  SizeType cell_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnCellNode{name, cell_id, fanin_id_list};
+}
+
+// @brief タイプを返す．
+BnNodeType
+BnCellNode::type() const
+{
+  return BnNodeType::Cell;
+}
+
+// @brief セル番号を返す．
+SizeType
+BnCellNode::cell_id() const
+{
+  return mCellId;
+}
+
+// @brief 自分と同じタイプのノードを作る．
+BnNodeImpl*
+BnCellNode::duplicate(
+  const string& name,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return new BnCellNode{name, cell_id(), fanin_id_list};
 }
 
 END_NAMESPACE_YM_BNET

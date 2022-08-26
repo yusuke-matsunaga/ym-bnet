@@ -20,8 +20,6 @@ BEGIN_NAMESPACE_YM_BNET
 class BnInputNode :
   public BnNodeImpl
 {
-  friend class BnNetworkImpl;
-
 public:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
@@ -65,6 +63,20 @@ public:
   input_pos() const override;
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 入力位置を設定する．
+  ///
+  /// 入力ノード専用
+  void
+  set_input_pos(
+    SizeType ipos ///< [in] 入力位置
+  ) override;
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
@@ -92,7 +104,8 @@ public:
     SizeType port_bit   ///< [in] ポート中のビット位置
   ) : BnInputNode{name},
       mPortId{port_id},
-      mPortBit{port_bit}
+      mPortBit{port_bit},
+      mPrimaryInputPos{BNET_NULLID}
   {
   }
 
@@ -108,6 +121,14 @@ public:
   /// @brief 外部入力端子の時 true を返す．
   bool
   is_port_input() const override;
+
+  /// @brief 外部入力番号を返す．
+  ///
+  /// is_port_input() == true の時のみ意味を持つ<br>
+  /// node_id = BnNetwork::primary_input_id(pos) の時
+  /// node->primary_input_pos() = pos となる．
+  SizeType
+  primary_input_pos() const override;
 
 
 public:
@@ -128,10 +149,27 @@ public:
   port_bit() const override;
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 設定用のインターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 外部入力端子番号を設定する．
+  ///
+  /// 外部入力ノード専用
+  void
+  set_primary_input_pos(
+    SizeType pos ///< [in] 位置番号
+  ) override;
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // 外部入力番号
+  SizeType mPrimaryInputPos;
 
   // ポート番号
   SizeType mPortId;

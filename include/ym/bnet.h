@@ -87,6 +87,7 @@ enum class BnNodeType {
   Expr,   ///< 論理ノード(論理式:Expr)
   TvFunc, ///< 論理ノード(真理値表:TvFunc)
   Bdd,    ///< 論理ノード(BDD:Bdd)
+  Cell,   ///< 論理ノード(セル)
 };
 
 /// @relates BnNodeType
@@ -116,6 +117,7 @@ operator<<(
   case BnNodeType::Expr:   s << "Expr"; break;
   case BnNodeType::TvFunc: s << "TvFunc"; break;
   case BnNodeType::Bdd:    s << "Bdd"; break;
+  case BnNodeType::Cell:   s << "Cell"; break;
   defult: ASSERT_NOT_REACHED; break;
   }
   return s;

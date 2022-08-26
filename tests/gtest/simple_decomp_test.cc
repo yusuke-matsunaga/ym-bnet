@@ -43,10 +43,10 @@ TEST(SimpleDecompTest, test1)
     Expr lit2{Expr::make_posi_literal(var2)};
 
     Expr expr = (lit0 & ~lit1) | (~lit1 & lit2);
-    auto id1 = mod1.new_logic(string(), expr, {input1, input2, input3});
+    auto id1 = mod1.new_logic_expr({}, expr, {input1, input2, input3});
 
     auto output1 = port4.bit(0);
-    mod1.set_output(output1, id1);
+    mod1.set_output_src(output1, id1);
     network1.move(std::move(mod1));
   }
 
