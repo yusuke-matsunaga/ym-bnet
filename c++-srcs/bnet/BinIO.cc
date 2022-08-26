@@ -8,9 +8,6 @@
 
 #include "BinIO.h"
 #include "ym/BnNetwork.h"
-#include "ym/BnPort.h"
-#include "ym/BnDff.h"
-#include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "BnNetworkImpl.h"
 
@@ -55,8 +52,7 @@ BinIO::dump(
   mBddMap.clear();
   {
     vector<Bdd> bdd_list;
-    for ( auto id: network.logic_id_list() ) {
-      auto& node = network.node(id);
+    for ( auto& node: network.logic_list() ) {
       if ( node.type() == BnNodeType::Bdd ) {
 	auto bdd = node.bdd();
 	if ( mBddMap.count(bdd) == 0 ) {
@@ -72,8 +68,7 @@ BinIO::dump(
   // ポート
   SizeType np = network.port_num();
   s.write_vint(np);
-  for ( SizeType i = 0; i < np; ++ i ) {
-    auto& port = network.port(i);
+  for ( auto& port: network.port_list() ) {
     s.write_string(port.name());
     SizeType nb = port.bit_width();
     s.write_vint(nb);
@@ -96,23 +91,22 @@ BinIO::dump(
   // D-FF
   SizeType ndff = network.dff_num();
   s.write_vint(ndff);
-  for ( SizeType i = 0; i < ndff; ++ i ) {
-    dump_dff(s, network.dff(i));
+  for ( auto& dff: network.dff_list() ) {
+    dump_dff(s, dff);
   }
 
   // 論理ノード
   SizeType nl = network.logic_num();
   s.write_vint(nl);
-  for ( auto id: network.logic_id_list() ) {
-    dump_logic(s, network.node(id));
+  for ( auto& node: network.logic_list() ) {
+    dump_logic(s, node);
   }
 
   // 出力ノード
   SizeType no = network.output_num();
   s.write_vint(no);
-  for ( auto id: network.output_id_list() ) {
-    auto& node = network.node(id);
-    s.write_vint(id);
+  for ( auto& node: network.output_list() ) {
+    s.write_vint(node.id());
     s.write_vint(node.fanin_id(0));
   }
 }

@@ -34,7 +34,7 @@ BEGIN_NAMESPACE_YM_BNET
 ///   Verilog の UDP instance を用いる．
 ///
 /// BnDff の種類に応じて以下のように出力する．
-/// - セル型 ( cell_id() != -1 )
+/// - セル型 ( is_cell() == true )
 ///   セルインスタンス文を出力する．
 /// - それ以外
 ///   always 文を出力する．
@@ -104,7 +104,7 @@ private:
   /// @brief ポート名の登録を行う．
   void
   reg_port_name(
-    int port_id,                      ///< [in] ポート番号
+    SizeType port_id,                 ///< [in] ポート番号
     unordered_set<string>& name_hash, ///< [in] ポート名のハッシュ
     NameMgr& name_mgr                 ///< [in] ポート名を管理するクラス
   );
@@ -112,7 +112,7 @@ private:
   /// @brief ノード名の登録を行う．
   void
   reg_node_name(
-    int node_id,                      ///< [in] ノード番号
+    SizeType node_id,                 ///< [in] ノード番号
     unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
     NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
   );
@@ -120,7 +120,7 @@ private:
   /// @brief ノード名をそのファンインのノード名に付け替える．
   void
   replace_node_name(
-    int node_id ///< [in] ノード番号
+    SizeType node_id ///< [in] ノード番号
   );
 
 

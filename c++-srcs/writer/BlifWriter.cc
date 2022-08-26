@@ -8,8 +8,6 @@
 
 #include "BlifWriter.h"
 #include "ym/BnNetwork.h"
-#include "ym/BnNode.h"
-#include "ym/BnDff.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
 #include "ym/Range.h"
@@ -29,7 +27,7 @@ BnNetwork::write_blif(
   const string& suffix
 ) const
 {
-  ofstream ofs(filename);
+  ofstream ofs{filename};
   if ( ofs ) {
     write_blif(ofs, prefix, suffix);
   }
@@ -43,12 +41,25 @@ BnNetwork::write_blif(
   const string& suffix
 ) const
 {
-  if ( !is_concrete() ) {
-    cerr << "Cannot convert to blif." << endl;
-    return;
+  // Latchタイプ，CellタイプのDFFノードを持つとき変換不能
+  for ( auto& dff: dff_list() ) {
+    if ( dff.type() != BnDffType::Dff ) {
+      cerr << "Cannot convert to blif" << endl;
+      return;
+    }
   }
 
-  BlifWriter writer(*this, prefix, suffix);
+  // TvFuncタイプ，Bddタイプ，Cellタイプの論理ノードを持つ時変換不能
+  for ( auto& node: logic_list() ) {
+    if ( node.type() == BnNodeType::TvFunc ||
+	 node.type() == BnNodeType::Bdd ||
+	 node.type() == BnNodeType::Cell ) {
+      cerr << "Cannot convert to blif" << endl;
+      return;
+    }
+  }
+
+  BlifWriter writer{*this, prefix, suffix};
   writer(s);
 }
 
@@ -86,7 +97,8 @@ BlifWriter::operator()(
 
   // .inputs 文の出力
   int count = 0;
-  for ( auto id: network().primary_input_id_list() ) {
+  for ( auto& node: network().primary_input_list() ) {
+    auto id = node.id();
     if ( !is_data(id) ) {
       continue;
     }
@@ -106,11 +118,12 @@ BlifWriter::operator()(
 
   // .outputs 文の出力
   count = 0;
-  for ( auto id: network().primary_output_src_id_list() ) {
+  for ( auto& node: network().primary_output_src_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
 
+    auto id = node.id();
     s << " " << node_name(id);
     ++ count;
     if ( count >= 10 ) {
@@ -123,15 +136,14 @@ BlifWriter::operator()(
   }
 
   // .latch 文の出力
-  for ( auto id: Range(network().dff_num()) ) {
-    auto& dff = network().dff(id);
+  for ( auto& dff: network().dff_list() ) {
     s << ".latch " << node_name(dff.data_in())
       << " " << node_name(dff.data_out()) << endl;
   }
 
   // 出力用の追加の .names 文
-  for ( auto id: network().primary_output_id_list() ) {
-    auto& node = network().node(id);
+  for ( auto& node: network().primary_output_list() ) {
+    auto id = node.id();
     auto src_id = node.fanin_id(0);
     string src_name = node_name(src_id);
     string name = node_name(id);
@@ -142,13 +154,13 @@ BlifWriter::operator()(
   }
 
   // .names 文の出力
-  for ( auto id: network().logic_id_list() ) {
+  for ( auto& node: network().logic_list() ) {
+    auto id = node.id();
     if ( !is_data(id) ) {
       continue;
     }
 
     s << ".names";
-    auto& node = network().node(id);
     for ( auto iid: node.fanin_id_list() ) {
       s << " " << node_name(iid);
     }
@@ -252,12 +264,10 @@ BlifWriter::operator()(
       {
 	const Expr& expr = network().expr(node.expr_id());
 	if ( expr.is_sop() ) {
-	  auto nc = expr.child_num();
 	  if ( expr.is_and() ) {
 	    // 個々の子供はリテラルのはず．
 	    vector<int> pol_array(ni, 0);
-	    for ( auto i: Range(expr.child_num()) ) {
-	      Expr expr1 = expr.child(i);
+	    for ( auto& expr1: expr.operand_list() ) {
 	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
 		auto pos = var.val();
@@ -282,8 +292,7 @@ BlifWriter::operator()(
 	    s << " 1" << endl;
 	  }
 	  else if ( expr.is_or() ) {
-	    for ( auto i: Range(expr.child_num()) ) {
-	      Expr expr1 = expr.child(i);
+	    for ( auto& expr1: expr.operand_list() ) {
 	      if ( expr1.is_posi_literal() ) {
 		VarId var = expr1.varid();
 		auto pos = var.val();
@@ -312,8 +321,7 @@ BlifWriter::operator()(
 	      }
 	      else if ( expr1.is_and() ) {
 		vector<SizeType> lit_map(ni, 0);
-		for ( auto j: Range(expr1.child_num()) ) {
-		  Expr expr2 = expr1.child(j);
+		for ( auto& expr2: expr1.operand_list() ) {
 		  ASSERT_COND( expr2.is_literal() );
 		  VarId var = expr2.varid();
 		  auto pos = var.val();

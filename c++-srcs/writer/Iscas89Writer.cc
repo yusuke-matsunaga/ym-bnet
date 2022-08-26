@@ -8,11 +8,8 @@
 
 #include "Iscas89Writer.h"
 #include "ym/BnNetwork.h"
-#include "ym/BnNode.h"
-#include "ym/BnDff.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
-#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -29,7 +26,7 @@ BnNetwork::write_iscas89(
   const string& suffix
 ) const
 {
-  ofstream ofs(filename);
+  ofstream ofs{filename};
   if ( ofs ) {
     write_iscas89(ofs, prefix, suffix);
   }
@@ -43,15 +40,27 @@ BnNetwork::write_iscas89(
   const string& suffix
 ) const
 {
-  if ( !is_concrete() ) {
-    cerr << "Cannot convert to iscas89(.bench)" << endl;
-    return;
+  // Latchタイプ，CellタイプのDFFノードを持つとき変換不能
+  for ( auto& dff: dff_list() ) {
+    if ( dff.type() != BnDffType::Dff ) {
+      cerr << "Cannot convert to iscas89(.bench)" << endl;
+      return;
+    }
+  }
+
+  // TvFuncタイプ，Bddタイプ，Cellタイプの論理ノードを持つ時変換不能
+  for ( auto& node: logic_list() ) {
+    if ( node.type() == BnNodeType::TvFunc ||
+	 node.type() == BnNodeType::Bdd ||
+	 node.type() == BnNodeType::Cell ) {
+      cerr << "Cannot convert to iscas89(.bench)" << endl;
+      return;
+    }
   }
 
   // 個々のノードが単純なゲートか調べる．
-  bool ng = false;
-  for ( auto id: logic_id_list() ) {
-    auto& node = this->node(id);
+  bool need_decomp = false;
+  for ( auto& node: logic_list() ) {
     switch ( node.type() ) {
     case BnNodeType::C0:
     case BnNodeType::C1:
@@ -66,19 +75,19 @@ BnNetwork::write_iscas89(
       break;
     default:
       // 上記以外は .bench では受け付けない．
-      ng = true;
+      need_decomp = true;
       break;
     }
   }
-  if ( ng ) {
+  if ( need_decomp ) {
     // iscas89 フォーマットに合うように変形する
     auto network = simple_decomp();
-    Iscas89Writer writer(network, prefix, suffix);
+    Iscas89Writer writer{network, prefix, suffix};
     writer(s);
     return;
   }
   else {
-    Iscas89Writer writer(*this, prefix, suffix);
+    Iscas89Writer writer{*this, prefix, suffix};
     writer(s);
   }
 }
@@ -114,7 +123,8 @@ Iscas89Writer::operator()(
 {
   // INPUT 文の出力
   int count = 0;
-  for ( int id: network().primary_input_id_list() ) {
+  for ( auto& node: network().primary_input_list() ) {
+    auto id = node.id();
     if ( is_data(id) ) {
       s << "INPUT(" << node_name(id) << ")" << endl;
     }
@@ -122,23 +132,23 @@ Iscas89Writer::operator()(
   s << endl;
 
   // OUTPUT 文の出力
-  for ( int id: network().primary_output_src_id_list() ) {
+  for ( auto& node: network().primary_output_src_list() ) {
+    auto id = node.id();
     s << "OUTPUT(" << node_name(id) << ")" << endl;
   }
   s << endl;
 
   // DFF 文の出力
-  for ( auto id: Range(network().dff_num()) ) {
-    auto& dff = network().dff(id);
+  for ( auto& dff: network().dff_list() ) {
     s << node_name(dff.data_out())
       << " = DFF(" << node_name(dff.data_in()) << ")" << endl;
   }
   s << endl;
 
   // 出力用の追加の BUFF 文
-  for ( int id: network().primary_output_id_list() ) {
-    auto& node = network().node(id);
-    int src_id = node.fanin_id(0);
+  for ( auto& node: network().primary_output_list() ) {
+    auto id = node.id();
+    auto src_id = node.fanin_id(0);
     string src_name = node_name(src_id);
     string name = node_name(id);
     if ( name != src_name ) {
@@ -147,11 +157,11 @@ Iscas89Writer::operator()(
   }
 
   // ゲート文の出力
-  for ( auto id: network().logic_id_list() ) {
+  for ( auto& node: network().logic_list() ) {
+    auto id = node.id();
     if ( !is_data(id) ) {
       continue;
     }
-    auto& node = network().node(id);
     s << node_name(id) << " = ";
     switch ( node.type() ) {
     case BnNodeType::C0:   s << "CONST0"; break;

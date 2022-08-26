@@ -33,26 +33,27 @@ BnNetworkImpl::copy(
 
   // src の入力の対応するノードを input_list に入れる．
   auto input_num = src.input_num();
-  vector<SizeType> input_list(input_num);
-  for ( auto i: Range(input_num) ) {
-    auto src_id = src.input_id(i);
+  vector<SizeType> input_list;
+  input_list.reserve(input_num);
+  for ( SizeType src_id: src.input_id_list() ) {
     ASSERT_COND( id_map.count(src_id) > 0 );
     auto dst_id = id_map.at(src_id);
-    input_list[i] = dst_id;
+    input_list.push_back(dst_id);
   }
 
   // src 本体をインポートする．
   auto output_list = import_subnetwork(src, input_list);
 
   // 出力端子のファンインの接続
-  auto output_num = src.output_num();
-  for ( auto i: Range(output_num) ) {
-    auto src_id = src.output_id(i);
-    auto src_fanin_id = src.output_src_id(i);
-
-    auto dst_id = id_map[src_id];
+  SizeType i = 0;
+  for ( auto src_id: src.output_id_list() ) {
+    auto& src_node = src.node(src_id);
+    auto src_fanin_id = src_node.fanin_id(0);
+    ASSERT_COND( id_map.count(src_id) > 0 );
+    auto dst_id = id_map.at(src_id);
     auto dst_fanin_id = output_list[i];
     set_output_src(dst_id, dst_fanin_id);
+    ++ i;
   }
 
   wrap_up();

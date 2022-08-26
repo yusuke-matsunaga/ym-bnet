@@ -13,7 +13,6 @@
 #include "ym/ClibCell.h"
 #include "ym/ClibPin.h"
 #include "ym/MsgMgr.h"
-#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET

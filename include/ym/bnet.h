@@ -32,8 +32,11 @@ BEGIN_NAMESPACE_YM_BNET
 // クラスの前方宣言
 class BnNetwork;
 class BnPort;
+class BnPortList;
 class BnDff;
+class BnDffList;
 class BnNode;
+class BnNodeList;
 class BnModifier;
 
 END_NAMESPACE_YM_BNET
@@ -198,8 +201,11 @@ private:
 
 using nsBnet::BnNetwork;
 using nsBnet::BnPort;
+using nsBnet::BnPortList;
 using nsBnet::BnDff;
+using nsBnet::BnDffList;
 using nsBnet::BnNode;
+using nsBnet::BnNodeList;
 using nsBnet::BnModifier;
 
 END_NAMESPACE_YM

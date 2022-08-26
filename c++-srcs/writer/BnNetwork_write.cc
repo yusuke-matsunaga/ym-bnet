@@ -10,6 +10,7 @@
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/Expr.h"
@@ -40,16 +41,14 @@ BnNetwork::write(
   }
   s << endl;
 
-  for ( auto id: input_id_list() ) {
-    auto& node = this->node(id);
+  for ( auto& node: input_list() ) {
     ASSERT_COND( node.type() == BnNodeType::Input );
     s << "input: " << node.id()
       << "(" << node.name() << ")" << endl;
   }
   s << endl;
 
-  for ( auto id: output_id_list() ) {
-    auto& node = this->node(id);
+  for ( auto& node: output_list() ) {
     s << "output: " << node.id()
       << "(" << node.name() << ")" << endl
       << "    input: " << node.fanin_id(0) << endl;
@@ -60,23 +59,42 @@ BnNetwork::write(
   for ( SizeType i = 0; i < ndff; ++ i ) {
     auto& dff = this->dff(i);
     s << "dff#" << dff.id()
-      << "(" << dff.name() << ")" << endl
-      << "    input:  " << dff.data_in() << endl
-      << "    output: " << dff.data_out() << endl
-      << "    clock:  " << dff.clock() << endl;
-    if ( dff.clear() != BNET_NULLID ) {
-      s << "    clear:  " << dff.clear() << endl;
+      << "(" << dff.name() << ")";
+    if ( dff.is_dff() || dff.is_latch() ) {
+      if ( dff.is_dff() ) {
+	s << "[DFF]";
+      }
+      else {
+	s << "[LATCH]";
+      }
+      s << endl
+	<< "    input:  " << dff.data_in() << endl
+	<< "    output: " << dff.data_out() << endl
+	<< "    clock:  " << dff.clock() << endl;
+      if ( dff.clear() != BNET_NULLID ) {
+	s << "    clear:  " << dff.clear() << endl;
+      }
+      if ( dff.preset() != BNET_NULLID ) {
+	s << "    preset: " << dff.preset() << endl;
+      }
     }
-    if ( dff.preset() != BNET_NULLID ) {
-      s << "    preset: " << dff.preset() << endl;
+    else {
+      s << "[CELL]" << endl;
+      SizeType ni = dff.cell_input_num();
+      for ( auto i: Range(ni) ) {
+	s << "    input#" << i << ":  " << dff.cell_input(i) << endl;
+      }
+      SizeType no = dff.cell_output_num();
+      for ( auto i: Range(no) ) {
+	s << "    output#" << i << ": " << dff.cell_output(i) << endl;
+      }
     }
     s << endl;
   }
   s << endl;
 
-  for ( auto id: logic_id_list() ) {
-    auto& node = this->node(id);
-    s << "logic: " << id
+  for ( auto& node: logic_list() ) {
+    s << "logic: " << node.id()
       << "(" << node.name() << ")" << endl
       << "    fanins: ";
     for ( auto fanin_id: node.fanin_id_list() ) {

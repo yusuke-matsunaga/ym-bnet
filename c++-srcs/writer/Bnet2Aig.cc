@@ -8,8 +8,6 @@
 
 #include "AigWriter.h"
 #include "ym/BnNetwork.h"
-#include "ym/BnDff.h"
-#include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -26,15 +24,13 @@ AigWriter::conv_from_bnet(
   SizeType O = src_network.output_num();
 
   // Latchタイプ，Cellタイプの BnDff を持つとき変換不能
-  for ( SizeType i = 0; i < L; ++ i ) {
-    const auto& dff = src_network.dff(i);
+  for ( auto& dff: src_network.dff_list() ) {
     if ( dff.type() != BnDffType::Dff ) {
       return false;
     }
   }
   // TvFuncタイプ，Bddタイプの論理ノードを持つ時変換不能
-  for ( auto id: src_network.logic_id_list() ) {
-    auto& node = src_network.node(id);
+  for ( auto& node: src_network.logic_list() ) {
     if ( node.type() == BnNodeType::TvFunc ||
 	 node.type() == BnNodeType::Bdd ) {
       return false;
@@ -56,27 +52,25 @@ AigWriter::conv_from_bnet(
     lit_map.emplace(dff.data_out(), (i + I + 1) * 2);
   }
   // AND ノードを生成する．
-  for ( auto id: src_network.logic_id_list() ) {
-    const auto& node = src_network.node(id);
+  for ( auto& node: src_network.logic_list() ) {
     SizeType ni = node.fanin_num();
     // ファンインのリテラルのリスト
     vector<SizeType> fanin_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
-      auto fid = node.fanin_id(i);
+      auto fid = node.fanin(i, src_network).id();
       ASSERT_COND( lit_map.count(fid) > 0 );
       auto ilit = lit_map.at(fid);
       fanin_list[i] = ilit;
     }
     auto olit = make_bnnode(node,  src_network, fanin_list);
-    lit_map.emplace(id, olit);
+    lit_map.emplace(node.id(), olit);
   }
   // ラッチのソースを設定する．
-  for ( SizeType i = 0; i < L; ++ i ) {
-    const auto& dff = src_network.dff(i);
+  for ( auto& dff: src_network.dff_list() ) {
     auto src_id = dff.data_in();
     ASSERT_COND( lit_map.count(src_id) > 0 );
     auto src = lit_map.at(src_id);
-    set_latch_src(i, src);
+    set_latch_src(dff.id(), src);
   }
   // 出力のソースを設定する．
   for ( SizeType i = 0; i < O; ++ i ) {

@@ -15,6 +15,12 @@
 #include "ym/BinDec.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
+#include "ym/BnPort.h"
+#include "ym/BnPortList.h"
+#include "ym/BnDff.h"
+#include "ym/BnDffList.h"
+#include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -155,6 +161,10 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < port_num() )
   ) const;
 
+  /// @brief ポートのリストを得る．
+  BnPortList
+  port_list() const;
+
   /// @brief DFF数を得る．
   SizeType
   dff_num() const;
@@ -164,6 +174,10 @@ public:
   dff(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
   ) const;
+
+  /// @brief DFFのリストを得る．
+  BnDffList
+  dff_list() const;
 
   /// @brief ノード数を得る．
   SizeType
@@ -188,13 +202,13 @@ public:
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
   ) const;
 
-  /// @brief 入力ノードのノード番号のリストを得る．
-  const vector<SizeType>&
-  input_id_list() const;
+  /// @brief 入力ノードのノードのリストを得る．
+  BnNodeList
+  input_list() const;
 
-  /// @brief 外部入力ノードのノード番号のリストを得る．
-  const vector<SizeType>&
-  primary_input_id_list() const;
+  /// @brief 外部入力ノードのノードのリストを得る．
+  BnNodeList
+  primary_input_list() const;
 
   /// @brief 出力数を得る．
   SizeType
@@ -206,9 +220,9 @@ public:
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
   ) const;
 
-  /// @brief 出力ノードのノード番号のリストを得る．
-  const vector<SizeType>&
-  output_id_list() const;
+  /// @brief 出力ノードのノードのリストを得る．
+  BnNodeList
+  output_list() const;
 
   /// @brief 出力ノードのソースノード番号を得る．
   ///
@@ -218,19 +232,19 @@ public:
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
   ) const;
 
-  /// @brief 出力ノードのソースノード番号のリストを得る．
+  /// @brief 出力ノードのソースノードのリストを得る．
   ///
   /// ソースノードとは出力ノードのファンインのノード
-  const vector<SizeType>&
-  output_src_id_list() const;
+  BnNodeList
+  output_src_list() const;
 
-  /// @brief 外部出力ノードのノード番号のリストを得る．
-  const vector<SizeType>&
-  primary_output_id_list() const;
+  /// @brief 外部出力ノードのノードのリストを得る．
+  BnNodeList
+  primary_output_list() const;
 
-  /// @brief 外部出力ノードのソースノード番号のリストを得る．
-  const vector<SizeType>&
-  primary_output_src_id_list() const;
+  /// @brief 外部出力ノードのソースノードのリストを得る．
+  BnNodeList
+  primary_output_src_list() const;
 
   /// @brief 論理ノード数を得る．
   SizeType
@@ -242,9 +256,9 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < logic_num() )
   ) const;
 
-  /// @brief 論理ノードのノード番号のリストを得る．
-  const vector<SizeType>&
-  logic_id_list() const;
+  /// @brief 論理ノードのリストを得る．
+  BnNodeList
+  logic_list() const;
 
   /// @brief 全てのノードがセル割当情報を持つ時 true を返す．
   bool

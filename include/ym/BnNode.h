@@ -295,10 +295,23 @@ public:
     SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
   ) const = 0;
 
+  /// @brief ファンインのノードを返す．
+  const BnNode&
+  fanin(
+    SizeType pos,            ///< [in] 位置番号 ( 0 <= pos < fanin_num() )
+    const BnNetwork& network ///< [in] 対象のネットワーク
+  ) const;
+
   /// @brief ファンインのノード番号のリストを返す．
   virtual
   vector<SizeType>
   fanin_id_list() const = 0;
+
+  /// @brief ファンインのノードのリストを返す．
+  BnNodeList
+  fanin_list(
+    const BnNetwork& network ///< [in] 対象のネットワーク
+  ) const;
 
   /// @brief 論理式番号を返す．
   ///

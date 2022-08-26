@@ -7,10 +7,6 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
-#include "ym/BnPort.h"
-#include "ym/BnNode.h"
-#include "ym/Range.h"
-#include "ym/BnModifier.h"
 #include "BnNetworkImpl.h"
 
 
@@ -157,6 +153,15 @@ BnNetwork::port(
   return mImpl->port(pos);
 }
 
+// @brief ポートのリストを得る．
+BnPortList
+BnNetwork::port_list() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return BnPortList{*this};
+}
+
 // @brief DFF数を得る．
 SizeType
 BnNetwork::dff_num() const
@@ -175,6 +180,15 @@ BnNetwork::dff(
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->dff(pos);
+}
+
+// @brief DFFのリストを得る．
+BnDffList
+BnNetwork::dff_list() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return BnDffList{*this};
 }
 
 // @brief ノード数を得る．
@@ -217,22 +231,22 @@ BnNetwork::input_id(
   return mImpl->input_id(pos);
 }
 
-// @brief 入力ノードのノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::input_id_list() const
+// @brief 入力ノードのノードのリストを得る．
+BnNodeList
+BnNetwork::input_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->input_id_list();
+  return BnNodeList{*this, mImpl->input_id_list()};
 }
 
-// @brief 外部入力ノードのノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::primary_input_id_list() const
+// @brief 外部入力ノードのノードのリストを得る．
+BnNodeList
+BnNetwork::primary_input_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->primary_input_id_list();
+  return BnNodeList{*this, mImpl->primary_input_id_list()};
 }
 
 // @brief 出力数を得る．
@@ -255,13 +269,13 @@ BnNetwork::output_id(
   return mImpl->output_id(pos);
 }
 
-// @brief 出力ノードのノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::output_id_list() const
+// @brief 出力ノードのノードのリストを得る．
+BnNodeList
+BnNetwork::output_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->output_id_list();
+  return BnNodeList{*this, mImpl->output_id_list()};
 }
 
 // @brief 出力ノードのソースノード番号を得る．
@@ -275,31 +289,31 @@ BnNetwork::output_src_id(
   return mImpl->output_src_id(pos);
 }
 
-// @brief 出力ノードのソースノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::output_src_id_list() const
+// @brief 出力ノードのソースノードのリストを得る．
+BnNodeList
+BnNetwork::output_src_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->output_src_id_list();
+  return BnNodeList{*this, mImpl->output_src_id_list()};
 }
 
-// @brief 外部出力ノードのノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::primary_output_id_list() const
+// @brief 外部出力ノードのノードのリストを得る．
+BnNodeList
+BnNetwork::primary_output_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->primary_output_id_list();
+  return BnNodeList{*this, mImpl->primary_output_id_list()};
 }
 
-// @brief 外部出力ノードのソースノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::primary_output_src_id_list() const
+// @brief 外部出力ノードのソースノードのリストを得る．
+BnNodeList
+BnNetwork::primary_output_src_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->primary_output_src_id_list();
+  return BnNodeList{*this, mImpl->primary_output_src_id_list()};
 }
 
 // @brief 論理ノード数を得る．
@@ -322,13 +336,13 @@ BnNetwork::logic_id(
   return mImpl->logic_id(pos);
 }
 
-// @brief 論理ノードのノード番号のリストを得る．
-const vector<SizeType>&
-BnNetwork::logic_id_list() const
+// @brief 論理ノードのリストを得る．
+BnNodeList
+BnNetwork::logic_list() const
 {
   ASSERT_COND( mImpl != nullptr );
 
-  return mImpl->logic_id_list();
+  return BnNodeList{*this, mImpl->logic_id_list()};
 }
 
 // @brief 関数の数を得る．
@@ -369,6 +383,127 @@ BnNetwork::expr(
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->expr(expr_id);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnNode
+//////////////////////////////////////////////////////////////////////
+
+// @brief ファンインのノードを返す．
+const BnNode&
+BnNode::fanin(
+  SizeType pos,            ///< [in] 位置番号 ( 0 <= pos < fanin_num() )
+  const BnNetwork& network ///< [in] 対象のネットワーク
+) const
+{
+  auto id = fanin_id(pos);
+  ASSERT_COND( id != BNET_NULLID );
+  return network.node(id);
+}
+
+// @brief ファンインのノードのリストを返す．
+BnNodeList
+BnNode::fanin_list(
+  const BnNetwork& network
+) const
+{
+  return BnNodeList{network, fanin_id_list()};
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnPortListIter
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を取り出す．
+const BnPort&
+BnPortListIter::operator*() const
+{
+  return mNetwork.port(mPos);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnPortList
+//////////////////////////////////////////////////////////////////////
+
+// @brief 先頭の反復子を返す．
+BnPortList::iterator
+BnPortList::begin() const
+{
+  return iterator{mNetwork, 0};
+}
+
+// @brief 末尾の反復子を返す．
+BnPortList::iterator
+BnPortList::end() const
+{
+  return iterator{mNetwork, mNetwork.port_num()};
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnDffListIter
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を取り出す．
+const BnDff&
+BnDffListIter::operator*() const
+{
+  return mNetwork.dff(mPos);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnDffList
+//////////////////////////////////////////////////////////////////////
+
+// @brief 先頭の反復子を返す．
+BnDffList::iterator
+BnDffList::begin() const
+{
+  return iterator{mNetwork, 0};
+}
+
+// @brief 末尾の反復子を返す．
+BnDffList::iterator
+BnDffList::end() const
+{
+  return iterator{mNetwork, mNetwork.dff_num()};
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnNodeListIter
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を取り出す．
+const BnNode&
+BnNodeListIter::operator*() const
+{
+  auto id = *mIter;
+  ASSERT_COND( id != BNET_NULLID );
+  return mNetwork.node(id);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnNodeList
+//////////////////////////////////////////////////////////////////////
+
+// @brief 先頭の反復子を返す．
+BnNodeList::iterator
+BnNodeList::begin() const
+{
+  return iterator{mNetwork, mIdList.begin()};
+}
+
+// @brief 末尾の反復子を返す．
+BnNodeList::iterator
+BnNodeList::end() const
+{
+  return iterator{mNetwork, mIdList.end()};
 }
 
 

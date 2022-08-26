@@ -135,19 +135,21 @@ AigWriter::make_expr(
   if ( expr.is_nega_literal() ) {
     return fanin_lits[expr.varid().val()] ^ 1;
   }
-  SizeType nc = expr.child_num();
-  vector<SizeType> child_lits(nc);
-  for ( SizeType i = 0; i < nc; ++ i ) {
-    child_lits[i] = make_expr(expr.child(i), fanin_lits);
+  SizeType nc = expr.operand_num();
+  vector<SizeType> opr_lits;
+  opr_lits.reserve(nc);
+  for ( auto& opr: expr.operand_list() ) {
+    auto lit = make_expr(opr, fanin_lits);
+    opr_lits.push_back(lit);
   }
   if ( expr.is_and() ) {
-    return make_and(child_lits);
+    return make_and(opr_lits);
   }
   if ( expr.is_or() ) {
-    return make_or(child_lits);
+    return make_or(opr_lits);
   }
   if ( expr.is_xor() ) {
-    return make_xor(child_lits);
+    return make_xor(opr_lits);
   }
   ASSERT_NOT_REACHED;
   return -1;

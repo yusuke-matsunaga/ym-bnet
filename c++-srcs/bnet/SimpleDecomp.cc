@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
-#include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "SimpleDecomp.h"
 
@@ -29,16 +28,14 @@ SimpleDecomp::decomp()
   // 分解するノードのリストを作る．
   vector<SizeType> node_id_list;
   node_id_list.reserve(logic_num());
-  for ( auto id: logic_id_list() ) {
-    auto& node = this->node(id);
+  for ( auto& node: logic_list() ) {
     if ( node.type() == BnNodeType::Expr ) {
-      node_id_list.push_back(id);
+      node_id_list.push_back(node.id());
     }
   }
 
   // node_list の各ノードを分解する．
-  for ( auto id: node_id_list ) {
-    auto& node = this->node(id);
+  for ( auto& node: BnNodeList{*this, node_id_list} ) {
     decomp_node(node);
   }
 }
@@ -83,11 +80,11 @@ SimpleDecomp::decomp_expr(
   // 定数はありえない．
   ASSERT_COND( expr.is_op() );
 
-  auto nc = expr.child_num();
-  vector<SizeType> new_fanin_list(nc);
-  for ( auto i: Range(nc) ) {
-    auto iid = decomp_expr(BNET_NULLID, expr.child(i));
-    new_fanin_list[i] = iid;
+  vector<SizeType> new_fanin_list;
+  new_fanin_list.reserve(expr.operand_num());
+  for ( auto& opr: expr.operand_list() ) {
+    auto iid = decomp_expr(BNET_NULLID, opr);
+    new_fanin_list.push_back(iid);
   }
   BnNodeType node_type{BnNodeType::None};
   if ( expr.is_and() ) {

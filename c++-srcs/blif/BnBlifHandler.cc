@@ -13,9 +13,9 @@
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
 #include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
-#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -308,9 +308,9 @@ BnBlifHandler::end(
 {
   // 出力ノードのファンインをセットする．
   // 入力側のノードはドミノ式に生成される．
-  for ( auto id: mNetwork.output_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.output_list() ) {
     if ( node.fanin_id(0) == BNET_NULLID ) {
+      auto id = node.id();
       ASSERT_COND( mOutputMap.count(id) > 0 );
       auto name_id = mOutputMap.at(id);
       auto inode_id = make_node(name_id);

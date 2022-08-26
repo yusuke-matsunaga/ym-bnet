@@ -10,7 +10,6 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnNode.h"
-#include "ym/Range.h"
 #include "BnNetworkImpl.h"
 
 

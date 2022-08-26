@@ -647,18 +647,6 @@ BnNetworkImpl::wrap_up()
     }
   }
 
-#if 0
-  // mPrimaryOutputSrcList を作る．
-  mPrimaryOutputSrcList.clear();
-  mPrimaryOutputSrcList.resize(mPrimaryOutputList.size());
-  for ( auto i: Range(mPrimaryOutputList.size()) ) {
-    auto oid = mPrimaryOutputList[i];
-    auto node_p = _node_p(oid);
-    auto iid = node_p->fanin_id(0);
-    mPrimaryOutputSrcList[i] = iid;
-  }
-#endif
-
   mSane = true;
 }
 

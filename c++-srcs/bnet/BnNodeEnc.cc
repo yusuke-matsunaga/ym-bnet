@@ -112,10 +112,10 @@ BnNodeEnc::make_cnf(const BnNode& node)
       }
       else {
 	ASSERT_COND( expr.is_op() );
-	int nc = expr.child_num();
-	vector<SatLiteral> tmp_ilit_array(nc);
-	for ( int i: Range(nc) ) {
-	  tmp_ilit_array[i] = make_expr(expr.child(i), ilit_array);
+	vector<SatLiteral> tmp_ilit_array;
+	tmp_ilit_array.reserve(expr.operand_num());
+	for ( auto& opr: expr.operand_list() ) {
+	  tmp_ilit_array[i] = make_expr(opr, ilit_array);
 	}
 
 	if ( expr.is_and() ) {
@@ -339,10 +339,11 @@ BnNodeEnc::make_expr(const Expr& expr,
   }
 
   ASSERT_COND( expr.is_op() );
-  int nc = expr.child_num();
-  vector<SatLiteral> tmp_ilit_array(nc);
-  for ( int i: Range(nc) ) {
-    tmp_ilit_array[i] = make_expr(expr.child(i), ilit_array);
+  vector<SatLiteral> tmp_ilit_array;
+  tmp_ilit_array.reserve(expr.operand_num());
+  for ( auto& opr: expr.operand_list() ) {
+    auto ilit = make_expr(opr, ilit_array);
+    tmp_ilit_array.push_back(ilit);
   }
 
   SatLiteral olit{mSolver.new_variable()};

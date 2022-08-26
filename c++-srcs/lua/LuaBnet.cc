@@ -9,6 +9,7 @@
 #include "ym/LuaBnet.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnNode.h"
+#include "ym/BnNodeList.h"
 #include "ym/BnModifier.h"
 #include "ym/ClibCellLibrary.h"
 
@@ -604,8 +605,7 @@ bnet_stats(
   }
   if ( 0 ) { // literal_sum
     SizeType n = 0;
-    for ( SizeType id: bnet->logic_id_list() ) {
-      const auto& node = bnet->node(id);
+    for ( auto& node: bnet->logic_list() ) {
       SizeType expr_id = node.expr_id();
       auto expr = bnet->expr(expr_id);
       n += expr.literal_num();

@@ -8,9 +8,6 @@
 
 #include "WriterBase.h"
 #include "ym/BnNetwork.h"
-#include "ym/BnPort.h"
-#include "ym/BnDff.h"
-#include "ym/BnNode.h"
 #include "ym/Range.h"
 #include "ym/NameMgr.h"
 
@@ -43,8 +40,7 @@ WriterBase::init_name_array(
   // ただし重複のチェックを行う．
 
   // 外部ポート名
-  for ( SizeType i: Range(mNetwork.port_num()) ) {
-    auto& port = mNetwork.port(i);
+  for ( auto& port: mNetwork.port_list() ) {
     const string& name = port.name();
     if ( name == string() ) {
       // 名無しの場合はスキップ
@@ -69,27 +65,26 @@ WriterBase::init_name_array(
   }
 
   // FF名
-  for ( SizeType i: Range(mNetwork.dff_num()) ) {
-    auto& dff = mNetwork.dff(i);
-    const string& name = dff.name();
-    if ( name == string() ) {
-      // 名無しの場合はスキップ
-      continue;
+  for ( auto& dff: mNetwork.dff_list() ) {
+    if ( dff.is_dff() || dff.is_latch() ) {
+      const string& name = dff.name();
+      if ( name == string() ) {
+	// 名無しの場合はスキップ
+	continue;
+      }
+      auto id = dff.data_out();
+      reg_node_name(id, name, name_hash, name_mgr);
     }
-    auto id = dff.data_out();
-    reg_node_name(id, name, name_hash, name_mgr);
   }
 
   // 外部入力ノード名
-  for ( auto id: mNetwork.primary_input_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.primary_input_list() ) {
     const string& name = node.name();
-    reg_node_name(id, name, name_hash, name_mgr);
+    reg_node_name(node.id(), name, name_hash, name_mgr);
   }
 
   // FFの出力ノード名
-  for ( SizeType i: Range(mNetwork.dff_num()) ) {
-    auto& dff = mNetwork.dff(i);
+  for ( auto& dff: mNetwork.dff_list() ) {
     auto id = dff.data_out();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
@@ -97,15 +92,13 @@ WriterBase::init_name_array(
   }
 
   // 外部出力ノード名
-  for ( auto id: mNetwork.primary_output_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.primary_output_list() ) {
     const string& name = node.name();
-    reg_node_name(id, name, name_hash, name_mgr);
+    reg_node_name(node.id(), name, name_hash, name_mgr);
   }
 
   // FF の入力ノード名
-  for ( SizeType i: Range(mNetwork.dff_num()) ) {
-    auto& dff = mNetwork.dff(i);
+  for ( auto& dff: mNetwork.dff_list() ) {
     auto id = dff.data_in();
     auto& node = mNetwork.node(id);
     const string& name = node.name();
@@ -113,10 +106,9 @@ WriterBase::init_name_array(
   }
 
   // 論理ノード名
-  for ( auto id: mNetwork.logic_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.logic_list() ) {
     const string& name = node.name();
-    reg_node_name(id, name, name_hash, name_mgr);
+    reg_node_name(node.id(), name, name_hash, name_mgr);
   }
 
   // 名無しのノードに名前を与える．
@@ -128,8 +120,8 @@ WriterBase::init_name_array(
   }
 
   // 外部出力ノードのファンインの名前を出力ノードの名前に付け替える．
-  for ( auto id: mNetwork.primary_output_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.primary_output_list() ) {
+    auto id = node.id();
     auto src_id = node.fanin_id(0);
     auto& src_node = mNetwork.node(src_id);
     if ( !src_node.is_input() ) {
@@ -138,8 +130,7 @@ WriterBase::init_name_array(
   }
 
   // FFの入力ノードの名前をそのファンインの名前に付け替える．
-  for ( SizeType i: Range(mNetwork.dff_num()) ) {
-    auto& dff = mNetwork.dff(i);
+  for ( auto& dff: mNetwork.dff_list() ) {
     auto id = dff.data_in();
     auto& node = mNetwork.node(id);
     auto src_id = node.fanin_id(0);
@@ -147,8 +138,7 @@ WriterBase::init_name_array(
   }
 
   // データ系のノードに印をつける．
-  for ( auto id: mNetwork.output_id_list() ) {
-    auto& node = mNetwork.node(id);
+  for ( auto& node: mNetwork.output_list() ) {
     if ( node.is_port_output() || node.is_data_in() ) {
       mark_tfi(node.fanin_id(0));
     }
