@@ -21,7 +21,8 @@ TEST(BnNetworkTest, make_skelton_copy)
   BnNetwork src_network = BnNetwork::read_blif(path);
 
   BnModifier mod;
-  auto node_map = mod.make_skelton_copy(src_network);
+  unordered_map<SizeType, SizeType> node_map;
+  mod.make_skelton_copy(src_network, node_map);
   BnNetwork dst_network{std::move(mod)};
 
   SizeType np = src_network.port_num();

@@ -240,7 +240,7 @@ public:
   /// @brief 与えられたノードと同型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   SizeType
-  dup_logic(
+  copy_logic(
     const string& node_name,              ///< [in] ノード名
     SizeType node_id,                     ///< [in] コピー元のノード番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
@@ -379,9 +379,37 @@ public:
   );
 
   /// @brief ポートの情報のみコピーする．
-  unordered_map<SizeType, SizeType>
+  void
   make_skelton_copy(
-    const BnNetwork& src_network ///< [in] コピー元の回路
+    const BnNetwork& src_network,             ///< [in] コピー元の回路
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ID番号の対応表
+  );
+
+  /// @brief DFFをコピーする．
+  /// @return DFF番号を返す．
+  SizeType
+  copy_dff(
+    const BnDff& src_dff,                     ///< [in] コピー元のDFF
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ID番号の対応表
+  );
+
+  /// @brief 論理ノードをコピーする．
+  /// @brief ノード番号を返す．
+  SizeType
+  copy_logic(
+    const BnNode& src_node,                   ///< [in] コピー元のノード
+    const BnNetwork& src_network,             ///< [in] コピー元のネットワーク
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ID番号の対応表
+  );
+
+  /// @brief 出力ノードを複製する．
+  ///
+  /// 出力ノードそのものはすでに生成済みでファンインの情報の
+  /// 設定のみを行う．
+  void
+  copy_output(
+    const BnNode& src_node,                   ///< [in] 元のノード
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
   /// @brief 部分回路を追加する．

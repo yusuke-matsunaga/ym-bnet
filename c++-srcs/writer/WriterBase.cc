@@ -122,7 +122,7 @@ WriterBase::init_name_array(
   // 外部出力ノードのファンインの名前を出力ノードの名前に付け替える．
   for ( auto& node: mNetwork.primary_output_list() ) {
     auto id = node.id();
-    auto src_id = node.fanin_id(0);
+    auto src_id = node.output_src();
     auto& src_node = mNetwork.node(src_id);
     if ( !src_node.is_input() ) {
       mNameArray[src_id] = mNameArray[id];
@@ -133,14 +133,14 @@ WriterBase::init_name_array(
   for ( auto& dff: mNetwork.dff_list() ) {
     auto id = dff.data_in();
     auto& node = mNetwork.node(id);
-    auto src_id = node.fanin_id(0);
+    auto src_id = node.output_src();
     mNameArray[id] = mNameArray[src_id];
   }
 
   // データ系のノードに印をつける．
   for ( auto& node: mNetwork.output_list() ) {
     if ( node.is_port_output() || node.is_data_in() ) {
-      mark_tfi(node.fanin_id(0));
+      mark_tfi(node.output_src());
     }
   }
 

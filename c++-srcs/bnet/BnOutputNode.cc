@@ -39,30 +39,11 @@ BnOutputNode::output_pos() const
   return mOutputPos;
 }
 
-// @brief ファンイン数を得る．
+// @brief ソースノードのノード番号を返す．
 SizeType
-BnOutputNode::fanin_num() const
+BnOutputNode::output_src() const
 {
-  return 1;
-}
-
-// @brief ファンインのノード番号を返す．
-// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
-SizeType
-BnOutputNode::fanin_id(
-  SizeType pos
-) const
-{
-  ASSERT_COND( pos == 0 );
-
   return mFanin;
-}
-
-// @brief ファンインのノード番号のリストを返す．
-vector<SizeType>
-BnOutputNode::fanin_id_list() const
-{
-  return vector<SizeType>{mFanin};
 }
 
 // @brief 出力位置を設定する．
@@ -75,15 +56,11 @@ BnOutputNode::set_output_pos(
 }
 
 // @brief ファンインを設定する．
-// @param[in] ipos 入力位置
-// @param[in] fanin_id ファンインのノード番号
 void
-BnOutputNode::set_fanin(
-  SizeType ipos,
+BnOutputNode::set_output_src(
   SizeType fanin_id
 )
 {
-  ASSERT_COND( ipos == 0 );
   mFanin = fanin_id;
 }
 

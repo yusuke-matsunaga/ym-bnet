@@ -128,6 +128,13 @@ public:
   BnNodeType
   type() const override;
 
+  /// @brief プリミティブ型の論理ノードの時 true を返す．
+  ///
+  /// 具体的には以下の型
+  /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
+  bool
+  is_primitive_logic() const override;
+
 
 public:
   //////////////////////////////////////////////////////////////////////

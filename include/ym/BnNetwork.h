@@ -202,6 +202,15 @@ public:
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
   ) const;
 
+  /// @brief 入力ノードのノード番号を得る．
+  const BnNode&
+  input_node(
+    SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
+  ) const
+  {
+    return node(input_id(pos));
+  }
+
   /// @brief 入力ノードのノードのリストを得る．
   BnNodeList
   input_list() const;
@@ -220,31 +229,22 @@ public:
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
   ) const;
 
+  /// @brief 出力ノードを得る．
+  const BnNode&
+  output_node(
+    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const
+  {
+    return node(output_id(pos));
+  }
+
   /// @brief 出力ノードのノードのリストを得る．
   BnNodeList
   output_list() const;
 
-  /// @brief 出力ノードのソースノード番号を得る．
-  ///
-  /// ソースノードとは出力ノードのファンインのノード
-  SizeType
-  output_src_id(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const;
-
-  /// @brief 出力ノードのソースノードのリストを得る．
-  ///
-  /// ソースノードとは出力ノードのファンインのノード
-  BnNodeList
-  output_src_list() const;
-
   /// @brief 外部出力ノードのノードのリストを得る．
   BnNodeList
   primary_output_list() const;
-
-  /// @brief 外部出力ノードのソースノードのリストを得る．
-  BnNodeList
-  primary_output_src_list() const;
 
   /// @brief 論理ノード数を得る．
   SizeType

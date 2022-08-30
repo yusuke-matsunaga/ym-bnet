@@ -69,9 +69,7 @@ BnNetworkImpl::clear()
   mInputList.clear();
   mPrimaryInputList.clear();
   mOutputList.clear();
-  mOutputSrcList.clear();
   mPrimaryOutputList.clear();
-  mPrimaryOutputSrcList.clear();
   mLogicList.clear();
   mNodeList.clear();
 
@@ -413,7 +411,7 @@ BnNetworkImpl::substitute_fanout(
     auto dst_node = _node_p(dst);
     // old_id のファンインを探す．
     if ( dst_node->is_output() ) {
-      ASSERT_COND( dst_node->fanin_id(0) == old_id );
+      ASSERT_COND( dst_node->output_src() == old_id );
       set_output_src(dst, new_id);
     }
     else {
@@ -442,11 +440,7 @@ BnNetworkImpl::set_output_src(
   ASSERT_COND( _check_node_id(src_id) );
   auto dst_node = _node_p(output_id);
   ASSERT_COND( dst_node->is_output() );
-  dst_node->set_fanin(0, src_id);
-  mOutputSrcList[dst_node->output_pos()] = src_id;
-  if ( dst_node->is_port_output() ) {
-    mPrimaryOutputSrcList[dst_node->primary_output_pos()] = src_id;
-  }
+  dst_node->set_output_src(src_id);
 
   mSane = false;
 }
@@ -639,10 +633,19 @@ BnNetworkImpl::wrap_up()
     node_p->clear_fanout();
   }
   for ( auto node_p: mNodeList ) {
-    for ( auto id: node_p->fanin_id_list() ) {
+    if ( node_p->is_output() ) {
+      auto id = node_p->output_src();
       if ( id != BNET_NULLID ) {
 	auto src_node_p = _node_p(id);
 	src_node_p->add_fanout(node_p->id());
+      }
+    }
+    else if ( node_p->is_logic() ) {
+      for ( auto id: node_p->fanin_id_list() ) {
+	if ( id != BNET_NULLID ) {
+	  auto src_node_p = _node_p(id);
+	  src_node_p->add_fanout(node_p->id());
+	}
       }
     }
   }
@@ -888,7 +891,6 @@ BnNetworkImpl::_reg_output(
   auto id = _reg_node(node);
   node->set_output_pos(mOutputList.size());
   mOutputList.push_back(id);
-  mOutputSrcList.push_back(BNET_NULLID);
   return id;
 }
 
@@ -900,9 +902,8 @@ BnNetworkImpl::_reg_primary_output(
 {
   auto id = _reg_output(node);
   auto po_pos = mPrimaryOutputList.size();
-  mPrimaryOutputList.push_back(id);
-  mPrimaryOutputSrcList.push_back(BNET_NULLID);
   node->set_primary_output_pos(po_pos);
+  mPrimaryOutputList.push_back(id);
   return id;
 }
 

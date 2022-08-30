@@ -18,49 +18,56 @@ BnNetwork
 BnNetwork::simple_decomp() const
 {
   SimpleDecomp op;
+  op.decomp(*this);
   return BnNetwork{std::move(op)};
 }
 
 // @brief 各ノードが simple primitive になるように分解する．
 void
-SimpleDecomp::decomp()
-{
-  // 分解するノードのリストを作る．
-  vector<SizeType> node_id_list;
-  node_id_list.reserve(logic_num());
-  for ( auto& node: logic_list() ) {
-    if ( node.type() == BnNodeType::Expr ) {
-      node_id_list.push_back(node.id());
-    }
-  }
-
-  // node_list の各ノードを分解する．
-  for ( auto& node: BnNodeList{*this, node_id_list} ) {
-    decomp_node(node);
-  }
-}
-
-// @brief ノードを分解する．
-void
-SimpleDecomp::decomp_node(
-  const BnNode& node
+SimpleDecomp::decomp(
+  const BnNetwork& src_network
 )
 {
-  SizeType ni = node.fanin_num();
-  mTermList.clear();
-  mTermList.resize(ni * 2, BNET_NULLID);
-  for ( SizeType i = 0; i < ni; ++ i ) {
-    auto iid = node.fanin_id(i);
-    mTermList[i * 2 + 0] = iid;
+  unordered_map<SizeType, SizeType> id_map;
+
+  make_skelton_copy(src_network, id_map);
+
+  // DFFをコピーする．
+  for ( auto& src_dff: src_network.dff_list() ) {
+    copy_dff(src_dff, id_map);
   }
-  const Expr& expr = this->expr(node.expr_id());
-  decomp_expr(node.id(), expr);
+
+  // 論理ノードを分解しつつコピーする．
+  for ( auto& src_node: src_network.logic_list() ) {
+    SizeType dst_id;
+    if ( src_node.type() == BnNodeType::Expr ) {
+      SizeType ni = src_node.fanin_num();
+      mTermList.clear();
+      mTermList.resize(ni * 2, BNET_NULLID);
+      for ( SizeType i = 0; i < ni; ++ i ) {
+	auto src_iid = src_node.fanin_id(i);
+	ASSERT_COND( id_map.count(src_iid) > 0 );
+	auto dst_iid = id_map.at(src_iid);
+	mTermList[i * 2 + 0] = dst_iid;
+      }
+      const Expr& expr = src_network.expr(src_node.expr_id());
+      dst_id = decomp_expr(expr);
+    }
+    else {
+      dst_id = copy_logic(src_node, src_network, id_map);
+    }
+    id_map.emplace(src_node.id(), dst_id);
+  }
+
+  // 出力のファンインをセットする．
+  for ( auto& src_node: src_network.output_list() ) {
+    copy_output(src_node, id_map);
+  }
 }
 
 // @brief 論理式型のノードを分解する．
 SizeType
 SimpleDecomp::decomp_expr(
-  SizeType id,
   const Expr& expr
 )
 {
@@ -83,7 +90,7 @@ SimpleDecomp::decomp_expr(
   vector<SizeType> new_fanin_list;
   new_fanin_list.reserve(expr.operand_num());
   for ( auto& opr: expr.operand_list() ) {
-    auto iid = decomp_expr(BNET_NULLID, opr);
+    auto iid = decomp_expr(opr);
     new_fanin_list.push_back(iid);
   }
   BnNodeType node_type{BnNodeType::None};
@@ -100,12 +107,8 @@ SimpleDecomp::decomp_expr(
     ASSERT_NOT_REACHED;
   }
 
-  if ( id == BNET_NULLID ) {
-    id = new_logic_primitive({}, node_type, new_fanin_list);
-  }
-  else {
-    change_primitive(id, node_type, new_fanin_list);
-  }
+  auto id = new_logic_primitive({}, node_type, new_fanin_list);
+
   return id;
 }
 

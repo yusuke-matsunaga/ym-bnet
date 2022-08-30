@@ -55,6 +55,12 @@ TEST(SimpleDecompTest, test1)
   auto network2 = network1.simple_decomp();
 
   network2.write(cout);
+
+  EXPECT_EQ( network1.input_num(), network2.input_num() );
+  EXPECT_EQ( network1.output_num(), network2.output_num() );
+  for ( auto& node: network2.logic_list() ) {
+    EXPECT_TRUE( node.is_primitive_logic() );
+  }
 }
 
 END_NAMESPACE_YM

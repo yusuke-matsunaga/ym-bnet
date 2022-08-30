@@ -278,26 +278,6 @@ BnNetwork::output_list() const
   return BnNodeList{*this, mImpl->output_id_list()};
 }
 
-// @brief 出力ノードのソースノード番号を得る．
-SizeType
-BnNetwork::output_src_id(
-  SizeType pos
-) const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->output_src_id(pos);
-}
-
-// @brief 出力ノードのソースノードのリストを得る．
-BnNodeList
-BnNetwork::output_src_list() const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return BnNodeList{*this, mImpl->output_src_id_list()};
-}
-
 // @brief 外部出力ノードのノードのリストを得る．
 BnNodeList
 BnNetwork::primary_output_list() const
@@ -305,15 +285,6 @@ BnNetwork::primary_output_list() const
   ASSERT_COND( mImpl != nullptr );
 
   return BnNodeList{*this, mImpl->primary_output_id_list()};
-}
-
-// @brief 外部出力ノードのソースノードのリストを得る．
-BnNodeList
-BnNetwork::primary_output_src_list() const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return BnNodeList{*this, mImpl->primary_output_src_id_list()};
 }
 
 // @brief 論理ノード数を得る．

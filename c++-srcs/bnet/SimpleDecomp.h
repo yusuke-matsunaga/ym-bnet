@@ -36,7 +36,9 @@ public:
 
   /// @brief 各ノードが simple primitive になるように分解する．
   void
-  decomp();
+  decomp(
+    const BnNetwork& src_network ///< [in] 元のネットワーク
+  );
 
 
 private:
@@ -47,14 +49,14 @@ private:
   /// @brief ノードを分解する．
   void
   decomp_node(
-    const BnNode& node ///< [in] 対象のノード
+    const BnNode& node,                       ///< [in] 対象のノード
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ID番号の対応表
   );
 
   /// @brief 論理式を分解する．
   /// @return 生成したノード番号を返す．
   SizeType
   decomp_expr(
-    SizeType id,     ///< [in] 元のノード番号
     const Expr& expr ///< [in] 論理式
   );
 

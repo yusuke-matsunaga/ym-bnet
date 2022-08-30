@@ -119,7 +119,7 @@ TEST(SubstituteFanoutTest, test2)
 
   EXPECT_EQ( 0, node1.fanout_num() );
   EXPECT_EQ( 2, node2.fanout_num() );
-  EXPECT_EQ( or1, network1.output_src_id(0) );
+  EXPECT_EQ( or1, network1.output_node(0).output_src() );
 }
 
 END_NAMESPACE_YM

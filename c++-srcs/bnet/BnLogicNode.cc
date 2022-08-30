@@ -85,6 +85,13 @@ BnPrimNode::type() const
   return mLogicType;
 }
 
+// @brief プリミティブ型の論理ノードの時 true を返す．
+bool
+BnPrimNode::is_primitive_logic() const
+{
+  return true;
+}
+
 // @brief 自分と同じタイプのノードを作る．
 BnNodeImpl*
 BnPrimNode::duplicate(

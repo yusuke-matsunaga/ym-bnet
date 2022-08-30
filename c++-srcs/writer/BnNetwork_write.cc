@@ -51,7 +51,7 @@ BnNetwork::write(
   for ( auto& node: output_list() ) {
     s << "output: " << node.id()
       << "(" << node.name() << ")" << endl
-      << "    input: " << node.fanin_id(0) << endl;
+      << "    input: " << node.output_src() << endl;
   }
   s << endl;
 

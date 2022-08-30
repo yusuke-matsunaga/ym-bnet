@@ -309,13 +309,15 @@ BnBlifHandler::end(
   // 出力ノードのファンインをセットする．
   // 入力側のノードはドミノ式に生成される．
   for ( auto& node: mNetwork.output_list() ) {
-    if ( node.fanin_id(0) == BNET_NULLID ) {
-      auto id = node.id();
-      ASSERT_COND( mOutputMap.count(id) > 0 );
-      auto name_id = mOutputMap.at(id);
-      auto inode_id = make_node(name_id);
-      mNetwork.set_output_src(id, inode_id);
+    if ( node.is_clock() || node.is_clear() || node.is_preset() ) {
+      continue;
     }
+    ASSERT_COND ( node.output_src() == BNET_NULLID );
+    auto id = node.id();
+    ASSERT_COND( mOutputMap.count(id) > 0 );
+    auto name_id = mOutputMap.at(id);
+    auto inode_id = make_node(name_id);
+    mNetwork.set_output_src(id, inode_id);
   }
 
   return true;

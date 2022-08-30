@@ -29,40 +29,46 @@ BnNetworkImpl::copy(
     return;
   }
 
-  auto id_map = make_skelton_copy(src);
+  unordered_map<SizeType, SizeType> id_map;
 
-  // src の入力の対応するノードを input_list に入れる．
-  auto input_num = src.input_num();
-  vector<SizeType> input_list;
-  input_list.reserve(input_num);
-  for ( SizeType src_id: src.input_id_list() ) {
-    ASSERT_COND( id_map.count(src_id) > 0 );
-    auto dst_id = id_map.at(src_id);
-    input_list.push_back(dst_id);
+  clear();
+
+  // セルライブラリの設定
+  set_library(src.library());
+
+  // ネットワーク名の設定
+  set_name(src.name());
+
+  // ポートの生成
+  for ( auto src_port_p: src.mPortList ) {
+    copy_port(*src_port_p, src, id_map);
   }
 
-  // src 本体をインポートする．
-  auto output_list = import_subnetwork(src, input_list);
+  // DFFを作る．
+  for ( auto src_dff_p: src.mDffList ) {
+    copy_dff(*src_dff_p, id_map);
+  }
+
+  // 論理ノードの生成
+  for ( auto src_id: src.logic_id_list() ) {
+    auto& src_node = src.node(src_id);
+    copy_logic(src_node, src, id_map);
+  }
 
   // 出力端子のファンインの接続
-  SizeType i = 0;
   for ( auto src_id: src.output_id_list() ) {
     auto& src_node = src.node(src_id);
-    auto src_fanin_id = src_node.fanin_id(0);
-    ASSERT_COND( id_map.count(src_id) > 0 );
-    auto dst_id = id_map.at(src_id);
-    auto dst_fanin_id = output_list[i];
-    set_output_src(dst_id, dst_fanin_id);
-    ++ i;
+    copy_output(src_node, id_map);
   }
 
   wrap_up();
 }
 
 // @brief ポートの情報のみをコピーする．
-unordered_map<SizeType, SizeType>
+void
 BnNetworkImpl::make_skelton_copy(
-  const BnNetworkImpl& src
+  const BnNetworkImpl& src,
+  unordered_map<SizeType, SizeType>& id_map
 )
 {
   clear();
@@ -73,17 +79,10 @@ BnNetworkImpl::make_skelton_copy(
   // ネットワーク名の設定
   set_name(src.name());
 
-  // srcのノード番号をキーにしてノード番号を格納する辞書
-  unordered_map<SizeType, SizeType> id_map;
-
   // ポートの生成
-  auto np = src.port_num();
-  for ( auto i: Range(np) ) {
-    auto& src_port = src.port(i);
-    copy_port(src_port, src, id_map);
+  for ( auto src_port_p: src.mPortList ) {
+    copy_port(*src_port_p, src, id_map);
   }
-
-  return id_map;
 }
 
 // @brief 部分回路を追加する．
@@ -95,19 +94,19 @@ BnNetworkImpl::import_subnetwork(
 {
   ASSERT_COND( src_network.mSane );
 
-  auto input_num = src_network.input_num();
+  auto input_num = src_network.primary_input_num();
   ASSERT_COND( input_list.size() == input_num );
 
-  auto output_num = src_network.output_num();
+  auto output_num = src_network.primary_output_num();
   vector<SizeType> output_list;
   output_list.reserve(output_num);
 
   // src_network のノード番号をキーにして生成したノード番号を入れる配列
   unordered_map<SizeType, SizeType> id_map;
 
-  // src_network の入力と input_list の対応関係を id_map に入れる．
+  // src_network の外部入力と input_list の対応関係を id_map に入れる．
   for ( auto i: Range(input_num) ) {
-    auto src_id = src_network.input_id(i);
+    auto src_id = src_network.primary_input_id(i);
     auto dst_id = input_list[i];
     id_map.emplace(src_id, dst_id);
   }
@@ -125,12 +124,13 @@ BnNetworkImpl::import_subnetwork(
 
   // src_network の外部出力のファンインに対応するノード番号を
   // output_list に入れる．
-  for ( auto src_id: src_network.output_src_id_list() ) {
-    ASSERT_COND( id_map.count(src_id) > 0 );
-    auto dst_id = id_map.at(src_id);
-    output_list.push_back(dst_id);
+  for ( auto src_id: src_network.primary_output_id_list() ) {
+    auto& src_node = src_network.node(src_id);
+    auto src_iid = src_node.output_src();
+    ASSERT_COND( id_map.count(src_iid) > 0 );
+    auto dst_iid = id_map.at(src_iid);
+    output_list.push_back(dst_iid);
   }
-  cout << endl;
 
   return output_list;
 }
@@ -288,6 +288,22 @@ BnNetworkImpl::copy_logic(
   id_map.emplace(src_node.id(), dst_id);
 
   return dst_id;
+}
+
+// @brief 出力ノードを複製する．
+void
+BnNetworkImpl::copy_output(
+  const BnNode& src_node,
+  unordered_map<SizeType, SizeType>& id_map
+)
+{
+  auto src_id = src_node.id();
+  ASSERT_COND( id_map.count(src_id) > 0 );
+  auto dst_id = id_map.at(src_id);
+  auto src_fanin_id = src_node.output_src();
+  ASSERT_COND( id_map.count(src_fanin_id) > 0 );
+  auto dst_fanin_id = id_map.at(src_fanin_id);
+  set_output_src(dst_id, dst_fanin_id);
 }
 
 END_NAMESPACE_YM_BNET

@@ -63,19 +63,9 @@ public:
   SizeType
   output_pos() const override;
 
-  /// @brief ファンイン数を得る．
+  /// @brief ソースノードのノード番号を返す．
   SizeType
-  fanin_num() const override;
-
-  /// @brief ファンインのノード番号を返す．
-  SizeType
-  fanin_id(
-    SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
-  ) const override;
-
-  /// @brief ファンインのノード番号のリストを返す．
-  vector<SizeType>
-  fanin_id_list() const override;
+  output_src() const override;
 
 
 public:
@@ -91,8 +81,7 @@ public:
 
   /// @brief ファンインを設定する．
   void
-  set_fanin(
-    SizeType ipos,    ///< [in] 入力位置
+  set_output_src(
     SizeType fanin_id ///< [in] ファンインのノード番号
   ) override;
 

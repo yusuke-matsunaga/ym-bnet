@@ -132,9 +132,9 @@ Iscas89Writer::operator()(
   s << endl;
 
   // OUTPUT 文の出力
-  for ( auto& node: network().primary_output_src_list() ) {
-    auto id = node.id();
-    s << "OUTPUT(" << node_name(id) << ")" << endl;
+  for ( auto& node: network().primary_output_list() ) {
+    auto src_id = node.output_src();
+    s << "OUTPUT(" << node_name(src_id) << ")" << endl;
   }
   s << endl;
 
@@ -148,9 +148,9 @@ Iscas89Writer::operator()(
   // 出力用の追加の BUFF 文
   for ( auto& node: network().primary_output_list() ) {
     auto id = node.id();
-    auto src_id = node.fanin_id(0);
-    string src_name = node_name(src_id);
     string name = node_name(id);
+    auto src_id = node.output_src();
+    string src_name = node_name(src_id);
     if ( name != src_name ) {
       s << name << " = BUFF(" << src_name << ")" << endl;
     }

@@ -299,8 +299,8 @@ VerilogWriter::operator()(
     s << "  " << "input  " << mNodeNameArray[id] << ";" << endl;
   }
   // 外部出力
-  for ( auto& node: mNetwork.primary_output_src_list() ) {
-    auto id = node.id();
+  for ( auto& node: mNetwork.primary_output_list() ) {
+    auto id = node.output_src();
     s << "  " << "output " << mNodeNameArray[id] << ";" << endl;
   }
   s << endl;
@@ -608,7 +608,8 @@ VerilogWriter::replace_node_name(
     return;
   }
   auto& node = mNetwork.node(node_id);
-  auto src_id = node.fanin_id(0);
+  ASSERT_COND( node.is_output() );
+  auto src_id = node.output_src();
   mNodeNameArray[node_id] = mNodeNameArray[src_id];
 }
 

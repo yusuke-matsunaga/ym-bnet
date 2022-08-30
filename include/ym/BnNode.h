@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_YM_BNET
 ///
 /// - 出力ノード
 ///   外部出力もしくはDFF，ラッチの入力を表す．
-///   ファンインのノード番号を持つ．
+///   ソースのノード番号を持つ．
 ///
 /// - 論理ノード
 ///   ファンインと論理関数を持つ．
@@ -109,6 +109,14 @@ public:
   virtual
   bool
   is_logic() const = 0;
+
+  /// @brief プリミティブ型の論理ノードの時 true を返す．
+  ///
+  /// 具体的には以下の型
+  /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
+  virtual
+  bool
+  is_primitive_logic() const = 0;
 
   /// @brief ファンアウト数を得る．
   virtual
@@ -192,6 +200,11 @@ public:
   virtual
   SizeType
   output_pos() const = 0;
+
+  /// @brief ソースノードのノード番号を返す．
+  virtual
+  SizeType
+  output_src() const = 0;
 
   /// @brief 外部出力端子の時に true を返す．
   virtual

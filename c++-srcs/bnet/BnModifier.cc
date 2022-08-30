@@ -239,18 +239,6 @@ BnModifier::new_logic_cell(
   return mImpl->new_logic_cell(node_name, cell_id, fanin_id_list);
 }
 
-// @brief 与えられたノードと同型の論理ノードを追加する．
-SizeType
-BnModifier::dup_logic(
-  const string& node_name,
-  SizeType node_id,
-  const vector<SizeType>& fanin_id_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-  return mImpl->dup_logic(node_name, node_id, fanin_id_list);
-}
-
 // @brief C0型(定数０)の論理ノードを追加する．
 SizeType
 BnModifier::new_c0(
@@ -397,14 +385,50 @@ BnModifier::change_tv(
 }
 
 // @brief ポートの情報のみコピーする．
-unordered_map<SizeType, SizeType>
+void
 BnModifier::make_skelton_copy(
-  const BnNetwork& src_network
+  const BnNetwork& src_network,
+  unordered_map<SizeType, SizeType>& id_map
 )
 {
   ASSERT_COND( mImpl != nullptr );
+  mImpl->make_skelton_copy(*src_network.mImpl, id_map);
+}
 
-  return mImpl->make_skelton_copy(*src_network.mImpl);
+// @brief DFFをコピーする．
+// @return DFF番号を返す．
+SizeType
+BnModifier::copy_dff(
+  const BnDff& src_dff,
+  unordered_map<SizeType, SizeType>& id_map
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+  return mImpl->copy_dff(src_dff, id_map);
+}
+
+// @brief 論理ノードをコピーする．
+// @brief ノード番号を返す．
+SizeType
+BnModifier::copy_logic(
+  const BnNode& src_node,
+  const BnNetwork& src_network,
+  unordered_map<SizeType, SizeType>& id_map
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+  return mImpl->copy_logic(src_node, *src_network.mImpl, id_map);
+}
+
+// @brief 出力ノードを複製する．
+void
+BnModifier::copy_output(
+  const BnNode& src_node,
+  unordered_map<SizeType, SizeType>& id_map
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+  return mImpl->copy_output(src_node, id_map);
 }
 
 // @brief 部分回路を追加する．
@@ -415,7 +439,6 @@ BnModifier::import_subnetwork(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   return mImpl->import_subnetwork(*src_network.mImpl, input_list);
 }
 
@@ -427,7 +450,6 @@ BnModifier::set_output_src(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->set_output_src(output_id, src_id);
 }
 
@@ -439,7 +461,6 @@ BnModifier::substitute_fanout(
 )
 {
   ASSERT_COND( mImpl != nullptr );
-
   mImpl->substitute_fanout(old_id, new_id);
 }
 

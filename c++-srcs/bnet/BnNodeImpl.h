@@ -61,6 +61,13 @@ public:
   bool
   is_logic() const override;
 
+  /// @brief プリミティブ型の論理ノードの時 true を返す．
+  ///
+  /// 具体的には以下の型
+  /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
+  bool
+  is_primitive_logic() const override;
+
   /// @brief ファンアウト数を得る．
   SizeType
   fanout_num() const override;
@@ -125,6 +132,10 @@ public:
   /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
   SizeType
   output_pos() const override;
+
+  /// @brief ソースノードのノード番号を返す．
+  SizeType
+  output_src() const override;
 
   /// @brief 外部出力端子の時に true を返す．
   bool
@@ -265,6 +276,15 @@ public:
   void
   set_output_pos(
     SizeType opos ///< [in] 出力位置
+  );
+
+  /// @brief ソースノードを設定する．
+  ///
+  /// 出力ノード専用
+  virtual
+  void
+  set_output_src(
+    SizeType node_id ///< [in] ソースノードのノード番号
   );
 
   /// @brief 外部出力端子番号を設定する．

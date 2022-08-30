@@ -74,7 +74,8 @@ AigWriter::conv_from_bnet(
   }
   // 出力のソースを設定する．
   for ( SizeType i = 0; i < O; ++ i ) {
-    auto src_id = src_network.output_src_id(i);
+    auto& src_node = src_network.output_node(i);
+    auto src_id = src_node.output_src();
     ASSERT_COND( lit_map.count(src_id) > 0 );
     auto src = lit_map.at(src_id);
     set_output_src(i, src);

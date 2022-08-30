@@ -118,13 +118,13 @@ BlifWriter::operator()(
 
   // .outputs 文の出力
   count = 0;
-  for ( auto& node: network().primary_output_src_list() ) {
+  for ( auto& node: network().primary_output_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
 
-    auto id = node.id();
-    s << " " << node_name(id);
+    auto src_id = node.output_src();
+    s << " " << node_name(src_id);
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -144,9 +144,9 @@ BlifWriter::operator()(
   // 出力用の追加の .names 文
   for ( auto& node: network().primary_output_list() ) {
     auto id = node.id();
-    auto src_id = node.fanin_id(0);
-    string src_name = node_name(src_id);
     string name = node_name(id);
+    auto src_id = node.output_src();
+    string src_name = node_name(src_id);
     if ( name != src_name ) {
       s << ".names " << src_name << " " << name << endl
 	<< "1 1" << endl;

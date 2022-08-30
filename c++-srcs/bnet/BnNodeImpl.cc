@@ -62,6 +62,13 @@ BnNodeImpl::is_logic() const
   return false;
 }
 
+// @brief プリミティブ型の論理ノードの時 true を返す．
+bool
+BnNodeImpl::is_primitive_logic() const
+{
+  return false;
+}
+
 // @brief ファンアウト数を得る．
 SizeType
 BnNodeImpl::fanout_num() const
@@ -141,6 +148,14 @@ BnNodeImpl::cell_output_pos() const
 // node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
 SizeType
 BnNodeImpl::output_pos() const
+{
+  ASSERT_NOT_REACHED;
+  return -1;
+}
+
+// @brief ソースノードのノード番号を返す．
+SizeType
+BnNodeImpl::output_src() const
 {
   ASSERT_NOT_REACHED;
   return BNET_NULLID;
@@ -322,6 +337,15 @@ BnNodeImpl::set_primary_input_pos(
 void
 BnNodeImpl::set_output_pos(
   SizeType opos
+)
+{
+  ASSERT_NOT_REACHED;
+}
+
+// @brief ソースノードを設定する．
+void
+BnNodeImpl::set_output_src(
+  SizeType node_id
 )
 {
   ASSERT_NOT_REACHED;

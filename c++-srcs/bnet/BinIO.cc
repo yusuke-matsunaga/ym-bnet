@@ -107,7 +107,7 @@ BinIO::dump(
   s.write_vint(no);
   for ( auto& node: network.output_list() ) {
     s.write_vint(node.id());
-    s.write_vint(node.fanin_id(0));
+    s.write_vint(node.output_src());
   }
 }
 

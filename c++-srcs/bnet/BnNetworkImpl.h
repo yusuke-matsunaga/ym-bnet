@@ -61,10 +61,10 @@ public:
   );
 
   /// @brief ポートの情報のみをコピーする．
-  /// @return ノード番号の対応関係を返す．
-  unordered_map<SizeType, SizeType>
+  void
   make_skelton_copy(
-    const BnNetworkImpl& src ///< [in] コピー元のオブジェクト
+    const BnNetworkImpl& src,                 ///< [in] コピー元のオブジェクト
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応表
   );
 
   /// @brief セルライブラリをセットする．
@@ -114,9 +114,19 @@ public:
   /// id_map の内容の基づいてファンイン間の接続を行う．
   SizeType
   copy_logic(
-    const BnNode& src_node,           ///< [in] 元のノード
-    const BnNetworkImpl& src_network, ///< [in] 元のネットワーク
-    unordered_map<SizeType, SizeType>& id_map ///< [out] 生成したノードの対応関係を記録するハッシュ表
+    const BnNode& src_node,                   ///< [in] 元のノード
+    const BnNetworkImpl& src_network,         ///< [in] 元のネットワーク
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
+  );
+
+  /// @brief 出力ノードを複製する．
+  ///
+  /// 出力ノードそのものはすでに生成済みでファンインの情報の
+  /// 設定のみを行う．
+  void
+  copy_output(
+    const BnNode& src_node,                   ///< [in] 元のノード
+    unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
   /// @brief 入出力混合のポートを作る．
@@ -389,7 +399,6 @@ public:
   ) const
   {
     ASSERT_COND( pos >= 0 && pos < input_num() );
-
     return mInputList[pos];
   }
 
@@ -397,13 +406,36 @@ public:
   const vector<SizeType>&
   input_id_list() const { return mInputList; }
 
+  /// @brief 外部入力数を得る．
+  SizeType
+  primary_input_num() const
+  {
+    return mPrimaryInputList.size();
+  }
+
+  /// @brief 外部入力ノードのノード番号を得る．
+  SizeType
+  primary_input_id(
+    SizeType pos ///< [in] 外部入力番号 ( 0 <= pos < primary_input_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < primary_input_num() );
+    return mPrimaryInputList[pos];
+  }
+
   /// @brief 外部入力ノードのノード番号のリストを得る．
   const vector<SizeType>&
-  primary_input_id_list() const { return mPrimaryInputList; }
+  primary_input_id_list() const
+  {
+    return mPrimaryInputList;
+  }
 
   /// @brief 出力数を得る．
   SizeType
-  output_num() const { return mOutputList.size(); }
+  output_num() const
+  {
+    return mOutputList.size();
+  }
 
   /// @brief 出力ノードのノード番号を得る．
   SizeType
@@ -423,26 +455,21 @@ public:
     return mOutputList;
   }
 
-  /// @brief 出力ノードのソースノード番号を得る．
-  ///
-  /// ソースノードとは出力ノードのファンインのノード
+  /// @brief 外部出力数を得る．
   SizeType
-  output_src_id(
-    SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
-  ) const
+  primary_output_num() const
   {
-    ASSERT_COND( pos >= 0 && pos < output_num() );
-
-    return mOutputSrcList[pos];
+    return mPrimaryOutputList.size();
   }
 
-  /// @brief 出力ノードのソースノード番号のリストを得る．
-  ///
-  /// ソースノードとは出力ノードのファンインのノード
-  const vector<SizeType>&
-  output_src_id_list() const
+  /// @brief 外部出力ノードのノード番号を得る．
+  SizeType
+  primary_output_id(
+    SizeType pos ///< [in] 外部出力番号 ( 0 <= pos < primary_output_num() )
+  ) const
   {
-    return mOutputSrcList;
+    ASSERT_COND( pos >= 0 && pos < primary_output_num() );
+    return mPrimaryOutputList[pos];
   }
 
   /// @brief 外部出力ノードのノード番号のリストを得る．
@@ -450,13 +477,6 @@ public:
   primary_output_id_list() const
   {
     return mPrimaryOutputList;
-  }
-
-  /// @brief 外部出力ノードのソースノード番号のリストを得る．
-  const vector<SizeType>&
-  primary_output_src_id_list() const
-  {
-    return mPrimaryOutputSrcList;
   }
 
   /// @brief 論理ノード数を得る．
@@ -772,14 +792,8 @@ private:
   // 出力ノード番号のリスト
   vector<SizeType> mOutputList;
 
-  // 出力ソースノード番号のリスト
-  vector<SizeType> mOutputSrcList;
-
   // 外部出力ノード番号のリスト
   vector<SizeType> mPrimaryOutputList;
-
-  // 外部出力ソースノード番号のリスト
-  vector<SizeType> mPrimaryOutputSrcList;
 
   // 論理ノード番号のリスト
   vector<SizeType> mLogicList;
