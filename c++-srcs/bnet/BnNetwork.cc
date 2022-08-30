@@ -105,16 +105,6 @@ BnNetwork::move(
   mImpl->wrap_up();
 }
 
-// @brief 実装可能な構造を持っている時 true を返す．
-bool
-BnNetwork::is_concrete() const
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  return mImpl->is_concrete();
-}
-
-
 // @brief ネットワーク名を得る．
 string
 BnNetwork::name() const
@@ -314,6 +304,23 @@ BnNetwork::logic_list() const
   ASSERT_COND( mImpl != nullptr );
 
   return BnNodeList{*this, mImpl->logic_id_list()};
+}
+
+// @brief 実装可能な構造を持っている時 true を返す．
+bool
+BnNetwork::is_concrete() const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->is_concrete();
+}
+
+// @brief 全てのノードがセル割当情報を持つ時 true を返す．
+bool
+BnNetwork::is_mapped() const
+{
+  ASSERT_COND( mImpl != nullptr );
+  return mImpl->is_mapped();
 }
 
 // @brief 関数の数を得る．

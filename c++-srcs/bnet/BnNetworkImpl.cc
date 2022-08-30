@@ -670,6 +670,24 @@ BnNetworkImpl::is_concrete() const
   return true;
 }
 
+// @brief 全てのノードがセル割当情報を持つ時 true を返す．
+bool
+BnNetworkImpl::is_mapped() const
+{
+  for ( auto dff_p: mDffList ) {
+    if ( dff_p->type() != BnDffType::Cell ) {
+      return false;
+    }
+  }
+  for ( auto id: logic_id_list() ) {
+    auto node_p = _node_p(id);
+    if ( node_p->type() != BnNodeType::Cell ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // @brief data_in ノードを作る．
 SizeType
 BnNetworkImpl::_new_data_in(

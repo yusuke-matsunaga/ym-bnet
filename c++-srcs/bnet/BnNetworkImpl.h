@@ -327,10 +327,6 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 実装可能な構造を持っている時 true を返す．
-  bool
-  is_concrete() const;
-
   /// @brief ネットワーク名を得る．
   string
   name() const { return mName; }
@@ -479,6 +475,14 @@ public:
     return mPrimaryOutputList;
   }
 
+  /// @brief 実装可能な構造を持っている時 true を返す．
+  bool
+  is_concrete() const;
+
+  /// @brief 全てのノードがセル割当情報を持つ時 true を返す．
+  bool
+  is_mapped() const;
+
   /// @brief 論理ノード数を得る．
   SizeType
   logic_num() const
@@ -503,10 +507,6 @@ public:
   {
     return mLogicList;
   }
-
-  /// @brief セル割当情報を持つ時 true を返す．
-  bool
-  is_mapped() const;
 
   /// @brief 関数の数を得る．
   SizeType

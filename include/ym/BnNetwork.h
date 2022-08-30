@@ -137,10 +137,6 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 実装可能な構造を持っている時 true を返す．
-  bool
-  is_concrete() const;
-
   /// @brief ネットワーク名を得る．
   string
   name() const;
@@ -259,6 +255,10 @@ public:
   /// @brief 論理ノードのリストを得る．
   BnNodeList
   logic_list() const;
+
+  /// @brief 実装可能な構造を持っている時 true を返す．
+  bool
+  is_concrete() const;
 
   /// @brief 全てのノードがセル割当情報を持つ時 true を返す．
   bool
