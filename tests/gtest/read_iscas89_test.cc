@@ -17,7 +17,7 @@ TEST(ReadIscas89Test, test)
 {
   string filename = "b10.bench";
   string path = DATAPATH + filename;
-  BnNetwork network = BnNetwork::read_iscas89(path);
+  auto network = BnNetwork::read_iscas89(path);
   int ni = 11;
   int no = 6;
   int nd = 17;
@@ -27,13 +27,28 @@ TEST(ReadIscas89Test, test)
   EXPECT_EQ( ng, network.logic_num() );
   EXPECT_EQ( ni + no + 1, network.port_num() );
   EXPECT_EQ( nd, network.dff_num() );
+
+  // 出力結果の回帰テスト
+  ostringstream s1;
+  network.write(s1);
+
+  string ref_path = DATAPATH + string{"b10.bnet"};
+  ifstream s2{ref_path};
+  ASSERT_TRUE( s2 );
+  string ref_contents;
+  string buff;
+  while ( getline(s2, buff) ) {
+    ref_contents += buff + '\n';
+  }
+
+  EXPECT_EQ( ref_contents, s1.str() );
 }
 
 TEST(ReadIscas89Test, const_test)
 {
   string filename = "const.bench";
   string path = DATAPATH + filename;
-  BnNetwork network = BnNetwork::read_iscas89(path);
+  auto network = BnNetwork::read_iscas89(path);
   int ni = 1;
   int no = 1;
   int nd = 0;

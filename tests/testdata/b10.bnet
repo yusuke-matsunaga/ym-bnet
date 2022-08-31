@@ -1,0 +1,735 @@
+network name : iscas89_network
+
+port#0: (R_BUTTON) :  1
+port#1: (G_BUTTON) :  2
+port#2: (KEY) :  3
+port#3: (START) :  4
+port#4: (TEST) :  5
+port#5: (RTS) :  6
+port#6: (RTR) :  7
+port#7: (V_IN_3_) :  8
+port#8: (V_IN_2_) :  9
+port#9: (V_IN_1_) :  10
+port#10: (V_IN_0_) :  11
+port#11: (clock) :  15
+port#12: (CTS_REG) :  64
+port#13: (CTR_REG) :  65
+port#14: (V_OUT_REG_3_) :  66
+port#15: (V_OUT_REG_2_) :  67
+port#16: (V_OUT_REG_1_) :  68
+port#17: (V_OUT_REG_0_) :  69
+
+input: 1(R_BUTTON)
+input: 2(G_BUTTON)
+input: 3(KEY)
+input: 4(START)
+input: 5(TEST)
+input: 6(RTS)
+input: 7(RTR)
+input: 8(V_IN_3_)
+input: 9(V_IN_2_)
+input: 10(V_IN_1_)
+input: 11(V_IN_0_)
+input: 13(VOTO0_REG.output)
+input: 15(clock)
+input: 17(STATO_REG_3_.output)
+input: 20(STATO_REG_2_.output)
+input: 23(STATO_REG_1_.output)
+input: 26(STATO_REG_0_.output)
+input: 29(V_OUT_REG_3_.output)
+input: 32(V_OUT_REG_2_.output)
+input: 35(V_OUT_REG_1_.output)
+input: 38(V_OUT_REG_0_.output)
+input: 41(SIGN_REG_3_.output)
+input: 44(VOTO1_REG.output)
+input: 47(CTR_REG.output)
+input: 50(VOTO3_REG.output)
+input: 53(LAST_R_REG.output)
+input: 56(CTS_REG.output)
+input: 59(VOTO2_REG.output)
+input: 62(LAST_G_REG.output)
+
+output: 12(VOTO0_REG.input)
+    input: 107
+output: 14(VOTO0_REG.clock)
+    input: 15
+output: 16(STATO_REG_3_.input)
+    input: 139
+output: 18(STATO_REG_3_.clock)
+    input: 15
+output: 19(STATO_REG_2_.input)
+    input: 144
+output: 21(STATO_REG_2_.clock)
+    input: 15
+output: 22(STATO_REG_1_.input)
+    input: 149
+output: 24(STATO_REG_1_.clock)
+    input: 15
+output: 25(STATO_REG_0_.input)
+    input: 155
+output: 27(STATO_REG_0_.clock)
+    input: 15
+output: 28(V_OUT_REG_3_.input)
+    input: 159
+output: 30(V_OUT_REG_3_.clock)
+    input: 15
+output: 31(V_OUT_REG_2_.input)
+    input: 162
+output: 33(V_OUT_REG_2_.clock)
+    input: 15
+output: 34(V_OUT_REG_1_.input)
+    input: 165
+output: 36(V_OUT_REG_1_.clock)
+    input: 15
+output: 37(V_OUT_REG_0_.input)
+    input: 168
+output: 39(V_OUT_REG_0_.clock)
+    input: 15
+output: 40(SIGN_REG_3_.input)
+    input: 172
+output: 42(SIGN_REG_3_.clock)
+    input: 15
+output: 43(VOTO1_REG.input)
+    input: 188
+output: 45(VOTO1_REG.clock)
+    input: 15
+output: 46(CTR_REG.input)
+    input: 195
+output: 48(CTR_REG.clock)
+    input: 15
+output: 49(VOTO3_REG.input)
+    input: 214
+output: 51(VOTO3_REG.clock)
+    input: 15
+output: 52(LAST_R_REG.input)
+    input: 219
+output: 54(LAST_R_REG.clock)
+    input: 15
+output: 55(CTS_REG.input)
+    input: 228
+output: 57(CTS_REG.clock)
+    input: 15
+output: 58(VOTO2_REG.input)
+    input: 238
+output: 60(VOTO2_REG.clock)
+    input: 15
+output: 61(LAST_G_REG.input)
+    input: 241
+output: 63(LAST_G_REG.clock)
+    input: 15
+output: 64(CTS_REG)
+    input: 56
+output: 65(CTR_REG)
+    input: 47
+output: 66(V_OUT_REG_3_)
+    input: 29
+output: 67(V_OUT_REG_2_)
+    input: 32
+output: 68(V_OUT_REG_1_)
+    input: 35
+output: 69(V_OUT_REG_0_)
+    input: 38
+
+dff#0(VOTO0_REG)[DFF]
+    input:  12
+    output: 13
+    clock:  14
+
+dff#1(STATO_REG_3_)[DFF]
+    input:  16
+    output: 17
+    clock:  18
+
+dff#2(STATO_REG_2_)[DFF]
+    input:  19
+    output: 20
+    clock:  21
+
+dff#3(STATO_REG_1_)[DFF]
+    input:  22
+    output: 23
+    clock:  24
+
+dff#4(STATO_REG_0_)[DFF]
+    input:  25
+    output: 26
+    clock:  27
+
+dff#5(V_OUT_REG_3_)[DFF]
+    input:  28
+    output: 29
+    clock:  30
+
+dff#6(V_OUT_REG_2_)[DFF]
+    input:  31
+    output: 32
+    clock:  33
+
+dff#7(V_OUT_REG_1_)[DFF]
+    input:  34
+    output: 35
+    clock:  36
+
+dff#8(V_OUT_REG_0_)[DFF]
+    input:  37
+    output: 38
+    clock:  39
+
+dff#9(SIGN_REG_3_)[DFF]
+    input:  40
+    output: 41
+    clock:  42
+
+dff#10(VOTO1_REG)[DFF]
+    input:  43
+    output: 44
+    clock:  45
+
+dff#11(CTR_REG)[DFF]
+    input:  46
+    output: 47
+    clock:  48
+
+dff#12(VOTO3_REG)[DFF]
+    input:  49
+    output: 50
+    clock:  51
+
+dff#13(LAST_R_REG)[DFF]
+    input:  52
+    output: 53
+    clock:  54
+
+dff#14(CTS_REG)[DFF]
+    input:  55
+    output: 56
+    clock:  57
+
+dff#15(VOTO2_REG)[DFF]
+    input:  58
+    output: 59
+    clock:  60
+
+dff#16(LAST_G_REG)[DFF]
+    input:  61
+    output: 62
+    clock:  63
+
+
+logic: 70(U215)
+    fanins:  20
+    NOT
+logic: 71(U217)
+    fanins:  23
+    NOT
+logic: 72(U214)
+    fanins:  26 71
+    NAND
+logic: 73(U264)
+    fanins:  72
+    NOT
+logic: 74(U261)
+    fanins:  17 70 73
+    NAND
+logic: 75(U213)
+    fanins:  26
+    NOT
+logic: 76(U201)
+    fanins:  20 75
+    AND
+logic: 77(U218)
+    fanins:  23 76
+    NAND
+logic: 78(U259)
+    fanins:  77
+    NOT
+logic: 79(U221)
+    fanins:  17
+    NOT
+logic: 80(U294)
+    fanins:  78 79
+    NAND
+logic: 81(U295)
+    fanins:  74 80
+    NAND
+logic: 82(U329)
+    fanins:  11 81
+    NAND
+logic: 83(U230)
+    fanins:  41
+    NOT
+logic: 84(U326)
+    fanins:  17 83
+    NAND
+logic: 85(U200)
+    fanins:  17 20
+    NOR
+logic: 86(U220)
+    fanins:  85 75
+    NAND
+logic: 87(U258)
+    fanins:  86
+    NOT
+logic: 88(U325)
+    fanins:  3 87
+    NAND
+logic: 89(U327)
+    fanins:  84 88
+    NAND
+logic: 90(U328)
+    fanins:  23 89
+    NAND
+logic: 91(U330)
+    fanins:  82 90
+    NAND
+logic: 92(U231)
+    fanins:  23 70
+    NAND
+logic: 93(U265)
+    fanins:  92
+    NOT
+logic: 94(U338)
+    fanins:  26 79
+    NAND
+logic: 95(U337)
+    fanins:  17 75
+    NAND
+logic: 96(U339)
+    fanins:  94 95
+    NAND
+logic: 97(U323)
+    fanins:  93 96
+    NAND
+logic: 98(U223)
+    fanins:  4 85
+    NAND
+logic: 99(U269)
+    fanins:  87 71
+    NAND
+logic: 100(U268)
+    fanins:  6 78
+    NAND
+logic: 101(U203)
+    fanins:  99 100
+    AND
+logic: 102(U204)
+    fanins:  101 74
+    AND
+logic: 103(U255)
+    fanins:  97 98 102
+    NAND
+logic: 104(U371)
+    fanins:  91 103
+    NAND
+logic: 105(U324)
+    fanins:  103
+    NOT
+logic: 106(U370)
+    fanins:  105 13
+    NAND
+logic: 107(U243)
+    fanins:  104 106
+    NAND
+logic: 108(U246)
+    fanins:  7 71 76
+    NAND
+logic: 109(U219)
+    fanins:  6
+    NOT
+logic: 110(U260)
+    fanins:  20 109 73
+    NAND
+logic: 111(U270)
+    fanins:  7 23
+    OR
+logic: 112(U334)
+    fanins:  111 92 75
+    NAND
+logic: 113(U331)
+    fanins:  8 9 11 10
+    NAND
+logic: 114(U333)
+    fanins:  26 113
+    NAND
+logic: 115(U272)
+    fanins:  112 114 17
+    NAND
+logic: 116(U224)
+    fanins:  23 26
+    NAND
+logic: 117(U266)
+    fanins:  116
+    NOT
+logic: 118(U216)
+    fanins:  7
+    NOT
+logic: 119(U336)
+    fanins:  117 118 20
+    NAND
+logic: 120(U225)
+    fanins:  23 79
+    NAND
+logic: 121(U271)
+    fanins:  120
+    NOT
+logic: 122(U222)
+    fanins:  4
+    NOT
+logic: 123(U335)
+    fanins:  121 122 70
+    NAND
+logic: 124(U262)
+    fanins:  98
+    NOT
+logic: 125(U273)
+    fanins:  124 26
+    NAND
+logic: 126(U244)
+    fanins:  119 123 125
+    AND
+logic: 127(U229)
+    fanins:  108 110 115 126 101
+    NAND
+logic: 128(U278)
+    fanins:  75 127
+    NAND
+logic: 129(U280)
+    fanins:  17 128
+    NAND
+logic: 130(U257)
+    fanins:  5
+    NOT
+logic: 131(U276)
+    fanins:  87 130
+    NAND
+logic: 132(U247)
+    fanins:  50
+    NOT
+logic: 133(U248)
+    fanins:  13
+    NOT
+logic: 134(U228)
+    fanins:  59 44 132 133
+    NAND
+logic: 135(U256)
+    fanins:  134
+    NOT
+logic: 136(U275)
+    fanins:  135 76
+    NAND
+logic: 137(U277)
+    fanins:  131 136
+    NAND
+logic: 138(U279)
+    fanins:  137 71 127
+    NAND
+logic: 139(U212)
+    fanins:  129 138
+    NAND
+logic: 140(U283)
+    fanins:  23 96
+    NAND
+logic: 141(U281)
+    fanins:  75 134
+    NAND
+logic: 142(U282)
+    fanins:  141 72 127
+    NAND
+logic: 143(U284)
+    fanins:  20 142
+    NAND
+logic: 144(U211)
+    fanins:  140 77 143
+    NAND
+logic: 145(U274)
+    fanins:  127
+    NOT
+logic: 146(U332)
+    fanins:  145 23
+    NAND
+logic: 147(U341)
+    fanins:  121 75
+    NAND
+logic: 148(U340)
+    fanins:  26 127 120
+    NAND
+logic: 149(U210)
+    fanins:  146 77 147 148
+    NAND
+logic: 150(U285)
+    fanins:  135 79
+    NAND
+logic: 151(U286)
+    fanins:  75 71 150
+    NAND
+logic: 152(U287)
+    fanins:  77 86 151
+    NAND
+logic: 153(U343)
+    fanins:  152 127
+    NAND
+logic: 154(U342)
+    fanins:  145 26
+    NAND
+logic: 155(U233)
+    fanins:  153 154
+    NAND
+logic: 156(U267)
+    fanins:  108
+    NOT
+logic: 157(U345)
+    fanins:  50 156
+    NAND
+logic: 158(U344)
+    fanins:  29 108
+    NAND
+logic: 159(U234)
+    fanins:  157 158
+    NAND
+logic: 160(U347)
+    fanins:  156 59
+    NAND
+logic: 161(U346)
+    fanins:  32 108
+    NAND
+logic: 162(U235)
+    fanins:  160 161
+    NAND
+logic: 163(U349)
+    fanins:  156 44
+    NAND
+logic: 164(U348)
+    fanins:  35 108
+    NAND
+logic: 165(U236)
+    fanins:  163 164
+    NAND
+logic: 166(U351)
+    fanins:  13 156
+    NAND
+logic: 167(U350)
+    fanins:  38 108
+    NAND
+logic: 168(U237)
+    fanins:  166 167
+    NAND
+logic: 169(U290)
+    fanins:  17 26
+    NAND
+logic: 170(U288)
+    fanins:  130 71 87
+    NAND
+logic: 171(U289)
+    fanins:  41 170
+    NAND
+logic: 172(U209)
+    fanins:  169 171
+    NAND
+logic: 173(U297)
+    fanins:  10 81
+    NAND
+logic: 174(U226)
+    fanins:  44
+    NOT
+logic: 175(U296)
+    fanins:  3 174 93
+    NAND
+logic: 176(U298)
+    fanins:  173 175
+    NAND
+logic: 177(U254)
+    fanins:  62
+    NOT
+logic: 178(U202)
+    fanins:  4 87
+    AND
+logic: 179(U292)
+    fanins:  2 177 178
+    NAND
+logic: 180(U232)
+    fanins:  3
+    NOT
+logic: 181(U263)
+    fanins:  178 180
+    NAND
+logic: 182(U291)
+    fanins:  4 70 73
+    NAND
+logic: 183(U205)
+    fanins:  102 182
+    AND
+logic: 184(U249)
+    fanins:  179 181 183
+    NAND
+logic: 185(U353)
+    fanins:  176 184
+    NAND
+logic: 186(U293)
+    fanins:  184
+    NOT
+logic: 187(U352)
+    fanins:  186 44
+    NAND
+logic: 188(U238)
+    fanins:  185 187
+    NAND
+logic: 189(U355)
+    fanins:  23 109
+    NAND
+logic: 190(U354)
+    fanins:  17 71
+    NAND
+logic: 191(U299)
+    fanins:  20 71
+    NAND
+logic: 192(U206)
+    fanins:  92 191
+    AND
+logic: 193(U300)
+    fanins:  189 190 75 192
+    NAND
+logic: 194(U301)
+    fanins:  47 193
+    NAND
+logic: 195(U208)
+    fanins:  110 194
+    NAND
+logic: 196(U307)
+    fanins:  8 81
+    NAND
+logic: 197(U227)
+    fanins:  59
+    NOT
+logic: 198(U357)
+    fanins:  13 197
+    NAND
+logic: 199(U356)
+    fanins:  59 133
+    NAND
+logic: 200(U245)
+    fanins:  198 199
+    NAND
+logic: 201(U360)
+    fanins:  200 174
+    NAND
+logic: 202(U358)
+    fanins:  200
+    NOT
+logic: 203(U359)
+    fanins:  202 44
+    NAND
+logic: 204(U361)
+    fanins:  201 203
+    NAND
+logic: 205(U306)
+    fanins:  117 204
+    NAND
+logic: 206(U308)
+    fanins:  196 205
+    NAND
+logic: 207(U302)
+    fanins:  4 180
+    NAND
+logic: 208(U303)
+    fanins:  116 207
+    NAND
+logic: 209(U304)
+    fanins:  85 208
+    NAND
+logic: 210(U250)
+    fanins:  183 209
+    NAND
+logic: 211(U363)
+    fanins:  206 210
+    NAND
+logic: 212(U305)
+    fanins:  210
+    NOT
+logic: 213(U362)
+    fanins:  212 50
+    NAND
+logic: 214(U239)
+    fanins:  211 213
+    NAND
+logic: 215(U252)
+    fanins:  3 23 178
+    NAND
+logic: 216(U309)
+    fanins:  215
+    NOT
+logic: 217(U365)
+    fanins:  216 1
+    NAND
+logic: 218(U364)
+    fanins:  53 215
+    NAND
+logic: 219(U240)
+    fanins:  217 218
+    NAND
+logic: 220(U315)
+    fanins:  17 71 76
+    NAND
+logic: 221(U316)
+    fanins:  7 85 73
+    NAND
+logic: 222(U313)
+    fanins:  23 75
+    NAND
+logic: 223(U312)
+    fanins:  17 73
+    NAND
+logic: 224(U310)
+    fanins:  26 17
+    OR
+logic: 225(U311)
+    fanins:  7 224
+    NAND
+logic: 226(U314)
+    fanins:  192 222 223 225
+    NAND
+logic: 227(U317)
+    fanins:  56 226
+    NAND
+logic: 228(U207)
+    fanins:  220 108 221 227
+    NAND
+logic: 229(U321)
+    fanins:  9 81
+    NAND
+logic: 230(U320)
+    fanins:  3 197 93
+    NAND
+logic: 231(U322)
+    fanins:  229 230
+    NAND
+logic: 232(U251)
+    fanins:  53
+    NOT
+logic: 233(U318)
+    fanins:  1 232 178
+    NAND
+logic: 234(U253)
+    fanins:  233 181 183
+    NAND
+logic: 235(U367)
+    fanins:  231 234
+    NAND
+logic: 236(U319)
+    fanins:  234
+    NOT
+logic: 237(U366)
+    fanins:  236 59
+    NAND
+logic: 238(U241)
+    fanins:  235 237
+    NAND
+logic: 239(U369)
+    fanins:  216 2
+    NAND
+logic: 240(U368)
+    fanins:  62 215
+    NAND
+logic: 241(U242)
+    fanins:  239 240
+    NAND
+

@@ -3,9 +3,8 @@
 /// @brief ReadBlifTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "gtest/gtest.h"
 #include "ym/BnNetwork.h"
@@ -17,7 +16,7 @@ TEST(ReadBlifTest, test)
 {
   string filename = "s5378.blif";
   string path = DATAPATH + filename;
-  BnNetwork network = BnNetwork::read_blif(path);
+  auto network = BnNetwork::read_blif(path);
   int ni = 35;   // 入力数
   int no = 49;   // 出力数
   int nd = 179;  // D-FF数
@@ -27,6 +26,22 @@ TEST(ReadBlifTest, test)
   EXPECT_EQ( ng, network.logic_num() );
   EXPECT_EQ( ni + no + 1, network.port_num() ); // +1 はクロック
   EXPECT_EQ( nd, network.dff_num() );
+
+  // 出力結果の回帰テスト
+  ostringstream s1;
+  network.write(s1);
+
+  string ref_filename = "s5378.bnet";
+  string ref_path = DATAPATH + ref_filename;
+  ifstream s2{ref_path};
+  ASSERT_TRUE( s2 );
+  string ref_contents;
+  string buff;
+  while ( getline(s2, buff) ) {
+    ref_contents += buff + '\n';
+  }
+
+  EXPECT_EQ( ref_contents, s1.str() );
 }
 
 END_NAMESPACE_YM
