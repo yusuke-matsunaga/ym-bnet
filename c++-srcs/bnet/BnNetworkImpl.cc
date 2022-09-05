@@ -53,25 +53,28 @@ END_NONAMESPACE
 void
 BnNetworkImpl::clear()
 {
+  mName = string();
+
   for ( auto port_p: mPortList ) {
     delete port_p;
   }
+  mPortList.clear();
+
   for ( auto dff_p: mDffList ) {
     delete dff_p;
   }
+  mDffList.clear();
+
   for ( auto node_p: mNodeList ) {
     delete node_p;
   }
+  mNodeList.clear();
 
-  mName = string();
-  mPortList.clear();
-  mDffList.clear();
   mInputList.clear();
   mPrimaryInputList.clear();
   mOutputList.clear();
   mPrimaryOutputList.clear();
   mLogicList.clear();
-  mNodeList.clear();
 
   mSane = false;
 }

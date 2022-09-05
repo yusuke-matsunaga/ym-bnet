@@ -35,9 +35,9 @@ BnNetwork::BnNetwork(
 // @brief ムーブコンストラクタ
 BnNetwork::BnNetwork(
   BnNetwork&& src
-) : mImpl{std::move(src.mImpl)}
+)
 {
-  mImpl->wrap_up();
+  move(std::move(src));
 }
 
 // @brief コピー代入演算子
