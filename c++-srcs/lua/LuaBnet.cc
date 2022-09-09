@@ -621,13 +621,12 @@ END_NONAMESPACE
 
 void
 LuaBnet::init(
-  vector<struct luaL_Reg>& mylib
+  const char* parent,
+  const char* name
 )
 {
-  LuaClib::init(mylib);
-
   // メンバ関数(メソッド)テーブル
-  static const struct luaL_Reg mt[] = {
+  static const struct luaL_Reg meta_table[] = {
     {"write_blif",    bnet_write_blif},
     {"write_iscas89", bnet_write_iscas89},
     {"write_aig",     bnet_write_aig},
@@ -640,14 +639,19 @@ LuaBnet::init(
     {nullptr,         nullptr}
   };
 
-  reg_metatable(BNET_SIGNATURE, bnet_gc, mt);
+  reg_metatable(BNET_SIGNATURE, bnet_gc, meta_table);
 
-  // 生成関数を登録する．
-  mylib.push_back({"read_blif",    bnet_read_blif});
-  mylib.push_back({"read_iscas89", bnet_read_iscas89});
-  mylib.push_back({"read_aig",     bnet_read_aig});
-  mylib.push_back({"read_aag",     bnet_read_aag});
-  mylib.push_back({"read_truth",   bnet_read_truth});
+  static const struct luaL_Reg func_table[] = {
+    {"read_blif",    bnet_read_blif},
+    {"read_iscas89", bnet_read_iscas89},
+    {"read_aig",     bnet_read_aig},
+    {"read_aag",     bnet_read_aag},
+    {"read_truth",   bnet_read_truth},
+    {nullptr,        nullptr}
+  };
+
+  luaL_newlib(lua_state(), func_table);
+  reg_module(parent, name);
 }
 
 // @brief 対象を BnNetwork として取り出す．

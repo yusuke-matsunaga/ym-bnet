@@ -65,7 +65,8 @@ public:
   /// @brief BnNetwork 関係の初期化を行う．
   void
   init(
-    vector<struct luaL_Reg>& mylib ///< [out] モジュールに登録する関数のリスト
+    const char* parent, ///< [in] 親のモジュール名
+    const char* name    ///< [in] 自身の名前
   );
 
   /// @brief 対象が BnNetwork の時 true を返す．
@@ -96,12 +97,13 @@ public:
   static
   void
   init(
-    lua_State* L,                  ///< [in] lua インタープリタ
-    vector<struct luaL_Reg>& mylib ///< [out] モジュールに登録する関数のリスト
+    lua_State* L,       ///< [in] lua インタープリタ
+    const char* parent, ///< [in] 親のモジュール名
+    const char* name    ///< [in] 自身の名前
   )
   {
     LuaBnet lua{L};
-    lua.init(mylib);
+    lua.init(parent, name);
   }
 
   /// @brief 対象が BnNetwork の時 true を返す．
@@ -131,6 +133,13 @@ public:
   }
 
 };
+
+/// @brief Lua用モジュールの初期化関数
+extern
+int
+luaopen_bnet(
+  lua_State* L
+);
 
 END_NAMESPACE_YM
 
