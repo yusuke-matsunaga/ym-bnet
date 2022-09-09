@@ -87,6 +87,10 @@ public:
     int idx       ///< [in] スタック上のインデックス
   );
 
+  /// @brief Lua 管理下の BnNetwork オブジェクトを生成する．
+  BnNetwork*
+  new_bnet();
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -133,13 +137,6 @@ public:
   }
 
 };
-
-/// @brief Lua用モジュールの初期化関数
-extern
-int
-luaopen_bnet(
-  lua_State* L
-);
 
 END_NAMESPACE_YM
 

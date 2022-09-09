@@ -24,25 +24,6 @@ BEGIN_NONAMESPACE
 // Bnet 用のシグネチャ
 const char* BNET_SIGNATURE{"Luapp.Bnet"};
 
-// BnNetwork を生成する共通関数
-BnNetwork*
-bnet_new(
-  Luapp& lua
-)
-{
-  // メモリ領域は Lua で確保する．
-  void* p = lua.new_userdata(sizeof(BnNetwork));
-  auto bnet = new (p) BnNetwork{};
-
-  // BnNetwork 用の metatable を取ってくる．
-  lua.L_getmetatable(BNET_SIGNATURE);
-
-  // それを今作った userdata にセットする．
-  lua.set_metatable(-2);
-
-  return bnet;
-}
-
 // BnNetwork 用のデストラクタ
 int
 bnet_gc(
@@ -123,7 +104,7 @@ bnet_read_blif(
   try {
     auto src = BnNetwork::read_blif(filename, library, clock_str, reset_str);
 
-    auto bnet = bnet_new(lua);
+    auto bnet = lua.new_bnet();
 
     // 今読み込んだネットワークの内容をムーブする．
     bnet->move(std::move(src));
@@ -178,7 +159,7 @@ bnet_read_iscas89(
   try {
     auto src = BnNetwork::read_iscas89(filename, clock_str);
 
-    auto bnet = bnet_new(lua);
+    auto bnet = lua.new_bnet();
 
     // 今読み込んだネットワークの内容をムーブする．
     bnet->move(std::move(src));
@@ -196,7 +177,7 @@ bnet_read_aig(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   string filename{};
   string clock_str{};
@@ -238,7 +219,7 @@ bnet_read_aig(
   try {
     auto src = BnNetwork::read_aig(filename, clock_str, reset_str);
 
-    auto bnet = bnet_new(lua);
+    auto bnet = lua.new_bnet();
 
     // 今読み込んだネットワークの内容をムーブする．
     bnet->move(std::move(src));
@@ -256,7 +237,7 @@ bnet_read_aag(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   string filename{};
   string clock_str{};
@@ -298,7 +279,7 @@ bnet_read_aag(
   try {
     auto src = BnNetwork::read_aag(filename, clock_str, reset_str);
 
-    auto bnet = bnet_new(lua);
+    auto bnet = lua.new_bnet();
 
     // 今読み込んだネットワークの内容をムーブする．
     bnet->move(std::move(src));
@@ -316,7 +297,7 @@ bnet_read_truth(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   string filename{};
 
@@ -335,7 +316,7 @@ bnet_read_truth(
   try {
     auto src = BnNetwork::read_truth(filename);
 
-    auto bnet = bnet_new(lua);
+    auto bnet = lua.new_bnet();
 
     // 今読み込んだネットワークの内容をムーブする．
     bnet->move(std::move(src));
@@ -353,14 +334,14 @@ bnet_write_blif(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 && n != 2 ) {
     return lua.error_end("Error: BnNetwork:write_blif() expects at most one argument.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   if ( n == 1 ) {
     bnet->write_blif(cout);
@@ -381,14 +362,14 @@ bnet_write_iscas89(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 && n != 2 ) {
     return lua.error_end("Error: BnNetwork:write_iscas89() expects at most one argument.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   if ( n == 1 ) {
     bnet->write_iscas89(cout);
@@ -409,14 +390,14 @@ bnet_write_aig(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 && n != 2 ) {
     return lua.error_end("Error: BnNetwork:write_blif() expects at most one argument.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   if ( n == 1 ) {
     bnet->write_aig(cout);
@@ -437,14 +418,14 @@ bnet_write_aag(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 && n != 2 ) {
     return lua.error_end("Error: BnNetwork:write_blif() expects at most one argument.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   if ( n == 1 ) {
     bnet->write_aag(cout);
@@ -465,14 +446,14 @@ bnet_clear(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 ) {
     return lua.error_end("Error: BnNetwork:clear() expects no arguments.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   bnet->clear();
 
@@ -486,16 +467,16 @@ bnet_copy(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 ) {
     return lua.error_end("Error: BnNetwork:copy() expects one argument.");
   }
 
-  auto src = LuaBnet::to_bnet(L, 1);
+  auto src = lua.to_bnet(1);
 
-  auto bnet = bnet_new(lua);
+  auto bnet = lua.new_bnet();
 
   bnet->copy(*src);
 
@@ -508,14 +489,14 @@ bnet_set_name(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 2 ) {
     return lua.error_end("Error: BnNetwork:set_name() expects one argment.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
   auto name = lua.to_string(2);
 
   BnModifier mod{std::move(*bnet)};
@@ -532,14 +513,14 @@ bnet_name(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 ) {
     return lua.error_end("Error: BnNetwork:name() expects no arguments.");
   }
 
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
   auto name = bnet->name();
 
   lua.push_string(name.c_str());
@@ -552,7 +533,7 @@ bnet_stats(
   lua_State* L
 )
 {
-  Luapp lua{L};
+  LuaBnet lua{L};
 
   int n = lua.get_top();
   if ( n != 1 ) {
@@ -560,7 +541,7 @@ bnet_stats(
   }
 
   // 対象のネットワーク
-  auto bnet = LuaBnet::to_bnet(L, 1);
+  auto bnet = lua.to_bnet(1);
 
   // 結果のテーブルを作る．
   lua.create_table();
@@ -662,6 +643,23 @@ LuaBnet::to_bnet(
 {
   auto p = L_checkudata(idx, BNET_SIGNATURE);
   return reinterpret_cast<BnNetwork*>(p);
+}
+
+// @brief Lua 管理下の BnNetwork オブジェクトを生成する．
+BnNetwork*
+LuaBnet::new_bnet()
+{
+  // メモリ領域は Lua で確保する．
+  void* p = new_userdata(sizeof(BnNetwork));
+  auto bnet = new (p) BnNetwork{};
+
+  // BnNetwork 用の metatable を取ってくる．
+  L_getmetatable(BNET_SIGNATURE);
+
+  // それを今作った userdata にセットする．
+  set_metatable(-2);
+
+  return bnet;
 }
 
 END_NAMESPACE_YM
