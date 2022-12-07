@@ -16,7 +16,6 @@
 # ===================================================================
 # パッケージの検査
 # ===================================================================
-ym_init_lua()
 
 
 # ===================================================================
@@ -123,21 +122,3 @@ set ( ym_luabnet_SOURCES
 ym_add_object_library ( ym_bnet
   ${ym_bnet_SOURCES}
   )
-
-if ( LUA_FOUND )
-  ym_add_object_library ( ym_luabnet
-    ${ym_luabnet_SOURCES}
-    )
-
-  target_include_directories ( ym_luabnet_obj
-    PRIVATE ${LUA_INCLUDE_DIR}
-    )
-
-  target_include_directories ( ym_luabnet_obj_d
-    PRIVATE ${LUA_INCLUDE_DIR}
-    )
-
-  target_include_directories ( ym_luabnet_obj_p
-    PRIVATE ${LUA_INCLUDE_DIR}
-    )
-endif ( LUA_FOUND )
