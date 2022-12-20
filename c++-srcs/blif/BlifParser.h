@@ -139,12 +139,6 @@ private:
     bool
     is_input() const { return mFlags[1]; }
 
-#if 0
-    /// @brief 出力として定義されている時 true を返す．
-    bool
-    is_output() const { return mFlags[2]; }
-#endif
-
     /// @brief このシンボルを参照している位置を返す．
     const FileRegion&
     ref_loc() const { return mRefLoc; }
@@ -177,15 +171,6 @@ private:
       mFlags.set(1);
     }
 
-#if 0
-    /// @brief 出力として用いられていることをセットする．
-    void
-    set_output()
-    {
-      mFlags.set(2);
-    }
-#endif
-
 
   private:
     //////////////////////////////////////////////////////////////////////
@@ -201,8 +186,7 @@ private:
     // いくつかのフラグ
     // 0: defined マーク
     // 1: input マーク
-    // 2: output マーク
-    std::bitset<3> mFlags{0};
+    std::bitset<2> mFlags{0};
 
     // 名前
     string mName;
@@ -304,16 +288,6 @@ private:
     SizeType id ///< [in] 識別子番号
   ) const;
 
-#if 0
-  /// @brief 対応する識別子が出力用か調べる．
-  /// @retval true 出力
-  /// @retval false 出力以外
-  bool
-  is_output(
-    SizeType id ///< [in] 識別子番号
-  ) const;
-#endif
-
   /// @brief 対応する識別子に定義済みの印をつける．
   void
   set_defined(
@@ -327,14 +301,6 @@ private:
     SizeType id,               ///< [in] 識別子番号
     const FileRegion& loc ///< [in] 定義している場所．
   );
-
-#if 0
-  /// @brief 対応する識別子に出力用の印を付ける．
-  void
-  set_output(
-    SizeType id ///< [in] 識別子番号
-  );
-#endif
 
 
 private:

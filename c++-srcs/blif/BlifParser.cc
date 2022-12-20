@@ -423,17 +423,6 @@ BlifParser::read_inputs()
 			"MLTDEF01", buf.str().c_str());
 	ok = false;
       }
-#if 0
-      if ( is_output(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined as both input and output."
-	    << " Previous difinition is at " << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-			MsgType::Warning,
-			"MLTDEF02", buf.str().c_str());
-      }
-#endif
       set_input(id, name_loc);
       for ( auto handler: mHandlerList ) {
 	if ( !handler->inputs_elem(id, name) ) {
@@ -471,29 +460,6 @@ BlifParser::read_outputs()
       auto name{cur_string()};
       FileRegion name_loc{cur_loc()};
       auto id = find_id(name, name_loc);
-#if 0
-      if ( is_output(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined more than once. Previous definition is at "
-	    << def_loc;
-	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-			MsgType::Error,
-			"MLTDEF03", buf.str().c_str());
-	ok = false;
-      }
-      else if ( is_input(id) ) {
-	FileRegion def_loc{id2loc(id)};
-	ostringstream buf;
-	buf << name << ": Defined as both input and output. "
-	    << "Previous definition is at "
-	    << def_loc << ".";
-	MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
-			MsgType::Warning,
-			"MLTDEF02", buf.str().c_str());
-      }
-      set_output(id);
-#endif
       mOidArray.push_back(id);
       ++ n_token;
     }
@@ -1087,18 +1053,6 @@ BlifParser::is_input(
   return mCellArray[id].is_input();
 }
 
-#if 0
-// @brief 対応する識別子が出力用か調べる．
-bool
-BlifParser::is_output(
-  SizeType id
-) const
-{
-  ASSERT_COND( 0 <= id && id < mCellArray.size() );
-  return mCellArray[id].is_output();
-}
-#endif
-
 // @brief 対応する識別子に定義済みの印をつける．
 void
 BlifParser::set_defined(
@@ -1120,17 +1074,5 @@ BlifParser::set_input(
   ASSERT_COND( 0 <= id && id < mCellArray.size() );
   mCellArray[id].set_input(loc);
 }
-
-#if 0
-// @brief 対応する識別子に出力用の印を付ける．
-void
-BlifParser::set_output(
-  SizeType id
-)
-{
-  ASSERT_COND( 0 <= id && id < mCellArray.size() );
-  mCellArray[id].set_output();
-}
-#endif
 
 END_NAMESPACE_YM_BNET
