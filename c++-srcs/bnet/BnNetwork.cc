@@ -143,6 +143,17 @@ BnNetwork::port(
   return mImpl->port(pos);
 }
 
+// @brief ポート名からポート番号を得る．
+SizeType
+BnNetwork::find_port(
+  const string& name
+) const
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  return mImpl->find_port(name);
+}
+
 // @brief ポートのリストを得る．
 BnPortList
 BnNetwork::port_list() const
@@ -199,6 +210,13 @@ BnNetwork::node(
   ASSERT_COND( mImpl != nullptr );
 
   return mImpl->node(id);
+}
+
+// @brief 全てのノードのリストを得る．
+BnAllNodeList
+BnNetwork::all_node_list() const
+{
+  return BnAllNodeList{*this};
 }
 
 // @brief 入力数を得る．
@@ -482,6 +500,46 @@ BnNodeList::iterator
 BnNodeList::end() const
 {
   return iterator{mNetwork, mIdList.end()};
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// BnAllNodeListIter
+//////////////////////////////////////////////////////////////////////
+
+// @brief 内容を取り出す．
+const BnNode&
+BnAllNodeListIter::operator*() const
+{
+  return mNetwork.node(mPos + 1);
+}
+
+// @brief 一つ進める．
+BnAllNodeListIter&
+BnAllNodeListIter::operator++()
+{
+  if ( mPos < mNetwork.node_num() ) {
+    ++ mPos;
+  }
+  return *this;
+}
+
+//////////////////////////////////////////////////////////////////////
+// BnAllNodeList
+//////////////////////////////////////////////////////////////////////
+
+/// @brief 先頭の反復子を返す．
+BnAllNodeList::iterator
+BnAllNodeList::begin() const
+{
+  return iterator{mNetwork, 0};
+}
+
+// @brief 末尾の反復子を返す．
+BnAllNodeList::iterator
+BnAllNodeList::end() const
+{
+  return iterator{mNetwork, mNetwork.node_num()};
 }
 
 

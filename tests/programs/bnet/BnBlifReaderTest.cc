@@ -8,16 +8,20 @@
 
 
 #include "ym/BnNetwork.h"
+#include "ym/MsgMgr.h"
+#include "ym/StreamMsgHandler.h"
 
 
 BEGIN_NAMESPACE_YM
 
 void
-write_network(const BnNetwork& network,
-	      ostream& s,
-	      bool blif,
-	      bool iscas89,
-	      bool verilog)
+write_network(
+  const BnNetwork& network,
+  ostream& s,
+  bool blif,
+  bool iscas89,
+  bool verilog
+)
 {
   if ( blif ) {
     network.write_blif(s);
@@ -34,8 +38,10 @@ write_network(const BnNetwork& network,
 }
 
 int
-BnBlifReaderTest(int argc,
-		 char** argv)
+BnBlifReaderTest(
+  int argc,
+  char** argv
+)
 {
   bool blif = false;
   bool iscas89 = false;
@@ -74,6 +80,9 @@ BnBlifReaderTest(int argc,
     return -1;
   }
 
+  StreamMsgHandler handler{cout};
+  MsgMgr::attach_handler(&handler);
+
   string filename = argv[argbase];
   BnNetwork network = BnNetwork::read_blif(filename);
   if ( network.node_num() == 0 ) {
@@ -95,8 +104,10 @@ BnBlifReaderTest(int argc,
 END_NAMESPACE_YM
 
 int
-main(int argc,
-     char** argv)
+main(
+  int argc,
+  char** argv
+)
 {
   return nsYm::BnBlifReaderTest(argc, argv);
 }

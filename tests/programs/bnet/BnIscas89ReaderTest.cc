@@ -3,21 +3,24 @@
 /// @brief BnIscas89ReaderTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/BnNetwork.h"
+#include "ym/MsgMgr.h"
+#include "ym/StreamMsgHandler.h"
 
 
 BEGIN_NAMESPACE_YM
 
 void
-write_network(const BnNetwork& network,
-	      ostream& s,
-	      bool blif,
-	      bool iscas89,
-	      bool verilog)
+write_network(
+  const BnNetwork& network,
+  ostream& s,
+  bool blif,
+  bool iscas89,
+  bool verilog
+)
 {
   if ( blif ) {
     network.write_blif(s);
@@ -34,8 +37,10 @@ write_network(const BnNetwork& network,
 }
 
 int
-BnIscas89ReaderTest(int argc,
-		    char** argv)
+BnIscas89ReaderTest(
+  int argc,
+  char** argv
+)
 {
   bool blif = false;
   bool iscas89 = false;
@@ -74,6 +79,9 @@ BnIscas89ReaderTest(int argc,
     return -1;
   }
 
+  StreamMsgHandler handler{cout};
+  MsgMgr::attach_handler(&handler);
+
   string filename = argv[argbase];
   BnNetwork network = BnNetwork::read_iscas89(filename);
   if ( network.node_num() == 0 ) {
@@ -95,8 +103,10 @@ BnIscas89ReaderTest(int argc,
 END_NAMESPACE_YM
 
 int
-main(int argc,
-     char** argv)
+main(
+  int argc,
+  char** argv
+)
 {
   return nsYm::BnIscas89ReaderTest(argc, argv);
 }

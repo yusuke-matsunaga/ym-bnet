@@ -211,7 +211,7 @@ BnNetworkImpl::new_port(
   const vector<BnDir>& dir_vect
 )
 {
-  if ( mPortDict.count(port_name) > 0 ) {
+  if ( port_name != string{} && mPortDict.count(port_name) > 0 ) {
     ostringstream buf;
     buf << "Error in BnNetwork::new_port(): "
 	<< "'" << port_name << "' is already in use.";
@@ -249,9 +249,26 @@ BnNetworkImpl::new_port(
     port = new BnPortN{port_id, port_name, bits};
   }
   mPortList.push_back(port);
-  mPortDict.emplace(port_name, port);
+  if ( port_name != string{} ) {
+    mPortDict.emplace(port_name, port);
+  }
 
   return port_id;
+}
+
+// @brief ポート名からポート番号を得る．
+SizeType
+BnNetworkImpl::find_port(
+  const string& name
+) const
+{
+  if ( mPortDict.count(name) > 0 ) {
+    auto port = mPortDict.at(name);
+    return port->id();
+  }
+  else {
+    return static_cast<SizeType>(-1);
+  }
 }
 
 // @brief プリミティブ型の論理ノードを追加する．

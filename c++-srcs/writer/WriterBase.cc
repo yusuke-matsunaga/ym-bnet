@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 // @brief コンストラクタ
 WriterBase::WriterBase(
   const BnNetwork& network
-) : mNetwork(network),
+) : mNetwork{network},
     mNameArray(network.node_num()),
     mDataArray(network.node_num(), false)
 {
@@ -42,7 +42,7 @@ WriterBase::init_name_array(
   // 外部ポート名
   for ( auto& port: mNetwork.port_list() ) {
     const string& name = port.name();
-    if ( name == string() ) {
+    if ( name == string{} ) {
       // 名無しの場合はスキップ
       continue;
     }
@@ -68,7 +68,7 @@ WriterBase::init_name_array(
   for ( auto& dff: mNetwork.dff_list() ) {
     if ( dff.is_dff() || dff.is_latch() ) {
       const string& name = dff.name();
-      if ( name == string() ) {
+      if ( name == string{} ) {
 	// 名無しの場合はスキップ
 	continue;
       }
@@ -94,7 +94,14 @@ WriterBase::init_name_array(
   // 外部出力ノード名
   for ( auto& node: mNetwork.primary_output_list() ) {
     const string& name = node.name();
-    reg_node_name(node.id(), name, name_hash, name_mgr);
+    if ( name == string{} ) {
+      auto src_id = node.output_src();
+      auto& src_node = mNetwork.node(src_id);
+      set_node_name(node.id(), src_node.name());
+    }
+    else {
+      reg_node_name(node.id(), name, name_hash, name_mgr);
+    }
   }
 
   // FF の入力ノード名
@@ -112,10 +119,11 @@ WriterBase::init_name_array(
   }
 
   // 名無しのノードに名前を与える．
-  for ( SizeType id: Range(mNetwork.node_num()) ) {
-    if ( mNameArray[id] == string() ) {
+  for ( auto& node: mNetwork.all_node_list() ) {
+    SizeType id = node.id();
+    if ( node_name(id) == string{} ) {
       string name = name_mgr.new_name(true);
-      mNameArray[id] = name;
+      set_node_name(id, name);
     }
   }
 
@@ -125,7 +133,7 @@ WriterBase::init_name_array(
     auto src_id = node.output_src();
     auto& src_node = mNetwork.node(src_id);
     if ( !src_node.is_input() ) {
-      mNameArray[src_id] = mNameArray[id];
+      set_node_name(src_id, node_name(id));
     }
   }
 
@@ -134,7 +142,7 @@ WriterBase::init_name_array(
     auto id = dff.data_in();
     auto& node = mNetwork.node(id);
     auto src_id = node.output_src();
-    mNameArray[id] = mNameArray[src_id];
+    set_node_name(id, node_name(src_id));
   }
 
   // データ系のノードに印をつける．
@@ -146,22 +154,14 @@ WriterBase::init_name_array(
 
   // 特例としてどこにもファンアウトしていないノードはデータ系とみなす．
   // 正確にはクロック系ではないとみなす．
-  for ( SizeType id: Range(mNetwork.node_num()) ) {
-    auto& node = mNetwork.node(id);
-    if ( node.is_output() ) {
-      continue;
-    }
-    if ( node.fanout_num() == 0 ) {
-      mark_tfi(id);
+  for ( auto& node: mNetwork.all_node_list() ) {
+    if ( !node.is_output() && node.fanout_num() == 0 ) {
+      mark_tfi(node.id());
     }
   }
 }
 
 // @brief ノード名の登録を行う．
-// @param[in] node_id ノード番号
-// @param[in] name 登録する名前
-// @param[in] name_hash ノード名のハッシュ
-// @param[in] name_mgr ノード名を管理するクラス
 void
 WriterBase::reg_node_name(
   SizeType node_id,
@@ -170,11 +170,11 @@ WriterBase::reg_node_name(
   NameMgr& name_mgr
 )
 {
-  if ( mNameArray[node_id] != string() ) {
+  if ( node_name(node_id) != string{} ) {
     // すでに名前がついていた．
     return;
   }
-  if ( name == string() ) {
+  if ( name == string{} ) {
     // 名前がなかった．
     return;
   }
@@ -186,7 +186,7 @@ WriterBase::reg_node_name(
   // 名前を登録する．
   name_mgr.add(name.c_str());
   name_hash.insert(name);
-  mNameArray[node_id] = name;
+  set_node_name(node_id, name);
 }
 
 // @brief TFI のノードに印をつける．
@@ -196,11 +196,11 @@ WriterBase::mark_tfi(
   SizeType node_id
 )
 {
-  if ( mDataArray[node_id] ) {
+  if ( mDataArray[node_id - 1] ) {
     // すでに印がついていた．
     return;
   }
-  mDataArray[node_id] = true;
+  mDataArray[node_id - 1] = true;
 
   auto& node = mNetwork.node(node_id);
   for ( auto iid: node.fanin_id_list() ) {

@@ -106,9 +106,11 @@ private:
     bool
     is_input() const { return mFlags[1]; }
 
+#if 0
     /// @brief 出力として定義されている時 true を返す．
     bool
     is_output() const { return mFlags[2]; }
+#endif
 
     /// @brief このシンボルの定義された位置を返す．
     const FileRegion&
@@ -135,11 +137,13 @@ private:
       mFlags.set(1);
     }
 
+#if 0
     void
     set_output()
     {
       mFlags.set(2);
     }
+#endif
 
 
   private:
@@ -284,6 +288,7 @@ private:
     return mIdCellArray[id].is_input();
   }
 
+#if 0
   /// @brief 該当の識別子が出力か調べる．
   bool
   is_output(
@@ -293,6 +298,7 @@ private:
     ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
     return mIdCellArray[id].is_output();
   }
+#endif
 
   /// @brief 識別子に定義済みの印を付ける．
   void
@@ -319,6 +325,7 @@ private:
     mIdCellArray[id].set_defined(loc);
   }
 
+#if 0
   /// @brief 識別子に出力の印を付ける．
   void
   set_output(
@@ -332,7 +339,7 @@ private:
   /// @brief スキャナーを削除する．
   void
   delete_scanner();
-
+#endif
 
 private:
   //////////////////////////////////////////////////////////////////////

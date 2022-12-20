@@ -157,6 +157,14 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < port_num() )
   ) const;
 
+  /// @brief ポート名からポート番号を得る．
+  ///
+  /// 見つからない場合は -1 を返す．
+  SizeType
+  find_port(
+    const string& name ///< [in] ポート名
+  ) const;
+
   /// @brief ポートのリストを得る．
   BnPortList
   port_list() const;
@@ -185,8 +193,12 @@ public:
   /// node.id() == id が成り立つ．
   const BnNode&
   node(
-    SizeType id ///< [in] ノード番号 ( 0 <= id < node_num() )
+    SizeType id ///< [in] ノード番号 ( 1 <= id <= node_num() )
   ) const;
+
+  /// @brief 全てのノードのリストを得る．
+  BnAllNodeList
+  all_node_list() const;
 
   /// @brief 入力数を得る．
   SizeType

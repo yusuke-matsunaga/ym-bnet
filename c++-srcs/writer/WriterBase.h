@@ -79,9 +79,9 @@ protected:
     SizeType node_id ///< [in] ノード番号
   ) const
   {
-    ASSERT_COND( node_id >= 0 && node_id < mNameArray.size() );
+    ASSERT_COND( 1 <= node_id && node_id <= mNameArray.size() );
 
-    return mNameArray[node_id];
+    return mNameArray[node_id - 1];
   }
 
   /// @brief データ系のノードの時 true を返す．
@@ -92,9 +92,9 @@ protected:
     SizeType node_id ///< [in] ノード番号
   ) const
   {
-    ASSERT_COND( node_id >= 0 && node_id < mDataArray.size() );
+    ASSERT_COND( 1 <= node_id && node_id <= mDataArray.size() );
 
-    return mDataArray[node_id];
+    return mDataArray[node_id - 1];
   }
 
 
@@ -112,6 +112,18 @@ protected:
     unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
     NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
   );
+
+  /// @brief ノード名をつける．
+  void
+  set_node_name(
+    SizeType node_id,   ///< [in] ノード番号
+    const string& name  ///< [in] 名前
+  )
+  {
+    ASSERT_COND( 1 <= node_id && node_id <= mNameArray.size() );
+
+    mNameArray[node_id - 1] = name;
+  }
 
   /// @brief TFI のノードに印をつける．
   void

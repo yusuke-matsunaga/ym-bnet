@@ -351,6 +351,14 @@ public:
     return *mPortList[pos];
   }
 
+  /// @brief ポート名からポート番号を得る．
+  ///
+  /// 見つからない場合は -1 を返す．
+  SizeType
+  find_port(
+    const string& name ///< [in] ポート名
+  ) const;
+
   /// @brief DFF数を得る．
   SizeType
   dff_num() const { return mDffList.size(); }
@@ -375,7 +383,7 @@ public:
   /// node->id() == id が成り立つ．
   const BnNode&
   node(
-    SizeType id ///< [in] ノード番号 ( 0 <= id < node_num() )
+    SizeType id ///< [in] ノード番号 ( 1 <= id <= node_num() )
   ) const
   {
     return *_node_p(id);

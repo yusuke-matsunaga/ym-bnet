@@ -147,7 +147,11 @@ BnBlifHandler::outputs_elem(
   const string& name
 )
 {
-  auto port_id = mNetwork.new_output_port(name);
+  string name1;
+  if ( mNetwork.find_port(name) == static_cast<SizeType>(-1) ) {
+    name1 = name;
+  }
+  auto port_id = mNetwork.new_output_port(name1);
   const auto& port = mNetwork.port(port_id);
   auto id = port.bit(0);
   mOutputMap.emplace(id, name_id);

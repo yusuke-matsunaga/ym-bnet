@@ -139,9 +139,11 @@ private:
     bool
     is_input() const { return mFlags[1]; }
 
+#if 0
     /// @brief 出力として定義されている時 true を返す．
     bool
     is_output() const { return mFlags[2]; }
+#endif
 
     /// @brief このシンボルを参照している位置を返す．
     const FileRegion&
@@ -175,12 +177,14 @@ private:
       mFlags.set(1);
     }
 
+#if 0
     /// @brief 出力として用いられていることをセットする．
     void
     set_output()
     {
       mFlags.set(2);
     }
+#endif
 
 
   private:
@@ -300,6 +304,7 @@ private:
     SizeType id ///< [in] 識別子番号
   ) const;
 
+#if 0
   /// @brief 対応する識別子が出力用か調べる．
   /// @retval true 出力
   /// @retval false 出力以外
@@ -307,6 +312,7 @@ private:
   is_output(
     SizeType id ///< [in] 識別子番号
   ) const;
+#endif
 
   /// @brief 対応する識別子に定義済みの印をつける．
   void
@@ -322,11 +328,13 @@ private:
     const FileRegion& loc ///< [in] 定義している場所．
   );
 
+#if 0
   /// @brief 対応する識別子に出力用の印を付ける．
   void
   set_output(
     SizeType id ///< [in] 識別子番号
   );
+#endif
 
 
 private:
