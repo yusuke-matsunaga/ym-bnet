@@ -386,20 +386,6 @@ Iscas89Parser::read_output(
   SizeType name_id
 )
 {
-#if 0
-  if ( is_input(name_id) ) {
-    auto name{id2str(name_id)};
-    auto def_loc{id2loc(name_id)};
-    ostringstream buf;
-    buf << name << ": Defined as both input and output. "
-	<< "Previous definition is at " << def_loc;
-    MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		    MsgType::Warning,
-		    "WR_MLTDEF02",
-		    buf.str());
-  }
-  set_output(name_id);
-#endif
   mOidArray.push_back(make_pair(name_id, loc));
 
   return true;

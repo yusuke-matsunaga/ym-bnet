@@ -106,12 +106,6 @@ private:
     bool
     is_input() const { return mFlags[1]; }
 
-#if 0
-    /// @brief 出力として定義されている時 true を返す．
-    bool
-    is_output() const { return mFlags[2]; }
-#endif
-
     /// @brief このシンボルの定義された位置を返す．
     const FileRegion&
     loc() const { return mLoc; }
@@ -137,14 +131,6 @@ private:
       mFlags.set(1);
     }
 
-#if 0
-    void
-    set_output()
-    {
-      mFlags.set(2);
-    }
-#endif
-
 
   private:
     //////////////////////////////////////////////////////////////////////
@@ -157,8 +143,7 @@ private:
     // いくつかのフラグ
     // 0: defined マーク
     // 1: input マーク
-    // 2: output マーク
-    std::bitset<3> mFlags;
+    std::bitset<2> mFlags;
 
     // 名前
     string mName;
@@ -288,18 +273,6 @@ private:
     return mIdCellArray[id].is_input();
   }
 
-#if 0
-  /// @brief 該当の識別子が出力か調べる．
-  bool
-  is_output(
-    SizeType id ///< [in] ID番号
-  ) const
-  {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    return mIdCellArray[id].is_output();
-  }
-#endif
-
   /// @brief 識別子に定義済みの印を付ける．
   void
   set_defined(
@@ -325,21 +298,6 @@ private:
     mIdCellArray[id].set_defined(loc);
   }
 
-#if 0
-  /// @brief 識別子に出力の印を付ける．
-  void
-  set_output(
-    SizeType id ///< [in] ID番号
-  )
-  {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    mIdCellArray[id].set_output();
-  }
-
-  /// @brief スキャナーを削除する．
-  void
-  delete_scanner();
-#endif
 
 private:
   //////////////////////////////////////////////////////////////////////
