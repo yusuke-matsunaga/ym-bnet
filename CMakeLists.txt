@@ -83,6 +83,7 @@ set ( bnet_SOURCES
   c++-srcs/bnet/FuncAnalyzer.cc
   c++-srcs/bnet/ReadTruth.cc
   c++-srcs/bnet/SimpleDecomp.cc
+  c++-srcs/bnet/OutputSplit.cc
   )
 
 set ( iscas89_SOURCES

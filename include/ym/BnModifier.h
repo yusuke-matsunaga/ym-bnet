@@ -237,15 +237,6 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
-  /// @brief 与えられたノードと同型の論理ノードを追加する．
-  /// @return 生成した論理ノードの番号を返す．
-  SizeType
-  copy_logic(
-    const string& node_name,              ///< [in] ノード名
-    SizeType node_id,                     ///< [in] コピー元のノード番号
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
-  );
-
   /// @brief C0型(定数０)の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///

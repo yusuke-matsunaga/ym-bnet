@@ -307,6 +307,12 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 1つの出力に関係したノードのみからなるネットワークを返す．
+  BnNetwork
+  output_split(
+    SizeType output_id ///< [in] 出力番号 ( 0 <= pos < output_num() )
+  ) const;
+
   /// @brief primitive ノードに分解したネットワークを返す．
   BnNetwork
   simple_decomp() const;
