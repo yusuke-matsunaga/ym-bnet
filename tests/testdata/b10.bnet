@@ -20,115 +20,184 @@ port#16: (V_OUT_REG_1_) :  68
 port#17: (V_OUT_REG_0_) :  69
 
 input: 1(R_BUTTON)
+  fanout: 217 233
 input: 2(G_BUTTON)
+  fanout: 179 239
 input: 3(KEY)
+  fanout: 88 175 180 215 230
 input: 4(START)
+  fanout: 98 122 178 182 207
 input: 5(TEST)
+  fanout: 130
 input: 6(RTS)
+  fanout: 100 109
 input: 7(RTR)
+  fanout: 108 111 118 221 225
 input: 8(V_IN_3_)
+  fanout: 113 196
 input: 9(V_IN_2_)
+  fanout: 113 229
 input: 10(V_IN_1_)
+  fanout: 113 173
 input: 11(V_IN_0_)
+  fanout: 82 113
 input: 13(VOTO0_REG.output)
+  fanout: 106 133 166 198
 input: 15(clock)
+  fanout: 14 18 21 24 27 30 33 36 39 42 45 48 51 54 57 60 63
 input: 17(STATO_REG_3_.output)
+  fanout: 74 79 84 85 95 115 129 169 190 220 223 224
 input: 20(STATO_REG_2_.output)
+  fanout: 70 76 85 110 119 143 191
 input: 23(STATO_REG_1_.output)
+  fanout: 71 77 90 92 111 116 120 140 146 189 215 222
 input: 26(STATO_REG_0_.output)
+  fanout: 72 75 94 114 116 125 148 154 169 224
 input: 29(V_OUT_REG_3_.output)
+  fanout: 66 158
 input: 32(V_OUT_REG_2_.output)
+  fanout: 67 161
 input: 35(V_OUT_REG_1_.output)
+  fanout: 68 164
 input: 38(V_OUT_REG_0_.output)
+  fanout: 69 167
 input: 41(SIGN_REG_3_.output)
+  fanout: 83 171
 input: 44(VOTO1_REG.output)
+  fanout: 134 163 174 187 203
 input: 47(CTR_REG.output)
+  fanout: 65 194
 input: 50(VOTO3_REG.output)
+  fanout: 132 157 213
 input: 53(LAST_R_REG.output)
+  fanout: 218 232
 input: 56(CTS_REG.output)
+  fanout: 64 227
 input: 59(VOTO2_REG.output)
+  fanout: 134 160 197 199 237
 input: 62(LAST_G_REG.output)
+  fanout: 177 240
 
 output: 12(VOTO0_REG.input)
     input: 107
+  fanout:
 output: 14(VOTO0_REG.clock)
     input: 15
+  fanout:
 output: 16(STATO_REG_3_.input)
     input: 139
+  fanout:
 output: 18(STATO_REG_3_.clock)
     input: 15
+  fanout:
 output: 19(STATO_REG_2_.input)
     input: 144
+  fanout:
 output: 21(STATO_REG_2_.clock)
     input: 15
+  fanout:
 output: 22(STATO_REG_1_.input)
     input: 149
+  fanout:
 output: 24(STATO_REG_1_.clock)
     input: 15
+  fanout:
 output: 25(STATO_REG_0_.input)
     input: 155
+  fanout:
 output: 27(STATO_REG_0_.clock)
     input: 15
+  fanout:
 output: 28(V_OUT_REG_3_.input)
     input: 159
+  fanout:
 output: 30(V_OUT_REG_3_.clock)
     input: 15
+  fanout:
 output: 31(V_OUT_REG_2_.input)
     input: 162
+  fanout:
 output: 33(V_OUT_REG_2_.clock)
     input: 15
+  fanout:
 output: 34(V_OUT_REG_1_.input)
     input: 165
+  fanout:
 output: 36(V_OUT_REG_1_.clock)
     input: 15
+  fanout:
 output: 37(V_OUT_REG_0_.input)
     input: 168
+  fanout:
 output: 39(V_OUT_REG_0_.clock)
     input: 15
+  fanout:
 output: 40(SIGN_REG_3_.input)
     input: 172
+  fanout:
 output: 42(SIGN_REG_3_.clock)
     input: 15
+  fanout:
 output: 43(VOTO1_REG.input)
     input: 188
+  fanout:
 output: 45(VOTO1_REG.clock)
     input: 15
+  fanout:
 output: 46(CTR_REG.input)
     input: 195
+  fanout:
 output: 48(CTR_REG.clock)
     input: 15
+  fanout:
 output: 49(VOTO3_REG.input)
     input: 214
+  fanout:
 output: 51(VOTO3_REG.clock)
     input: 15
+  fanout:
 output: 52(LAST_R_REG.input)
     input: 219
+  fanout:
 output: 54(LAST_R_REG.clock)
     input: 15
+  fanout:
 output: 55(CTS_REG.input)
     input: 228
+  fanout:
 output: 57(CTS_REG.clock)
     input: 15
+  fanout:
 output: 58(VOTO2_REG.input)
     input: 238
+  fanout:
 output: 60(VOTO2_REG.clock)
     input: 15
+  fanout:
 output: 61(LAST_G_REG.input)
     input: 241
+  fanout:
 output: 63(LAST_G_REG.clock)
     input: 15
+  fanout:
 output: 64(CTS_REG)
     input: 56
+  fanout:
 output: 65(CTR_REG)
     input: 47
+  fanout:
 output: 66(V_OUT_REG_3_)
     input: 29
+  fanout:
 output: 67(V_OUT_REG_2_)
     input: 32
+  fanout:
 output: 68(V_OUT_REG_1_)
     input: 35
+  fanout:
 output: 69(V_OUT_REG_0_)
     input: 38
+  fanout:
 
 dff#0(VOTO0_REG)[DFF]
     input:  12
@@ -219,517 +288,689 @@ dff#16(LAST_G_REG)[DFF]
 logic: 70(U215)
     fanins:  20
     NOT
+  fanout: 74 92 123 182
 logic: 71(U217)
     fanins:  23
     NOT
+  fanout: 72 99 108 138 151 170 190 191 220
 logic: 72(U214)
     fanins:  26 71
     NAND
+  fanout: 73 142
 logic: 73(U264)
     fanins:  72
     NOT
+  fanout: 74 110 182 221 223
 logic: 74(U261)
     fanins:  17 70 73
     NAND
+  fanout: 81 102
 logic: 75(U213)
     fanins:  26
     NOT
+  fanout: 76 86 95 112 128 141 147 151 193 222
 logic: 76(U201)
     fanins:  20 75
     AND
+  fanout: 77 108 136 220
 logic: 77(U218)
     fanins:  23 76
     NAND
+  fanout: 78 144 149 152
 logic: 78(U259)
     fanins:  77
     NOT
+  fanout: 80 100
 logic: 79(U221)
     fanins:  17
     NOT
+  fanout: 80 94 120 150
 logic: 80(U294)
     fanins:  78 79
     NAND
+  fanout: 81
 logic: 81(U295)
     fanins:  74 80
     NAND
+  fanout: 82 173 196 229
 logic: 82(U329)
     fanins:  11 81
     NAND
+  fanout: 91
 logic: 83(U230)
     fanins:  41
     NOT
+  fanout: 84
 logic: 84(U326)
     fanins:  17 83
     NAND
+  fanout: 89
 logic: 85(U200)
     fanins:  17 20
     NOR
+  fanout: 86 98 209 221
 logic: 86(U220)
     fanins:  85 75
     NAND
+  fanout: 87 152
 logic: 87(U258)
     fanins:  86
     NOT
+  fanout: 88 99 131 170 178
 logic: 88(U325)
     fanins:  3 87
     NAND
+  fanout: 89
 logic: 89(U327)
     fanins:  84 88
     NAND
+  fanout: 90
 logic: 90(U328)
     fanins:  23 89
     NAND
+  fanout: 91
 logic: 91(U330)
     fanins:  82 90
     NAND
+  fanout: 104
 logic: 92(U231)
     fanins:  23 70
     NAND
+  fanout: 93 112 192
 logic: 93(U265)
     fanins:  92
     NOT
+  fanout: 97 175 230
 logic: 94(U338)
     fanins:  26 79
     NAND
+  fanout: 96
 logic: 95(U337)
     fanins:  17 75
     NAND
+  fanout: 96
 logic: 96(U339)
     fanins:  94 95
     NAND
+  fanout: 97 140
 logic: 97(U323)
     fanins:  93 96
     NAND
+  fanout: 103
 logic: 98(U223)
     fanins:  4 85
     NAND
+  fanout: 103 124
 logic: 99(U269)
     fanins:  87 71
     NAND
+  fanout: 101
 logic: 100(U268)
     fanins:  6 78
     NAND
+  fanout: 101
 logic: 101(U203)
     fanins:  99 100
     AND
+  fanout: 102 127
 logic: 102(U204)
     fanins:  101 74
     AND
+  fanout: 103 183
 logic: 103(U255)
     fanins:  97 98 102
     NAND
+  fanout: 104 105
 logic: 104(U371)
     fanins:  91 103
     NAND
+  fanout: 107
 logic: 105(U324)
     fanins:  103
     NOT
+  fanout: 106
 logic: 106(U370)
     fanins:  105 13
     NAND
+  fanout: 107
 logic: 107(U243)
     fanins:  104 106
     NAND
+  fanout: 12
 logic: 108(U246)
     fanins:  7 71 76
     NAND
+  fanout: 127 156 158 161 164 167 228
 logic: 109(U219)
     fanins:  6
     NOT
+  fanout: 110 189
 logic: 110(U260)
     fanins:  20 109 73
     NAND
+  fanout: 127 195
 logic: 111(U270)
     fanins:  7 23
     OR
+  fanout: 112
 logic: 112(U334)
     fanins:  111 92 75
     NAND
+  fanout: 115
 logic: 113(U331)
     fanins:  8 9 11 10
     NAND
+  fanout: 114
 logic: 114(U333)
     fanins:  26 113
     NAND
+  fanout: 115
 logic: 115(U272)
     fanins:  112 114 17
     NAND
+  fanout: 127
 logic: 116(U224)
     fanins:  23 26
     NAND
+  fanout: 117 208
 logic: 117(U266)
     fanins:  116
     NOT
+  fanout: 119 205
 logic: 118(U216)
     fanins:  7
     NOT
+  fanout: 119
 logic: 119(U336)
     fanins:  117 118 20
     NAND
+  fanout: 126
 logic: 120(U225)
     fanins:  23 79
     NAND
+  fanout: 121 148
 logic: 121(U271)
     fanins:  120
     NOT
+  fanout: 123 147
 logic: 122(U222)
     fanins:  4
     NOT
+  fanout: 123
 logic: 123(U335)
     fanins:  121 122 70
     NAND
+  fanout: 126
 logic: 124(U262)
     fanins:  98
     NOT
+  fanout: 125
 logic: 125(U273)
     fanins:  124 26
     NAND
+  fanout: 126
 logic: 126(U244)
     fanins:  119 123 125
     AND
+  fanout: 127
 logic: 127(U229)
     fanins:  108 110 115 126 101
     NAND
+  fanout: 128 138 142 145 148 153
 logic: 128(U278)
     fanins:  75 127
     NAND
+  fanout: 129
 logic: 129(U280)
     fanins:  17 128
     NAND
+  fanout: 139
 logic: 130(U257)
     fanins:  5
     NOT
+  fanout: 131 170
 logic: 131(U276)
     fanins:  87 130
     NAND
+  fanout: 137
 logic: 132(U247)
     fanins:  50
     NOT
+  fanout: 134
 logic: 133(U248)
     fanins:  13
     NOT
+  fanout: 134 199
 logic: 134(U228)
     fanins:  59 44 132 133
     NAND
+  fanout: 135 141
 logic: 135(U256)
     fanins:  134
     NOT
+  fanout: 136 150
 logic: 136(U275)
     fanins:  135 76
     NAND
+  fanout: 137
 logic: 137(U277)
     fanins:  131 136
     NAND
+  fanout: 138
 logic: 138(U279)
     fanins:  137 71 127
     NAND
+  fanout: 139
 logic: 139(U212)
     fanins:  129 138
     NAND
+  fanout: 16
 logic: 140(U283)
     fanins:  23 96
     NAND
+  fanout: 144
 logic: 141(U281)
     fanins:  75 134
     NAND
+  fanout: 142
 logic: 142(U282)
     fanins:  141 72 127
     NAND
+  fanout: 143
 logic: 143(U284)
     fanins:  20 142
     NAND
+  fanout: 144
 logic: 144(U211)
     fanins:  140 77 143
     NAND
+  fanout: 19
 logic: 145(U274)
     fanins:  127
     NOT
+  fanout: 146 154
 logic: 146(U332)
     fanins:  145 23
     NAND
+  fanout: 149
 logic: 147(U341)
     fanins:  121 75
     NAND
+  fanout: 149
 logic: 148(U340)
     fanins:  26 127 120
     NAND
+  fanout: 149
 logic: 149(U210)
     fanins:  146 77 147 148
     NAND
+  fanout: 22
 logic: 150(U285)
     fanins:  135 79
     NAND
+  fanout: 151
 logic: 151(U286)
     fanins:  75 71 150
     NAND
+  fanout: 152
 logic: 152(U287)
     fanins:  77 86 151
     NAND
+  fanout: 153
 logic: 153(U343)
     fanins:  152 127
     NAND
+  fanout: 155
 logic: 154(U342)
     fanins:  145 26
     NAND
+  fanout: 155
 logic: 155(U233)
     fanins:  153 154
     NAND
+  fanout: 25
 logic: 156(U267)
     fanins:  108
     NOT
+  fanout: 157 160 163 166
 logic: 157(U345)
     fanins:  50 156
     NAND
+  fanout: 159
 logic: 158(U344)
     fanins:  29 108
     NAND
+  fanout: 159
 logic: 159(U234)
     fanins:  157 158
     NAND
+  fanout: 28
 logic: 160(U347)
     fanins:  156 59
     NAND
+  fanout: 162
 logic: 161(U346)
     fanins:  32 108
     NAND
+  fanout: 162
 logic: 162(U235)
     fanins:  160 161
     NAND
+  fanout: 31
 logic: 163(U349)
     fanins:  156 44
     NAND
+  fanout: 165
 logic: 164(U348)
     fanins:  35 108
     NAND
+  fanout: 165
 logic: 165(U236)
     fanins:  163 164
     NAND
+  fanout: 34
 logic: 166(U351)
     fanins:  13 156
     NAND
+  fanout: 168
 logic: 167(U350)
     fanins:  38 108
     NAND
+  fanout: 168
 logic: 168(U237)
     fanins:  166 167
     NAND
+  fanout: 37
 logic: 169(U290)
     fanins:  17 26
     NAND
+  fanout: 172
 logic: 170(U288)
     fanins:  130 71 87
     NAND
+  fanout: 171
 logic: 171(U289)
     fanins:  41 170
     NAND
+  fanout: 172
 logic: 172(U209)
     fanins:  169 171
     NAND
+  fanout: 40
 logic: 173(U297)
     fanins:  10 81
     NAND
+  fanout: 176
 logic: 174(U226)
     fanins:  44
     NOT
+  fanout: 175 201
 logic: 175(U296)
     fanins:  3 174 93
     NAND
+  fanout: 176
 logic: 176(U298)
     fanins:  173 175
     NAND
+  fanout: 185
 logic: 177(U254)
     fanins:  62
     NOT
+  fanout: 179
 logic: 178(U202)
     fanins:  4 87
     AND
+  fanout: 179 181 215 233
 logic: 179(U292)
     fanins:  2 177 178
     NAND
+  fanout: 184
 logic: 180(U232)
     fanins:  3
     NOT
+  fanout: 181 207
 logic: 181(U263)
     fanins:  178 180
     NAND
+  fanout: 184 234
 logic: 182(U291)
     fanins:  4 70 73
     NAND
+  fanout: 183
 logic: 183(U205)
     fanins:  102 182
     AND
+  fanout: 184 210 234
 logic: 184(U249)
     fanins:  179 181 183
     NAND
+  fanout: 185 186
 logic: 185(U353)
     fanins:  176 184
     NAND
+  fanout: 188
 logic: 186(U293)
     fanins:  184
     NOT
+  fanout: 187
 logic: 187(U352)
     fanins:  186 44
     NAND
+  fanout: 188
 logic: 188(U238)
     fanins:  185 187
     NAND
+  fanout: 43
 logic: 189(U355)
     fanins:  23 109
     NAND
+  fanout: 193
 logic: 190(U354)
     fanins:  17 71
     NAND
+  fanout: 193
 logic: 191(U299)
     fanins:  20 71
     NAND
+  fanout: 192
 logic: 192(U206)
     fanins:  92 191
     AND
+  fanout: 193 226
 logic: 193(U300)
     fanins:  189 190 75 192
     NAND
+  fanout: 194
 logic: 194(U301)
     fanins:  47 193
     NAND
+  fanout: 195
 logic: 195(U208)
     fanins:  110 194
     NAND
+  fanout: 46
 logic: 196(U307)
     fanins:  8 81
     NAND
+  fanout: 206
 logic: 197(U227)
     fanins:  59
     NOT
+  fanout: 198 230
 logic: 198(U357)
     fanins:  13 197
     NAND
+  fanout: 200
 logic: 199(U356)
     fanins:  59 133
     NAND
+  fanout: 200
 logic: 200(U245)
     fanins:  198 199
     NAND
+  fanout: 201 202
 logic: 201(U360)
     fanins:  200 174
     NAND
+  fanout: 204
 logic: 202(U358)
     fanins:  200
     NOT
+  fanout: 203
 logic: 203(U359)
     fanins:  202 44
     NAND
+  fanout: 204
 logic: 204(U361)
     fanins:  201 203
     NAND
+  fanout: 205
 logic: 205(U306)
     fanins:  117 204
     NAND
+  fanout: 206
 logic: 206(U308)
     fanins:  196 205
     NAND
+  fanout: 211
 logic: 207(U302)
     fanins:  4 180
     NAND
+  fanout: 208
 logic: 208(U303)
     fanins:  116 207
     NAND
+  fanout: 209
 logic: 209(U304)
     fanins:  85 208
     NAND
+  fanout: 210
 logic: 210(U250)
     fanins:  183 209
     NAND
+  fanout: 211 212
 logic: 211(U363)
     fanins:  206 210
     NAND
+  fanout: 214
 logic: 212(U305)
     fanins:  210
     NOT
+  fanout: 213
 logic: 213(U362)
     fanins:  212 50
     NAND
+  fanout: 214
 logic: 214(U239)
     fanins:  211 213
     NAND
+  fanout: 49
 logic: 215(U252)
     fanins:  3 23 178
     NAND
+  fanout: 216 218 240
 logic: 216(U309)
     fanins:  215
     NOT
+  fanout: 217 239
 logic: 217(U365)
     fanins:  216 1
     NAND
+  fanout: 219
 logic: 218(U364)
     fanins:  53 215
     NAND
+  fanout: 219
 logic: 219(U240)
     fanins:  217 218
     NAND
+  fanout: 52
 logic: 220(U315)
     fanins:  17 71 76
     NAND
+  fanout: 228
 logic: 221(U316)
     fanins:  7 85 73
     NAND
+  fanout: 228
 logic: 222(U313)
     fanins:  23 75
     NAND
+  fanout: 226
 logic: 223(U312)
     fanins:  17 73
     NAND
+  fanout: 226
 logic: 224(U310)
     fanins:  26 17
     OR
+  fanout: 225
 logic: 225(U311)
     fanins:  7 224
     NAND
+  fanout: 226
 logic: 226(U314)
     fanins:  192 222 223 225
     NAND
+  fanout: 227
 logic: 227(U317)
     fanins:  56 226
     NAND
+  fanout: 228
 logic: 228(U207)
     fanins:  220 108 221 227
     NAND
+  fanout: 55
 logic: 229(U321)
     fanins:  9 81
     NAND
+  fanout: 231
 logic: 230(U320)
     fanins:  3 197 93
     NAND
+  fanout: 231
 logic: 231(U322)
     fanins:  229 230
     NAND
+  fanout: 235
 logic: 232(U251)
     fanins:  53
     NOT
+  fanout: 233
 logic: 233(U318)
     fanins:  1 232 178
     NAND
+  fanout: 234
 logic: 234(U253)
     fanins:  233 181 183
     NAND
+  fanout: 235 236
 logic: 235(U367)
     fanins:  231 234
     NAND
+  fanout: 238
 logic: 236(U319)
     fanins:  234
     NOT
+  fanout: 237
 logic: 237(U366)
     fanins:  236 59
     NAND
+  fanout: 238
 logic: 238(U241)
     fanins:  235 237
     NAND
+  fanout: 58
 logic: 239(U369)
     fanins:  216 2
     NAND
+  fanout: 241
 logic: 240(U368)
     fanins:  62 215
     NAND
+  fanout: 241
 logic: 241(U242)
     fanins:  239 240
     NAND
+  fanout: 61
 
