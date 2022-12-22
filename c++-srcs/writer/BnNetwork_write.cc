@@ -20,6 +20,23 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+BEGIN_NONAMESPACE
+
+void
+write_fanout(
+  ostream& s,
+  const BnNode& node
+)
+{
+  s << "  fanout:";
+  for ( auto id: node.fanout_id_list() ) {
+    s << " " << id;
+  }
+  s << endl;
+}
+
+END_NONAMESPACE
+
 // @brief 内容を出力する．
 void
 BnNetwork::write(
@@ -45,6 +62,7 @@ BnNetwork::write(
     ASSERT_COND( node.type() == BnNodeType::Input );
     s << "input: " << node.id()
       << "(" << node.name() << ")" << endl;
+    write_fanout(s, node);
   }
   s << endl;
 
@@ -52,6 +70,7 @@ BnNetwork::write(
     s << "output: " << node.id()
       << "(" << node.name() << ")" << endl
       << "    input: " << node.output_src() << endl;
+    write_fanout(s, node);
   }
   s << endl;
 
@@ -152,6 +171,7 @@ BnNetwork::write(
       ASSERT_NOT_REACHED;
     }
     s << endl;
+    write_fanout(s, node);
   }
 
   s << endl;
