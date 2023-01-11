@@ -210,6 +210,9 @@ BnIscas89Handler::end()
     ASSERT_COND( mOutputMap.count(id) > 0 );
     auto name_id = mOutputMap.at(id);
     auto inode_id = make_node(name_id);
+    if ( inode_id == BNET_NULLID ) {
+      return false;
+    }
     mNetwork.set_output_src(id, inode_id);
   }
   return true;
@@ -230,7 +233,12 @@ BnIscas89Handler::make_node(
     SizeType ni = node_info.iname_id_list.size();
     vector<SizeType> fanin_id_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
-      fanin_id_list[i] = make_node(node_info.iname_id_list[i]);
+      auto inode = make_node(node_info.iname_id_list[i]);
+      if ( inode == BNET_NULLID ) {
+	// エラー
+	return BNET_NULLID;
+      }
+      fanin_id_list[i] = inode;
     }
     SizeType id;
     if ( node_info.is_mux ) {
@@ -243,7 +251,6 @@ BnIscas89Handler::make_node(
     mIdMap.emplace(name_id, id);
     return id;
   }
-  ASSERT_NOT_REACHED;
   return BNET_NULLID;
 }
 

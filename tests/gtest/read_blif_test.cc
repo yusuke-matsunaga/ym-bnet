@@ -44,4 +44,19 @@ TEST(ReadBlifTest, test)
   EXPECT_EQ( ref_contents, s1.str() );
 }
 
+TEST(ReadBlifTest, file_not_found)
+{
+  EXPECT_THROW( {
+      auto _ = BnNetwork::read_blif("not_exist_file");
+    }, BnetError );
+}
+
+TEST(ReadBlifTest, wrong_data)
+{
+  string filename = "broken.blif";
+  string path = DATAPATH + filename;
+  EXPECT_THROW( {
+      auto _ = BnNetwork::read_blif(path);
+    }, BnetError );
+}
 END_NAMESPACE_YM

@@ -1,0 +1,7 @@
+INPUT(a)
+INPUT(b)
+INPUT(c)
+OUTPUT(o)
+
+x = AND(a, b, c)
+o = NOT(y)

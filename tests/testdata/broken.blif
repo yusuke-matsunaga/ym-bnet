@@ -1,0 +1,8 @@
+.model broken
+.inputs a b c
+.outputs o
+.name a b c x
+111 0
+.name y o
+1 1
+.end

@@ -60,4 +60,20 @@ TEST(ReadIscas89Test, const_test)
   EXPECT_EQ( nd, network.dff_num() );
 }
 
+TEST(ReadIscas89Test, file_not_found)
+{
+  EXPECT_THROW({
+      auto _ = BnNetwork::read_iscas89("file_not_found.bench");
+    }, BnetError );
+}
+
+TEST(ReadIscas89Test, wrong_data)
+{
+  string filename = "broken.bench";
+  string path = DATAPATH + filename;
+  EXPECT_THROW({
+      auto _ = BnNetwork::read_iscas89(path);
+    }, BnetError );
+}
+
 END_NAMESPACE_YM

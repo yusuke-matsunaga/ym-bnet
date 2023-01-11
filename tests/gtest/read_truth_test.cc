@@ -27,4 +27,20 @@ TEST(ReadTruthTest, test)
   EXPECT_EQ( nd, network.dff_num() );
 }
 
+TEST(ReadTruthTest, file_not_found)
+{
+  EXPECT_THROW( {
+      auto _ = BnNetwork::read_truth("file_not_found.trueh");
+    }, BnetError );
+}
+
+TEST(ReadTruthTest, wrong_data)
+{
+  string filename = "broken.truth";
+  string path = DATAPATH + filename;
+  EXPECT_THROW( {
+      auto _ = BnNetwork::read_truth(path);
+    }, BnetError );
+}
+
 END_NAMESPACE_YM
