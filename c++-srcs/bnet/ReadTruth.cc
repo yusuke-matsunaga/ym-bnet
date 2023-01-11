@@ -23,7 +23,9 @@ BnNetwork::read_truth(
 {
   ifstream s{filename};
   if ( !s ) {
-    throw BnetError{"Error in read_truth"};
+    ostringstream buf;
+    buf << filename << ": No such file";
+    throw BnetError{buf.str()};
   }
 
   ReadTruth op;
@@ -52,7 +54,9 @@ ReadTruth::read(
   while ( (1 << ni) < ni_exp ) {
     ++ ni;
   }
-  ASSERT_COND( (1 << ni) == ni_exp );
+  if ( (1 << ni) != ni_exp ) {
+    throw BnetError{"Wrong data"};
+  }
 
   SizeType no = func_vect.size();
   if ( no > 0 ) {

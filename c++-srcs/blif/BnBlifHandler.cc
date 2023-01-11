@@ -25,10 +25,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief blif ファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] clock_name クロック端子名
-// @param[in] reset_name リセット端子名
-// @return ネットワークを返す．
 BnNetwork
 BnNetwork::read_blif(
   const string& filename,
@@ -40,11 +36,6 @@ BnNetwork::read_blif(
 }
 
 // @brief blif ファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] cell_library セルライブラリ
-// @param[in] clock_name クロック端子名
-// @param[in] reset_name リセット端子名
-// @return ネットワークを返す．
 BnNetwork
 BnNetwork::read_blif(
   const string& filename,

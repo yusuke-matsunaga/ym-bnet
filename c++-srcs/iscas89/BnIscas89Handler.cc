@@ -24,9 +24,6 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 
 // @brief blif ファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] clock_name クロック端子名
-// @return ネットワークを返す．
 BnNetwork
 BnNetwork::read_iscas89(
   const string& filename,
