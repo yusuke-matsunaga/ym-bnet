@@ -331,7 +331,7 @@ public:
   /// @brief blif ファイルを読み込む．
   /// @return ネットワークを返す．
   ///
-  /// エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   static
   BnNetwork
   read_blif(
@@ -343,7 +343,7 @@ public:
   /// @brief blif ファイルを読み込む(セルライブラリ付き)．
   /// @return ネットワークを返す．
   ///
-  /// - エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   static
   BnNetwork
   read_blif(
@@ -356,7 +356,7 @@ public:
   /// @brief iscas89 ファイルを読み込む．
   /// @return ネットワークを返す．
   ///
-  /// - エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   static
   BnNetwork
   read_iscas89(
@@ -367,7 +367,7 @@ public:
   /// @brief .truth 形式のファイルを読み込む．
   /// @return ネットワークを返す．
   ///
-  /// - エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   /// - 論理ノードは BDD タイプとなる．
   static
   BnNetwork
@@ -378,7 +378,7 @@ public:
   /// @brief .aag 形式のファイルを読み込む．
   /// @return ネットワークを返す．
   ///
-  /// - エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   static
   BnNetwork
   read_aag(
@@ -390,7 +390,7 @@ public:
   /// @brief .aig 形式のファイルを読み込む．
   /// @return ネットワークを返す．
   ///
-  /// - エラー時には BnetError が送出される．
+  /// - エラー時には std::invalid_argumnet が送出される．
   static
   BnNetwork
   read_aig(

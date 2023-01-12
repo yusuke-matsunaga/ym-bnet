@@ -229,7 +229,7 @@ BinIO::restore(
 {
   // シグネチャ
   if ( !s.read_signature(BNET_SIG) ) {
-    throw BnetError{"BnNetwork::restore(): Wrong signature."};
+    throw std::invalid_argument{"BnNetwork::restore(): Wrong signature."};
   }
 
   // 名前

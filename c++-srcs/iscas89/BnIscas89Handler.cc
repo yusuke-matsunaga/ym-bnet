@@ -3,7 +3,7 @@
 /// @brief BnIscas89Handler の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2016, 2021, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "BnIscas89Handler.h"
@@ -39,7 +39,9 @@ BnNetwork::read_iscas89(
 
   bool stat = parser.read(filename);
   if ( !stat ) {
-    throw BnetError{"Error in read_iscas89"};
+    ostringstream buff;
+    buff << "Error in read_iscas89(\"" << filename << "\"";
+    throw std::invalid_argument{buff.str()};
   }
 
   return handler.get_network();

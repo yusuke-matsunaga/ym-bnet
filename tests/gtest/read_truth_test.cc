@@ -31,7 +31,7 @@ TEST(ReadTruthTest, file_not_found)
 {
   EXPECT_THROW( {
       auto _ = BnNetwork::read_truth("file_not_found.trueh");
-    }, BnetError );
+    }, std::invalid_argument );
 }
 
 TEST(ReadTruthTest, wrong_data)
@@ -40,7 +40,7 @@ TEST(ReadTruthTest, wrong_data)
   string path = DATAPATH + filename;
   EXPECT_THROW( {
       auto _ = BnNetwork::read_truth(path);
-    }, BnetError );
+    }, std::invalid_argument );
 }
 
 END_NAMESPACE_YM

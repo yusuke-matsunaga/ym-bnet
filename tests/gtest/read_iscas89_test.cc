@@ -64,7 +64,7 @@ TEST(ReadIscas89Test, file_not_found)
 {
   EXPECT_THROW({
       auto _ = BnNetwork::read_iscas89("file_not_found.bench");
-    }, BnetError );
+    }, std::invalid_argument );
 }
 
 TEST(ReadIscas89Test, wrong_data)
@@ -73,7 +73,7 @@ TEST(ReadIscas89Test, wrong_data)
   string path = DATAPATH + filename;
   EXPECT_THROW({
       auto _ = BnNetwork::read_iscas89(path);
-    }, BnetError );
+    }, std::invalid_argument );
 }
 
 END_NAMESPACE_YM

@@ -48,7 +48,7 @@ TEST(ReadBlifTest, file_not_found)
 {
   EXPECT_THROW( {
       auto _ = BnNetwork::read_blif("not_exist_file");
-    }, BnetError );
+    }, std::invalid_argument );
 }
 
 TEST(ReadBlifTest, wrong_data)
@@ -57,6 +57,6 @@ TEST(ReadBlifTest, wrong_data)
   string path = DATAPATH + filename;
   EXPECT_THROW( {
       auto _ = BnNetwork::read_blif(path);
-    }, BnetError );
+    }, std::invalid_argument );
 }
 END_NAMESPACE_YM

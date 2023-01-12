@@ -177,13 +177,13 @@ BnNetworkImpl::new_dff_cell(
     ostringstream buf;
     buf << "BnNetwork::new_dff_cell(): "
 	<< cell.name() << " is not a latch cell.";
-    throw BnetError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
   if ( cell.inout_num() > 0 ) {
     ostringstream buf;
     buf << "BnNetwork::new_dff_cell(): "
 	<< cell.name() << " has inout pins.";
-    throw BnetError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
 
   SizeType ni = cell.input_num();
@@ -215,7 +215,7 @@ BnNetworkImpl::new_port(
     ostringstream buf;
     buf << "Error in BnNetwork::new_port(): "
 	<< "'" << port_name << "' is already in use.";
-    throw BnetError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
 
   auto port_id = mPortList.size();
@@ -890,7 +890,7 @@ BnNetworkImpl::_new_logic_cell(
     ostringstream buf;
     buf << "Error in BnNetworkImpl::_new_logic_cell(): "
 	<< cell.name() << " is not a valid logic cell.";
-    throw BnetError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
   return BnNodeImpl::new_cell(node_name, cell_id, fanin_id_list);
 }

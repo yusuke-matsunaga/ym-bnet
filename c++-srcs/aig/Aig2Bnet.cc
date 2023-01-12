@@ -182,7 +182,9 @@ BnNetwork::read_aag(
 {
   AigReader aig;
   if ( !aig.read_aag(filename) ) {
-    throw BnetError{"Error in read_aag"};
+    ostringstream buff;
+    buff << "Error in read_aag(\"" << filename << "\"";
+    throw std::invalid_argument{buff.str()};
   }
 
   Aig2Bnet op;
@@ -200,7 +202,9 @@ BnNetwork::read_aig(
 {
   AigReader aig;
   if ( !aig.read_aig(filename) ) {
-    throw BnetError{"Error in read_aag"};
+    ostringstream buff;
+    buff << "Error in read_aig(\"" << filename << "\"";
+    throw std::invalid_argument{buff.str()};
   }
 
   Aig2Bnet op;

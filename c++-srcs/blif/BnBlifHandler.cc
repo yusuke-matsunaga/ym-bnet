@@ -57,7 +57,9 @@ BnNetwork::read_blif(
 
   bool stat = parser.read(filename, cell_library);
   if ( !stat ) {
-    throw BnetError{"Error in read_blif"};
+    ostringstream buf;
+    buf << "Error in read_blif(\"" << filename << "\"";
+    throw std::invalid_argument{buf.str()};
   }
 
   return handler.get_network();
