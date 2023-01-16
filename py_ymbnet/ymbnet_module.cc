@@ -10,6 +10,7 @@
 #include <Python.h>
 
 #include "ym/PyBnNetwork.h"
+#include "ym/PyBnNode.h"
 #include "ym/PyModule.h"
 
 
@@ -42,6 +43,10 @@ PyInit_ymbnet()
   }
 
   if ( !PyBnNetwork::init(m) ) {
+    goto error;
+  }
+
+  if ( !PyBnNode::init(m) ) {
     goto error;
   }
 

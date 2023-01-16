@@ -28,11 +28,13 @@ include_directories(
 ym_add_object_library ( py_ymbnet
   ymbnet_module.cc
   PyBnNetwork.cc
+  PyBnNode.cc
   )
 
 add_library ( py_ymbnetlib
   SHARED
   $<TARGET_OBJECTS:py_ymbnet_obj>
+  $<TARGET_OBJECTS:py_ymlogic_obj>
   $<TARGET_OBJECTS:ym_bnet_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
   $<TARGET_OBJECTS:ym_base_obj>
