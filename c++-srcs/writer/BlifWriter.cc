@@ -269,14 +269,12 @@ BlifWriter::operator()(
 	    vector<int> pol_array(ni, 0);
 	    for ( auto& expr1: expr.operand_list() ) {
 	      if ( expr1.is_posi_literal() ) {
-		VarId var = expr1.varid();
-		auto pos = var.val();
-		pol_array[pos] = 1;
+		auto var = expr1.varid();
+		pol_array[var] = 1;
 	      }
 	      else if ( expr1.is_nega_literal() ) {
-		VarId var = expr1.varid();
-		auto pos = var.val();
-		pol_array[pos] = 2;
+		auto var = expr1.varid();
+		pol_array[var] = 2;
 	      }
 	      else {
 		ASSERT_NOT_REACHED;
@@ -294,10 +292,9 @@ BlifWriter::operator()(
 	  else if ( expr.is_or() ) {
 	    for ( auto& expr1: expr.operand_list() ) {
 	      if ( expr1.is_posi_literal() ) {
-		VarId var = expr1.varid();
-		auto pos = var.val();
+		auto var = expr1.varid();
 		for ( auto j: Range(ni) ) {
-		  if ( j == pos ) {
+		  if ( j == var ) {
 		    s << "1";
 		  }
 		  else {
@@ -307,10 +304,9 @@ BlifWriter::operator()(
 		s << " 1" << endl;
 	      }
 	      else if ( expr1.is_nega_literal() ) {
-		VarId var = expr1.varid();
-		auto pos = var.val();
+		auto var = expr1.varid();
 		for ( auto j: Range(ni) ) {
-		  if ( j == pos ) {
+		  if ( j == var ) {
 		    s << "0";
 		  }
 		  else {
@@ -323,13 +319,12 @@ BlifWriter::operator()(
 		vector<SizeType> lit_map(ni, 0);
 		for ( auto& expr2: expr1.operand_list() ) {
 		  ASSERT_COND( expr2.is_literal() );
-		  VarId var = expr2.varid();
-		  auto pos = var.val();
+		  auto var = expr2.varid();
 		  if ( expr2.is_posi_literal() ) {
-		    lit_map[pos] = 1;
+		    lit_map[var] = 1;
 		  }
 		  else {
-		    lit_map[pos] = 2;
+		    lit_map[var] = 2;
 		  }
 		}
 		for ( auto j: Range(ni) ) {

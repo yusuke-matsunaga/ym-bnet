@@ -164,12 +164,12 @@ write_expr(
     s << "1'b1";
   }
   else if ( expr.is_posi_literal() ) {
-    VarId varid = expr.varid();
-    s << iname_array[varid.val()];
+    auto varid = expr.varid();
+    s << iname_array[varid];
   }
   else if ( expr.is_nega_literal() ) {
-    VarId varid = expr.varid();
-    s << "~" << iname_array[varid.val()];
+    auto varid = expr.varid();
+    s << "~" << iname_array[varid];
   }
   else {
     const char* op_str = "";

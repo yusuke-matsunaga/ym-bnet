@@ -121,7 +121,7 @@ Aig2Bnet::conv(
     auto src1 = aig.and_src1(i);
     auto src2 = aig.and_src2(i);
 
-    auto l1 = Expr::make_posi_literal(VarId{0});
+    auto l1 = Expr::make_posi_literal(0);
     if ( mLitMap.count(src1) == 0 ) {
       l1 = ~l1;
       src1 ^= 1UL;
@@ -129,7 +129,7 @@ Aig2Bnet::conv(
     ASSERT_COND( mLitMap.count(src1) > 0 );
     SizeType i1 = mLitMap.at(src1);
 
-    auto l2 = Expr::make_posi_literal(VarId{1});
+    auto l2 = Expr::make_posi_literal(1);
     if ( mLitMap.count(src2) == 0 ) {
       l2 = ~l2;
       src2 ^= 1UL;

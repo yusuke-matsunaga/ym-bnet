@@ -130,10 +130,10 @@ AigWriter::make_expr(
     return 1;
   }
   if ( expr.is_posi_literal() ) {
-    return fanin_lits[expr.varid().val()];
+    return fanin_lits[expr.varid()];
   }
   if ( expr.is_nega_literal() ) {
-    return fanin_lits[expr.varid().val()] ^ 1;
+    return fanin_lits[expr.varid()] ^ 1;
   }
   SizeType nc = expr.operand_num();
   vector<SizeType> opr_lits;

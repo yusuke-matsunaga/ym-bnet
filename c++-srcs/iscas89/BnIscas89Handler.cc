@@ -272,12 +272,12 @@ BnIscas89Handler::make_mux(
   ASSERT_COND( nc + nd == ni );
 
   vector<Expr> cinputs(nc);
-  for ( SizeType i: Range(nc) ) {
-    cinputs[i] = Expr::make_posi_literal(VarId(i));
+  for ( SizeType var: Range(nc) ) {
+    cinputs[var] = Expr::make_posi_literal(var);
   }
   vector<Expr> dinputs(nd);
   for ( SizeType i: Range(nd) ) {
-    dinputs[i] = Expr::make_posi_literal(VarId(i + nc));
+    dinputs[i] = Expr::make_posi_literal(i + nc);
   }
 
   vector<Expr> or_fanins(nd);

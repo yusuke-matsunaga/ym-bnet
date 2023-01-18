@@ -166,9 +166,8 @@ cover2expr(
   for ( SizeType c = 0; c < cube_num; ++ c ) {
     vector<Expr> litexpr_list;
     litexpr_list.reserve(input_num);
-    for ( SizeType i = 0; i < input_num; ++ i ) {
-      VarId var(i);
-      switch ( cover.input_pat(c, i) ) {
+    for ( SizeType var = 0; var < input_num; ++ var ) {
+      switch ( cover.input_pat(c, var) ) {
       case '0':
 	litexpr_list.push_back(Expr::make_nega_literal(var));
 	break;

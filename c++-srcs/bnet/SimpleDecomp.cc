@@ -72,13 +72,13 @@ SimpleDecomp::decomp_expr(
 )
 {
   if ( expr.is_posi_literal() ) {
-    VarId varid = expr.varid();
-    auto index = varid.val() * 2 + 0;
+    auto varid = expr.varid();
+    auto index = varid * 2 + 0;
     return mTermList[index];
   }
   else if ( expr.is_nega_literal() ) {
-    VarId varid = expr.varid();
-    auto index = varid.val() * 2 + 1;
+    auto varid = expr.varid();
+    auto index = varid * 2 + 1;
     if ( mTermList[index] == BNET_NULLID ) {
       mTermList[index] = new_not(string{}, mTermList[index - 1]);
     }

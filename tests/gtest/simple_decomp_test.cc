@@ -35,9 +35,9 @@ TEST(SimpleDecompTest, test1)
     auto input2 = port2.bit(0);
     auto input3 = port3.bit(0);
 
-    VarId var0{0};
-    VarId var1{1};
-    VarId var2{2};
+    SizeType var0{0};
+    SizeType var1{1};
+    SizeType var2{2};
     Expr lit0{Expr::make_posi_literal(var0)};
     Expr lit1{Expr::make_posi_literal(var1)};
     Expr lit2{Expr::make_posi_literal(var2)};

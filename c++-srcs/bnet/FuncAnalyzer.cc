@@ -29,10 +29,10 @@ tv2logic_type(
   else if ( tv == TvFunc::make_one(0) ) {
     return BnNodeType::C1;
   }
-  else if ( tv == TvFunc::make_posi_literal(1, VarId(0)) ) {
+  else if ( tv == TvFunc::make_posi_literal(1, 0) ) {
     return BnNodeType::Buff;
   }
-  else if ( tv == TvFunc::make_nega_literal(1, VarId(0)) ) {
+  else if ( tv == TvFunc::make_nega_literal(1, 0) ) {
     return BnNodeType::Not;
   }
   else {
