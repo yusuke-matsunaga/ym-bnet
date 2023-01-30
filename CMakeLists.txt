@@ -46,7 +46,9 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory ( py_ymbnet )
+if ( Python3_FOUND )
+  add_subdirectory ( py_ymbnet )
+endif ( Python3_FOUND )
 add_subdirectory ( tests/gtest )
 add_subdirectory ( tests/programs )
 #add_subdirectory ( tests/py-test )
