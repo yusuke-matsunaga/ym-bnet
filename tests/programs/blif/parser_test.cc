@@ -6,10 +6,9 @@
 /// Copyright (C) 2005-2011, 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "BlifParser.h"
+#include "ym/BlifParser.h"
+#include "ym/BlifModel.h"
 #include "ym/ClibCellLibrary.h"
-#include "TestBlifHandler.h"
-#include "NullBlifHandler.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
 
@@ -21,7 +20,7 @@ usage(
 {
   using namespace std;
 
-  cerr << "USAGE : " << argv0 << " [-null] blif-file" << endl;
+  cerr << "USAGE : " << argv0 << " blif-file" << endl;
 }
 
 int
@@ -32,15 +31,9 @@ main(
 {
   using namespace std;
   using namespace nsYm;
-  using namespace nsYm::nsBnet;
-
-  bool null = false;
+  using namespace nsYm::nsBlif;
 
   int base = 1;
-  if ( argc == 3 && strcmp(argv[1], "-null") == 0 ) {
-    null = true;
-    base = 2;
-  }
 
   if ( base + 1 != argc ) {
     usage(argv[0]);
@@ -57,23 +50,13 @@ main(
     MsgMgr::attach_handler(&msg_handler);
 
     BlifParser parser;
-    bool stat = false;
-
-    if ( null ) {
-      NullBlifHandler __dummy(parser);
-
-      stat = parser.read(filename);
-    }
-    else {
-      TestBlifHandler __dummy(parser, cout);
-
-      stat = parser.read(filename);
-    }
-
+    BlifModel model;
+    bool stat = parser.read(filename, model);
     if ( !stat ) {
       cerr << "Error in reading " << filename << endl;
       return 4;
     }
+    model.print(cout);
 #if !defined(YM_DEBUG)
   }
   catch ( const AssertError& x) {

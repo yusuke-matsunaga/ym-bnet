@@ -15,8 +15,6 @@
 
 set ( blifparser_test_SOURCES
   blif/parser_test.cc
-  blif/NullBlifHandler.cc
-  blif/TestBlifHandler.cc
   )
 
 add_executable ( blifparser_test

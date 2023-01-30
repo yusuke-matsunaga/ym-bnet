@@ -1,16 +1,16 @@
 
-/// @file BlifCoverMgr.cc
-/// @brief BlifCoverMgr の実装ファイル
+/// @file CoverMgr.cc
+/// @brief CoverMgr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "BlifCoverMgr.h"
-#include "BlifCover.h"
+#include "CoverMgr.h"
+#include "ym/BlifCover.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BLIF
 
 BEGIN_NONAMESPACE
 
@@ -56,7 +56,6 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief 内容を出力する．
-// @param[in] s 出力先のストリーム
 void
 BlifCover::print(
   ostream& s
@@ -75,30 +74,26 @@ BlifCover::print(
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BlifCoverMgr
+// クラス CoverMgr
 //////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+CoverMgr::CoverMgr(
+  BlifModel& model
+) : mModel{model}
+{
+}
 
 // @brief 登録されているカバー数を返す．
 SizeType
-BlifCoverMgr::cover_num() const
+CoverMgr::cover_num() const
 {
-  return mCoverArray.size();
-}
-
-// @brief ID番号から BlifCover を返す．
-const BlifCover&
-BlifCoverMgr::cover(
-  SizeType id
-) const
-{
-  ASSERT_COND( 0 <= id && id < cover_num() );
-
-  return mCoverArray[id];
+  return mModel.mCoverArray.size();
 }
 
 // @brief パタン文字列からカバーを返す．
 SizeType
-BlifCoverMgr::pat2cover(
+CoverMgr::pat2cover(
   SizeType input_num,
   SizeType cube_num,
   const string& ipat_str,
@@ -125,7 +120,7 @@ BlifCoverMgr::pat2cover(
 
 // @brief BlifCover を作る．
 SizeType
-BlifCoverMgr::new_cover(
+CoverMgr::new_cover(
   SizeType input_num,
   SizeType cube_num,
   const string& ipat_str,
@@ -140,9 +135,9 @@ BlifCoverMgr::new_cover(
   }
 
   auto id = cover_num();
-  mCoverArray.push_back({input_num, ipat_list, opat});
+  mModel.mCoverArray.push_back({input_num, ipat_list, opat});
 
   return id;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF

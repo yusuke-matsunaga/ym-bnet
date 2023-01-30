@@ -1,20 +1,20 @@
-﻿#ifndef YM_BLIFSCANNER_H
-#define YM_BLIFSCANNER_H
+﻿#ifndef BLIFSCANNER_H
+#define BLIFSCANNER_H
 
-/// @file ym/BlifScanner.h
+/// @file BlifScanner.h
 /// @brief BlibScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2012, 2014, 2016, 2019, 2021, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/blif_nsdef.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "BlifToken.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BLIF
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifScanner BlifScanner.h "BlifScanner.h"
@@ -82,6 +82,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF
 
-#endif // YM_BLIFSCANNER_H
+#endif // BLIFSCANNER_H

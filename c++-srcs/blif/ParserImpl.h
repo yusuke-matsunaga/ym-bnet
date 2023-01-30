@@ -1,41 +1,37 @@
-﻿#ifndef BLIFPARSER_H
-#define BLIFPARSER_H
+﻿#ifndef PARSEIMPL_H
+#define PARSEIMPL_H
 
-/// @file BlifParser.h
-/// @brief BlifParser のヘッダファイル
+/// @file ParserImpl.h
+/// @brief ParserImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2012, 2014, 2016, 2018, 2021, 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/blif_nsdef.h"
 #include "ym/ClibCellLibrary.h"
 #include "BlifScanner.h"
-#include "BlifCoverMgr.h"
+#include "CoverMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
-
-class BlifHandler;
+BEGIN_NAMESPACE_YM_BLIF
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifParser BlifParser.h "BlifParser.h"
+/// @class ParserImpl ParserImpl.h "ym/ParserImpl.h"
 /// @brief blif形式のファイルを読み込むパーサークラス
 ///
 /// 適切なハンドラクラスを生成して add_handler() で登録して使う．
 /// @sa BlifHandler MsgHandler
 //////////////////////////////////////////////////////////////////////
-class BlifParser
+class ParserImpl
 {
-  friend class BlifHandler;
-
 public:
 
   /// @brief コンストラクタ
-  BlifParser() = default;
+  ParserImpl() = default;
 
   /// @brief デストラクタ
-  ~BlifParser() = default;
+  ~ParserImpl() = default;
 
 
 public:
@@ -43,33 +39,20 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 読み込みを行う．
-  /// @retval true 読み込みが成功した．
-  /// @retval false 読み込みが失敗した．
-  bool
-  read(
-    const string& filename ///< [in] ファイル名
-  );
-
   /// @brief 読み込みを行う(セルライブラリ付き)．
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename,             ///< [in] ファイル名
-    const ClibCellLibrary& cell_library ///< [in] セルライブラリ
-  );
-
-  /// @brief イベントハンドラの登録
-  void
-  add_handler(
-    BlifHandler* handler ///< [in] 登録するハンドラ
+    const string& filename,              ///< [in] ファイル名
+    const ClibCellLibrary& cell_library, ///< [in] セルライブラリ
+    BlifModel& model                     ///< [out] 結果を格納する変数
   );
 
 
-public:
+private:
   //////////////////////////////////////////////////////////////////////
-  // BlifHandler から用いられる関数
+  // 識別子番号に関連する関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号から文字列を得る．
@@ -90,22 +73,6 @@ public:
   {
     ASSERT_COND( 0 <= id && id < mCellArray.size() );
     return mCellArray[id].def_loc();
-  }
-
-  /// @brief カバーの数を得る．
-  SizeType
-  cover_num()
-  {
-    return mCoverMgr.cover_num();
-  }
-
-  /// @brief カバーIDから BlifCover を得る．
-  const BlifCover&
-  id2cover(
-    SizeType id ///< [in] ID番号
-  )
-  {
-    return mCoverMgr.cover(id);
   }
 
 
@@ -139,6 +106,18 @@ private:
     bool
     is_input() const { return mFlags[1]; }
 
+    /// @brief .names として定義されている時 true を返す．
+    bool
+    is_names() const { return mFlags[2]; }
+
+    /// @brief .gate として定義されている時 true を返す．
+    bool
+    is_gate() const { return mFlags[3]; }
+
+    /// @brief .latch として定義されている時 true を返す．
+    bool
+    is_latch() const { return mFlags[4]; }
+
     /// @brief このシンボルを参照している位置を返す．
     const FileRegion&
     ref_loc() const { return mRefLoc; }
@@ -150,6 +129,38 @@ private:
     /// @brief このシンボルの名前を返す．
     const string&
     name() const { return mName; }
+
+    /// @brief 入力数を返す．
+    SizeType
+    inode_size() const { return mInputList.size(); }
+
+    /// @brief 入力番号のリストを返す．
+    const vector<SizeType>&
+    inode_id_list() const { return mInputList; }
+
+    /// @brief カバー番号を得る．
+    ///
+    /// is_names() == true の時のみ有効
+    SizeType
+    cover_id() const { return mExtId; }
+
+    /// @brief セル番号を得る．
+    ///
+    /// is_gate() == true の時のみ有効
+    SizeType
+    cell_id() const { return mExtId; }
+
+    /// @brief 入力ノード番号を得る．
+    ///
+    /// is_latch() == true の時のみ有効
+    SizeType
+    inode_id() const { return mInputList[0]; }
+
+    ///
+    /// is_latch() == true の時のみ有効
+    /// @brief リセット値を得る．
+    char
+    rval() const { return static_cast<char>(mExtId); }
 
     /// @brief 定義済みフラグをセットする．
     void
@@ -171,6 +182,48 @@ private:
       mFlags.set(1);
     }
 
+    /// @brief .names として定義されていることをセットする．
+    void
+    set_names(
+      const FileRegion& loc,
+      const vector<SizeType>& input_list,
+      SizeType cover_id
+    )
+    {
+      set_defined(loc);
+      mFlags.set(2);
+      mInputList = input_list;
+      mExtId = cover_id;
+    }
+
+    /// @brief .names として定義されていることをセットする．
+    void
+    set_gate(
+      const FileRegion& loc,
+      const vector<SizeType>& input_list,
+      SizeType cell_id
+    )
+    {
+      set_defined(loc);
+      mFlags.set(3);
+      mInputList = input_list;
+      mExtId = cell_id;
+    }
+
+    /// @brief .latch として定義されていることをセットする．
+    void
+    set_latch(
+      const FileRegion& loc,
+      SizeType input_id,
+      char rval
+    )
+    {
+      set_defined(loc);
+      mFlags.set(4);
+      mInputList = {input_id};
+      mExtId = static_cast<SizeType>(rval);
+    }
+
 
   private:
     //////////////////////////////////////////////////////////////////////
@@ -186,12 +239,22 @@ private:
     // いくつかのフラグ
     // 0: defined マーク
     // 1: input マーク
-    std::bitset<2> mFlags{0};
+    // 2: names マーク
+    // 3: gate マーク
+    // 4: latch マーク
+    std::bitset<5> mFlags{0};
 
     // 名前
     string mName;
 
+    // 入力の識別子番号のリスト
+    vector<SizeType> mInputList;
+
+    // カバー番号/セル番号
+    SizeType mExtId;
+
   };
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -288,18 +351,89 @@ private:
     SizeType id ///< [in] 識別子番号
   ) const;
 
-  /// @brief 対応する識別子に定義済みの印をつける．
-  void
-  set_defined(
-    SizeType id,               ///< [in] 識別子番号
-    const FileRegion& loc ///< [in] 定義している場所．
-  );
-
   /// @brief 対応する識別子に入力用の印を付ける．
   void
   set_input(
     SizeType id,               ///< [in] 識別子番号
     const FileRegion& loc ///< [in] 定義している場所．
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    mCellArray[id].set_input(loc);
+  }
+
+  /// @brief .names 文の情報をセットする．
+  void
+  set_names(
+    SizeType id,                        ///< [in] 識別子番号
+    const FileRegion& loc,              ///< [in] 定義している場所
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cover_id                   ///< [in] カバー番号
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    mCellArray[id].set_names(loc, input_list, cover_id);
+  }
+
+  /// @brief .gate 文の情報をセットする．
+  void
+  set_gate(
+    SizeType id,                        ///< [in] 識別子番号
+    const FileRegion& loc,              ///< [in] 定義している場所
+    const vector<SizeType>& input_list, ///< [in] 入力の識別子番号のリスト
+    SizeType cell_id                    ///< [in] セル番号
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    mCellArray[id].set_gate(loc, input_list, cell_id);
+  }
+
+  /// @brief .latch 文の情報をセットする．
+  void
+  set_latch(
+    SizeType id,           ///< [in] 識別子番号
+    const FileRegion& loc, ///< [in] 定義している場所
+    SizeType input_id,     ///< [in] 入力の識別子番号
+    char rval              ///< [in] リセット値
+  )
+  {
+    ASSERT_COND( 0 <= id && id < mCellArray.size() );
+    mCellArray[id].set_latch(loc, input_id, rval);
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // BlifModel を生成する関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief BlifModel に内容をセットする．
+  void
+  gen_model(
+    BlifModel& model ///< [in] 結果を格納するオブジェクト
+  );
+
+  /// @brief 入力からのトポロジカル順にする．
+  void
+  order_node(
+    SizeType id ///< [in] 識別子番号
+  );
+
+  /// @brief ノード番号をつける．
+  void
+  reg_node(
+    SizeType id ///< [in] 識別子番号
+  )
+  {
+    auto num = mIdList.size();
+    mIdMap.emplace(id, num);
+    mIdList.push_back(id);
+  }
+
+  /// @brief ファンインのリストを作る．
+  vector<SizeType>
+  make_inode_list(
+    const IdCell& id_cell
   );
 
 
@@ -315,20 +449,9 @@ private:
   // この変数は read() 内でのみ有効
   BlifScanner* mScanner;
 
-  // イベントハンドラのリスト
-  vector<BlifHandler*> mHandlerList;
-
-  // 名前をキーにした識別子番号のハッシュ表
-  unordered_map<string, SizeType> mIdHash;
-
-  // IdCell本体の配列
-  vector<IdCell> mCellArray;
-
-  // 出力の ID 番号のリスト
-  vector<SizeType> mOidArray;
-
   // BlifCover を管理するオブジェクト
-  BlifCoverMgr mCoverMgr;
+  // この変数は read() 内でのみ有効
+  CoverMgr* mCoverMgr;
 
   // 現在のトークン
   BlifToken mCurToken;
@@ -336,8 +459,35 @@ private:
   // 現在のトークンの位置
   FileRegion mCurLoc;
 
+  // モデル名
+  string mModelName;
+
+  // 名前をキーにした識別子番号のハッシュ表
+  unordered_map<string, SizeType> mIdHash;
+
+  // IdCell本体の配列
+  vector<IdCell> mCellArray;
+
+  // 入力の ID 番号のリスト
+  vector<SizeType> mInputArray;
+
+  // 出力の ID 番号のリスト
+  vector<SizeType> mOutputArray;
+
+  // ラッチの ID 番号のリスト
+  vector<SizeType> mLatchArray;
+
+  // 識別子番号をキーとしたノード番号の辞書
+  unordered_map<SizeType, SizeType> mIdMap;
+
+  // ノード番号順に識別子番号を収める配列
+  vector<SizeType> mIdList;
+
+  // ノードのリスト
+  vector<BlifNode*> mNodeList;
+
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF
 
-#endif // BLIFPARSER_H
+#endif // PARSEIMPL_H

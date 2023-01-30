@@ -8,10 +8,10 @@
 /// Copyright (C) 2016, 2017, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/blif_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BLIF
 
 //////////////////////////////////////////////////////////////////////
 /// @class BlifCover BlifCover.h "BlifCover.h"
@@ -97,6 +97,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF
 
 #endif // BLIFCOVER_H

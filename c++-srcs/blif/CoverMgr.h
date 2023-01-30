@@ -1,32 +1,35 @@
-#ifndef BLIFCOVERMGR_H
-#define BLIFCOVERMGR_H
+#ifndef COVERMGR_H
+#define COVERMGR_H
 
-/// @file BlifCoverMgr.h
-/// @brief BlifCoverMgr のヘッダファイル
+/// @file CoverMgr.h
+/// @brief CoverMgr のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2021 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
-#include "BlifCover.h"
+#include "ym/blif_nsdef.h"
+#include "ym/BlifCover.h"
+#include "ym/BlifModel.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BLIF
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifCoverMgr BlifCoverMgr.h "BlifCoverMgr.h"
+/// @class CoverMgr CoverMgr.h "CoverMgr.h"
 /// @brief BlifCover を管理するクラス
 //////////////////////////////////////////////////////////////////////
-class BlifCoverMgr
+class CoverMgr
 {
 public:
 
   /// @brief コンストラクタ
-  BlifCoverMgr() = default;
+  CoverMgr(
+    BlifModel& model
+  );
 
   /// @brief デストラクタ
-  ~BlifCoverMgr() = default;
+  ~CoverMgr() = default;
 
 
 public:
@@ -46,12 +49,6 @@ public:
     const string& ipat_str, ///< [in] 入力パタン文字列
     char opat_char          ///< [in] 出力パタン
   );
-
-  /// @brief ID番号から BlifCover を返す．
-  const BlifCover&
-  cover(
-    SizeType id ///< [in] ID番号
-  ) const;
 
 
 private:
@@ -75,14 +72,14 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // モデル
+  BlifModel& mModel;
+
   // カバーを表す文字列をキーにしてID番号を納める辞書
   unordered_map<string, SizeType> mCoverDict;
 
-  // ID 番号をキーにしてカバーを格納する配列
-  vector<BlifCover> mCoverArray;
-
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF
 
-#endif // BLIFCOVERMGR_H
+#endif // COVERMGR_H

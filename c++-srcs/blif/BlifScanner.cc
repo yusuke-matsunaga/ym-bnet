@@ -9,7 +9,7 @@
 #include "BlifScanner.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_BLIF
 
 BEGIN_NONAMESPACE
 
@@ -225,4 +225,4 @@ BlifScanner::check_word(
   return BlifToken::STRING;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_BLIF
