@@ -1,21 +1,22 @@
 ﻿
-/// @file Iscas89ParserImpl.cc
-/// @brief BlibParser の実装ファイル
+/// @file Iscas89Parser.cc
+/// @brief Iscas89Parser の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Iscas89Parser.h"
-#include "Iscas89Handler.h"
 #include "Iscas89Scanner.h"
+#include "ym/Iscas89Model.h"
+#include "ModelImpl.h"
 #include "ym/MsgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
-// Iscas89ParserImpl
+// Iscas89Parser
 //////////////////////////////////////////////////////////////////////
 
 // 読み込みを行なう．
@@ -41,7 +42,8 @@ BEGIN_NAMESPACE_YM_BNET
 //
 bool
 Iscas89Parser::read(
-  const string& filename
+  const string& filename,
+  ModelImpl* model
 )
 {
   // ファイルをオープンする．
@@ -57,12 +59,7 @@ Iscas89Parser::read(
 
   Iscas89Scanner scanner(fin, {filename});
   mScanner = &scanner;
-
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->init() ) {
-      return false;
-    }
-  }
+  mModel = model;
 
   // パーサー本体
   bool go_on = true;
@@ -100,20 +97,20 @@ Iscas89Parser::read(
 	  goto error;
 	}
 
-	auto gate_type{parse_gate_type()};
-	auto type{BnNodeType::None};
+	auto gate_type = parse_gate_type();
+	auto type = Iscas89GateType::None;
 	vector<SizeType> iname_id_list;
 	switch ( gate_type ) {
-	case Iscas89Token::CONST0: type = BnNodeType::C0; break;
-	case Iscas89Token::CONST1: type = BnNodeType::C1; break;
-	case Iscas89Token::BUFF:   type = BnNodeType::Buff; break;
-	case Iscas89Token::NOT:    type = BnNodeType::Not;  break;
-	case Iscas89Token::AND:    type = BnNodeType::And;  break;
-	case Iscas89Token::NAND:   type = BnNodeType::Nand; break;
-	case Iscas89Token::OR:     type = BnNodeType::Or;   break;
-	case Iscas89Token::NOR:    type = BnNodeType::Nor;  break;
-	case Iscas89Token::XOR:    type = BnNodeType::Xor;  break;
-	case Iscas89Token::XNOR:   type = BnNodeType::Xnor; break;
+	case Iscas89Token::CONST0: type = Iscas89GateType::C0;   break;
+	case Iscas89Token::CONST1: type = Iscas89GateType::C1;   break;
+	case Iscas89Token::BUFF:   type = Iscas89GateType::Buff; break;
+	case Iscas89Token::NOT:    type = Iscas89GateType::Not;  break;
+	case Iscas89Token::AND:    type = Iscas89GateType::And;  break;
+	case Iscas89Token::NAND:   type = Iscas89GateType::Nand; break;
+	case Iscas89Token::OR:     type = Iscas89GateType::Or;   break;
+	case Iscas89Token::NOR:    type = Iscas89GateType::Nor;  break;
+	case Iscas89Token::XOR:    type = Iscas89GateType::Xor;  break;
+	case Iscas89Token::XNOR:   type = Iscas89GateType::Xnor; break;
 	case Iscas89Token::DFF:
 	  if ( !parse_name_list(iname_id_list, last_loc) ) {
 	    goto error;
@@ -145,8 +142,8 @@ Iscas89Parser::read(
 	default:
 	  goto error;
 	}
-	if ( type != BnNodeType::None ) {
-	  if ( type != BnNodeType::C0 && type != BnNodeType::C1 ) {
+	if ( type != Iscas89GateType::None ) {
+	  if ( type != Iscas89GateType::C0 && type != Iscas89GateType::C1 ) {
 	    if ( !parse_name_list(iname_id_list, last_loc) ) {
 	      goto error;
 	    }
@@ -180,49 +177,34 @@ Iscas89Parser::read(
     }
   }
 
-  // 出力文の処理を行う．
-  for ( SizeType i = 0; i < mOidArray.size(); ++ i ) {
-    SizeType oid;
-    FileRegion loc;
-    tie(oid, loc) = mOidArray[i];
-    auto oname{id2str(oid)};
-    for ( auto handler: mHandlerList ) {
-      if ( !handler->read_output(loc, oid, oname) ) {
-	has_error = true;
+  {
+    SizeType n = mRefLocArray.size();
+    for ( auto id = 0; id < n; ++ id ) {
+      if ( !is_defined(id) ) {
+	ostringstream buf;
+	buf << id2str(id) << ": Undefined.";
+	MsgMgr::put_msg(__FILE__, __LINE__, ref_loc(id),
+			MsgType::Error,
+			"UNDEF01", buf.str().c_str());
+	return false;
       }
     }
   }
 
-  // 終了処理を行う．
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->end() ) {
-      has_error = true;
-    }
+  // 出力ノードからファンインをたどり
+  // post-order で番号をつける．
+  // 結果としてノードは入力からのトポロジカル順
+  // に整列される．
+  for ( auto id: mModel->mOutputList ) {
+    order_node(id);
   }
 
-  if ( !has_error ) {
-    // 成功
-    for ( auto handler: mHandlerList ) {
-      handler->normal_exit();
-    }
-    mIdHash.clear();
-    return true;
+  // ラッチノードのファンインに番号をつける．
+  for ( auto id: mModel->mDffList ) {
+    order_node(mModel->node_input(id));
   }
-  else {
-    // 失敗
-    for ( auto handler: mHandlerList ) {
-      handler->error_exit();
-    }
-    mIdHash.clear();
-    return false;
-  }
-}
 
-// @brief イベントハンドラの登録
-void
-Iscas89Parser::add_handler(Iscas89Handler* handler)
-{
-  mHandlerList.push_back(handler);
+  return !has_error;
 }
 
 // @brief ゲート型を読み込む．
@@ -274,7 +256,8 @@ Iscas89Parser::parse_gate_type()
 bool
 Iscas89Parser::parse_name(
   SizeType& name_id,
-  FileRegion& last_loc)
+  FileRegion& last_loc
+)
 {
   bool ok;
   tie(ok, ignore, ignore) = expect(Iscas89Token::LPAR);
@@ -305,7 +288,8 @@ Iscas89Parser::parse_name(
 bool
 Iscas89Parser::parse_name_list(
   vector<SizeType>& name_id_list,
-  FileRegion& last_loc)
+  FileRegion& last_loc
+)
 {
   name_id_list.clear();
 
@@ -355,24 +339,23 @@ Iscas89Parser::read_input(
   SizeType name_id
 )
 {
-  auto name{id2str(name_id)};
+  auto name = id2str(name_id);
   if ( is_defined(name_id) ) {
-    auto def_loc{id2loc(name_id)};
+    auto loc2 = def_loc(name_id);
     ostringstream buf;
     buf << name << ": Defined more than once. Previous definition is at "
-	<< def_loc;
+	<< loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
 		    buf.str());
     return false;
   }
-  set_input(name_id, loc);
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->read_input(loc, name_id, name) ) {
-      return false;
-    }
-  }
+
+  set_defined(name_id, loc);
+  mModel->set_input(name_id);
+  mMark.emplace(name_id);
+
   return true;
 }
 
@@ -386,7 +369,7 @@ Iscas89Parser::read_output(
   SizeType name_id
 )
 {
-  mOidArray.push_back(make_pair(name_id, loc));
+  mModel->mOutputList.push_back(name_id);
 
   return true;
 }
@@ -400,17 +383,17 @@ bool
 Iscas89Parser::read_gate(
   const FileRegion& loc,
   SizeType oname_id,
-  BnNodeType logic_type,
+  Iscas89GateType logic_type,
   const vector<SizeType>& iname_id_list
 )
 {
-  auto oname{id2str(oname_id)};
+  auto oname = id2str(oname_id);
   if ( is_defined(oname_id) ) {
     // 二重定義
-    auto def_loc{id2loc(oname_id)};
+    auto loc2 = def_loc(oname_id);
     ostringstream buf;
     buf << oname << ": Defined more than once. "
-	<< "Previsous Definition is at " << def_loc;
+	<< "Previsous Definition is at " << loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -418,15 +401,18 @@ Iscas89Parser::read_gate(
     return false;
   }
 
-  set_defined(oname_id, loc);
-  bool stat = true;
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->read_gate(loc, logic_type, oname_id, oname, iname_id_list) ) {
-      stat = false;
-      break;
+  {
+    cout << "read_gate(" << oname << ", " << logic_type
+	 << ", (";
+    for ( auto id: iname_id_list ) {
+      cout << " " << id;
     }
+    cout << ")" << endl;
   }
-  return stat;
+  set_defined(oname_id, loc);
+  mModel->set_gate(oname_id, logic_type, iname_id_list);
+
+  return true;
 }
 
 // @brief ゲート文(MUX)を読み込む．
@@ -440,13 +426,13 @@ Iscas89Parser::read_mux(
   const vector<SizeType>& iname_id_list
 )
 {
-  auto oname{id2str(oname_id)};
+  auto oname = id2str(oname_id);
   if ( is_defined(oname_id) ) {
     // 二重定義
-    auto def_loc{id2loc(oname_id)};
+    auto loc2 = def_loc(oname_id);
     ostringstream buf;
     buf << oname << ": Defined more than once. "
-	<< "Previsous Definition is at " << def_loc;
+	<< "Previsous Definition is at " << loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -454,7 +440,6 @@ Iscas89Parser::read_mux(
     return false;
   }
 
-  set_defined(oname_id, loc);
 
   { // 入力数をチェックする．
     SizeType ni = iname_id_list.size();
@@ -476,14 +461,10 @@ Iscas89Parser::read_mux(
     }
   }
 
-  bool stat = true;
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->read_mux(loc, oname_id, oname, iname_id_list) ) {
-      stat = false;
-      break;
-    }
-  }
-  return stat;
+  set_defined(oname_id, loc);
+  mModel->set_gate(oname_id, Iscas89GateType::Mux, iname_id_list);
+
+  return true;
 }
 
 // @brief D-FF用のゲート文を読み込む．
@@ -495,15 +476,16 @@ bool
 Iscas89Parser::read_dff(
   const FileRegion& loc,
   SizeType oname_id,
-  SizeType iname_id)
+  SizeType iname_id
+)
 {
-  auto oname{id2str(oname_id)};
+  auto oname = id2str(oname_id);
   if ( is_defined(oname_id) ) {
     // 二重定義
-    auto def_loc{id2loc(oname_id)};
+    auto loc2 = def_loc(oname_id);
     ostringstream buf;
     buf << oname << ": Defined more than once. "
-	<< "Previsous Definition is " << def_loc;
+	<< "Previsous Definition is " << loc2;
     MsgMgr::put_msg(__FILE__, __LINE__, loc,
 		    MsgType::Error,
 		    "ER_MLTDEF01",
@@ -512,20 +494,18 @@ Iscas89Parser::read_dff(
   }
 
   set_defined(oname_id, loc);
-  bool stat = true;
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->read_dff(loc, oname_id, oname, iname_id) ) {
-      stat = false;
-      break;
-    }
-  }
-  return stat;
+  mModel->set_dff(oname_id, iname_id);
+  mMark.emplace(oname_id);
+
+  return true;
 }
 
 BEGIN_NONAMESPACE
 
 const char*
-token_str(Iscas89Token token)
+token_str(
+  Iscas89Token token
+)
 {
   switch (token) {
   case Iscas89Token::LPAR:   return "(";
@@ -593,20 +573,32 @@ tuple<Iscas89Token, SizeType, FileRegion>
 Iscas89Parser::read_token()
 {
   FileRegion lloc;
-  Iscas89Token token = mScanner->read_token(lloc);
-  SizeType id;
+  auto token = mScanner->read_token(lloc);
+  SizeType id{0};
   if ( token == Iscas89Token::NAME ) {
-    auto name{mScanner->cur_string()};
-    if ( mIdHash.count(name) == 0 ) {
-      id = mIdCellArray.size();
-      mIdCellArray.push_back({name});
-      mIdHash.emplace(name, id);
-    }
-    else {
-      id = mIdHash.at(name);
-    }
+    auto name = mScanner->cur_string();
+    id = find_id(name, lloc);
   }
   return make_tuple(token, id, lloc);
 }
 
-END_NAMESPACE_YM_BNET
+// @brief トロロジカル順に並べる．
+void
+Iscas89Parser::order_node(
+  SizeType id
+)
+{
+  if ( mMark.count(id) > 0 ) {
+    return;
+  }
+
+  auto& node = mModel->mNodeArray[id];
+  ASSERT_COND( node.is_gate() );
+  for ( auto iid: node.fanin_list() ) {
+    order_node(iid);
+  }
+  mMark.emplace(id);
+  mModel->mLogicList.push_back(id);
+}
+
+END_NAMESPACE_YM_ISCAS89

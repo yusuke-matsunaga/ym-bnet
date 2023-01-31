@@ -3,9 +3,8 @@
 /// @brief Iscas89Scanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2019, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "Iscas89Scanner.h"
 
@@ -17,7 +16,7 @@ const bool debug_read_token = false;
 
 END_NONAMESPACE
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 // iscas89 用の字句解析器
@@ -210,4 +209,4 @@ Iscas89Scanner::check_word()
   return Iscas89Token::NAME;
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_ISCAS89

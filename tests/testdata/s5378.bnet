@@ -518,1075 +518,1075 @@ input: 572(n1588gat.output)
   fanout: 2029
 
 output: 36(n673gat.input)
-    input: 0
+    input: 2567
   fanout:
 output: 38(n673gat.clock)
     input: 39
   fanout:
 output: 40(n398gat.input)
-    input: 0
+    input: 2571
   fanout:
 output: 42(n398gat.clock)
     input: 39
   fanout:
 output: 43(n402gat.input)
-    input: 0
+    input: 2575
   fanout:
 output: 45(n402gat.clock)
     input: 39
   fanout:
 output: 46(n919gat.input)
-    input: 0
+    input: 2577
   fanout:
 output: 48(n919gat.clock)
     input: 39
   fanout:
 output: 49(n846gat.input)
-    input: 0
+    input: 2581
   fanout:
 output: 51(n846gat.clock)
     input: 39
   fanout:
 output: 52(n394gat.input)
-    input: 0
+    input: 2571
   fanout:
 output: 54(n394gat.clock)
     input: 39
   fanout:
 output: 55(n703gat.input)
-    input: 0
+    input: 2575
   fanout:
 output: 57(n703gat.clock)
     input: 39
   fanout:
 output: 58(n722gat.input)
-    input: 0
+    input: 2577
   fanout:
 output: 60(n722gat.clock)
     input: 39
   fanout:
 output: 61(n726gat.input)
-    input: 0
+    input: 2581
   fanout:
 output: 63(n726gat.clock)
     input: 39
   fanout:
 output: 64(n2510gat.input)
-    input: 0
+    input: 1031
   fanout:
 output: 66(n2510gat.clock)
     input: 39
   fanout:
 output: 67(n271gat.input)
-    input: 0
+    input: 2585
   fanout:
 output: 69(n271gat.clock)
     input: 39
   fanout:
 output: 70(n160gat.input)
-    input: 0
+    input: 2589
   fanout:
 output: 72(n160gat.clock)
     input: 39
   fanout:
 output: 73(n337gat.input)
-    input: 0
+    input: 2593
   fanout:
 output: 75(n337gat.clock)
     input: 39
   fanout:
 output: 76(n842gat.input)
-    input: 0
+    input: 2597
   fanout:
 output: 78(n842gat.clock)
     input: 39
   fanout:
 output: 79(n341gat.input)
-    input: 0
+    input: 2601
   fanout:
 output: 81(n341gat.clock)
     input: 39
   fanout:
 output: 82(n2522gat.input)
-    input: 0
+    input: 1146
   fanout:
 output: 84(n2522gat.clock)
     input: 39
   fanout:
 output: 85(n2472gat.input)
-    input: 0
+    input: 2602
   fanout:
 output: 87(n2472gat.clock)
     input: 39
   fanout:
 output: 88(n2319gat.input)
-    input: 0
+    input: 2603
   fanout:
 output: 90(n2319gat.clock)
     input: 39
   fanout:
 output: 91(n1821gat.input)
-    input: 0
+    input: 2609
   fanout:
 output: 93(n1821gat.clock)
     input: 39
   fanout:
 output: 94(n1825gat.input)
-    input: 0
+    input: 2609
   fanout:
 output: 96(n1825gat.clock)
     input: 39
   fanout:
 output: 97(n2029gat.input)
-    input: 0
+    input: 2048
   fanout:
 output: 99(n2029gat.clock)
     input: 39
   fanout:
 output: 100(n1829gat.input)
-    input: 0
+    input: 2610
   fanout:
 output: 102(n1829gat.clock)
     input: 39
   fanout:
 output: 103(n283gat.input)
-    input: 0
+    input: 2585
   fanout:
 output: 105(n283gat.clock)
     input: 39
   fanout:
 output: 106(n165gat.input)
-    input: 0
+    input: 2589
   fanout:
 output: 108(n165gat.clock)
     input: 39
   fanout:
 output: 109(n279gat.input)
-    input: 0
+    input: 2593
   fanout:
 output: 111(n279gat.clock)
     input: 39
   fanout:
 output: 112(n1026gat.input)
-    input: 0
+    input: 2597
   fanout:
 output: 114(n1026gat.clock)
     input: 39
   fanout:
 output: 115(n275gat.input)
-    input: 0
+    input: 2601
   fanout:
 output: 117(n275gat.clock)
     input: 39
   fanout:
 output: 118(n2476gat.input)
-    input: 0
+    input: 1372
   fanout:
 output: 120(n2476gat.clock)
     input: 39
   fanout:
 output: 121(n1068gat.input)
-    input: 0
+    input: 2617
   fanout:
 output: 123(n1068gat.clock)
     input: 39
   fanout:
 output: 124(n957gat.input)
-    input: 0
+    input: 2624
   fanout:
 output: 126(n957gat.clock)
     input: 39
   fanout:
 output: 127(n861gat.input)
-    input: 0
+    input: 2631
   fanout:
 output: 129(n861gat.clock)
     input: 39
   fanout:
 output: 130(n1294gat.input)
-    input: 0
+    input: 2638
   fanout:
 output: 132(n1294gat.clock)
     input: 39
   fanout:
 output: 133(n1241gat.input)
-    input: 0
+    input: 2645
   fanout:
 output: 135(n1241gat.clock)
     input: 39
   fanout:
 output: 136(n1298gat.input)
-    input: 0
+    input: 2567
   fanout:
 output: 138(n1298gat.clock)
     input: 39
   fanout:
 output: 139(n865gat.input)
-    input: 0
+    input: 2652
   fanout:
 output: 141(n865gat.clock)
     input: 39
   fanout:
 output: 142(n1080gat.input)
-    input: 0
+    input: 2659
   fanout:
 output: 144(n1080gat.clock)
     input: 39
   fanout:
 output: 145(n1148gat.input)
-    input: 0
+    input: 2666
   fanout:
 output: 147(n1148gat.clock)
     input: 39
   fanout:
 output: 148(n2468gat.input)
-    input: 0
+    input: 1257
   fanout:
 output: 150(n2468gat.clock)
     input: 39
   fanout:
 output: 151(n618gat.input)
-    input: 0
+    input: 2575
   fanout:
 output: 153(n618gat.clock)
     input: 39
   fanout:
 output: 154(n491gat.input)
-    input: 0
+    input: 2571
   fanout:
 output: 156(n491gat.clock)
     input: 39
   fanout:
 output: 157(n622gat.input)
-    input: 0
+    input: 2581
   fanout:
 output: 159(n622gat.clock)
     input: 39
   fanout:
 output: 160(n626gat.input)
-    input: 0
+    input: 2577
   fanout:
 output: 162(n626gat.clock)
     input: 39
   fanout:
 output: 163(n834gat.input)
-    input: 0
+    input: 2700
   fanout:
 output: 165(n834gat.clock)
     input: 39
   fanout:
 output: 166(n707gat.input)
-    input: 0
+    input: 2714
   fanout:
 output: 168(n707gat.clock)
     input: 39
   fanout:
 output: 169(n838gat.input)
-    input: 0
+    input: 2723
   fanout:
 output: 171(n838gat.clock)
     input: 39
   fanout:
 output: 172(n830gat.input)
-    input: 0
+    input: 2739
   fanout:
 output: 174(n830gat.clock)
     input: 39
   fanout:
 output: 175(n614gat.input)
-    input: 0
+    input: 2748
   fanout:
 output: 177(n614gat.clock)
     input: 39
   fanout:
 output: 178(n2526gat.input)
-    input: 0
+    input: 1590
   fanout:
 output: 180(n2526gat.clock)
     input: 39
   fanout:
 output: 181(n680gat.input)
-    input: 0
+    input: 2758
   fanout:
 output: 183(n680gat.clock)
     input: 39
   fanout:
 output: 184(n816gat.input)
-    input: 0
+    input: 2761
   fanout:
 output: 186(n816gat.clock)
     input: 39
   fanout:
 output: 187(n580gat.input)
-    input: 0
+    input: 2764
   fanout:
 output: 189(n580gat.clock)
     input: 39
   fanout:
 output: 190(n824gat.input)
-    input: 0
+    input: 2786
   fanout:
 output: 192(n824gat.clock)
     input: 39
   fanout:
 output: 193(n820gat.input)
-    input: 0
+    input: 2804
   fanout:
 output: 195(n820gat.clock)
     input: 39
   fanout:
 output: 196(n883gat.input)
-    input: 0
+    input: 2814
   fanout:
 output: 198(n883gat.clock)
     input: 39
   fanout:
 output: 199(n584gat.input)
-    input: 0
+    input: 2817
   fanout:
 output: 201(n584gat.clock)
     input: 39
   fanout:
 output: 202(n684gat.input)
-    input: 0
+    input: 2831
   fanout:
 output: 204(n684gat.clock)
     input: 39
   fanout:
 output: 205(n699gat.input)
-    input: 0
+    input: 2845
   fanout:
 output: 207(n699gat.clock)
     input: 39
   fanout:
 output: 208(n2464gat.input)
-    input: 0
+    input: 1477
   fanout:
 output: 210(n2464gat.clock)
     input: 39
   fanout:
 output: 211(n2399gat.input)
-    input: 0
+    input: 2888
   fanout:
 output: 213(n2399gat.clock)
     input: 39
   fanout:
 output: 214(n2343gat.input)
-    input: 0
+    input: 2891
   fanout:
 output: 216(n2343gat.clock)
     input: 39
   fanout:
 output: 217(n2203gat.input)
-    input: 0
+    input: 2894
   fanout:
 output: 219(n2203gat.clock)
     input: 39
   fanout:
 output: 220(n2562gat.input)
-    input: 0
+    input: 2897
   fanout:
 output: 222(n2562gat.clock)
     input: 39
   fanout:
 output: 223(n2207gat.input)
-    input: 0
+    input: 2900
   fanout:
 output: 225(n2207gat.clock)
     input: 39
   fanout:
 output: 226(n2626gat.input)
-    input: 0
+    input: 2951
   fanout:
 output: 228(n2626gat.clock)
     input: 39
   fanout:
 output: 229(n2490gat.input)
-    input: 0
+    input: 2954
   fanout:
 output: 231(n2490gat.clock)
     input: 39
   fanout:
 output: 232(n2622gat.input)
-    input: 0
+    input: 2957
   fanout:
 output: 234(n2622gat.clock)
     input: 39
   fanout:
 output: 235(n2630gat.input)
-    input: 0
+    input: 2960
   fanout:
 output: 237(n2630gat.clock)
     input: 39
   fanout:
 output: 238(n2543gat.input)
-    input: 0
+    input: 2963
   fanout:
 output: 240(n2543gat.clock)
     input: 39
   fanout:
 output: 241(n2102gat.input)
-    input: 0
+    input: 2966
   fanout:
 output: 243(n2102gat.clock)
     input: 39
   fanout:
 output: 244(n1880gat.input)
-    input: 0
+    input: 2976
   fanout:
 output: 246(n1880gat.clock)
     input: 39
   fanout:
 output: 247(n1763gat.input)
-    input: 0
+    input: 2980
   fanout:
 output: 249(n1763gat.clock)
     input: 39
   fanout:
 output: 250(n2155gat.input)
-    input: 0
+    input: 2062
   fanout:
 output: 252(n2155gat.clock)
     input: 39
   fanout:
 output: 253(n1035gat.input)
-    input: 0
+    input: 3017
   fanout:
 output: 255(n1035gat.clock)
     input: 39
   fanout:
 output: 256(n1121gat.input)
-    input: 0
+    input: 3020
   fanout:
 output: 258(n1121gat.clock)
     input: 39
   fanout:
 output: 259(n1072gat.input)
-    input: 0
+    input: 3023
   fanout:
 output: 261(n1072gat.clock)
     input: 39
   fanout:
 output: 262(n1282gat.input)
-    input: 0
+    input: 3026
   fanout:
 output: 264(n1282gat.clock)
     input: 39
   fanout:
 output: 265(n1226gat.input)
-    input: 0
+    input: 3029
   fanout:
 output: 267(n1226gat.clock)
     input: 39
   fanout:
 output: 268(n931gat.input)
-    input: 0
+    input: 3032
   fanout:
 output: 270(n931gat.clock)
     input: 39
   fanout:
 output: 271(n1135gat.input)
-    input: 0
+    input: 3035
   fanout:
 output: 273(n1135gat.clock)
     input: 39
   fanout:
 output: 274(n1045gat.input)
-    input: 0
+    input: 3038
   fanout:
 output: 276(n1045gat.clock)
     input: 39
   fanout:
 output: 277(n1197gat.input)
-    input: 0
+    input: 3041
   fanout:
 output: 279(n1197gat.clock)
     input: 39
   fanout:
 output: 280(n2518gat.input)
-    input: 0
+    input: 1712
   fanout:
 output: 282(n2518gat.clock)
     input: 39
   fanout:
 output: 283(n667gat.input)
-    input: 0
+    input: 3050
   fanout:
 output: 285(n667gat.clock)
     input: 39
   fanout:
 output: 286(n659gat.input)
-    input: 0
+    input: 3054
   fanout:
 output: 288(n659gat.clock)
     input: 39
   fanout:
 output: 289(n553gat.input)
-    input: 0
+    input: 3058
   fanout:
 output: 291(n553gat.clock)
     input: 39
   fanout:
 output: 292(n777gat.input)
-    input: 0
+    input: 3062
   fanout:
 output: 294(n777gat.clock)
     input: 39
   fanout:
 output: 295(n561gat.input)
-    input: 0
+    input: 3066
   fanout:
 output: 297(n561gat.clock)
     input: 39
   fanout:
 output: 298(n366gat.input)
-    input: 0
+    input: 3070
   fanout:
 output: 300(n366gat.clock)
     input: 39
   fanout:
 output: 301(n322gat.input)
-    input: 0
+    input: 3074
   fanout:
 output: 303(n322gat.clock)
     input: 39
   fanout:
 output: 304(n318gat.input)
-    input: 0
+    input: 3078
   fanout:
 output: 306(n318gat.clock)
     input: 39
   fanout:
 output: 307(n314gat.input)
-    input: 0
+    input: 3082
   fanout:
 output: 309(n314gat.clock)
     input: 39
   fanout:
 output: 310(n2599gat.input)
-    input: 0
+    input: 1686
   fanout:
 output: 312(n2599gat.clock)
     input: 39
   fanout:
 output: 313(n2588gat.input)
-    input: 0
+    input: 3102
   fanout:
 output: 315(n2588gat.clock)
     input: 39
   fanout:
 output: 316(n2640gat.input)
-    input: 0
+    input: 3117
   fanout:
 output: 318(n2640gat.clock)
     input: 39
   fanout:
 output: 319(n2658gat.input)
-    input: 0
+    input: 2452
   fanout:
 output: 321(n2658gat.clock)
     input: 39
   fanout:
 output: 322(n2495gat.input)
-    input: 0
+    input: 3131
   fanout:
 output: 324(n2495gat.clock)
     input: 39
   fanout:
 output: 325(n2390gat.input)
-    input: 0
+    input: 3134
   fanout:
 output: 327(n2390gat.clock)
     input: 39
   fanout:
 output: 328(n2270gat.input)
-    input: 0
+    input: 3137
   fanout:
 output: 330(n2270gat.clock)
     input: 39
   fanout:
 output: 331(n2339gat.input)
-    input: 0
+    input: 3140
   fanout:
 output: 333(n2339gat.clock)
     input: 39
   fanout:
 output: 334(n2502gat.input)
-    input: 0
+    input: 1757
   fanout:
 output: 336(n2502gat.clock)
     input: 39
   fanout:
 output: 337(n2634gat.input)
-    input: 0
+    input: 3155
   fanout:
 output: 339(n2634gat.clock)
     input: 39
   fanout:
 output: 340(n2506gat.input)
-    input: 0
+    input: 2400
   fanout:
 output: 342(n2506gat.clock)
     input: 39
   fanout:
 output: 343(n1834gat.input)
-    input: 0
+    input: 3160
   fanout:
 output: 345(n1834gat.clock)
     input: 39
   fanout:
 output: 346(n1767gat.input)
-    input: 0
+    input: 3165
   fanout:
 output: 348(n1767gat.clock)
     input: 39
   fanout:
 output: 349(n2084gat.input)
-    input: 0
+    input: 2112
   fanout:
 output: 351(n2084gat.clock)
     input: 39
   fanout:
 output: 352(n2143gat.input)
-    input: 0
+    input: 2385
   fanout:
 output: 354(n2143gat.clock)
     input: 39
   fanout:
 output: 355(n2061gat.input)
-    input: 0
+    input: 2365
   fanout:
 output: 357(n2061gat.clock)
     input: 39
   fanout:
 output: 358(n2139gat.input)
-    input: 0
+    input: 2359
   fanout:
 output: 360(n2139gat.clock)
     input: 39
   fanout:
 output: 361(n1899gat.input)
-    input: 0
+    input: 2346
   fanout:
 output: 363(n1899gat.clock)
     input: 39
   fanout:
 output: 364(n1850gat.input)
-    input: 0
+    input: 2389
   fanout:
 output: 366(n1850gat.clock)
     input: 39
   fanout:
 output: 367(n2403gat.input)
-    input: 0
+    input: 2181
   fanout:
 output: 369(n2403gat.clock)
     input: 39
   fanout:
 output: 370(n2394gat.input)
-    input: 0
+    input: 2092
   fanout:
 output: 372(n2394gat.clock)
     input: 39
   fanout:
 output: 373(n2440gat.input)
-    input: 0
+    input: 1970
   fanout:
 output: 375(n2440gat.clock)
     input: 39
   fanout:
 output: 376(n2407gat.input)
-    input: 0
+    input: 1972
   fanout:
 output: 378(n2407gat.clock)
     input: 39
   fanout:
 output: 379(n2347gat.input)
-    input: 0
+    input: 1980
   fanout:
 output: 381(n2347gat.clock)
     input: 39
   fanout:
 output: 382(n1389gat.input)
-    input: 0
+    input: 3175
   fanout:
 output: 384(n1389gat.clock)
     input: 39
   fanout:
 output: 385(n2021gat.input)
-    input: 0
+    input: 3178
   fanout:
 output: 387(n2021gat.clock)
     input: 39
   fanout:
 output: 388(n1394gat.input)
-    input: 0
+    input: 3188
   fanout:
 output: 390(n1394gat.clock)
     input: 39
   fanout:
 output: 391(n1496gat.input)
-    input: 0
+    input: 1993
   fanout:
 output: 393(n1496gat.clock)
     input: 39
   fanout:
 output: 394(n2091gat.input)
-    input: 0
+    input: 2102
   fanout:
 output: 396(n2091gat.clock)
     input: 39
   fanout:
 output: 397(n1332gat.input)
-    input: 0
+    input: 3193
   fanout:
 output: 399(n1332gat.clock)
     input: 39
   fanout:
 output: 400(n1740gat.input)
-    input: 0
+    input: 3194
   fanout:
 output: 402(n1740gat.clock)
     input: 39
   fanout:
 output: 403(n2179gat.input)
-    input: 0
+    input: 3195
   fanout:
 output: 405(n2179gat.clock)
     input: 39
   fanout:
 output: 406(n2190gat.input)
-    input: 0
+    input: 1743
   fanout:
 output: 408(n2190gat.clock)
     input: 39
   fanout:
 output: 409(n2135gat.input)
-    input: 0
+    input: 1747
   fanout:
 output: 411(n2135gat.clock)
     input: 39
   fanout:
 output: 412(n2262gat.input)
-    input: 0
+    input: 1733
   fanout:
 output: 414(n2262gat.clock)
     input: 39
   fanout:
 output: 415(n2182gat.input)
-    input: 0
+    input: 3197
   fanout:
 output: 417(n2182gat.clock)
     input: 39
   fanout:
 output: 418(n1433gat.input)
-    input: 0
+    input: 3207
   fanout:
 output: 420(n1433gat.clock)
     input: 39
   fanout:
 output: 421(n1316gat.input)
-    input: 0
+    input: 3208
   fanout:
 output: 423(n1316gat.clock)
     input: 39
   fanout:
 output: 424(n1363gat.input)
-    input: 0
+    input: 3209
   fanout:
 output: 426(n1363gat.clock)
     input: 39
   fanout:
 output: 427(n1312gat.input)
-    input: 0
+    input: 3210
   fanout:
 output: 429(n1312gat.clock)
     input: 39
   fanout:
 output: 430(n1775gat.input)
-    input: 0
+    input: 3212
   fanout:
 output: 432(n1775gat.clock)
     input: 39
   fanout:
 output: 433(n1871gat.input)
-    input: 0
+    input: 3292
   fanout:
 output: 435(n1871gat.clock)
     input: 39
   fanout:
 output: 436(n2592gat.input)
-    input: 0
+    input: 703
   fanout:
 output: 438(n2592gat.clock)
     input: 39
   fanout:
 output: 439(n1508gat.input)
-    input: 0
+    input: 3297
   fanout:
 output: 441(n1508gat.clock)
     input: 39
   fanout:
 output: 442(n1678gat.input)
-    input: 0
+    input: 3301
   fanout:
 output: 444(n1678gat.clock)
     input: 39
   fanout:
 output: 445(n2309gat.input)
-    input: 0
+    input: 3305
   fanout:
 output: 447(n2309gat.clock)
     input: 39
   fanout:
 output: 448(n2450gat.input)
-    input: 0
+    input: 2877
   fanout:
 output: 450(n2450gat.clock)
     input: 39
   fanout:
 output: 451(n2446gat.input)
-    input: 0
+    input: 3307
   fanout:
 output: 453(n2446gat.clock)
     input: 39
   fanout:
 output: 454(n2095gat.input)
-    input: 0
+    input: 3315
   fanout:
 output: 456(n2095gat.clock)
     input: 39
   fanout:
 output: 457(n2176gat.input)
-    input: 0
+    input: 2473
   fanout:
 output: 459(n2176gat.clock)
     input: 39
   fanout:
 output: 460(n2169gat.input)
-    input: 0
+    input: 2477
   fanout:
 output: 462(n2169gat.clock)
     input: 39
   fanout:
 output: 463(n2454gat.input)
-    input: 0
+    input: 3319
   fanout:
 output: 465(n2454gat.clock)
     input: 39
   fanout:
 output: 466(n2040gat.input)
-    input: 0
+    input: 3176
   fanout:
 output: 468(n2040gat.clock)
     input: 39
   fanout:
 output: 469(n2044gat.input)
-    input: 0
+    input: 3324
   fanout:
 output: 471(n2044gat.clock)
     input: 39
   fanout:
 output: 472(n2037gat.input)
-    input: 0
+    input: 3325
   fanout:
 output: 474(n2037gat.clock)
     input: 39
   fanout:
 output: 475(n2025gat.input)
-    input: 0
+    input: 3326
   fanout:
 output: 477(n2025gat.clock)
     input: 39
   fanout:
 output: 478(n2099gat.input)
-    input: 0
+    input: 3327
   fanout:
 output: 480(n2099gat.clock)
     input: 39
   fanout:
 output: 481(n2266gat.input)
-    input: 0
+    input: 1732
   fanout:
 output: 483(n2266gat.clock)
     input: 39
   fanout:
 output: 484(n2033gat.input)
-    input: 0
+    input: 2474
   fanout:
 output: 486(n2033gat.clock)
     input: 39
   fanout:
 output: 487(n2110gat.input)
-    input: 0
+    input: 2476
   fanout:
 output: 489(n2110gat.clock)
     input: 39
   fanout:
 output: 490(n2125gat.input)
-    input: 0
+    input: 2472
   fanout:
 output: 492(n2125gat.clock)
     input: 39
   fanout:
 output: 493(n2121gat.input)
-    input: 0
+    input: 3328
   fanout:
 output: 495(n2121gat.clock)
     input: 39
   fanout:
 output: 496(n2117gat.input)
-    input: 0
+    input: 3329
   fanout:
 output: 498(n2117gat.clock)
     input: 39
   fanout:
 output: 499(n1975gat.input)
-    input: 0
+    input: 2382
   fanout:
 output: 501(n1975gat.clock)
     input: 39
   fanout:
 output: 502(n2644gat.input)
-    input: 0
+    input: 2410
   fanout:
 output: 504(n2644gat.clock)
     input: 39
   fanout:
 output: 505(n156gat.input)
-    input: 0
+    input: 1570
   fanout:
 output: 507(n156gat.clock)
     input: 39
   fanout:
 output: 508(n152gat.input)
-    input: 0
+    input: 1506
   fanout:
 output: 510(n152gat.clock)
     input: 39
   fanout:
 output: 511(n331gat.input)
-    input: 0
+    input: 1433
   fanout:
 output: 513(n331gat.clock)
     input: 39
   fanout:
 output: 514(n388gat.input)
-    input: 0
+    input: 1429
   fanout:
 output: 516(n388gat.clock)
     input: 39
   fanout:
 output: 517(n463gat.input)
-    input: 0
+    input: 1426
   fanout:
 output: 519(n463gat.clock)
     input: 39
   fanout:
 output: 520(n327gat.input)
-    input: 0
+    input: 1450
   fanout:
 output: 522(n327gat.clock)
     input: 39
   fanout:
 output: 523(n384gat.input)
-    input: 0
+    input: 1453
   fanout:
 output: 525(n384gat.clock)
     input: 39
   fanout:
 output: 526(n256gat.input)
-    input: 0
+    input: 1509
   fanout:
 output: 528(n256gat.clock)
     input: 39
   fanout:
 output: 529(n470gat.input)
-    input: 0
+    input: 1535
   fanout:
 output: 531(n470gat.clock)
     input: 39
   fanout:
 output: 532(n148gat.input)
-    input: 0
+    input: 1513
   fanout:
 output: 534(n148gat.clock)
     input: 39
   fanout:
 output: 535(n2458gat.input)
-    input: 0
+    input: 3330
   fanout:
 output: 537(n2458gat.clock)
     input: 39
   fanout:
 output: 538(n2514gat.input)
-    input: 0
+    input: 3331
   fanout:
 output: 540(n2514gat.clock)
     input: 39
   fanout:
 output: 541(n1771gat.input)
-    input: 0
+    input: 3333
   fanout:
 output: 543(n1771gat.clock)
     input: 39
   fanout:
 output: 544(n1336gat.input)
-    input: 0
+    input: 3338
   fanout:
 output: 546(n1336gat.clock)
     input: 39
   fanout:
 output: 547(n1748gat.input)
-    input: 0
+    input: 3339
   fanout:
 output: 549(n1748gat.clock)
     input: 39
   fanout:
 output: 550(n1675gat.input)
-    input: 0
+    input: 2941
   fanout:
 output: 552(n1675gat.clock)
     input: 39
   fanout:
 output: 553(n1807gat.input)
-    input: 0
+    input: 2927
   fanout:
 output: 555(n1807gat.clock)
     input: 39
   fanout:
 output: 556(n1340gat.input)
-    input: 0
+    input: 3341
   fanout:
 output: 558(n1340gat.clock)
     input: 39
   fanout:
 output: 559(n1456gat.input)
-    input: 0
+    input: 3342
   fanout:
 output: 561(n1456gat.clock)
     input: 39
   fanout:
 output: 562(n1525gat.input)
-    input: 0
+    input: 3345
   fanout:
 output: 564(n1525gat.clock)
     input: 39
   fanout:
 output: 565(n1462gat.input)
-    input: 0
+    input: 3350
   fanout:
 output: 567(n1462gat.clock)
     input: 39
   fanout:
 output: 568(n1596gat.input)
-    input: 0
+    input: 3351
   fanout:
 output: 570(n1596gat.clock)
     input: 39
   fanout:
 output: 571(n1588gat.input)
-    input: 0
+    input: 3352
   fanout:
 output: 573(n1588gat.clock)
     input: 39
@@ -3154,7 +3154,7 @@ logic: 702(n3106gat)
 logic: 703(n1773gat)
     fanins:  431
     NOT
-  fanout: 705 2460 2469 3215
+  fanout: 436 705 2460 2469 3215
 logic: 704(n1769gat)
     fanins:  542
     NOT
@@ -4466,7 +4466,7 @@ logic: 1030(n752gat)
 logic: 1031(n748gat)
     fanins:  1020 1026 1029 1030
     OR
-  fanout: 1032
+  fanout: 64 1032
 logic: 1032(n2385gat)
     fanins:  1031
     NOT
@@ -4926,7 +4926,7 @@ logic: 1145(n47gat)
 logic: 1146(n43gat)
     fanins:  1135 1141 1144 1145
     OR
-  fanout: 1147
+  fanout: 82 1147
 logic: 1147(n2384gat)
     fanins:  1146
     NOT
@@ -5370,7 +5370,7 @@ logic: 1256(n937gat)
 logic: 1257(n933gat)
     fanins:  1246 1252 1255 1256
     OR
-  fanout: 1258
+  fanout: 148 1258
 logic: 1258(n2246gat)
     fanins:  1257
     NOT
@@ -5830,7 +5830,7 @@ logic: 1371(n59gat)
 logic: 1372(n55gat)
     fanins:  1361 1367 1370 1371
     OR
-  fanout: 1373
+  fanout: 118 1373
 logic: 1373(n2243gat)
     fanins:  1372
     NOT
@@ -6046,7 +6046,7 @@ logic: 1425(n587gat)
 logic: 1426(n818gat)
     fanins:  194
     NOT
-  fanout: 1427
+  fanout: 517 1427
 logic: 1427(II1407)
     fanins:  1426
     NOT
@@ -6058,7 +6058,7 @@ logic: 1428(n594gat)
 logic: 1429(n881gat)
     fanins:  197
     NOT
-  fanout: 1430
+  fanout: 514 1430
 logic: 1430(II1411)
     fanins:  1429
     NOT
@@ -6074,7 +6074,7 @@ logic: 1432(n588gat)
 logic: 1433(n822gat)
     fanins:  191
     NOT
-  fanout: 1434
+  fanout: 511 1434
 logic: 1434(II1416)
     fanins:  1433
     NOT
@@ -6142,7 +6142,7 @@ logic: 1449(n687gat)
 logic: 1450(n682gat)
     fanins:  203
     NOT
-  fanout: 1451
+  fanout: 520 1451
 logic: 1451(II1472)
     fanins:  1450
     NOT
@@ -6154,7 +6154,7 @@ logic: 1452(n694gat)
 logic: 1453(n697gat)
     fanins:  206
     NOT
-  fanout: 1454
+  fanout: 523 1454
 logic: 1454(II1476)
     fanins:  1453
     NOT
@@ -6250,7 +6250,7 @@ logic: 1476(n571gat)
 logic: 1477(n567gat)
     fanins:  1466 1472 1475 1476
     OR
-  fanout: 1478
+  fanout: 208 1478
 logic: 1478(n2244gat)
     fanins:  1477
     NOT
@@ -6366,7 +6366,7 @@ logic: 1505(n710gat)
 logic: 1506(n705gat)
     fanins:  167
     NOT
-  fanout: 1507
+  fanout: 508 1507
 logic: 1507(II1174)
     fanins:  1506
     NOT
@@ -6378,7 +6378,7 @@ logic: 1508(n717gat)
 logic: 1509(n836gat)
     fanins:  170
     NOT
-  fanout: 1510
+  fanout: 526 1510
 logic: 1510(II1178)
     fanins:  1509
     NOT
@@ -6394,7 +6394,7 @@ logic: 1512(n711gat)
 logic: 1513(n832gat)
     fanins:  164
     NOT
-  fanout: 1514
+  fanout: 532 1514
 logic: 1514(II1183)
     fanins:  1513
     NOT
@@ -6482,7 +6482,7 @@ logic: 1534(n729gat)
 logic: 1535(n828gat)
     fanins:  173
     NOT
-  fanout: 1536
+  fanout: 529 1536
 logic: 1536(II1209)
     fanins:  1535
     NOT
@@ -6622,7 +6622,7 @@ logic: 1569(n495gat)
 logic: 1570(n612gat)
     fanins:  176
     NOT
-  fanout: 1571
+  fanout: 505 1571
 logic: 1571(II1236)
     fanins:  1570
     NOT
@@ -6702,7 +6702,7 @@ logic: 1589(n508gat)
 logic: 1590(n504gat)
     fanins:  1579 1585 1588 1589
     OR
-  fanout: 1591
+  fanout: 178 1591
 logic: 1591(n2245gat)
     fanins:  1590
     NOT
@@ -7086,7 +7086,7 @@ logic: 1685(n2423gat)
 logic: 1686(n3010gat)
     fanins:  1682 1685
     OR
-  fanout: 1687
+  fanout: 310 1687
 logic: 1687(n2325gat)
     fanins:  1686
     NOT
@@ -7190,7 +7190,7 @@ logic: 1711(n1285gat)
 logic: 1712(n2971gat)
     fanins:  1708 1711
     OR
-  fanout: 1713
+  fanout: 280 1713
 logic: 1713(n1782gat)
     fanins:  1712
     NOT
@@ -7270,11 +7270,11 @@ logic: 1731(n1029gat)
 logic: 1732(n2493gat)
     fanins:  323
     NOT
-  fanout: 1734
+  fanout: 481 1734
 logic: 1733(n2388gat)
     fanins:  326
     NOT
-  fanout: 1734
+  fanout: 412 1734
 logic: 1734(n2567gat)
     fanins:  1732 1733
     NOR
@@ -7314,7 +7314,7 @@ logic: 1742(n2649gat)
 logic: 1743(n2268gat)
     fanins:  329
     NOT
-  fanout: 1746
+  fanout: 406 1746
 logic: 1744(II2344)
     fanins:  332
     NOT
@@ -7330,7 +7330,7 @@ logic: 1746(n299gat)
 logic: 1747(n2337gat)
     fanins:  332
     NOT
-  fanout: 1750
+  fanout: 409 1750
 logic: 1748(II2349)
     fanins:  329
     NOT
@@ -7370,7 +7370,7 @@ logic: 1756(n2648gat)
 logic: 1757(n2646gat)
     fanins:  1755 1756
     OR
-  fanout: 1758
+  fanout: 334 1758
 logic: 1758(n2237gat)
     fanins:  1757
     NOT
@@ -8222,7 +8222,7 @@ logic: 1969(n1690gat)
 logic: 1970(n2560gat)
     fanins:  221
     NOT
-  fanout: 1971 2420
+  fanout: 373 1971 2420
 logic: 1971(n2356gat)
     fanins:  1970
     NOT
@@ -8230,7 +8230,7 @@ logic: 1971(n2356gat)
 logic: 1972(n2205gat)
     fanins:  224
     NOT
-  fanout: 1973 2442
+  fanout: 376 1973 2442
 logic: 1973(n2214gat)
     fanins:  1972
     NOT
@@ -8262,7 +8262,7 @@ logic: 1979(n2284gat)
 logic: 1980(n2201gat)
     fanins:  218
     NOT
-  fanout: 1981 2439
+  fanout: 379 1981 2439
 logic: 1981(n2354gat)
     fanins:  1980
     NOT
@@ -8314,7 +8314,7 @@ logic: 1992(n3138gat)
 logic: 1993(n1392gat)
     fanins:  389
     NOT
-  fanout: 2026 2116
+  fanout: 391 2026 2116
 logic: 1994(II1655)
     fanins:  242
     NOT
@@ -8534,7 +8534,7 @@ logic: 2047(n1817gat)
 logic: 2048(n1816gat)
     fanins:  2047
     NOT
-  fanout: 2051
+  fanout: 97 2051
 logic: 2049(II572)
     fanins:  101
     NOT
@@ -8590,7 +8590,7 @@ logic: 2061(n1673gat)
 logic: 2062(n1858gat)
     fanins:  2061
     NOT
-  fanout: 2079 2085 2133 2135 2862 2905 3167 3217
+  fanout: 250 2079 2085 2133 2135 2862 2905 3167 3217
 logic: 2063(II3168)
     fanins:  389
     NOT
@@ -8710,7 +8710,7 @@ logic: 2091(n1507gat)
 logic: 2092(n2341gat)
     fanins:  215
     NOT
-  fanout: 2093 2423
+  fanout: 370 2093 2423
 logic: 2093(n2355gat)
     fanins:  2092
     NOT
@@ -8750,7 +8750,7 @@ logic: 2101(n1339gat)
 logic: 2102(n1685gat)
     fanins:  2078
     NOT
-  fanout: 2103
+  fanout: 394 2103
 logic: 2103(n1600gat)
     fanins:  2102 2020
     NOR
@@ -8790,7 +8790,7 @@ logic: 2111(n1831gat)
 logic: 2112(n1603gat)
     fanins:  2111
     NOT
-  fanout: 2113 2273 2281 2288 2294 2302 2312 2319 2326
+  fanout: 349 2113 2273 2281 2288 2294 2302 2312 2319 2326
 logic: 2113(n1590gat)
     fanins:  2112
     NOT
@@ -9066,7 +9066,7 @@ logic: 2180(n2081gat)
 logic: 2181(n2397gat)
     fanins:  212
     NOT
-  fanout: 2182 2437
+  fanout: 367 2182 2437
 logic: 2182(n2285gat)
     fanins:  2181
     NOT
@@ -9726,7 +9726,7 @@ logic: 2345(n2606gat)
 logic: 2346(n2532gat)
     fanins:  1939
     NOT
-  fanout: 2347
+  fanout: 361 2347
 logic: 2347(II2376)
     fanins:  2346
     NOT
@@ -9778,7 +9778,7 @@ logic: 2358(n2489gat)
 logic: 2359(n2487gat)
     fanins:  2358
     NOT
-  fanout: 2360
+  fanout: 358 2360
 logic: 2360(II2389)
     fanins:  2359
     NOT
@@ -9802,7 +9802,7 @@ logic: 2364(n2621gat)
 logic: 2365(n2557gat)
     fanins:  2364
     NOT
-  fanout: 2366
+  fanout: 355 2366
 logic: 2366(II2394)
     fanins:  2365
     NOT
@@ -9870,7 +9870,7 @@ logic: 2381(n2546gat)
 logic: 2382(n2632gat)
     fanins:  338
     NOT
-  fanout: 2383
+  fanout: 499 2383
 logic: 2383(II2425)
     fanins:  2382
     NOT
@@ -9882,7 +9882,7 @@ logic: 2384(n2553gat)
 logic: 2385(n2541gat)
     fanins:  239
     NOT
-  fanout: 2386 2999
+  fanout: 352 2386 2999
 logic: 2386(II2428)
     fanins:  2385
     NOT
@@ -9898,7 +9898,7 @@ logic: 2388(n2547gat)
 logic: 2389(n2628gat)
     fanins:  236
     NOT
-  fanout: 2390
+  fanout: 364 2390
 logic: 2390(II2433)
     fanins:  2389
     NOT
@@ -9942,7 +9942,7 @@ logic: 2399(n2615gat)
 logic: 2400(n2613gat)
     fanins:  2398 2399
     OR
-  fanout: 2401
+  fanout: 340 2401
 logic: 2401(n2186gat)
     fanins:  2400
     NOT
@@ -9982,7 +9982,7 @@ logic: 2409(n2573gat)
 logic: 2410(n2638gat)
     fanins:  317
     NOT
-  fanout: 2411
+  fanout: 502 2411
 logic: 2411(II2225)
     fanins:  2410
     NOT
@@ -10150,7 +10150,7 @@ logic: 2451(n2581gat)
 logic: 2452(n2579gat)
     fanins:  2450 2451
     OR
-  fanout: 2453
+  fanout: 319 2453
 logic: 2453(n2478gat)
     fanins:  2452
     NOT
@@ -10230,15 +10230,15 @@ logic: 2471(n1586gat)
 logic: 2472(n2108gat)
     fanins:  488
     NOT
-  fanout: 2479
+  fanout: 490 2479
 logic: 2473(n2093gat)
     fanins:  455
     NOT
-  fanout: 2479 2882
+  fanout: 457 2479 2882
 logic: 2474(n2035gat)
     fanins:  473
     NOT
-  fanout: 2479 2882
+  fanout: 484 2479 2882
 logic: 2475(n2167gat)
     fanins:  461
     NOT
@@ -10246,11 +10246,11 @@ logic: 2475(n2167gat)
 logic: 2476(n2031gat)
     fanins:  485
     NOT
-  fanout: 2478
+  fanout: 487 2478
 logic: 2477(n2174gat)
     fanins:  458
     NOT
-  fanout: 2478
+  fanout: 460 2478
 logic: 2478(II3999)
     fanins:  2475 2476 2477
     OR
@@ -10610,7 +10610,7 @@ logic: 2566(n442gat)
 logic: 2567(n2897gat)
     fanins:  2561 2566
     OR
-  fanout:
+  fanout: 36 136
 logic: 2568(II47)
     fanins:  5
     NOT
@@ -10626,7 +10626,7 @@ logic: 2570(II50)
 logic: 2571(n2782gat)
     fanins:  2570
     NOT
-  fanout:
+  fanout: 40 52 154
 logic: 2572(II62)
     fanins:  6
     NOT
@@ -10642,7 +10642,7 @@ logic: 2574(II65)
 logic: 2575(n2790gat)
     fanins:  2574
     NOT
-  fanout:
+  fanout: 43 55 151
 logic: 2576(II81)
     fanins:  2559
     NOT
@@ -10650,7 +10650,7 @@ logic: 2576(II81)
 logic: 2577(n2670gat)
     fanins:  2576
     NOT
-  fanout:
+  fanout: 46 58 160
 logic: 2578(II97)
     fanins:  7
     NOT
@@ -10666,7 +10666,7 @@ logic: 2580(II100)
 logic: 2581(n2793gat)
     fanins:  2580
     NOT
-  fanout:
+  fanout: 49 61 157
 logic: 2582(II297)
     fanins:  1
     NOT
@@ -10682,7 +10682,7 @@ logic: 2584(II300)
 logic: 2585(n2732gat)
     fanins:  2584
     NOT
-  fanout:
+  fanout: 67 103
 logic: 2586(II317)
     fanins:  3
     NOT
@@ -10698,7 +10698,7 @@ logic: 2588(II320)
 logic: 2589(n2776gat)
     fanins:  2588
     NOT
-  fanout:
+  fanout: 70 106
 logic: 2590(II337)
     fanins:  2
     NOT
@@ -10714,7 +10714,7 @@ logic: 2592(II340)
 logic: 2593(n2735gat)
     fanins:  2592
     NOT
-  fanout:
+  fanout: 73 109
 logic: 2594(II381)
     fanins:  9
     NOT
@@ -10730,7 +10730,7 @@ logic: 2596(II384)
 logic: 2597(n2673gat)
     fanins:  2596
     NOT
-  fanout:
+  fanout: 76 112
 logic: 2598(II423)
     fanins:  4
     NOT
@@ -10746,15 +10746,15 @@ logic: 2600(II426)
 logic: 2601(n2779gat)
     fanins:  2600
     NOT
-  fanout:
+  fanout: 79 115
 logic: 2602(n1620gat)
     fanins:  1954 2008
     NOR
-  fanout:
+  fanout: 85
 logic: 2603(n2470gat)
     fanins:  86
     NOT
-  fanout: 2977
+  fanout: 88 2977
 logic: 2604(II509)
     fanins:  34
     NOT
@@ -10778,11 +10778,11 @@ logic: 2608(n2317gat)
 logic: 2609(n1827gat)
     fanins:  2607 2608
     NOR
-  fanout:
+  fanout: 91 94
 logic: 2610(n2027gat)
     fanins:  98
     NOT
-  fanout:
+  fanout: 100
 logic: 2611(n2731gat)
     fanins:  2583
     NOT
@@ -10810,7 +10810,7 @@ logic: 2616(n655gat)
 logic: 2617(n2914gat)
     fanins:  2612 2616
     OR
-  fanout:
+  fanout: 121
 logic: 2618(II796)
     fanins:  12
     NOT
@@ -10838,7 +10838,7 @@ logic: 2623(n868gat)
 logic: 2624(n2928gat)
     fanins:  2621 2623
     OR
-  fanout:
+  fanout: 124
 logic: 2625(II818)
     fanins:  11
     NOT
@@ -10866,7 +10866,7 @@ logic: 2630(n959gat)
 logic: 2631(n2927gat)
     fanins:  2628 2630
     OR
-  fanout:
+  fanout: 127
 logic: 2632(n2792gat)
     fanins:  2579
     NOT
@@ -10894,7 +10894,7 @@ logic: 2637(n441gat)
 logic: 2638(n2896gat)
     fanins:  2633 2637
     OR
-  fanout:
+  fanout: 130
 logic: 2639(n2672gat)
     fanins:  2595
     NOT
@@ -10922,7 +10922,7 @@ logic: 2644(n792gat)
 logic: 2645(n2922gat)
     fanins:  2640 2644
     OR
-  fanout:
+  fanout: 133
 logic: 2646(n2778gat)
     fanins:  2599
     NOT
@@ -10950,7 +10950,7 @@ logic: 2651(n439gat)
 logic: 2652(n2894gat)
     fanins:  2647 2651
     OR
-  fanout:
+  fanout: 139
 logic: 2653(n2789gat)
     fanins:  2573
     NOT
@@ -10978,7 +10978,7 @@ logic: 2658(n790gat)
 logic: 2659(n2921gat)
     fanins:  2654 2658
     OR
-  fanout:
+  fanout: 142
 logic: 2660(n2781gat)
     fanins:  2569
     NOT
@@ -11006,7 +11006,7 @@ logic: 2665(n440gat)
 logic: 2666(n2895gat)
     fanins:  2661 2665
     OR
-  fanout:
+  fanout: 145
 logic: 2667(n179gat)
     fanins:  632
     NOT
@@ -11142,7 +11142,7 @@ logic: 2699(II3914)
 logic: 2700(n3064gat)
     fanins:  2699
     NOT
-  fanout:
+  fanout: 163
 logic: 2701(n1074gat)
     fanins:  2622 2676
     NOR
@@ -11198,7 +11198,7 @@ logic: 2713(II3703)
 logic: 2714(n3055gat)
     fanins:  2713
     NOT
-  fanout:
+  fanout: 166
 logic: 2715(n242gat)
     fanins:  2691 2687
     NOR
@@ -11234,7 +11234,7 @@ logic: 2722(II3891)
 logic: 2723(n3063gat)
     fanins:  2722
     NOT
-  fanout:
+  fanout: 169
 logic: 2724(n139gat)
     fanins:  2683 2682 2691
     NOR
@@ -11298,7 +11298,7 @@ logic: 2738(II3876)
 logic: 2739(n3062gat)
     fanins:  2738
     NOT
-  fanout:
+  fanout: 172
 logic: 2740(n234gat)
     fanins:  2685 2705
     NOR
@@ -11334,7 +11334,7 @@ logic: 2747(II3713)
 logic: 2748(n3056gat)
     fanins:  2747
     NOT
-  fanout:
+  fanout: 175
 logic: 2749(n746gat)
     fanins:  1003 629
     NOR
@@ -11374,7 +11374,7 @@ logic: 2757(n653gat)
 logic: 2758(n2913gat)
     fanins:  2755 2757
     OR
-  fanout:
+  fanout: 181
 logic: 2759(n867gat)
     fanins:  2754 2622
     NOR
@@ -11386,7 +11386,7 @@ logic: 2760(n771gat)
 logic: 2761(n2920gat)
     fanins:  2759 2760
     OR
-  fanout:
+  fanout: 184
 logic: 2762(n964gat)
     fanins:  2756 2627
     NOR
@@ -11398,7 +11398,7 @@ logic: 2763(n961gat)
 logic: 2764(n2905gat)
     fanins:  2762 2763
     OR
-  fanout:
+  fanout: 187
 logic: 2765(n869gat)
     fanins:  2754 2632
     NOR
@@ -11486,7 +11486,7 @@ logic: 2785(II3754)
 logic: 2786(n3057gat)
     fanins:  2785
     NOT
-  fanout:
+  fanout: 190
 logic: 2787(n975gat)
     fanins:  2756 2643
     NOR
@@ -11558,7 +11558,7 @@ logic: 2803(II3801)
 logic: 2804(n3059gat)
     fanins:  2803
     NOT
-  fanout:
+  fanout: 193
 logic: 2805(n974gat)
     fanins:  2564 2756
     NOR
@@ -11598,7 +11598,7 @@ logic: 2813(II3765)
 logic: 2814(n3058gat)
     fanins:  2813
     NOT
-  fanout:
+  fanout: 196
 logic: 2815(n447gat)
     fanins:  2650 2756
     NOR
@@ -11610,7 +11610,7 @@ logic: 2816(n445gat)
 logic: 2817(n2898gat)
     fanins:  2815 2816
     OR
-  fanout:
+  fanout: 199
 logic: 2818(n971gat)
     fanins:  2756 2657
     NOR
@@ -11666,7 +11666,7 @@ logic: 2830(II3817)
 logic: 2831(n3060gat)
     fanins:  2830
     NOT
-  fanout:
+  fanout: 202
 logic: 2832(n772gat)
     fanins:  2756 2664
     NOR
@@ -11722,7 +11722,7 @@ logic: 2844(II3841)
 logic: 2845(n3061gat)
     fanins:  2844
     NOT
-  fanout:
+  fanout: 205
 logic: 2846(n2351gat)
     fanins:  716
     NOT
@@ -11850,7 +11850,7 @@ logic: 2876(n2660gat)
 logic: 2877(n2307gat)
     fanins:  446
     NOT
-  fanout: 2878
+  fanout: 448 2878
 logic: 2878(n2663gat)
     fanins:  2870 2876 2877
     NOR
@@ -11894,7 +11894,7 @@ logic: 2887(II3530)
 logic: 2888(n3048gat)
     fanins:  2887
     NOT
-  fanout:
+  fanout: 211
 logic: 2889(n2198gat)
     fanins:  2885 779
     NOR
@@ -11906,7 +11906,7 @@ logic: 2890(II3539)
 logic: 2891(n3049gat)
     fanins:  2890
     NOT
-  fanout:
+  fanout: 214
 logic: 2892(n2196gat)
     fanins:  2885 750
     NOR
@@ -11918,7 +11918,7 @@ logic: 2893(II3558)
 logic: 2894(n3051gat)
     fanins:  2893
     NOT
-  fanout:
+  fanout: 217
 logic: 2895(n2498gat)
     fanins:  2885 796
     NOR
@@ -11930,7 +11930,7 @@ logic: 2896(II3520)
 logic: 2897(n3047gat)
     fanins:  2896
     NOT
-  fanout:
+  fanout: 220
 logic: 2898(n2197gat)
     fanins:  2885 734
     NOR
@@ -11942,7 +11942,7 @@ logic: 2899(II3549)
 logic: 2900(n3050gat)
     fanins:  2899
     NOT
-  fanout:
+  fanout: 223
 logic: 2901(II2873)
     fanins:  392
     NOT
@@ -12050,7 +12050,7 @@ logic: 2926(II2926)
 logic: 2927(n1717gat)
     fanins:  2926
     NOT
-  fanout: 2928
+  fanout: 553 2928
 logic: 2928(n1859gat)
     fanins:  2927
     NOT
@@ -12106,7 +12106,7 @@ logic: 2940(II2935)
 logic: 2941(n1713gat)
     fanins:  2940
     NOT
-  fanout: 2942
+  fanout: 550 2942
 logic: 2942(n1743gat)
     fanins:  2941
     NOT
@@ -12146,7 +12146,7 @@ logic: 2950(II3472)
 logic: 2951(n3040gat)
     fanins:  2950
     NOT
-  fanout:
+  fanout: 226
 logic: 2952(n2330gat)
     fanins:  2948 2534
     NOR
@@ -12158,7 +12158,7 @@ logic: 2953(II3504)
 logic: 2954(n3044gat)
     fanins:  2953
     NOT
-  fanout:
+  fanout: 229
 logic: 2955(n2387gat)
     fanins:  2513 2948
     NOR
@@ -12170,7 +12170,7 @@ logic: 2956(II3491)
 logic: 2957(n3042gat)
     fanins:  2956
     NOT
-  fanout:
+  fanout: 232
 logic: 2958(n2556gat)
     fanins:  657 2948
     NOR
@@ -12182,7 +12182,7 @@ logic: 2959(II3457)
 logic: 2960(n3037gat)
     fanins:  2959
     NOT
-  fanout:
+  fanout: 235
 logic: 2961(n2436gat)
     fanins:  2948 687
     NOR
@@ -12194,7 +12194,7 @@ logic: 2962(II3483)
 logic: 2963(n3041gat)
     fanins:  2962
     NOT
-  fanout:
+  fanout: 238
 logic: 2964(II3287)
     fanins:  2074
     NOT
@@ -12206,7 +12206,7 @@ logic: 2965(n3020gat)
 logic: 2966(n1606gat)
     fanins:  2965 938
     NOR
-  fanout: 2979
+  fanout: 241 2979
 logic: 2967(II3587)
     fanins:  491
     NOT
@@ -12246,7 +12246,7 @@ logic: 2975(II3610)
 logic: 2976(n3052gat)
     fanins:  2975
     NOT
-  fanout:
+  fanout: 244
 logic: 2977(n1934gat)
     fanins:  2603 2051 2973
     NOR
@@ -12262,7 +12262,7 @@ logic: 2979(n1543gat)
 logic: 2980(n1610gat)
     fanins:  2978 2979
     NOR
-  fanout:
+  fanout: 247
 logic: 2981(n187gat)
     fanins:  631 632 673
     NOR
@@ -12410,7 +12410,7 @@ logic: 3016(n759gat)
 logic: 3017(n2918gat)
     fanins:  2996 3016
     OR
-  fanout:
+  fanout: 253
 logic: 3018(n1076gat)
     fanins:  2995 2622
     NOR
@@ -12422,7 +12422,7 @@ logic: 3019(n1075gat)
 logic: 3020(n2952gat)
     fanins:  3018 3019
     OR
-  fanout:
+  fanout: 256
 logic: 3021(n766gat)
     fanins:  2995 2629
     NOR
@@ -12434,7 +12434,7 @@ logic: 3022(n760gat)
 logic: 3023(n2919gat)
     fanins:  3021 3022
     OR
-  fanout:
+  fanout: 259
 logic: 3024(n645gat)
     fanins:  2632 2995
     NOR
@@ -12446,7 +12446,7 @@ logic: 3025(n644gat)
 logic: 3026(n2910gat)
     fanins:  3024 3025
     OR
-  fanout:
+  fanout: 262
 logic: 3027(n646gat)
     fanins:  2995 2560
     NOR
@@ -12458,7 +12458,7 @@ logic: 3028(n641gat)
 logic: 3029(n2907gat)
     fanins:  3027 3028
     OR
-  fanout:
+  fanout: 265
 logic: 3030(n761gat)
     fanins:  3015
     NOT
@@ -12470,7 +12470,7 @@ logic: 3031(n651gat)
 logic: 3032(n2911gat)
     fanins:  3030 3031
     OR
-  fanout:
+  fanout: 268
 logic: 3033(n762gat)
     fanins:  3015
     NOT
@@ -12482,7 +12482,7 @@ logic: 3034(n652gat)
 logic: 3035(n2912gat)
     fanins:  3033 3034
     OR
-  fanout:
+  fanout: 271
 logic: 3036(n765gat)
     fanins:  2660 2995
     NOR
@@ -12494,7 +12494,7 @@ logic: 3037(n643gat)
 logic: 3038(n2909gat)
     fanins:  3036 3037
     OR
-  fanout:
+  fanout: 274
 logic: 3039(n763gat)
     fanins:  2639 2995
     NOR
@@ -12506,7 +12506,7 @@ logic: 3040(n642gat)
 logic: 3041(n2908gat)
     fanins:  3039 3040
     OR
-  fanout:
+  fanout: 277
 logic: 3042(n853gat)
     fanins:  622 3014
     NOR
@@ -12542,7 +12542,7 @@ logic: 3049(n556gat)
 logic: 3050(n2904gat)
     fanins:  3044 3046 3049
     OR
-  fanout:
+  fanout: 283
 logic: 3051(n795gat)
     fanins:  2611 3048
     NOR
@@ -12558,7 +12558,7 @@ logic: 3053(n368gat)
 logic: 3054(n2891gat)
     fanins:  3051 3052 3053
     OR
-  fanout:
+  fanout: 286
 logic: 3055(n794gat)
     fanins:  3048 2622
     NOR
@@ -12574,7 +12574,7 @@ logic: 3057(n662gat)
 logic: 3058(n2903gat)
     fanins:  3055 3056 3057
     OR
-  fanout:
+  fanout: 289
 logic: 3059(n965gat)
     fanins:  2627 3043
     NOR
@@ -12590,7 +12590,7 @@ logic: 3061(n661gat)
 logic: 3062(n2915gat)
     fanins:  3059 3060 3061
     OR
-  fanout:
+  fanout: 292
 logic: 3063(n558gat)
     fanins:  3045
     NOT
@@ -12606,7 +12606,7 @@ logic: 3065(n450gat)
 logic: 3066(n2901gat)
     fanins:  3063 3064 3065
     OR
-  fanout:
+  fanout: 295
 logic: 3067(n654gat)
     fanins:  3043 2564
     NOR
@@ -12622,7 +12622,7 @@ logic: 3069(n371gat)
 logic: 3070(n2890gat)
     fanins:  3067 3068 3069
     OR
-  fanout:
+  fanout: 298
 logic: 3071(n663gat)
     fanins:  3045
     NOT
@@ -12638,7 +12638,7 @@ logic: 3073(n449gat)
 logic: 3074(n2888gat)
     fanins:  3071 3072 3073
     OR
-  fanout:
+  fanout: 301
 logic: 3075(n791gat)
     fanins:  3043 2657
     NOR
@@ -12654,7 +12654,7 @@ logic: 3077(n370gat)
 logic: 3078(n2887gat)
     fanins:  3075 3076 3077
     OR
-  fanout:
+  fanout: 304
 logic: 3079(n774gat)
     fanins:  2664 3043
     NOR
@@ -12670,7 +12670,7 @@ logic: 3081(n369gat)
 logic: 3082(n2886gat)
     fanins:  3079 3080 3081
     OR
-  fanout:
+  fanout: 307
 logic: 3083(n2466gat)
     fanins:  149
     NOT
@@ -12750,7 +12750,7 @@ logic: 3101(n2595gat)
 logic: 3102(n3016gat)
     fanins:  3094 3101
     OR
-  fanout:
+  fanout: 313
 logic: 3103(II3646)
     fanins:  503
     NOT
@@ -12810,7 +12810,7 @@ logic: 3116(II3660)
 logic: 3117(n3054gat)
     fanins:  3116
     NOT
-  fanout:
+  fanout: 316
 logic: 3118(n2253gat)
     fanins:  810
     NOT
@@ -12866,7 +12866,7 @@ logic: 3130(II3436)
 logic: 3131(n3036gat)
     fanins:  3130
     NOT
-  fanout:
+  fanout: 322
 logic: 3132(n2192gat)
     fanins:  851 2883
     NOR
@@ -12878,7 +12878,7 @@ logic: 3133(II3401)
 logic: 3134(n3034gat)
     fanins:  3133
     NOT
-  fanout:
+  fanout: 325
 logic: 3135(n2194gat)
     fanins:  834 2883
     NOR
@@ -12890,7 +12890,7 @@ logic: 3136(II3387)
 logic: 3137(n3031gat)
     fanins:  3136
     NOT
-  fanout:
+  fanout: 328
 logic: 3138(n2057gat)
     fanins:  818 2883
     NOR
@@ -12902,7 +12902,7 @@ logic: 3139(II3412)
 logic: 3140(n3035gat)
     fanins:  3139
     NOT
-  fanout:
+  fanout: 331
 logic: 3141(II3621)
     fanins:  500
     NOT
@@ -12962,7 +12962,7 @@ logic: 3154(II3635)
 logic: 3155(n3053gat)
     fanins:  3154
     NOT
-  fanout:
+  fanout: 337
 logic: 3156(II3290)
     fanins:  2074
     NOT
@@ -12982,7 +12982,7 @@ logic: 3159(n1628gat)
 logic: 3160(n1625gat)
     fanins:  3157 3159
     NOR
-  fanout: 3177 3332
+  fanout: 343 3177 3332
 logic: 3161(n1618gat)
     fanins:  1952 2013
     NOR
@@ -13002,7 +13002,7 @@ logic: 3164(n3022gat)
 logic: 3165(n1626gat)
     fanins:  3162 3164
     NOR
-  fanout: 3177 3211
+  fanout: 346 3177 3211
 logic: 3166(n1794gat)
     fanins:  2061 2936
     NOR
@@ -13042,11 +13042,11 @@ logic: 3174(n1735gat)
 logic: 3175(n1793gat)
     fanins:  3168 3174
     NOR
-  fanout:
+  fanout: 382
 logic: 3176(n1777gat)
     fanins:  2463
     NOT
-  fanout: 3177
+  fanout: 466 3177
 logic: 3177(n1780gat)
     fanins:  3176 3160 3165
     NOR
@@ -13054,7 +13054,7 @@ logic: 3177(n1780gat)
 logic: 3178(n1781gat)
     fanins:  3177
     NOT
-  fanout:
+  fanout: 385
 logic: 3179(II2831)
     fanins:  2932 2931 2915
     OR
@@ -13094,7 +13094,7 @@ logic: 3187(n1517gat)
 logic: 3188(n1516gat)
     fanins:  3182 3187
     NOR
-  fanout:
+  fanout: 388
 logic: 3189(II2889)
     fanins:  2914 2917 2916
     OR
@@ -13114,15 +13114,15 @@ logic: 3192(n1552gat)
 logic: 3193(n1565gat)
     fanins:  3174 3192
     NOR
-  fanout:
+  fanout: 397
 logic: 3194(n1330gat)
     fanins:  398
     NOT
-  fanout:
+  fanout: 400
 logic: 3195(n1945gat)
     fanins:  1969
     NOT
-  fanout:
+  fanout: 403
 logic: 3196(n1695gat)
     fanins:  2077 2069 2011 2018
     NOR
@@ -13130,7 +13130,7 @@ logic: 3196(n1695gat)
 logic: 3197(n1836gat)
     fanins:  3196
     NOT
-  fanout:
+  fanout: 415
 logic: 3198(II2953)
     fanins:  404
     NOT
@@ -13170,19 +13170,19 @@ logic: 3206(n2073gat)
 logic: 3207(n2983gat)
     fanins:  3203 3206
     OR
-  fanout:
+  fanout: 418
 logic: 3208(n1431gat)
     fanins:  419
     NOT
-  fanout:
+  fanout: 421
 logic: 3209(n1314gat)
     fanins:  422
     NOT
-  fanout:
+  fanout: 424
 logic: 3210(n1361gat)
     fanins:  425
     NOT
-  fanout:
+  fanout: 427
 logic: 3211(n1707gat)
     fanins:  3165
     NOT
@@ -13190,7 +13190,7 @@ logic: 3211(n1707gat)
 logic: 3212(n1696gat)
     fanins:  3211 2978
     NOR
-  fanout:
+  fanout: 430
 logic: 3213(II3056)
     fanins:  428
     NOT
@@ -13510,7 +13510,7 @@ logic: 3291(n2004gat)
 logic: 3292(n2009gat)
     fanins:  2037 2881 3291
     NOR
-  fanout:
+  fanout: 433
 logic: 3293(II3148)
     fanins:  2932 2916 2914
     OR
@@ -13530,7 +13530,7 @@ logic: 3296(n1718gat)
 logic: 3297(n1636gat)
     fanins:  2082 3296
     NOR
-  fanout:
+  fanout: 439
 logic: 3298(n1838gat)
     fanins:  2526
     NOT
@@ -13546,7 +13546,7 @@ logic: 3300(II3179)
 logic: 3301(n1712gat)
     fanins:  3300
     NOT
-  fanout: 3340
+  fanout: 442 3340
 logic: 3302(n2000gat)
     fanins:  2341
     NOT
@@ -13562,7 +13562,7 @@ logic: 3304(n1999gat)
 logic: 3305(n3000gat)
     fanins:  3302 3304
     OR
-  fanout:
+  fanout: 445
 logic: 3306(n2662gat)
     fanins:  2876 2870
     NOR
@@ -13570,7 +13570,7 @@ logic: 3306(n2662gat)
 logic: 3307(n2661gat)
     fanins:  3306
     NOT
-  fanout:
+  fanout: 451
 logic: 3308(n87gat)
     fanins:  2750 664 2991
     NOR
@@ -13602,7 +13602,7 @@ logic: 3314(n204gat)
 logic: 3315(n827gat)
     fanins:  3314
     NOT
-  fanout:
+  fanout: 454
 logic: 3316(n1310gat)
     fanins:  428
     NOT
@@ -13618,7 +13618,7 @@ logic: 3318(n2168gat)
 logic: 3319(n2163gat)
     fanins:  3289 3316 2881 3318
     NOR
-  fanout:
+  fanout: 463
 logic: 3320(II3336)
     fanins:  467
     NOT
@@ -13638,35 +13638,35 @@ logic: 3323(n1315gat)
 logic: 3324(n2015gat)
     fanins:  3321 2033 3323
     NOR
-  fanout:
+  fanout: 469
 logic: 3325(n2042gat)
     fanins:  470
     NOT
-  fanout:
+  fanout: 472
 logic: 3326(n2017gat)
     fanins:  3289 2037
     NOR
-  fanout:
+  fanout: 475
 logic: 3327(n2023gat)
     fanins:  476
     NOT
-  fanout:
+  fanout: 478
 logic: 3328(n2123gat)
     fanins:  491
     NOT
-  fanout:
+  fanout: 493
 logic: 3329(n2119gat)
     fanins:  494
     NOT
-  fanout:
+  fanout: 496
 logic: 3330(n2590gat)
     fanins:  437
     NOT
-  fanout:
+  fanout: 535
 logic: 3331(n2456gat)
     fanins:  536
     NOT
-  fanout:
+  fanout: 538
 logic: 3332(n1544gat)
     fanins:  3160
     NOT
@@ -13674,7 +13674,7 @@ logic: 3332(n1544gat)
 logic: 3333(n1613gat)
     fanins:  3332 2978
     NOR
-  fanout:
+  fanout: 541
 logic: 3334(II4023)
     fanins:  2096 2178 1973
     OR
@@ -13694,11 +13694,11 @@ logic: 3337(n1513gat)
 logic: 3338(n1391gat)
     fanins:  3337 1950
     NOR
-  fanout:
+  fanout: 544
 logic: 3339(n1927gat)
     fanins:  3289 2921
     NOR
-  fanout:
+  fanout: 547
 logic: 3340(n1634gat)
     fanins:  3301
     NOT
@@ -13706,11 +13706,11 @@ logic: 3340(n1634gat)
 logic: 3341(n1567gat)
     fanins:  3340 3174
     NOR
-  fanout:
+  fanout: 556
 logic: 3342(n1564gat)
     fanins:  2082 2936 3289 2853
     NOR
-  fanout:
+  fanout: 559
 logic: 3343(II4144)
     fanins:  2917 3298 2931
     OR
@@ -13722,7 +13722,7 @@ logic: 3344(II4145)
 logic: 3345(n1632gat)
     fanins:  3344
     NOT
-  fanout:
+  fanout: 562
 logic: 3346(n1863gat)
     fanins:  2857 2856 3169
     NOR
@@ -13742,13 +13742,13 @@ logic: 3349(n1919gat)
 logic: 3350(n1915gat)
     fanins:  2928 3349
     NOR
-  fanout:
+  fanout: 565
 logic: 3351(n1800gat)
     fanins:  2921 3349
     NOR
-  fanout:
+  fanout: 568
 logic: 3352(n1593gat)
     fanins:  3182 3316
     NOR
-  fanout:
+  fanout: 571
 

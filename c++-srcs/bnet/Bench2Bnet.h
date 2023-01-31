@@ -1,37 +1,35 @@
-﻿#ifndef BLIF2BNET_H
-#define BLIF2BNET_H
+﻿#ifndef BENCH2BNET_H
+#define BENCH2BNET_H
 
-/// @file Blif2Bnet.h
-/// @brief Blif2Bnet のヘッダファイル
+/// @file Bench2Bnet.h
+/// @brief Bench2Bnet のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2023 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BlifModel.h"
+#include "ym/Iscas89Model.h"
 #include "ym/BnModifier.h"
-#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-/// @class Blif2Bnet Blif2Bnet.h
-/// @brief BlifModel から BnNetwork を生成するクラス
+/// @class Bench2Bnet Bench2Bnet.h "Bench2Bnet.h"
+/// @brief Iscas89Model から BnNetwork を生成するクラス
 //////////////////////////////////////////////////////////////////////
-class Blif2Bnet
+class Bench2Bnet
 {
 public:
 
   /// @brief コンストラクタ
-  Blif2Bnet(
-    const BlifModel& model,             ///< [in] blif のパーズ結果
-    const string& clock_name = "clock", ///< [in] クロック端子名
-    const string& reset_name = "reset"  ///< [in] リセット端子名
+  Bench2Bnet(
+    const Iscas89Model& model, ///< [in] パース結果
+    const string& clock_name   ///< [in] クロック名
   );
 
   /// @brief デストラクタ
-  ~Blif2Bnet() = default;
+  ~Bench2Bnet() = default;
 
 
 public:
@@ -46,31 +44,38 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる下請け関数
+  // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力を作る．
+  /// @brief 入力ノードを作る．
   void
   make_input(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] 識別子番号
   );
 
-  /// @brief 出力を設定する．
+  /// @brief 出力の設定を行う．
   void
   set_output(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] 識別子番号
   );
 
-  /// @brief DFFを作る．
+  /// @brief DFF を作る．
   void
   make_dff(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] 識別子番号
   );
 
-  /// @brief 論理ノードを生成する．
+  /// @brief ゲートを作る．
   void
-  make_logic(
-    SizeType src_id ///< [in] BlifMode のノード番号
+  make_gate(
+    SizeType src_id ///< [in] 識別子番号
+  );
+
+  /// @brief MUX を作る．
+  SizeType
+  make_mux(
+    const string& oname,                  ///< [in] 出力名
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノードIDのリスト
   );
 
 
@@ -80,7 +85,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // パーズ結果
-  const BlifModel& mModel;
+  const Iscas89Model& mModel;
 
   // ネットワーク
   BnModifier mNetwork;
@@ -88,23 +93,17 @@ private:
   // クロック端子名
   string mClockName;
 
-  // リセット端子名
-  string mResetName;
-
   // 名前IDをキーにしてノード番号を格納するハッシュ表
   unordered_map<SizeType, SizeType> mIdMap;
 
-  // 出力ノードのノードIDをキーにしてファンインの名前IDを格納するハッシュ表
+  // 出力のノードIDをキーにしてファンインの名前IDを格納するハッシュ表
   unordered_map<SizeType, SizeType> mOutputMap;
 
   // クロック端子のノード番号
   SizeType mClockId;
 
-  // リセット端子のノード番号
-  SizeType mResetId;
-
 };
 
 END_NAMESPACE_YM_BNET
 
-#endif // BNBLIFHANDLER_H
+#endif // BENCH2BNET_H

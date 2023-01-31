@@ -5,29 +5,24 @@
 /// @brief Iscas89Parser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2021, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/iscas89_nsdef.h"
 #include "ym/FileRegion.h"
+#include "Iscas89Scanner.h"
 #include "Iscas89Token.h"
+#include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
-
-class Iscas89Handler;
-class Iscas89Scanner;
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Parser Iscas89Parser.h "Iscas89Parser.h"
-/// @ingroup Iscas89Group
 /// @brief ISCAS89(.bench) 形式のファイルを読み込むパーサークラス
-/// @sa Iscas89Handler
 //////////////////////////////////////////////////////////////////////
 class Iscas89Parser
 {
-  friend class Iscas89Handler;
-
 public:
 
   /// @brief コンストラクタ
@@ -47,108 +42,9 @@ public:
   /// @retval false 読み込みが失敗した．
   bool
   read(
-    const string& filename ///< [in] ファイル名
+    const string& filename, ///< [in] ファイル名
+    ModelImpl* model        ///< [in] パーズ結果を格納するオブジェクト
   );
-
-  /// @brief イベントハンドラの登録
-  void
-  add_handler(
-    Iscas89Handler* handler ///< [in] 登録するハンドラ
-  );
-
-  /// @brief ID 番号から文字列を得る．
-  const string&
-  id2str(
-    SizeType id ///< [in] ID番号
-  ) const
-  {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    return mIdCellArray[id].name();
-  }
-
-  /// @brief ID 番号から位置情報を得る．
-  const FileRegion&
-  id2loc(
-    SizeType id ///< [in] ID番号
-  ) const
-  {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    return mIdCellArray[id].loc();
-  }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられるデータ構造
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 識別子を表すクラス
-  class IdCell
-  {
-  public:
-
-    /// @brief コンストラクタ
-    IdCell(
-      const string& name ///< [in] 名前
-    ) : mFlags{0},
-	mName{name}
-    {
-    }
-
-    /// @brief デストラクタ
-    ~IdCell() = default;
-
-    /// @brief 定義済みシンボルのとき true を返す．
-    bool
-    is_defined() const { return mFlags[0]; }
-
-    /// @brief 入力として定義されている時 true を返す．
-    bool
-    is_input() const { return mFlags[1]; }
-
-    /// @brief このシンボルの定義された位置を返す．
-    const FileRegion&
-    loc() const { return mLoc; }
-
-    /// @brief このシンボルの名前を返す．
-    const string&
-    name() const { return mName; }
-
-    /// @brief 定義済みフラグをセットする．
-    void
-    set_defined(
-      const FileRegion& loc ///< [in] ファイル上の位置
-    )
-    {
-      mLoc = loc;
-      mFlags.set(0);
-    }
-
-    /// @brief 入力として定義されたことをセットする．
-    void
-    set_input()
-    {
-      mFlags.set(1);
-    }
-
-
-  private:
-    //////////////////////////////////////////////////////////////////////
-    // データメンバ
-    //////////////////////////////////////////////////////////////////////
-
-    // この識別子を定義している位置情報
-    FileRegion mLoc;
-
-    // いくつかのフラグ
-    // 0: defined マーク
-    // 1: input マーク
-    std::bitset<2> mFlags;
-
-    // 名前
-    string mName;
-
-  };
 
 
 private:
@@ -207,7 +103,7 @@ private:
   read_gate(
     const FileRegion& loc,                ///< [in] ファイル位置
     SizeType oname_id,                    ///< [in] 出力名の ID 番号
-    BnNodeType type,                      ///< [in] ゲートタイプ
+    Iscas89GateType type,                 ///< [in] ゲートタイプ
     const vector<SizeType>& iname_id_list ///< [in] 入力名のID番号のリスト
   );
 
@@ -245,13 +141,34 @@ private:
   tuple<Iscas89Token, SizeType, FileRegion>
   read_token();
 
-  /// @brief 文字列用の領域を確保する．
-  /// @return 文字列の ID 番号
+  /// @brief 識別子番号を得る．
+  ///
+  /// 登録されていなければ新しく作る．
   SizeType
-  reg_id(
-    const string& src_str, ///< [in] ソース文字列
-    const FileRegion& loc  ///< [in] 文字列の位置情報
-  );
+  find_id(
+    const string& name,
+    const FileRegion& loc
+  )
+  {
+    if ( mIdHash.count(name) > 0 ) {
+      return mIdHash.at(name);
+    }
+    SizeType id = mRefLocArray.size();
+    mRefLocArray.push_back(loc);
+    mModel->new_node(name);
+    mIdHash.emplace(name, id);
+    return id;
+  }
+
+  /// @brief 定義済みの印をつける．
+  void
+  set_defined(
+    SizeType id,          ///< [in] ID番号
+    const FileRegion& loc ///< ファイル上の位置
+  )
+  {
+    mDefLocDict.emplace(id, loc);
+  }
 
   /// @brief 該当の識別子が定義済みか調べる．
   bool
@@ -259,44 +176,43 @@ private:
     SizeType id ///< [in] ID番号
   ) const
   {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    return mIdCellArray[id].is_defined();
+    return mDefLocDict.count(id) > 0;
   }
 
-  /// @brief 該当の識別子が入力か調べる．
-  bool
-  is_input(
+  /// @brief ID 番号から文字列を得る．
+  const string&
+  id2str(
     SizeType id ///< [in] ID番号
   ) const
   {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    return mIdCellArray[id].is_input();
+    return mModel->node_name(id);
   }
 
-  /// @brief 識別子に定義済みの印を付ける．
-  void
-  set_defined(
-    SizeType id,          ///< [in] ID番号
-    const FileRegion& loc ///< [in] 定義している場所
-  )
+  /// @brief ID 番号から参照されている位置情報を得る．
+  const FileRegion&
+  ref_loc(
+    SizeType id ///< [in] ID番号
+  ) const
   {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    mIdCellArray[id].set_defined(loc);
+    ASSERT_COND( 0 <= id && id < mRefLocArray.size() );
+    return mRefLocArray[id];
   }
 
-  /// @brief 識別子に入力の印を付ける．
-  ///
-  /// 同時に定義済みになる．
-  void
-  set_input(
-    SizeType id,          ///< [in] ID番号
-    const FileRegion& loc ///< [in] 定義している場所
-  )
+  /// @brief ID 番号から定義されている位置情報を得る．
+  const FileRegion&
+  def_loc(
+    SizeType id ///< [in] ID番号
+  ) const
   {
-    ASSERT_COND( 0 <= id && id < mIdCellArray.size() );
-    mIdCellArray[id].set_input();
-    mIdCellArray[id].set_defined(loc);
+    ASSERT_COND( mDefLocDict.count(id) > 0 );
+    return mDefLocDict.at(id);
   }
+
+  /// @brief トロロジカル順に並べる．
+  void
+  order_node(
+    SizeType id
+  );
 
 
 private:
@@ -308,20 +224,23 @@ private:
   // この変数の値は read() 内のみで意味を持つ．
   Iscas89Scanner* mScanner;
 
-  // イベントハンドラのリスト
-  vector<Iscas89Handler*> mHandlerList;
+  // 結果を格納するオブジェクト
+  ModelImpl* mModel;
 
   // 名前をキーにした識別子のハッシュ表
   unordered_map<string, SizeType> mIdHash;
 
-  // 識別子の配列
-  vector<IdCell> mIdCellArray;
+  // 参照された位置を記録する配列
+  vector<FileRegion> mRefLocArray;
 
-  // 出力の ID番号とファイル位置のリスト
-  vector<pair<SizeType, FileRegion>> mOidArray;
+  // 定義された位置を記録する辞書
+  unordered_map<SizeType, FileRegion> mDefLocDict;
+
+  // 処理済みの印
+  unordered_set<SizeType> mMark;
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_ISCAS89
 
 #endif // ISCAS89PARSER_H

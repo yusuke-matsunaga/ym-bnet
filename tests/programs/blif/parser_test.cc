@@ -6,7 +6,6 @@
 /// Copyright (C) 2005-2011, 2014, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BlifParser.h"
 #include "ym/BlifModel.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/MsgMgr.h"
@@ -49,9 +48,8 @@ main(
     StreamMsgHandler msg_handler(cerr);
     MsgMgr::attach_handler(&msg_handler);
 
-    BlifParser parser;
     BlifModel model;
-    bool stat = parser.read(filename, model);
+    bool stat = model.read_blif(filename);
     if ( !stat ) {
       cerr << "Error in reading " << filename << endl;
       return 4;

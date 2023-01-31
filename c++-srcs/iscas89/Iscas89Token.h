@@ -5,14 +5,13 @@
 /// @brief Token のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 2023 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "ym/iscas89_nsdef.h"
 
-#include "ym/bnet.h"
 
-
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 /// @brief トークン
@@ -41,6 +40,6 @@ enum class Iscas89Token {
   ERROR
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_ISCAS89
 
 #endif // ISCAS89TOKEN_H

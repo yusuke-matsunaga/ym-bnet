@@ -8,13 +8,13 @@
 /// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/iscas89_nsdef.h"
 #include "ym/Scanner.h"
 #include "ym/StrBuff.h"
 #include "Iscas89Token.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_ISCAS89
 
 //////////////////////////////////////////////////////////////////////
 /// @class Iscas89Scanner Iscas89Scanner.h "Iscas89Scanner.h"
@@ -81,6 +81,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_ISCAS89
 
 #endif // ISCAS89SCANNER_H

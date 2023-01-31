@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 #include "Iscas89Parser.h"
-#include "Iscas89Handler.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
 

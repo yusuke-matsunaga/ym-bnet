@@ -7,17 +7,10 @@
 /// All rights reserved.
 
 #include "Blif2Bnet.h"
-#include "ym/BnNetwork.h"
-#include "ym/BlifParser.h"
 #include "ym/BlifModel.h"
-#include "ym/BlifNode.h"
 #include "ym/BlifCover.h"
-//#include "ym/BnPort.h"
-//#include "ym/BnDff.h"
-//#include "ym/BnNode.h"
-//#include "ym/BnNodeList.h"
+#include "ym/BnNetwork.h"
 #include "ym/ClibCellLibrary.h"
-//#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -46,7 +39,14 @@ BnNetwork::read_blif(
   const string& reset_name
 )
 {
-  BlifParser parser;
+  BlifModel model;
+  bool stat = model.read_blif(filename, cell_library);
+  if ( !stat ) {
+    ostringstream buf;
+    buf << "Error in read_blif(\"" << filename << "\"";
+    throw std::invalid_argument{buf.str()};
+  }
+
   auto _clock_name = clock_name;
   if ( _clock_name == string{} ) {
     _clock_name = "clock";
@@ -54,14 +54,6 @@ BnNetwork::read_blif(
   auto _reset_name = reset_name;
   if ( _reset_name == string{} ) {
     _reset_name = "reset";
-  }
-
-  BlifModel model;
-  bool stat = parser.read(filename, cell_library, model);
-  if ( !stat ) {
-    ostringstream buf;
-    buf << "Error in read_blif(\"" << filename << "\"";
-    throw std::invalid_argument{buf.str()};
   }
 
   Blif2Bnet conv{model, _clock_name, _reset_name};
@@ -88,20 +80,24 @@ Blif2Bnet::Blif2Bnet(
 
   mNetwork.set_name(model.name());
 
-  SizeType ni = model.input_num();
-  for ( SizeType src_id = 0; src_id < ni; ++ src_id ) {
+  for ( SizeType src_id: model.input_list() ) {
     make_input(src_id);
   }
-  SizeType nl = model.latch_num();
-  for ( SizeType src_id = ni; src_id < (ni + nl); ++ src_id ) {
-    make_latch(src_id);
+  for ( SizeType src_id: model.dff_list() ) {
+    make_dff(src_id);
   }
-  SizeType nn = model.node_num();
-  for ( SizeType src_id = (ni + nl); src_id < nn; ++ src_id ) {
-    make_node(src_id);
+  for ( SizeType src_id: model.logic_list() ) {
+    make_logic(src_id);
   }
   for ( auto src_id: model.output_list() ) {
-    make_output(src_id);
+    set_output(src_id);
+  }
+  for ( auto& p: mOutputMap ) {
+    auto id = p.first;
+    auto src_id = p.second;
+    ASSERT_COND( mIdMap.count(src_id) > 0 );
+    auto inode_id = mIdMap.at(src_id);
+    mNetwork.set_output_src(id, inode_id);
   }
 }
 
@@ -118,23 +114,20 @@ Blif2Bnet::make_input(
   SizeType src_id
 )
 {
-  auto node = mModel.node(src_id);
-  ASSERT_COND( node->type() == BlifNode::Input );
-  auto oname = node->name();
+  auto oname = mModel.node_name(src_id);
   auto port_id = mNetwork.new_input_port(oname);
   const auto& port = mNetwork.port(port_id);
   auto id = port.bit(0);
   mIdMap.emplace(src_id, id);
 }
 
-// @brief 出力を作る．
+// @brief 出力を設定する．
 void
-Blif2Bnet::make_output(
+Blif2Bnet::set_output(
   SizeType src_id
 )
 {
-  auto node = mModel.node(src_id);
-  auto name = node->name();
+  auto name = mModel.node_name(src_id);
   string name1;
   if ( mNetwork.find_port(name) == static_cast<SizeType>(-1) ) {
     name1 = name;
@@ -147,16 +140,14 @@ Blif2Bnet::make_output(
   mNetwork.set_output_src(id, inode_id);
 }
 
-// @brief ラッチを作る．
+// @brief DFFを作る．
 void
-Blif2Bnet::make_latch(
+Blif2Bnet::make_dff(
   SizeType src_id
 )
 {
-  auto node = mModel.node(src_id);
-  ASSERT_COND( node->type() == BlifNode::Latch );
-  auto oname = node->name();
-  char rval = node->rval();
+  auto oname = mModel.node_name(src_id);
+  char rval = mModel.node_rval(src_id);
   bool has_clear = false;
   bool has_preset = false;
   if ( rval == '0' ) {
@@ -169,11 +160,11 @@ Blif2Bnet::make_latch(
   const auto& dff = mNetwork.dff(dff_id);
 
   auto output_id = dff.data_out();
-  mIdMap[src_id] = output_id;
+  mIdMap.emplace(src_id, output_id);
 
   auto input_id = dff.data_in();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
-  auto inode_id = node->inode();
+  auto inode_id = mModel.node_input(src_id);
   mOutputMap.emplace(input_id, inode_id);
 
   if ( mClockId == BNET_NULLID ) {
@@ -250,34 +241,33 @@ cover2expr(
 
 END_NONAMESPACE
 
-// @brief name_id のノードを生成する．
+// @brief 論理ノードを生成する．
 void
-Blif2Bnet::make_node(
+Blif2Bnet::make_logic(
   SizeType src_id
 )
 {
-  auto node = mModel.node(src_id);
-  auto oname = node->name();
+  auto oname = mModel.node_name(src_id);
 
   // ファンインのノードを作る．
-  SizeType ni = node->inode_list().size();
-  vector<SizeType> fanin_id_list(ni);
-  for ( SizeType i = 0; i < ni; ++ i ) {
-    auto iid = node->inode_list()[i];
+  SizeType ni = mModel.node_fanin_list(src_id).size();
+  vector<SizeType> fanin_id_list;
+  fanin_id_list.reserve(ni);
+  for ( auto iid: mModel.node_fanin_list(src_id) ) {
     ASSERT_COND( mIdMap.count(iid) > 0 );
-    fanin_id_list[i] = mIdMap.at(iid);
+    fanin_id_list.push_back(mIdMap.at(iid));
   }
 
-  auto type = node->type();
+  auto type = mModel.node_type(src_id);
   SizeType id;
-  if ( type == BlifNode::Names ) {
-    auto cover_id = node->cover_id();
+  if ( type == BlifType::Cover ) {
+    auto cover_id = mModel.node_cover_id(src_id);
     auto& cover = mModel.cover(cover_id);
     auto expr = cover2expr(cover);
     id = mNetwork.new_logic_expr(oname, expr, fanin_id_list);
   }
-  else if ( type == BlifNode::Gate ) {
-    auto cell_id = node->cell_id();
+  else if ( type == BlifType::Cell ) {
+    auto cell_id = mModel.node_cell_id(src_id);
     id = mNetwork.new_logic_cell(oname, cell_id, fanin_id_list);
   }
   else {

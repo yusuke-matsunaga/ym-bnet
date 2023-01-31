@@ -79,7 +79,7 @@ BlifCover::print(
 
 // @brief コンストラクタ
 CoverMgr::CoverMgr(
-  BlifModel& model
+  ModelImpl* model
 ) : mModel{model}
 {
 }
@@ -88,7 +88,7 @@ CoverMgr::CoverMgr(
 SizeType
 CoverMgr::cover_num() const
 {
-  return mModel.mCoverArray.size();
+  return mModel->mCoverArray.size();
 }
 
 // @brief パタン文字列からカバーを返す．
@@ -135,7 +135,7 @@ CoverMgr::new_cover(
   }
 
   auto id = cover_num();
-  mModel.mCoverArray.push_back({input_num, ipat_list, opat});
+  mModel->mCoverArray.push_back({input_num, ipat_list, opat});
 
   return id;
 }

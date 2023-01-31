@@ -38,6 +38,17 @@ END_NAMESPACE_YM_BLIF
 
 BEGIN_NAMESPACE_YM
 
+//////////////////////////////////////////////////////////////////////
+/// @brief ノードの種類を表す列挙型
+//////////////////////////////////////////////////////////////////////
+enum BlifType {
+  None,  ///< 不正値
+  Input, ///< 入力(.inputs)
+  Dff,   ///< DFF(.latch)
+  Cover, ///< カバー型論理ノード(.names)
+  Cell   ///< セル型論理ノード(.gate)
+};
+
 using nsBlif::BlifParser;
 using nsBlif::BlifModel;
 using nsBlif::BlifNode;

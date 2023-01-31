@@ -10,7 +10,7 @@
 
 #include "ym/blif_nsdef.h"
 #include "ym/BlifCover.h"
-#include "ym/BlifModel.h"
+#include "ModelImpl.h"
 
 
 BEGIN_NAMESPACE_YM_BLIF
@@ -25,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   CoverMgr(
-    BlifModel& model
+    ModelImpl* model
   );
 
   /// @brief デストラクタ
@@ -73,7 +73,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // モデル
-  BlifModel& mModel;
+  ModelImpl* mModel;
 
   // カバーを表す文字列をキーにしてID番号を納める辞書
   unordered_map<string, SizeType> mCoverDict;

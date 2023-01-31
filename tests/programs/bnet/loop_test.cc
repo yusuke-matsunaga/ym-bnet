@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
-#include "Iscas89Parser.h"
+#include "ym/Iscas89Model.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -41,8 +41,8 @@ iscas89parser_loop_test(
 )
 {
   for (int i = 0; i < loop_count; ++ i) {
-    nsBnet::Iscas89Parser parser;
-    parser.read(filename);
+    Iscas89Model model;
+    model.read(filename);
   }
 }
 

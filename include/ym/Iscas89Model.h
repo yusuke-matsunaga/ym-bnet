@@ -1,60 +1,53 @@
-#ifndef BLIFMODEL_H
-#define BLIFMODEL_H
+#ifndef ISCAS89MODEL_H
+#define ISCAS89MODEL_H
 
-/// @file BlifModel.h
-/// @brief BlifModel のヘッダファイル
+/// @file Iscas89Model.h
+/// @brief Iscas89Model のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/blif_nsdef.h"
-#include "ym/clib.h"
+#include "ym/iscas89_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_BLIF
+BEGIN_NAMESPACE_YM_ISCAS89
 
 class ModelImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class BlifModel BlifModel.h "BlifModel.h"
-/// @brief blif ファイルの読み込み結果を表すクラス
+/// @class Iscas89Model Iscas89Model.h "Iscas89Model.h"
+/// @brief iscas89(.bench) 形式の読み込み結果を表すクラス
 ///
 /// 以下の情報を持つ．
-/// - 名前(.model)
 /// - 入力ノード番号のリスト
 /// - 出力ノード番号のリスト
 /// - DFFノード番号のリスト
 /// - 論理ノード番号のリスト
 /// - 各ノードごとに以下の情報を持つ．
 ///   * 名前
-///   * 種類(Input, Dff, Cover, Cell)
+///   * 種類(Input, Dff, Logic)
 ///   * ファンインのノード番号のリスト
-/// - カバー(BlifCover)のリスト
 ///
-/// - Dffタイプは以下の情報を持つ．
-///   * リセット値 ('0' or '1' or 'X')
-/// - Coverタイプは以下の情報を持つ．
-///   * カバー番号
-/// - Cellタイプは以下の情報を持つ．
-///   * セル番号
+/// - Logicタイプは以下の情報を持つ．
+///   * ゲートの種類(C0, C1, Buff, Not, And, Nand, Or, Nor, Xor, Xnor)
 ///
 /// 実際には出力ノードという種類はなく，他のいずれかの
 /// ノードとなっている．
 /// 論理ノードのリストは入力からのトポロジカル順
 /// となっている．
 //////////////////////////////////////////////////////////////////////
-class BlifModel
+class Iscas89Model
 {
-  friend class BlifParser;
+  friend class Iscas89Parser;
 
 public:
 
   /// @brief コンストラクタ
-  BlifModel();
+  Iscas89Model();
 
   /// @brief デストラクタ
-  ~BlifModel();
+  ~Iscas89Model();
 
 
 public:
@@ -66,22 +59,9 @@ public:
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read_blif(
+  read(
     const string& filename ///< [in] ファイル名
   );
-
-  /// @brief 読み込みを行う(セルライブラリ付き)．
-  /// @retval true 読み込みが成功した．
-  /// @retval false 読み込みが失敗した．
-  bool
-  read_blif(
-    const string& filename,             ///< [in] ファイル名
-    const ClibCellLibrary& cell_library ///< [in] セルライブラリ
-  );
-
-  /// @brief 名前を返す．
-  const string&
-  name() const;
 
   /// @brief 入力のノード番号のリストを返す．
   const vector<SizeType>&
@@ -106,32 +86,24 @@ public:
   ) const;
 
   /// @brief ノードの種類を返す．
-  BlifType
+  Iscas89Type
   node_type(
     SizeType node_id ///< [in] ノード番号
   ) const;
 
   /// @brief ノードのファンインのノード番号のリストを返す．
   ///
-  /// node_type が Cover か Cell の時のみ意味を持つ．
+  /// node_type が Logic の時のみ意味を持つ．
   const vector<SizeType>&
   node_fanin_list(
     SizeType node_id ///< [in] ノード番号
   ) const;
 
-  /// @brief ノードのカバー番号を返す．
+  /// @brief 論理ノードの種類を返す．
   ///
-  /// node_type が Cover の時のみ意味を持つ．
-  SizeType
-  node_cover_id(
-    SizeType node_id ///< [in] ノード番号
-  ) const;
-
-  /// @brief ノードのセル番号を返す．
-  ///
-  /// node_type が Cell の時のみ意味を持つ．
-  SizeType
-  node_cell_id(
+  /// node_type が Logic の時のみ意味を持つ．
+  Iscas89GateType
+  node_gate_type(
     SizeType node_id ///< [in] ノード番号
   ) const;
 
@@ -141,20 +113,6 @@ public:
   SizeType
   node_input(
     SizeType node_id ///< [in] ノード番号
-  ) const;
-
-  /// @brief ノードのリセット値を返す．
-  ///
-  /// node_type が DFF の時のみ意味を持つ．
-  char
-  node_rval(
-    SizeType node_id ///< [in] ノード番号
-  ) const;
-
-  /// @brief カバーを取り出す．
-  const BlifCover&
-  cover(
-    SizeType cover_id ///< [in] カバー番号
   ) const;
 
   /// @brief 内容を出力する．
@@ -169,11 +127,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 内部情報
+  // 実装オブジェクト
   ModelImpl* mImpl;
 
 };
 
-END_NAMESPACE_YM_BLIF
+END_NAMESPACE_YM_ISCAS89
 
-#endif // BLIFMODEL_H
+#endif // ISCAS89MODEL_H

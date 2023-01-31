@@ -80,13 +80,21 @@ set ( bnet_SOURCES
   c++-srcs/bnet/SimpleDecomp.cc
   c++-srcs/bnet/OutputSplit.cc
   c++-srcs/bnet/Blif2Bnet.cc
+  c++-srcs/bnet/Bench2Bnet.cc
+  )
+
+set ( blif_SOURCES
+  c++-srcs/blif/BlifModel.cc
+  c++-srcs/blif/BlifParser.cc
+  c++-srcs/blif/BlifScanner.cc
+  c++-srcs/blif/CoverMgr.cc
+  c++-srcs/blif/ModelImpl.cc
   )
 
 set ( iscas89_SOURCES
-  c++-srcs/iscas89/Iscas89Handler.cc
+  c++-srcs/iscas89/Iscas89Model.cc
   c++-srcs/iscas89/Iscas89Parser.cc
   c++-srcs/iscas89/Iscas89Scanner.cc
-  c++-srcs/iscas89/BnIscas89Handler.cc
   )
 
 set ( writer_SOURCES
@@ -97,15 +105,6 @@ set ( writer_SOURCES
   c++-srcs/writer/Iscas89Writer.cc
   c++-srcs/writer/VerilogWriter.cc
   c++-srcs/writer/WriterBase.cc
-  )
-
-set ( blif_SOURCES
-  c++-srcs/blif/BlifModel.cc
-  c++-srcs/blif/BlifNode.cc
-  c++-srcs/blif/BlifParser.cc
-  c++-srcs/blif/BlifScanner.cc
-  c++-srcs/blif/CoverMgr.cc
-  c++-srcs/blif/ParserImpl.cc
   )
 
 set ( ym_bnet_SOURCES

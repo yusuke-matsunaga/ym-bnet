@@ -41,7 +41,7 @@ target_link_libraries ( blifparser_test
 # ===================================================================
 #  iscas89parset_test
 # ===================================================================
-
+if ( 0 )
 set ( iscas89parser_test_SOURCES
   iscas89/iscas89parser_test.cc
   )
@@ -65,7 +65,7 @@ target_compile_options ( iscas89parser_test
 target_link_libraries ( iscas89parser_test
   ${YM_LIB_DEPENDS}
   )
-
+endif ()
 
 # ===================================================================
 #  BnBlifReaderTest

@@ -7,8 +7,8 @@
 /// All rights reserved.
 
 #include "ym/BlifModel.h"
-#include "ym/BlifNode.h"
-#include "ym/BlifCover.h"
+#include "ModelImpl.h"
+#include "BlifParser.h"
 
 
 BEGIN_NAMESPACE_YM_BLIF
@@ -17,17 +17,137 @@ BEGIN_NAMESPACE_YM_BLIF
 // クラス BlifModel
 //////////////////////////////////////////////////////////////////////
 
+// @brief 読み込みを行う．
+bool
+BlifModel::read_blif(
+  const string& filename
+)
+{
+  return read_blif(filename, ClibCellLibrary{});
+}
+
+// @brief 読み込みを行う(セルライブラリ付き)．
+bool
+BlifModel::read_blif(
+  const string& filename,
+  const ClibCellLibrary& cell_library
+)
+{
+  delete mImpl;
+  mImpl = new ModelImpl;
+
+  BlifParser parser;
+  return parser.read(filename, cell_library, mImpl);
+}
+
 // @brief コンストラクタ
 BlifModel::BlifModel()
 {
+  mImpl = new ModelImpl;
 }
 
 // @brief デストラクタ
 BlifModel::~BlifModel()
 {
-  for ( auto node: mNodeList ) {
-    delete node;
-  }
+  delete mImpl;
+}
+
+// @brief 名前を返す．
+const string&
+BlifModel::name() const
+{
+  return mImpl->name();
+}
+
+// @brief 入力のノード番号のリストを返す．
+const vector<SizeType>&
+BlifModel::input_list() const
+{
+  return mImpl->input_list();
+}
+
+// @brief 出力のノード番号のリストを返す．
+const vector<SizeType>&
+BlifModel::output_list() const
+{
+  return mImpl->output_list();
+}
+
+// @brief DFFのノード番号のリストを返す．
+const vector<SizeType>&
+BlifModel::dff_list() const
+{
+  return mImpl->dff_list();
+}
+
+// @brief 論理ノード番号のリストを返す．
+const vector<SizeType>&
+BlifModel::logic_list() const
+{
+  return mImpl->logic_list();
+}
+
+// @brief ノード名を返す．
+const string&
+BlifModel::node_name(
+  SizeType node_id
+) const
+{
+  return mImpl->node_name(node_id);
+}
+
+// @brief ノードの種類を返す．
+BlifType
+BlifModel::node_type(
+  SizeType node_id
+) const
+{
+  return mImpl->node_type(node_id);
+}
+
+// @brief ノードのファンインのノード番号のリストを返す．
+const vector<SizeType>&
+BlifModel::node_fanin_list(
+  SizeType node_id
+) const
+{
+  return mImpl->node_fanin_list(node_id);
+}
+
+// @brief ノードのカバー番号を返す．
+SizeType
+BlifModel::node_cover_id(
+  SizeType node_id
+) const
+{
+  return mImpl->node_cover_id(node_id);
+}
+
+// @brief ノードのセル番号を返す．
+SizeType
+BlifModel::node_cell_id(
+  SizeType node_id
+) const
+{
+  return mImpl->node_cell_id(node_id);
+}
+
+// @brief ノードの入力ノード番号を返す．
+SizeType
+BlifModel::node_input(
+  SizeType node_id
+) const
+{
+  return mImpl->node_input(node_id);
+}
+
+// @brief ノードのリセット値を返す．
+char
+BlifModel::node_rval(
+  SizeType node_id
+) const
+{
+  return mImpl->node_rval(node_id);
 }
 
 // @brief カバーを取り出す．
@@ -36,7 +156,7 @@ BlifModel::cover(
   SizeType cover_id
 ) const
 {
-  return mCoverArray[cover_id];
+  return mImpl->cover(cover_id);
 }
 
 // @brief 内容を出力する．
@@ -47,7 +167,7 @@ BlifModel::print(
 {
   s << "Name: " << name() << endl;
   s << "Input: ";
-  for ( auto id = 0; id < input_num(); ++ id ) {
+  for ( auto id: input_list() ) {
     s << " " << id;
   }
   s << endl;
@@ -56,39 +176,37 @@ BlifModel::print(
     s << " " << id;
   }
   s << endl;
-  s << "Latch: ";
-  for ( auto id = 0; id < latch_num(); ++ id ) {
-    s << " " << (id + input_num());
+  for ( auto id: dff_list() ) {
+    s << " " << id << " = DFF(" << node_input(id) << ")"
+      << ": rval = " << node_rval(id) << endl;
   }
-  s << endl;
-  for ( auto id = 0; id < node_num(); ++ id ) {
-    auto node = this->node(id);
-    s << "Node#" << node->id() << "(" << node->name() << ")";
-    switch ( node->type() ) {
-    case BlifNode::Input:
-      s << ": Input";
-      break;
-    case BlifNode::Names:
-      s << ": Names (";
-      for ( auto id: node->inode_list() ) {
-	s << " " << id;
-      }
-      s << "): Cover#" << node->cover_id();
-      break;
-    case BlifNode::Gate:
-      s << ": Gate (";
-      for ( auto id: node->inode_list() ) {
-	s << " " << id;
-      }
-      s << "): Cell#" << node->cover_id();
-      break;
-    case BlifNode::Latch:
-      s << ": Latch ("
-	<< node->inode()
-	<< "): " << node->rval();
-      break;
+
+  SizeType max_cover = 0;
+  for ( auto id: logic_list() ) {
+    s << " " << id << " = Logic(";
+    for ( auto iid: node_fanin_list(id) ) {
+      s << " " << iid;
+    }
+    s << "): ";
+    if ( node_type(id) == Cover ) {
+      SizeType cover_id = node_cover_id(id);
+      s << "cover = " << cover_id;
+      max_cover = std::max(max_cover, cover_id);
+    }
+    else if ( node_type(id) == Cell ) {
+      s << "cell = " << node_cell_id(id);
+    }
+    else {
+      ASSERT_NOT_REACHED;
     }
     s << endl;
+  }
+
+  s << endl;
+  for ( SizeType id = 0; id <= max_cover; ++ id ) {
+    s << "Cover#" << id << ":" << endl;
+    auto& cover = this->cover(id);
+    cover.print(s);
   }
 }
 
