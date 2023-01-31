@@ -28,9 +28,7 @@ BEGIN_NAMESPACE_YM_BLIF
 // クラスの先行宣言
 //////////////////////////////////////////////////////////////////////
 
-class BlifParser;
 class BlifModel;
-class BlifNode;
 class BlifCover;
 
 END_NAMESPACE_YM_BLIF
@@ -49,9 +47,7 @@ enum BlifType {
   Cell   ///< セル型論理ノード(.gate)
 };
 
-using nsBlif::BlifParser;
 using nsBlif::BlifModel;
-using nsBlif::BlifNode;
 using nsBlif::BlifCover;
 
 END_NAMESPACE_YM

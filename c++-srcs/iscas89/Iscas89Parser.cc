@@ -98,19 +98,19 @@ Iscas89Parser::read(
 	}
 
 	auto gate_type = parse_gate_type();
-	auto type = Iscas89GateType::None;
+	auto type = Iscas89Gate::None;
 	vector<SizeType> iname_id_list;
 	switch ( gate_type ) {
-	case Iscas89Token::CONST0: type = Iscas89GateType::C0;   break;
-	case Iscas89Token::CONST1: type = Iscas89GateType::C1;   break;
-	case Iscas89Token::BUFF:   type = Iscas89GateType::Buff; break;
-	case Iscas89Token::NOT:    type = Iscas89GateType::Not;  break;
-	case Iscas89Token::AND:    type = Iscas89GateType::And;  break;
-	case Iscas89Token::NAND:   type = Iscas89GateType::Nand; break;
-	case Iscas89Token::OR:     type = Iscas89GateType::Or;   break;
-	case Iscas89Token::NOR:    type = Iscas89GateType::Nor;  break;
-	case Iscas89Token::XOR:    type = Iscas89GateType::Xor;  break;
-	case Iscas89Token::XNOR:   type = Iscas89GateType::Xnor; break;
+	case Iscas89Token::CONST0: type = Iscas89Gate::C0;   break;
+	case Iscas89Token::CONST1: type = Iscas89Gate::C1;   break;
+	case Iscas89Token::BUFF:   type = Iscas89Gate::Buff; break;
+	case Iscas89Token::NOT:    type = Iscas89Gate::Not;  break;
+	case Iscas89Token::AND:    type = Iscas89Gate::And;  break;
+	case Iscas89Token::NAND:   type = Iscas89Gate::Nand; break;
+	case Iscas89Token::OR:     type = Iscas89Gate::Or;   break;
+	case Iscas89Token::NOR:    type = Iscas89Gate::Nor;  break;
+	case Iscas89Token::XOR:    type = Iscas89Gate::Xor;  break;
+	case Iscas89Token::XNOR:   type = Iscas89Gate::Xnor; break;
 	case Iscas89Token::DFF:
 	  if ( !parse_name_list(iname_id_list, last_loc) ) {
 	    goto error;
@@ -142,8 +142,8 @@ Iscas89Parser::read(
 	default:
 	  goto error;
 	}
-	if ( type != Iscas89GateType::None ) {
-	  if ( type != Iscas89GateType::C0 && type != Iscas89GateType::C1 ) {
+	if ( type != Iscas89Gate::None ) {
+	  if ( type != Iscas89Gate::C0 && type != Iscas89Gate::C1 ) {
 	    if ( !parse_name_list(iname_id_list, last_loc) ) {
 	      goto error;
 	    }
@@ -383,7 +383,7 @@ bool
 Iscas89Parser::read_gate(
   const FileRegion& loc,
   SizeType oname_id,
-  Iscas89GateType logic_type,
+  Iscas89Gate logic_type,
   const vector<SizeType>& iname_id_list
 )
 {
@@ -454,7 +454,7 @@ Iscas89Parser::read_mux(
   }
 
   set_defined(oname_id, loc);
-  mModel->set_gate(oname_id, Iscas89GateType::Mux, iname_id_list);
+  mModel->set_gate(oname_id, Iscas89Gate::Mux, iname_id_list);
 
   return true;
 }

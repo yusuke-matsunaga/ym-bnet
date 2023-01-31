@@ -102,7 +102,7 @@ public:
   /// @brief 論理ノードの種類を返す．
   ///
   /// node_type が Logic の時のみ意味を持つ．
-  Iscas89GateType
+  Iscas89Gate
   node_gate_type(
     SizeType node_id ///< [in] ノード番号
   ) const;

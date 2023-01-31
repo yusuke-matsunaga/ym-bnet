@@ -171,21 +171,21 @@ Bench2Bnet::make_gate(
   auto type = mModel.node_gate_type(src_id);
   auto gtype = BnNodeType::None;
   switch ( type ) {
-  case Iscas89GateType::C0:   gtype = BnNodeType::C0; break;
-  case Iscas89GateType::C1:   gtype = BnNodeType::C1; break;
-  case Iscas89GateType::Buff: gtype = BnNodeType::Buff; break;
-  case Iscas89GateType::Not:  gtype = BnNodeType::Not; break;
-  case Iscas89GateType::And:  gtype = BnNodeType::And; break;
-  case Iscas89GateType::Nand: gtype = BnNodeType::Nand; break;
-  case Iscas89GateType::Or:   gtype = BnNodeType::Or; break;
-  case Iscas89GateType::Nor:  gtype = BnNodeType::Nor; break;
-  case Iscas89GateType::Xor:  gtype = BnNodeType::Xor; break;
-  case Iscas89GateType::Xnor: gtype = BnNodeType::Xor; break;
-  case Iscas89GateType::Mux: break;
+  case Iscas89Gate::C0:   gtype = BnNodeType::C0; break;
+  case Iscas89Gate::C1:   gtype = BnNodeType::C1; break;
+  case Iscas89Gate::Buff: gtype = BnNodeType::Buff; break;
+  case Iscas89Gate::Not:  gtype = BnNodeType::Not; break;
+  case Iscas89Gate::And:  gtype = BnNodeType::And; break;
+  case Iscas89Gate::Nand: gtype = BnNodeType::Nand; break;
+  case Iscas89Gate::Or:   gtype = BnNodeType::Or; break;
+  case Iscas89Gate::Nor:  gtype = BnNodeType::Nor; break;
+  case Iscas89Gate::Xor:  gtype = BnNodeType::Xor; break;
+  case Iscas89Gate::Xnor: gtype = BnNodeType::Xor; break;
+  case Iscas89Gate::Mux: break;
   default: ASSERT_NOT_REACHED; break;
   }
   SizeType id;
-  if ( type == Iscas89GateType::Mux ) {
+  if ( type == Iscas89Gate::Mux ) {
     id = make_mux(oname, fanin_id_list);
   }
   else {

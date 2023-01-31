@@ -28,9 +28,7 @@ BEGIN_NAMESPACE_YM_ISCAS89
 // クラスの先行宣言
 //////////////////////////////////////////////////////////////////////
 
-class Iscas89Parser;
 class Iscas89Model;
-class Iscas89Node;
 
 END_NAMESPACE_YM_ISCAS89
 
@@ -53,7 +51,7 @@ enum class Iscas89Type {
 /// @brief 論理ゲートの型
 //////////////////////////////////////////////////////////////////////
 
-enum class Iscas89GateType {
+enum class Iscas89Gate {
   None, ///< 不正値
   C0,   ///< 定数0
   C1,   ///< 定数1
@@ -72,30 +70,28 @@ inline
 ostream&
 operator<<(
   ostream& s,
-  Iscas89GateType gtype
+  Iscas89Gate gtype
 )
 {
   switch ( gtype ) {
-  case Iscas89GateType::None: s << "None"; break;
-  case Iscas89GateType::C0:   s << "C0"; break;
-  case Iscas89GateType::C1:   s << "C1"; break;
-  case Iscas89GateType::Buff: s << "Buff"; break;
-  case Iscas89GateType::Not:  s << "Not"; break;
-  case Iscas89GateType::And:  s << "And"; break;
-  case Iscas89GateType::Nand: s << "Nand"; break;
-  case Iscas89GateType::Or:   s << "Or"; break;
-  case Iscas89GateType::Nor:  s << "Nor"; break;
-  case Iscas89GateType::Xor:  s << "Xor"; break;
-  case Iscas89GateType::Xnor: s << "Xnor"; break;
-  case Iscas89GateType::Mux:  s << "Mux"; break;
+  case Iscas89Gate::None: s << "None"; break;
+  case Iscas89Gate::C0:   s << "C0"; break;
+  case Iscas89Gate::C1:   s << "C1"; break;
+  case Iscas89Gate::Buff: s << "Buff"; break;
+  case Iscas89Gate::Not:  s << "Not"; break;
+  case Iscas89Gate::And:  s << "And"; break;
+  case Iscas89Gate::Nand: s << "Nand"; break;
+  case Iscas89Gate::Or:   s << "Or"; break;
+  case Iscas89Gate::Nor:  s << "Nor"; break;
+  case Iscas89Gate::Xor:  s << "Xor"; break;
+  case Iscas89Gate::Xnor: s << "Xnor"; break;
+  case Iscas89Gate::Mux:  s << "Mux"; break;
   default:                    s << "---"; break;
   }
   return s;
 }
 
-using nsIscas89::Iscas89Parser;
 using nsIscas89::Iscas89Model;
-using nsIscas89::Iscas89Node;
 
 END_NAMESPACE_YM
 

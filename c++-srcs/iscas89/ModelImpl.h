@@ -109,7 +109,7 @@ public:
   /// @brief 論理ノードの種類を返す．
   ///
   /// node_type が Gate の時のみ意味を持つ．
-  Iscas89GateType
+  Iscas89Gate
   node_gate_type(
     SizeType node_id ///< [in] ノード番号
   ) const
@@ -169,7 +169,7 @@ private:
     is_dff() const { return mFlags[3]; }
 
     /// @brief ゲートの種類を返す．
-    Iscas89GateType
+    Iscas89Gate
     gate_type() const { return mType; }
 
     /// @brief ファンインのノード番号のリストを返す．
@@ -190,7 +190,7 @@ private:
     /// @brief 論理ゲートにセットする．
     void
     set_gate(
-      Iscas89GateType gate_type,
+      Iscas89Gate gate_type,
       const vector<SizeType>& inode_list
     )
     {
@@ -225,7 +225,7 @@ private:
     std::bitset<4> mFlags;
 
     // 論理ノードの種類
-    Iscas89GateType mType;
+    Iscas89Gate mType;
 
     // 入力ノード番号のリスト
     vector<SizeType> mInodeList;
@@ -262,7 +262,7 @@ private:
   void
   set_gate(
     SizeType id,
-    Iscas89GateType gate_type,
+    Iscas89Gate gate_type,
     const vector<SizeType>& inode_list
   )
   {

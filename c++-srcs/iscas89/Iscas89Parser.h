@@ -101,10 +101,10 @@ private:
   /// @return エラーが起きたら false を返す．
   bool
   read_gate(
-    const FileRegion& loc,                ///< [in] ファイル位置
-    SizeType oname_id,                    ///< [in] 出力名の ID 番号
-    Iscas89GateType type,                 ///< [in] ゲートタイプ
-    const vector<SizeType>& iname_id_list ///< [in] 入力名のID番号のリスト
+    const FileRegion& loc,             ///< [in] ファイル位置
+    SizeType oname_id,                 ///< [in] 出力名の ID 番号
+    Iscas89Gate type,                  ///< [in] ゲートタイプ
+    const vector<SizeType>& iname_list ///< [in] 入力名のID番号のリスト
   );
 
   /// @brief ゲート文(MUX)を読み込む．
