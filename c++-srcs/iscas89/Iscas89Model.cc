@@ -117,6 +117,29 @@ Iscas89Model::print(
   ostream& s
 ) const
 {
+  s << "Input: ";
+  for ( auto id: input_list() ) {
+    s << " " << id;
+  }
+  s << endl;
+  s << "Output: ";
+  for ( auto id: output_list() ) {
+    s << " " << id;
+  }
+  s << endl;
+  for ( auto id: dff_list() ) {
+    s << " " << id << " = DFF(" << node_input(id) << ")" << endl;
+  }
+
+  for ( auto id: logic_list() ) {
+    auto gtype = node_gate_type(id);
+    s << " " << id << " = "
+      << gtype << "(";
+    for ( auto iid: node_fanin_list(id) ) {
+      s << " " << iid;
+    }
+    s << ")" << endl;
+  }
 }
 
 END_NAMESPACE_YM_ISCAS89

@@ -1,11 +1,10 @@
 
-/// @file BnBlifReaderTest.cc
-/// @brief BnBlifReaderTest の実装ファイル
+/// @file read_blif.cc
+/// @brief BnNetwork::read_blif() のテストプログラム
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/BnNetwork.h"
 #include "ym/MsgMgr.h"
@@ -38,7 +37,7 @@ write_network(
 }
 
 int
-BnBlifReaderTest(
+read_blif_test(
   int argc,
   char** argv
 )
@@ -84,7 +83,7 @@ BnBlifReaderTest(
   MsgMgr::attach_handler(&handler);
 
   string filename = argv[argbase];
-  BnNetwork network = BnNetwork::read_blif(filename);
+  auto network = BnNetwork::read_blif(filename);
   if ( network.node_num() == 0 ) {
     cerr << "read_blif(" << filename << ") failed" << endl;
     return -1;
@@ -109,5 +108,5 @@ main(
   char** argv
 )
 {
-  return nsYm::BnBlifReaderTest(argc, argv);
+  return nsYm::read_blif_test(argc, argv);
 }

@@ -10,287 +10,235 @@
 
 
 # ===================================================================
-#  blifparser_test
+#  blif_parser
 # ===================================================================
 
-set ( blifparser_test_SOURCES
-  blif/parser_test.cc
-  )
-
-add_executable ( blifparser_test
-  ${blifparser_test_SOURCES}
+add_executable ( blif_parser
+  blif/parser.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_include_directories ( blifparser_test
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/blif
-  )
-
-target_compile_options ( blifparser_test
+target_compile_options ( blif_parser
   PRIVATE "-g"
   )
 
-target_link_libraries ( blifparser_test
+target_link_libraries ( blif_parser
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  iscas89parset_test
+#  iscas89_parser
 # ===================================================================
-if ( 0 )
-set ( iscas89parser_test_SOURCES
-  iscas89/iscas89parser_test.cc
-  )
 
-add_executable ( iscas89parser_test
-  ${iscas89parser_test_SOURCES}
+add_executable ( iscas89_parser
+  iscas89/parser.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_include_directories ( iscas89parser_test
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/iscas89
-  )
-
-target_compile_options ( iscas89parser_test
+target_compile_options ( iscas89_parser
   PRIVATE "-g"
   )
 
-target_link_libraries ( iscas89parser_test
+target_link_libraries ( iscas89_parser
   ${YM_LIB_DEPENDS}
   )
-endif ()
+
 
 # ===================================================================
-#  BnBlifReaderTest
+#  bnet_read_blif
 # ===================================================================
 
-set ( BnBlifReaderTest_SOURCES
-  bnet/BnBlifReaderTest.cc
-  )
-
-add_executable ( BnBlifReaderTest
-  ${BnBlifReaderTest_SOURCES}
+add_executable ( bnet_read_blif
+  bnet/read_blif.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( BnBlifReaderTest
+target_compile_options ( bnet_read_blif
   PRIVATE "-g"
   )
 
-target_link_libraries ( BnBlifReaderTest
+target_link_libraries ( bnet_read_blif
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  BnIscas89ReaderTest
+#  bnet_read_iscas89
 # ===================================================================
 
-set ( BnIscas89ReaderTest_SOURCES
-  bnet/BnIscas89ReaderTest.cc
-  )
-
-add_executable ( BnIscas89ReaderTest
-  ${BnIscas89ReaderTest_SOURCES}
+add_executable ( bnet_read_iscas89
+  bnet/read_iscas89.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( BnIscas89ReaderTest
+target_compile_options ( bnet_read_iscas89
   PRIVATE "-g"
   )
 
-target_link_libraries ( BnIscas89ReaderTest
+target_link_libraries ( bnet_read_iscas89
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  loop_test
+#  bnet_loop_test
 # ===================================================================
 
-set ( loop_test_SOURCES
+add_executable ( bnet_loop_test
   bnet/loop_test.cc
-  )
-
-add_executable ( loop_test
-  ${loop_test_SOURCES}
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_include_directories ( loop_test
+target_include_directories ( bnet_loop_test
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../c++-srcs/iscas89
   )
 
-target_compile_options ( loop_test
+target_compile_options ( bnet_loop_test
   PRIVATE "-g"
   )
 
-target_link_libraries ( loop_test
+target_link_libraries ( bnet_loop_test
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  read_truth_test
+#  bnet_read_truth
 # ===================================================================
 
-set ( read_truth_test_SOURCES
-  bnet/read_truth_test.cc
-  )
-
-add_executable ( read_truth_test
-  ${read_truth_test_SOURCES}
+add_executable ( bnet_read_truth
+  bnet/read_truth.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( read_truth_test
+target_compile_options ( bnet_read_truth
   PRIVATE "-g"
   )
 
-target_link_libraries ( read_truth_test
+target_link_libraries ( bnet_read_truth
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  read_aig_test
+#  bnet_read_aig
 # ===================================================================
 
-set ( read_aig_test_SOURCES
-  bnet/read_aig_test.cc
-  )
-
-add_executable ( read_aig_test
-  ${read_aig_test_SOURCES}
+add_executable ( bnet_read_aig
+  bnet/read_aig.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( read_aig_test
+target_compile_options ( bnet_read_aig
   PRIVATE "-g"
   )
 
-target_link_libraries ( read_aig_test
+target_link_libraries ( bnet_read_aig
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  write_aig_test
+#  bnet_write_aig
 # ===================================================================
 
-set ( write_aig_test_SOURCES
-  bnet/write_aig_test.cc
-  )
-
-add_executable ( write_aig_test
-  ${write_aig_test_SOURCES}
+add_executable ( bnet_write_aig
+  bnet/write_aig.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( write_aig_test
+target_compile_options ( bnet_write_aig
   PRIVATE "-g"
   )
 
-target_link_libraries ( write_aig_test
+target_link_libraries ( bnet_write_aig
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  write_aag_test
+#  bnet_write_aag
 # ===================================================================
 
-set ( write_aag_test_SOURCES
-  bnet/write_aag_test.cc
-  )
-
-add_executable ( write_aag_test
-  ${write_aag_test_SOURCES}
+add_executable ( bnet_write_aag
+  bnet/write_aag.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( write_aag_test
+target_compile_options ( bnet_write_aag
   PRIVATE "-g"
   )
 
-target_link_libraries ( write_aag_test
+target_link_libraries ( bnet_write_aag
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  dump_restore_test
+#  bnet_dump_restore
 # ===================================================================
 
-set ( dump_restore_test_SOURCES
-  bnet/dump_restore_test.cc
-  )
-
-add_executable ( dump_restore_test
-  ${dump_restore_test_SOURCES}
+add_executable ( bnet_dump_restore
+  bnet/dump_restore.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( dump_restore_test
+target_compile_options ( bnet_dump_restore
   PRIVATE "-g"
   )
 
-target_link_libraries ( dump_restore_test
+target_link_libraries ( bnet_dump_restore
   ${YM_LIB_DEPENDS}
   )
 
 
 # ===================================================================
-#  import_test
+#  bnet_import
 # ===================================================================
 
-set ( import_test_SOURCES
-  bnet/import_test.cc
-  )
-
-add_executable ( import_test
-  ${import_test_SOURCES}
+add_executable ( bnet_import
+  bnet/import.cc
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
-target_compile_options ( import_test
+target_compile_options ( bnet_import
   PRIVATE "-g"
   )
 
-target_link_libraries ( import_test
+target_link_libraries ( bnet_import
   ${YM_LIB_DEPENDS}
   )

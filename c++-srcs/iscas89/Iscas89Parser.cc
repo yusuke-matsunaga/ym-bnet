@@ -401,14 +401,6 @@ Iscas89Parser::read_gate(
     return false;
   }
 
-  {
-    cout << "read_gate(" << oname << ", " << logic_type
-	 << ", (";
-    for ( auto id: iname_id_list ) {
-      cout << " " << id;
-    }
-    cout << ")" << endl;
-  }
   set_defined(oname_id, loc);
   mModel->set_gate(oname_id, logic_type, iname_id_list);
 
