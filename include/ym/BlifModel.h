@@ -10,6 +10,7 @@
 
 #include "ym/blif_nsdef.h"
 #include "ym/clib.h"
+#include "ym/sop_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_BLIF
@@ -150,6 +151,10 @@ public:
   node_rval(
     SizeType node_id ///< [in] ノード番号
   ) const;
+
+  /// @brief カバーの種類の数を返す．
+  SizeType
+  cover_num() const;
 
   /// @brief カバーを取り出す．
   const BlifCover&

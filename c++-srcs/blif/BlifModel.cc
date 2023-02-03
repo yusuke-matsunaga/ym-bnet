@@ -150,6 +150,13 @@ BlifModel::node_rval(
   return mImpl->node_rval(node_id);
 }
 
+// @brief カバーの種類の数を返す．
+SizeType
+BlifModel::cover_num() const
+{
+  return mImpl->cover_num();
+}
+
 // @brief カバーを取り出す．
 const BlifCover&
 BlifModel::cover(

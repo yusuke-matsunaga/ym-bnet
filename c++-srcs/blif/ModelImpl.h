@@ -11,6 +11,7 @@
 #include "ym/blif_nsdef.h"
 #include "ym/BlifModel.h"
 #include "ym/BlifCover.h"
+#include "ym/SopCover.h"
 #include "ym/FileRegion.h"
 
 
@@ -307,6 +308,13 @@ public:
     return node.rval();
   }
 
+  /// @brief カバーの種類の数を返す．
+  SizeType
+  cover_num() const
+  {
+    return mCoverArray.size();
+  }
+
   /// @brief カバーを取り出す．
   const BlifCover&
   cover(
@@ -430,7 +438,7 @@ private:
   // ノードの配列
   vector<Node> mNodeArray;
 
-  // ID 番号をキーにしてカバーを格納する配列
+  // カバー番号をキーにしてカバーを格納する配列
   vector<BlifCover> mCoverArray;
 
 };

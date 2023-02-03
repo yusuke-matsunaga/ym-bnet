@@ -197,50 +197,6 @@ Blif2Bnet::make_dff(
   }
 }
 
-BEGIN_NONAMESPACE
-
-Expr
-cover2expr(
-  const BlifCover& cover
-)
-{
-  auto input_num = cover.input_num();
-  auto cube_num = cover.cube_num();
-  vector<Expr> prod_list;
-  prod_list.reserve(cube_num);
-  for ( SizeType c = 0; c < cube_num; ++ c ) {
-    vector<Expr> litexpr_list;
-    litexpr_list.reserve(input_num);
-    for ( SizeType var = 0; var < input_num; ++ var ) {
-      switch ( cover.input_pat(c, var) ) {
-      case '0':
-	litexpr_list.push_back(Expr::make_nega_literal(var));
-	break;
-
-      case '1':
-	litexpr_list.push_back(Expr::make_posi_literal(var));
-	break;
-
-      case '-':
-	break;
-
-      default:
-	ASSERT_NOT_REACHED;
-      }
-    }
-    prod_list.push_back(Expr::make_and(litexpr_list));
-  }
-  Expr expr = Expr::make_or(prod_list);
-  char opat = cover.output_pat();
-  if ( opat == '0' ) {
-    expr = ~expr;
-  }
-
-  return expr;
-}
-
-END_NONAMESPACE
-
 // @brief 論理ノードを生成する．
 void
 Blif2Bnet::make_logic(
@@ -263,7 +219,7 @@ Blif2Bnet::make_logic(
   if ( type == BlifType::Cover ) {
     auto cover_id = mModel.node_cover_id(src_id);
     auto& cover = mModel.cover(cover_id);
-    auto expr = cover2expr(cover);
+    auto expr = cover.expr();
     id = mNetwork.new_logic_expr(oname, expr, fanin_id_list);
   }
   else if ( type == BlifType::Cell ) {

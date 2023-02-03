@@ -26,10 +26,10 @@ class ModelImpl;
 /// - 論理ノード番号のリスト
 /// - 各ノードごとに以下の情報を持つ．
 ///   * 名前
-///   * 種類(Input, Dff, Logic)
+///   * 種類(Input, Dff, Gate)
 ///   * ファンインのノード番号のリスト
 ///
-/// - Logicタイプは以下の情報を持つ．
+/// - Gate タイプは以下の情報を持つ．
 ///   * ゲートの種類(C0, C1, Buff, Not, And, Nand, Or, Nor, Xor, Xnor)
 ///
 /// 実際には出力ノードという種類はなく，他のいずれかの
@@ -77,7 +77,7 @@ public:
 
   /// @brief 論理ノード番号のリストを返す．
   const vector<SizeType>&
-  logic_list() const;
+  gate_list() const;
 
   /// @brief ノード名を返す．
   const string&
@@ -91,9 +91,17 @@ public:
     SizeType node_id ///< [in] ノード番号
   ) const;
 
+  /// @brief ノードのファンイン数を返す．
+  ///
+  /// node_type が Gate の時のみ意味を持つ．
+  SizeType
+  node_fanin_num(
+    SizeType node_id ///< [in] ノード番号
+  ) const;
+
   /// @brief ノードのファンインのノード番号のリストを返す．
   ///
-  /// node_type が Logic の時のみ意味を持つ．
+  /// node_type が Gate の時のみ意味を持つ．
   const vector<SizeType>&
   node_fanin_list(
     SizeType node_id ///< [in] ノード番号
@@ -101,7 +109,7 @@ public:
 
   /// @brief 論理ノードの種類を返す．
   ///
-  /// node_type が Logic の時のみ意味を持つ．
+  /// node_type が Gate の時のみ意味を持つ．
   Iscas89Gate
   node_gate_type(
     SizeType node_id ///< [in] ノード番号

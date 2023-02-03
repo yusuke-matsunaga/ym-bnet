@@ -5,10 +5,12 @@
 /// @brief BlifCover のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017, 2018, 2021 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/blif_nsdef.h"
+#include "ym/SopCover.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BLIF
@@ -17,9 +19,7 @@ BEGIN_NAMESPACE_YM_BLIF
 /// @class BlifCover BlifCover.h "BlifCover.h"
 /// @brief blif 形式の .names 本体のカバーを表すクラス
 ///
-/// 内容は入力のカバーを表す2次元の文字列配列と出力の極性を表す
-/// 文字パタンからなる．
-/// 入力カバーは1行で一つのキューブを表す．
+/// 内容は SopCover と出力の極性からなる．
 //////////////////////////////////////////////////////////////////////
 class BlifCover
 {
@@ -27,12 +27,10 @@ public:
 
   /// @brief コンストラクタ
   BlifCover(
-    SizeType ni,                     ///< [in] 入力数
-    const vector<string>& ipat_list, ///< [in] 入力のパタンベクタ
-                                     ///< 要素は '0', '1', '-' のいずれか
-    char opat                        ///< [in] 出力のパタン ( '0', '1' のみ )
-  ) : mInputNum{ni},
-      mInputPatList{ipat_list},
+    SizeType input_num,                    ///< [in] 入力数
+    const vector<vector<Literal>>& icover, ///< [in] 入力カバー
+    char opat = '1'                        ///< [in] 出力のパタン ( '0', '1' のみ )
+  ) : mInputCover{input_num, icover},
       mOutputPat{opat}
   {
   }
@@ -48,15 +46,15 @@ public:
 
   /// @brief 入力数を返す．
   SizeType
-  input_num() const { return mInputNum; }
+  input_num() const { return mInputCover.variable_num(); }
 
   /// @brief キューブ数を返す．
   SizeType
-  cube_num() const { return mInputPatList.size(); }
+  cube_num() const { return mInputCover.cube_num(); }
 
   /// @brief 入力パタンを返す．
-  /// @return パタンを返す．('0', '1', '-')
-  char
+  /// @return パタンを返す．
+  SopPat
   input_pat(
     SizeType cpos, ///< [in] キューブ番号 ( 0 <= cpos < cube_num() )
     SizeType ipos  ///< [in] 入力番号 ( 0 <= ipos < input_num() )
@@ -64,8 +62,12 @@ public:
   {
     ASSERT_COND( 0 <= cpos && cpos < cube_num() );
     ASSERT_COND( 0 <= ipos && ipos < input_num() );
-    return mInputPatList[cpos][ipos];
+    return mInputCover.get_pat(cpos, ipos);
   }
+
+  /// @brief 入力カバーを返す．
+  const SopCover&
+  input_cover() const { return mInputCover; }
 
   /// @brief 出力パタンを返す．
   ///
@@ -73,6 +75,10 @@ public:
   /// - ドントケアはない．
   char
   output_pat() const { return mOutputPat; }
+
+  /// @brief 内容を Expr に変換する．
+  Expr
+  expr() const;
 
   /// @brief 内容を出力する．
   void
@@ -86,11 +92,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力数
-  SizeType mInputNum;
-
-  // 入力パタンのリスト
-  vector<string> mInputPatList;
+  // 入力カバー
+  SopCover mInputCover;
 
   // 出力パタン
   char mOutputPat;

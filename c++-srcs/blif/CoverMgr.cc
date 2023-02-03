@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 #include "CoverMgr.h"
-#include "ym/BlifCover.h"
 
 
 BEGIN_NAMESPACE_YM_BLIF
@@ -29,31 +28,21 @@ key_func(
   return buf.str();
 }
 
-// キー生成関数その2
-string
-key_func(
-  const BlifCover* cover
-)
-{
-  ostringstream buf;
-  buf << cover->input_num() << ':'
-      << cover->output_pat() << ':';
-  SizeType nc = cover->cube_num();
-  SizeType ni = cover->input_num();
-  for ( SizeType c = 0; c < nc; ++ c ) {
-    for ( SizeType i = 0; i < ni; ++ i ) {
-      buf << cover->input_pat(c, i);
-    }
-  }
-  return buf.str();
-}
-
 END_NONAMESPACE
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス BlifCover
 //////////////////////////////////////////////////////////////////////
+
+Expr
+BlifCover::expr() const
+{
+  auto expr = mInputCover.expr();
+  if ( output_pat() == '0' ) {
+    expr = ~expr;
+  }
+  return expr;
+}
 
 // @brief 内容を出力する．
 void
@@ -118,7 +107,7 @@ CoverMgr::pat2cover(
   }
 }
 
-// @brief BlifCover を作る．
+// @brief SopCover を作る．
 SizeType
 CoverMgr::new_cover(
   SizeType input_num,
@@ -127,15 +116,25 @@ CoverMgr::new_cover(
   char opat
 )
 {
-  vector<string> ipat_list;
-  ipat_list.reserve(cube_num);
+  vector<vector<Literal>> cube_list;
+  cube_list.reserve(cube_num);
   for ( SizeType c = 0; c < cube_num; ++ c ) {
     string ipat = ipat_str.substr(c * input_num, (c + 1) * input_num);
-    ipat_list.push_back(ipat);
+    vector<Literal> cube;
+    cube.reserve(input_num);
+    for ( SizeType var = 0; var < input_num; ++ var ) {
+      switch ( ipat[var] ) {
+      case '0': cube.push_back(Literal{var, true}); break;
+      case '1': cube.push_back(Literal{var, false}); break;
+      case '-': break;
+      default: ASSERT_NOT_REACHED; break;
+      }
+    }
+    cube_list.push_back(cube);
   }
 
   auto id = cover_num();
-  mModel->mCoverArray.push_back({input_num, ipat_list, opat});
+  mModel->mCoverArray.push_back(BlifCover{input_num, cube_list, opat});
 
   return id;
 }

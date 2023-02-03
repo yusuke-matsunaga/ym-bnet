@@ -105,3 +105,11 @@ ym_add_gtest ( bnet_dump_restore_test
   DEFINITIONS
   "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
   )
+
+ym_add_gtest ( bnet_BlifCoverTest
+  BlifCoverTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_cell_obj_d>
+  $<TARGET_OBJECTS:ym_bnet_obj_d>
+  )

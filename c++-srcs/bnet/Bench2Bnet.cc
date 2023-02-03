@@ -65,7 +65,7 @@ Bench2Bnet::Bench2Bnet(
   for ( SizeType src_id: model.dff_list() ) {
     make_dff(src_id);
   }
-  for ( SizeType src_id: model.logic_list() ) {
+  for ( SizeType src_id: model.gate_list() ) {
     make_gate(src_id);
   }
   for ( auto src_id: model.output_list() ) {

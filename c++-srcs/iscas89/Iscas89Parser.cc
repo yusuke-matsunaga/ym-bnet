@@ -208,9 +208,6 @@ Iscas89Parser::read(
 }
 
 // @brief ゲート型を読み込む．
-// @return トークンを返す．
-//
-// エラーが起きたら Iscas89Token::ERROR を返す．
 Iscas89Token
 Iscas89Parser::parse_gate_type()
 {
@@ -247,12 +244,6 @@ Iscas89Parser::parse_gate_type()
 }
 
 // @brief '(' ')' で囲まれた名前を読み込む．
-// @param[in] name_id 名前の識別子番号を格納する変数．
-// @param[in] last_loc 末尾のファイル位置
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-//
-// エラーが起きたらエラーメッセージをセットする．
 bool
 Iscas89Parser::parse_name(
   SizeType& name_id,
@@ -279,12 +270,6 @@ Iscas89Parser::parse_name(
 }
 
 // @brief '(' ')' で囲まれた名前のリストを読み込む．
-// @param[in] name_id_list 名前の識別子番号を格納するリスト．
-// @param[in] last_loc 末尾のファイル位置
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-//
-// エラーが起きたらエラーメッセージをセットする．
 bool
 Iscas89Parser::parse_name_list(
   vector<SizeType>& name_id_list,
@@ -330,9 +315,6 @@ Iscas89Parser::parse_name_list(
 }
 
 // @brief INPUT 文を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] name_id 入力ピン名の ID 番号
-// @return エラーが起きたら false を返す．
 bool
 Iscas89Parser::read_input(
   const FileRegion& loc,
@@ -360,9 +342,6 @@ Iscas89Parser::read_input(
 }
 
 // @brief OUTPUT 文を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] name_id 出力ピン名の ID 番号
-// @return エラーが起きたら false を返す．
 bool
 Iscas89Parser::read_output(
   const FileRegion& loc,
@@ -375,15 +354,11 @@ Iscas89Parser::read_output(
 }
 
 // @brief ゲート文を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] oname_id 出力名の ID 番号
-// @param[in] logic_type ゲートタイプ
-// @return エラーが起きたら false を返す．
 bool
 Iscas89Parser::read_gate(
   const FileRegion& loc,
   SizeType oname_id,
-  Iscas89Gate logic_type,
+  Iscas89Gate gate_type,
   const vector<SizeType>& iname_id_list
 )
 {
@@ -402,15 +377,12 @@ Iscas89Parser::read_gate(
   }
 
   set_defined(oname_id, loc);
-  mModel->set_gate(oname_id, logic_type, iname_id_list);
+  mModel->set_gate(oname_id, gate_type, iname_id_list);
 
   return true;
 }
 
 // @brief ゲート文(MUX)を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] oname_id 出力名の ID 番号
-// @return エラーが起きたら false を返す．
 bool
 Iscas89Parser::read_mux(
   const FileRegion& loc,
@@ -460,10 +432,6 @@ Iscas89Parser::read_mux(
 }
 
 // @brief D-FF用のゲート文を読み込む．
-// @param[in] loc ファイル位置
-// @param[in] oname_id 出力名の ID 番号
-// @param[in] type ゲートタイプ
-// @return エラーが起きたら false を返す．
 bool
 Iscas89Parser::read_dff(
   const FileRegion& loc,
@@ -529,13 +497,6 @@ token_str(
 END_NONAMESPACE
 
 // @brief 次のトークンが期待されている型か調べる．
-// @param[in] exp_token トークンの期待値
-// @param[out] lval トークンの値を格納する変数
-// @param[out] loc トークンのファイル位置を格納する変数．
-// @retval true トークンの型が一致した．
-// @retval false トークンの方が一致しなかった．
-//
-// トークンの方が一致しなかった場合にはエラーメッセージをセットする．
 tuple<bool, SizeType, FileRegion>
 Iscas89Parser::expect(
   Iscas89Token exp_token
@@ -590,7 +551,7 @@ Iscas89Parser::order_node(
     order_node(iid);
   }
   mMark.emplace(id);
-  mModel->mLogicList.push_back(id);
+  mModel->mGateList.push_back(id);
 }
 
 END_NAMESPACE_YM_ISCAS89

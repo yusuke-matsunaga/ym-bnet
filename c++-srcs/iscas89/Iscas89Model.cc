@@ -61,9 +61,9 @@ Iscas89Model::dff_list() const
 
 // @brief 論理ノード番号のリストを返す．
 const vector<SizeType>&
-Iscas89Model::logic_list() const
+Iscas89Model::gate_list() const
 {
-  return mImpl->logic_list();
+  return mImpl->gate_list();
 }
 
 // @brief ノード名を返す．
@@ -82,6 +82,15 @@ Iscas89Model::node_type(
 ) const
 {
   return mImpl->node_type(node_id);
+}
+
+// @brief ノードのファンインのノード番号のリストを返す．
+SizeType
+Iscas89Model::node_fanin_num(
+  SizeType node_id
+) const
+{
+  return mImpl->node_fanin_num(node_id);
 }
 
 // @brief ノードのファンインのノード番号のリストを返す．
@@ -131,7 +140,7 @@ Iscas89Model::print(
     s << " " << id << " = DFF(" << node_input(id) << ")" << endl;
   }
 
-  for ( auto id: logic_list() ) {
+  for ( auto id: gate_list() ) {
     auto gtype = node_gate_type(id);
     s << " " << id << " = "
       << gtype << "(";

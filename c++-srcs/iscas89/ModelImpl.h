@@ -59,9 +59,9 @@ public:
 
   /// @brief 論理ノードのノード番号のリストを返す．
   const vector<SizeType>&
-  logic_list() const
+  gate_list() const
   {
-    return mLogicList;
+    return mGateList;
   }
 
   /// @brief ノード名を返す．
@@ -104,6 +104,18 @@ public:
   {
     auto& node = _node(node_id);
     return node.fanin_list();
+  }
+
+  /// @brief ノードのファンイン数を返す．
+  ///
+  /// node_type が Gate の時のみ意味を持つ．
+  SizeType
+  node_fanin_num(
+    SizeType node_id ///< [in] ノード番号
+  ) const
+  {
+    auto& node = _node(node_id);
+    return node.fanin_num();
   }
 
   /// @brief 論理ノードの種類を返す．
@@ -171,6 +183,10 @@ private:
     /// @brief ゲートの種類を返す．
     Iscas89Gate
     gate_type() const { return mType; }
+
+    /// @brief ファンインのノード番号のリストを返す．
+    SizeType
+    fanin_num() const { return mInodeList.size(); }
 
     /// @brief ファンインのノード番号のリストを返す．
     const vector<SizeType>&
@@ -316,7 +332,7 @@ private:
   vector<SizeType> mDffList;
 
   // 論理ノードのノード番号のリスト
-  vector<SizeType> mLogicList;
+  vector<SizeType> mGateList;
 
   // ノードの配列
   vector<Node> mNodeArray;
