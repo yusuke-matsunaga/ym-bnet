@@ -6,9 +6,9 @@
 /// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/PyBnNetwork.h"
-#include "ym/PyClibCellLibrary.h"
-#include "ym/PyModule.h"
+#include "pym/PyBnNetwork.h"
+#include "pym/PyClibCellLibrary.h"
+#include "pym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM

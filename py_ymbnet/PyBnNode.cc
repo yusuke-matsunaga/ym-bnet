@@ -6,9 +6,9 @@
 /// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/PyBnNode.h"
-#include "ym/PyExpr.h"
-#include "ym/PyModule.h"
+#include "pym/PyBnNode.h"
+#include "pym/PyExpr.h"
+#include "pym/PyModule.h"
 #include "ym/BnNetwork.h"
 
 

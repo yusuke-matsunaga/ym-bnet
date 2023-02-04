@@ -1,8 +1,8 @@
-#ifndef PY_YMBNET_H
-#define PY_YMBNET_H
+#ifndef PYM_YMBNET_H
+#define PYM_YMBNET_H
 
-/// @file py_ymbnet.h
-/// @brief py_ymbnet のヘッダファイル
+/// @file ymbnet.h
+/// @brief ymbnet の初期化関数のエクスポート
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -18,4 +18,4 @@ extern "C" PyObject* PyInit_ymbnet();
 
 END_NAMESPACE_YM
 
-#endif // PY_YMBNET_H
+#endif // PYM_YMBNET_H

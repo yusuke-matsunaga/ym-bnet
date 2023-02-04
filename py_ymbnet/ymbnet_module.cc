@@ -9,9 +9,9 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/PyBnNetwork.h"
-#include "ym/PyBnNode.h"
-#include "ym/PyModule.h"
+#include "pym/PyBnNetwork.h"
+#include "pym/PyBnNode.h"
+#include "pym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
