@@ -8,6 +8,8 @@
 
 #include "pym/PyBnNode.h"
 #include "pym/PyExpr.h"
+#include "pym/PyTvFunc.h"
+#include "pym/PyBdd.h"
 #include "pym/PyModule.h"
 #include "ym/BnNetwork.h"
 
@@ -415,8 +417,18 @@ BnNode_func(
   auto network = PyBnNode::_network(self);
   auto id = node.func_id();
   auto func = network->func(id);
-  //return PyTvFunc::ToPyObject(func);
-  Py_RETURN_NONE;
+  return PyTvFunc::ToPyObject(func);
+}
+
+PyObject*
+BnNode_bdd(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& node = PyBnNode::_get(self);
+  auto bdd = node.bdd();
+  return PyBdd::ToPyObject(bdd);
 }
 
 PyObject*
@@ -464,6 +476,8 @@ PyGetSetDef BnNode_getsetters[] = {
    PyDoc_STR("expr"), nullptr},
   {"func", BnNode_func, nullptr,
    PyDoc_STR("Truth Vector function"), nullptr},
+  {"bdd", BnNode_bdd, nullptr,
+   PyDoc_STR("BDD"), nullptr},
   {"cell_id", BnNode_cell_id, nullptr,
    PyDoc_STR("Cell ID"), nullptr},
   {nullptr, nullptr, nullptr,
