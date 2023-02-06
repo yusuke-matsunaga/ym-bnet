@@ -331,6 +331,10 @@ public:
   SizeType
   expr_id() const;
 
+  /// @brief 論理式を返す．
+  Expr
+  expr() const;
+
   /// @brief 関数番号を返す．
   ///
   /// - type() == TvFunc の時のみ意味を持つ．
@@ -338,6 +342,10 @@ public:
   /// @sa BnNetwork::func()
   SizeType
   func_id() const;
+
+  /// @brief 関数を返す．
+  const TvFunc&
+  func() const;
 
   /// @brief Bdd を返す．
   ///

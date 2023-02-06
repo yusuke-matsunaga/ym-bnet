@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
+#include "ym/BnNodeMap.h"
 #include "ym/Range.h"
 #include "SimpleDecomp.h"
 
@@ -28,9 +29,7 @@ SimpleDecomp::decomp(
   const BnNetwork& src_network
 )
 {
-  unordered_map<SizeType, BnNode> node_map;
-
-  make_skelton_copy(src_network, node_map);
+  auto node_map = make_skelton_copy(src_network);
 
   // DFFをコピーする．
   for ( auto src_dff: src_network.dff_list() ) {
@@ -46,17 +45,17 @@ SimpleDecomp::decomp(
       mTermList.resize(ni * 2);
       for ( SizeType i = 0; i < ni; ++ i ) {
 	auto src_iid = src_node.fanin_id(i);
-	ASSERT_COND( node_map.count(src_iid) > 0 );
-	auto dst_inode = node_map.at(src_iid);
+	ASSERT_COND( node_map.is_in(src_iid) );
+	auto dst_inode = node_map.get(src_iid);
 	mTermList[i * 2 + 0] = dst_inode;
       }
-      auto expr = src_network.expr(src_node.expr_id());
+      auto expr = src_node.expr();
       dst_node = decomp_expr(expr);
     }
     else {
       dst_node = copy_logic(src_node, node_map);
     }
-    node_map.emplace(src_node.id(), dst_node);
+    node_map.put(src_node.id(), dst_node);
   }
 
   // 出力のファンインをセットする．

@@ -36,6 +36,7 @@ class BnPortList;
 class BnDff;
 class BnDffList;
 class BnNode;
+class BnNodeMap;
 class BnNodeList;
 class BnModifier;
 
@@ -161,6 +162,7 @@ using nsBnet::BnPortList;
 using nsBnet::BnDff;
 using nsBnet::BnDffList;
 using nsBnet::BnNode;
+using nsBnet::BnNodeMap;
 using nsBnet::BnNodeList;
 using nsBnet::BnModifier;
 

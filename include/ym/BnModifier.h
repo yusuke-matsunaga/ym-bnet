@@ -370,26 +370,25 @@ public:
   );
 
   /// @brief ポートの情報のみコピーする．
-  void
+  BnNodeMap
   make_skelton_copy(
-    const BnNetwork& src_network,             ///< [in] コピー元の回路
-    unordered_map<SizeType, BnNode>& node_map ///< [in] ID番号の対応表
+    const BnNetwork& src_network ///< [in] コピー元の回路
   );
 
   /// @brief DFFをコピーする．
   /// @return 生成したDFFを返す．
   BnDff
   copy_dff(
-    BnDff src_dff,                            ///< [in] コピー元のDFF
-    unordered_map<SizeType, BnNode>& node_map ///< [in] ID番号の対応表
+    BnDff src_dff,      ///< [in] コピー元のDFF
+    BnNodeMap& node_map ///< [inout] ID番号の対応表
   );
 
   /// @brief 論理ノードをコピーする．
   /// @brief 生成した論理ノードを返す．
   BnNode
   copy_logic(
-    BnNode src_node,                          ///< [in] コピー元のノード番号
-    unordered_map<SizeType, BnNode>& node_map ///< [in] ID番号の対応表
+    BnNode src_node,    ///< [in] コピー元のノード番号
+    BnNodeMap& node_map ///< [inout] ID番号の対応表
   );
 
   /// @brief 出力ノードを複製する．
@@ -398,8 +397,8 @@ public:
   /// 設定のみを行う．
   void
   copy_output(
-    BnNode src_node,                          ///< [in] 出力ノード
-    unordered_map<SizeType, BnNode>& node_map ///< [in] ノード番号の対応関係を表すハッシュ表
+    BnNode src_node,    ///< [in] 出力ノード
+    BnNodeMap& node_map ///< [inout] ID番号の対応表
   );
 
   /// @brief 部分回路を追加する．
@@ -447,12 +446,6 @@ private:
   vector<BnNode>
   make_node_list(
     const vector<SizeType>& id_list
-  );
-
-  /// @brief ノード番号の辞書を作る．
-  unordered_map<SizeType, SizeType>
-  make_id_map(
-    const unordered_map<SizeType, BnNode>& node_map
   );
 
 };

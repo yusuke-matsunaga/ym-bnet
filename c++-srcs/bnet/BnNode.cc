@@ -286,12 +286,28 @@ BnNode::expr_id() const
   return node->expr_id();
 }
 
+// @brief 論理式を返す．
+Expr
+BnNode::expr() const
+{
+  SizeType id = expr_id();
+  return mNetwork->expr(id);
+}
+
 // @brief 関数番号を返す．
 SizeType
 BnNode::func_id() const
 {
   auto node = mNetwork->_node(mId);
   return node->func_id();
+}
+
+// @brief 関数を返す．
+const TvFunc&
+BnNode::func() const
+{
+  SizeType id = func_id();
+  return mNetwork->func(id);
 }
 
 // @brief Bdd を返す．

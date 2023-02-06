@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/BnModifier.h"
+#include "ym/BnNodeMap.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -48,7 +49,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID番号の対応表
-  unordered_map<SizeType, BnNode> mNodeMap;
+  BnNodeMap mNodeMap;
 
 };
 

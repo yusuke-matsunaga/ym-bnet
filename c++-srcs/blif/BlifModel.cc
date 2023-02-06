@@ -123,6 +123,16 @@ BlifModel::node_cover_id(
   return mImpl->node_cover_id(node_id);
 }
 
+// @brief ノードのカバー番号を返す．
+const BlifCover&
+BlifModel::node_cover(
+  SizeType node_id
+) const
+{
+  SizeType id = node_cover_id(node_id);
+  return cover(id);
+}
+
 // @brief ノードのセル番号を返す．
 SizeType
 BlifModel::node_cell_id(

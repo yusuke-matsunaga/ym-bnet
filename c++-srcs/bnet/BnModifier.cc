@@ -10,6 +10,7 @@
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnNode.h"
+#include "ym/BnNodeMap.h"
 #include "BnNetworkImpl.h"
 
 
@@ -441,29 +442,30 @@ BnModifier::change_tv(
 }
 
 // @brief ポートの情報のみコピーする．
-void
+BnNodeMap
 BnModifier::make_skelton_copy(
-  const BnNetwork& src_network,
-  unordered_map<SizeType, BnNode>& node_map
+  const BnNetwork& src_network
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  auto id_map = make_id_map(node_map);
+  BnNodeMap node_map{mImpl.get()};
+  auto& id_map = node_map._id_map();
   mImpl->make_skelton_copy(src_network.mImpl.get(), id_map);
+  return node_map;
 }
 
 // @brief DFFをコピーする．
 BnDff
 BnModifier::copy_dff(
   BnDff src_dff,
-  unordered_map<SizeType, BnNode>& node_map
+  BnNodeMap& node_map
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
   auto dff_impl = src_dff._impl();
-  auto id_map = make_id_map(node_map);
+  auto& id_map = node_map._id_map();
   auto id = mImpl->copy_dff(dff_impl, id_map);
   return BnDff{mImpl.get(), id};
 }
@@ -473,14 +475,14 @@ BnModifier::copy_dff(
 BnNode
 BnModifier::copy_logic(
   BnNode src_node,
-  unordered_map<SizeType, BnNode>& node_map
+  BnNodeMap& node_map
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
   auto src_impl = src_node._impl();
   auto src_network = src_node._network();
-  auto id_map = make_id_map(node_map);
+  auto& id_map = node_map._id_map();
   auto id = mImpl->copy_logic(src_impl, src_network, id_map);
   return BnNode{mImpl.get(), id};
 }
@@ -489,13 +491,13 @@ BnModifier::copy_logic(
 void
 BnModifier::copy_output(
   BnNode src_node,
-  unordered_map<SizeType, BnNode>& node_map
+  BnNodeMap& node_map
 )
 {
   ASSERT_COND( mImpl != nullptr );
   auto src_impl = src_node._impl();
-  auto id_map = make_id_map(node_map);
-  return mImpl->copy_output(src_impl, id_map);
+  auto& id_map = node_map._id_map();
+  mImpl->copy_output(src_impl, id_map);
 }
 
 // @brief 部分回路を追加する．
@@ -562,21 +564,6 @@ BnModifier::make_node_list(
     node_list.push_back(BnNode{mImpl.get(), id});
   }
   return node_list;
-}
-
-// @brief ノード番号の辞書を作る．
-unordered_map<SizeType, SizeType>
-BnModifier::make_id_map(
-  const unordered_map<SizeType, BnNode>& node_map
-)
-{
-  unordered_map<SizeType, SizeType> id_map;
-  for ( auto& p: node_map ) {
-    auto key = p.first;
-    auto node = p.second;
-    id_map.emplace(key, node.id());
-  }
-  return id_map;
 }
 
 END_NAMESPACE_YM_BNET

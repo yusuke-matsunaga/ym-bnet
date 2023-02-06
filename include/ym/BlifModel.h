@@ -128,6 +128,14 @@ public:
     SizeType node_id ///< [in] ノード番号
   ) const;
 
+  /// @brief ノードのカバーを返す．
+  ///
+  /// node_type が Cover の時のみ意味を持つ．
+  const BlifCover&
+  node_cover(
+    SizeType node_id ///< [in] ノード番号
+  ) const;
+
   /// @brief ノードのセル番号を返す．
   ///
   /// node_type が Cell の時のみ意味を持つ．

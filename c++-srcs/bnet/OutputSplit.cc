@@ -77,22 +77,22 @@ OutputSplit::split(
     auto src_node = src_network.node(src_id);
     auto dst_port = new_input_port(src_node.name());
     auto dst_node = dst_port.bit(0);
-    mNodeMap.emplace(src_id, dst_node);
+    mNodeMap.put(src_id, dst_node);
   }
 
   // 論理ノードを複製する．
   for ( auto src_id: node_list ) {
     auto src_node = src_network.node(src_id);
     auto dst_node = copy_logic(src_node, mNodeMap);
-    mNodeMap.emplace(src_id, dst_node);
+    mNodeMap.put(src_id, dst_node);
   }
 
   // 出力ノードを複製する．
   {
     auto src_node = output.output_src();
     SizeType src_id = src_node.id();
-    ASSERT_COND( mNodeMap.count(src_id) > 0 );
-    auto dst_inode = mNodeMap.at(src_id);
+    ASSERT_COND( mNodeMap.is_in(src_id) );
+    auto dst_inode = mNodeMap.get(src_id);
     auto dst_port = new_output_port(output.name());
     auto dst_node = dst_port.bit(0);
     set_output_src(dst_node, dst_inode);

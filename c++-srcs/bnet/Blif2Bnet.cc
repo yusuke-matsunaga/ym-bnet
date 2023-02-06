@@ -209,8 +209,7 @@ Blif2Bnet::make_logic(
   auto type = mModel.node_type(src_id);
   BnNode node;
   if ( type == BlifType::Cover ) {
-    auto cover_id = mModel.node_cover_id(src_id);
-    auto& cover = mModel.cover(cover_id);
+    auto& cover = mModel.node_cover(src_id);
     auto expr = cover.expr();
     node = mNetwork.new_logic_expr(oname, expr, fanin_list);
   }

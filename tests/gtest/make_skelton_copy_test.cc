@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnModifier.h"
+#include "ym/BnNodeMap.h"
 #include "ym/BnPort.h"
 
 
@@ -21,8 +22,7 @@ TEST(BnNetworkTest, make_skelton_copy)
   BnNetwork src_network = BnNetwork::read_blif(path);
 
   BnModifier mod;
-  unordered_map<SizeType, BnNode> node_map;
-  mod.make_skelton_copy(src_network, node_map);
+  auto node_map = mod.make_skelton_copy(src_network);
   BnNetwork dst_network{std::move(mod)};
 
   SizeType np = src_network.port_num();
@@ -35,8 +35,11 @@ TEST(BnNetworkTest, make_skelton_copy)
     for ( SizeType j = 0; j < nb; ++ j ) {
       auto src_node = src_port.bit(j);
       auto dst_node = dst_port.bit(j);
-      EXPECT_TRUE( node_map.count(src_node.id()) > 0 );
-      EXPECT_EQ( dst_node, node_map.at(src_node.id()) );
+      EXPECT_TRUE( node_map.is_in(src_node.id()) );
+      //EXPECT_EQ( dst_node, node_map.get(src_node.id()) );
+      auto tmp_node = node_map.get(src_node.id());
+      EXPECT_EQ( dst_node.id(), tmp_node.id() );
+      EXPECT_EQ( dst_node._network(), tmp_node._network() );
     }
   }
 }
