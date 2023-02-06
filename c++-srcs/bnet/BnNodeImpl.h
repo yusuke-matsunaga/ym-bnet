@@ -8,7 +8,10 @@
 /// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BnNode.h"
+#include "ym/bnet.h"
+#include "ym/logic.h"
+#include "ym/clib.h"
+#include "ym/bdd_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -17,8 +20,7 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class BnNodeImpl BnNodeImpl.h "BnNodeImpl.h"
 /// @brief BnNode の実装クラスの基底クラス
 //////////////////////////////////////////////////////////////////////
-class BnNodeImpl :
-  public BnNode
+class BnNodeImpl
 {
   friend class BnNetworkImpl;
 
@@ -33,6 +35,7 @@ public:
   );
 
   /// @brief デストラクタ
+  virtual
   ~BnNodeImpl();
 
 
@@ -43,44 +46,69 @@ public:
 
   /// @brief ノードID を返す．
   SizeType
-  id() const override;
+  id() const
+  {
+    return mId;
+  }
 
   /// @brief 名前を返す．
   string
-  name() const override;
+  name() const
+  {
+    return mName;
+  }
+
+  /// @brief タイプを返す．
+  virtual
+  BnNodeType
+  type() const = 0;
 
   /// @brief 外部入力の時 true を返す．
+  virtual
   bool
-  is_input() const override;
+  is_input() const;
 
   /// @brief 外部出力の時 true を返す．
+  virtual
   bool
-  is_output() const override;
+  is_output() const;
 
   /// @brief 論理ノードの時 true を返す．
+  virtual
   bool
-  is_logic() const override;
+  is_logic() const;
 
   /// @brief プリミティブ型の論理ノードの時 true を返す．
   ///
   /// 具体的には以下の型
   /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
+  virtual
   bool
-  is_primitive_logic() const override;
+  is_primitive_logic() const;
 
   /// @brief ファンアウト数を得る．
   SizeType
-  fanout_num() const override;
+  fanout_num() const
+  {
+    return mFanoutList.size();
+  }
 
   /// @brief ファンアウトのノード番号を返す．
   SizeType
   fanout_id(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < fanout_num() )
-  ) const override;
+  ) const
+  {
+    ASSERT_COND( 0 <= pos && pos < fanout_num() );
+    return mFanoutList[pos];
+  }
 
   /// @brief ファンアウトのノード番号のリストを返す．
-  vector<SizeType>
-  fanout_id_list() const override;
+  const vector<SizeType>&
+  fanout_id_list() const
+  {
+    return mFanoutList;
+  }
 
 
 public:
@@ -92,33 +120,38 @@ public:
   ///
   /// is_input() == false の時の動作は不定<br>
   /// node_id = BnNetwork::input_id(pos) の時 node->input_pos() = pos となる．
+  virtual
   SizeType
-  input_pos() const override;
+  input_pos() const;
 
   /// @brief 外部入力端子の時 true を返す．
+  virtual
   bool
-  is_port_input() const override;
+  is_port_input() const;
 
   /// @brief 外部入力番号を返す．
   ///
   /// is_port_input() == true の時のみ意味を持つ<br>
   /// node_id = BnNetwork::primary_input_id(pos) の時
   /// node->primary_input_pos() = pos となる．
+  virtual
   SizeType
-  primary_input_pos() const override;
+  primary_input_pos() const;
 
   /// @brief DFFの出力端子の時 true を返す．
+  virtual
   bool
-  is_data_out() const override;
+  is_data_out() const;
 
   /// @brief DFFセルの出力端子の時 true を返す．
   virtual
   bool
-  is_cell_output() const override;
+  is_cell_output() const;
 
   /// @brief DFFセルの出力ピン番号を返す．
+  virtual
   SizeType
-  cell_output_pos() const override;
+  cell_output_pos() const;
 
 
 public:
@@ -130,48 +163,58 @@ public:
   ///
   /// is_output() == false の時の動作は不定<br>
   /// node_id = BnNetwork::output_id(pos) の時，node->output_pos() = pos となる．
+  virtual
   SizeType
-  output_pos() const override;
+  output_pos() const;
 
   /// @brief ソースノードのノード番号を返す．
+  virtual
   SizeType
-  output_src() const override;
+  output_src() const;
 
   /// @brief 外部出力端子の時に true を返す．
+  virtual
   bool
-  is_port_output() const override;
+  is_port_output() const;
 
   /// @brief 外部出力端子番号を返す．
   ///
   /// is_port_output() == true の時のみ意味を持つ．<br>
   /// node_id = BnNetwork::primary_output_id(pos) の時
   /// node->primary_output_pos() = pos となる．
+  virtual
   SizeType
-  primary_output_pos() const override;
+  primary_output_pos() const;
 
   /// @brie DFFの入力端子の時に true を返す．
+  virtual
   bool
-  is_data_in() const override;
+  is_data_in() const;
 
   /// @brief DFFのクロック端子の時に true を返す．
+  virtual
   bool
-  is_clock() const override;
+  is_clock() const;
 
   /// @brief DFFのクリア端子の時に true を返す．
+  virtual
   bool
-  is_clear() const override;
+  is_clear() const;
 
   /// @brief DFFのプリセット端子の時に true を返す．
+  virtual
   bool
-  is_preset() const override;
+  is_preset() const;
 
   /// @brief DFFセルの入力端子の時 true を返す．
+  virtual
   bool
-  is_cell_input() const override;
+  is_cell_input() const;
 
   /// @brief DFFセルの入力ピン番号を返す．
+  virtual
   SizeType
-  cell_input_pos() const override;
+  cell_input_pos() const;
 
 
 public:
@@ -182,22 +225,25 @@ public:
   /// @brief 接続しているポート番号を返す．
   ///
   /// is_port_input() == true || is_port_output() == true の時のみ意味を持つ．
+  virtual
   SizeType
-  port_id() const override;
+  port_id() const;
 
   /// @brief 接続しているポート中のビット番号を返す．
   ///
   /// is_port_input() || is_port_output() の時のみ意味を持つ．
+  virtual
   SizeType
-  port_bit() const override;
+  port_bit() const;
 
   /// @brief 接続しているDFFの番号を返す．
   ///
   /// is_dff_input() || is_dff_output()
   /// is_clock() || is_clear() || is_preset()
   /// の時のみ意味を持つ．
+  virtual
   SizeType
-  dff_id() const override;
+  dff_id() const;
 
 
 public:
@@ -206,44 +252,51 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン数を得る．
+  virtual
   SizeType
-  fanin_num() const override;
+  fanin_num() const;
 
   /// @brief ファンインのノード番号を返す．
+  virtual
   SizeType
   fanin_id(
     SizeType pos ///< [in] 入力位置 ( 0 <= pos < fanin_num() )
-  ) const override;
+  ) const;
 
   /// @brief ファンインのノード番号のリストを返す．
-  vector<SizeType>
-  fanin_id_list() const override;
+  virtual
+  const vector<SizeType>&
+  fanin_id_list() const;
 
   /// @brief 論理式番号を返す．
   ///
   /// type() == BnNodeType::Expr の時のみ意味を持つ．
   /// 論理式番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
   SizeType
-  expr_id() const override;
+  expr_id() const;
 
   /// @brief 関数番号を返す．
   ///
   /// type() == BnNodeType::TvFunc の時のみ意味を持つ．
   /// 関数番号は同じ BnNetwork 内で唯一となるもの．
+  virtual
   SizeType
-  func_id() const override;
+  func_id() const;
 
   /// @brief Bdd を返す．
   ///
   /// - type() == Bdd の時のみ意味を持つ．
+  virtual
   Bdd
-  bdd() const override;
+  bdd() const;
 
   /// @brief セル番号を返す．
   ///
   /// - type() == Cell の時のみ意味を持つ．
+  virtual
   SizeType
-  cell_id() const override;
+  cell_id() const;
 
 
 public:
@@ -306,13 +359,19 @@ public:
 
   /// @brief ファンアウトリストをクリアする．
   void
-  clear_fanout();
+  clear_fanout()
+  {
+    mFanoutList.clear();
+  }
 
   /// @brief ファンアウトを追加する．
   void
   add_fanout(
     SizeType onode_id ///< [in] ファンアウトのノード番号
-  );
+  )
+  {
+    mFanoutList.push_back(onode_id);
+  }
 
 
 public:

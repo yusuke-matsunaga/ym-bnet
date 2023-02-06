@@ -41,7 +41,7 @@ BnNetwork::write_iscas89(
 ) const
 {
   // Latchタイプ，CellタイプのDFFノードを持つとき変換不能
-  for ( auto& dff: dff_list() ) {
+  for ( auto dff: dff_list() ) {
     if ( dff.type() != BnDffType::Dff ) {
       cerr << "Cannot convert to iscas89(.bench)" << endl;
       return;
@@ -49,7 +49,7 @@ BnNetwork::write_iscas89(
   }
 
   // TvFuncタイプ，Bddタイプ，Cellタイプの論理ノードを持つ時変換不能
-  for ( auto& node: logic_list() ) {
+  for ( auto node: logic_list() ) {
     if ( node.type() == BnNodeType::TvFunc ||
 	 node.type() == BnNodeType::Bdd ||
 	 node.type() == BnNodeType::Cell ) {
@@ -60,7 +60,7 @@ BnNetwork::write_iscas89(
 
   // 個々のノードが単純なゲートか調べる．
   bool need_decomp = false;
-  for ( auto& node: logic_list() ) {
+  for ( auto node: logic_list() ) {
     switch ( node.type() ) {
     case BnNodeType::C0:
     case BnNodeType::C1:
@@ -123,46 +123,43 @@ Iscas89Writer::operator()(
 {
   // INPUT 文の出力
   int count = 0;
-  for ( auto& node: network().primary_input_list() ) {
-    auto id = node.id();
-    if ( is_data(id) ) {
-      s << "INPUT(" << node_name(id) << ")" << endl;
+  for ( auto node: network().primary_input_list() ) {
+    if ( is_data(node) ) {
+      s << "INPUT(" << node_name(node) << ")" << endl;
     }
   }
   s << endl;
 
   // OUTPUT 文の出力
-  for ( auto& node: network().primary_output_list() ) {
-    auto src_id = node.output_src();
-    s << "OUTPUT(" << node_name(src_id) << ")" << endl;
+  for ( auto node: network().primary_output_list() ) {
+    auto src_node = node.output_src();
+    s << "OUTPUT(" << node_name(src_node) << ")" << endl;
   }
   s << endl;
 
   // DFF 文の出力
-  for ( auto& dff: network().dff_list() ) {
+  for ( auto dff: network().dff_list() ) {
     s << node_name(dff.data_out())
       << " = DFF(" << node_name(dff.data_in()) << ")" << endl;
   }
   s << endl;
 
   // 出力用の追加の BUFF 文
-  for ( auto& node: network().primary_output_list() ) {
-    auto id = node.id();
-    string name = node_name(id);
-    auto src_id = node.output_src();
-    string src_name = node_name(src_id);
+  for ( auto node: network().primary_output_list() ) {
+    string name = node_name(node);
+    auto src_node = node.output_src();
+    string src_name = node_name(src_node);
     if ( name != src_name ) {
       s << name << " = BUFF(" << src_name << ")" << endl;
     }
   }
 
   // ゲート文の出力
-  for ( auto& node: network().logic_list() ) {
-    auto id = node.id();
-    if ( !is_data(id) ) {
+  for ( auto node: network().logic_list() ) {
+    if ( !is_data(node) ) {
       continue;
     }
-    s << node_name(id) << " = ";
+    s << node_name(node) << " = ";
     switch ( node.type() ) {
     case BnNodeType::C0:   s << "CONST0"; break;
     case BnNodeType::C1:   s << "CONST1"; break;
@@ -179,8 +176,8 @@ Iscas89Writer::operator()(
     if ( node.fanin_num() > 0 ) {
       s << "(";
       const char* comma = "";
-      for ( auto iid: node.fanin_id_list() ) {
-	s << comma << node_name(iid);
+      for ( auto inode: node.fanin_list() ) {
+	s << comma << node_name(inode);
 	comma = ", ";
       }
       s << ")";

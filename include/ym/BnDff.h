@@ -13,6 +13,9 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BnNetworkImpl;
+class BnDffImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BnDff BnDff.h "ym/BnDff.h"
 /// @brief D-FFを表すクラス
@@ -44,14 +47,24 @@ BEGIN_NAMESPACE_YM_BNET
 //////////////////////////////////////////////////////////////////////
 class BnDff
 {
+  friend class BnNetworkImpl;
+
 public:
   //////////////////////////////////////////////////////////////////////
   /// @name コンストラクタ/デストラクタ
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief コンストラクタ
+  BnDff(
+    const BnNetworkImpl* network, ///< [in] ネットワーク
+    SizeType id                   ///< [in] DFF番号
+  ) : mNetwork{network},
+      mId{id}
+  {
+  }
+
   /// @brief デストラクタ
-  virtual
   ~BnDff() = default;
 
   /// @}
@@ -64,42 +77,47 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 適正な値を持っている時 true を返す．
+  bool
+  is_valid() const
+  {
+    return mId != -1;
+  }
+
+  /// @brief 不正な値を持っている時 true を返す．
+  bool
+  is_invalid() const
+  {
+    return !is_valid();
+  }
+
   /// @brief ID 番号の取得
   /// @return ID 番号を返す．
-  virtual
   SizeType
-  id() const = 0;
+  id() const
+  {
+    return mId;
+  }
 
   /// @brief 名前を返す．
-  virtual
   string
-  name() const = 0;
+  name() const;
 
   /// @brief タイプを返す．
-  virtual
   BnDffType
-  type() const = 0;
+  type() const;
 
   /// @brief DFF タイプの時 true を返す．
   bool
-  is_dff() const
-  {
-    return type() == BnDffType::Dff;
-  }
+  is_dff() const;
 
   /// @brief ラッチタイプの時 true を返す．
   bool
-  is_latch() const
-  {
-    return type() == BnDffType::Latch;
-  }
+  is_latch() const;
 
   /// @brief DFF/ラッチセルタイプの時 true を返す．
   bool
-  is_cell() const
-  {
-    return type() == BnDffType::Cell;
-  }
+  is_cell() const;
 
   /// @}
   //////////////////////////////////////////////////////////////////////
@@ -111,35 +129,29 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 入力端子のノード番号を返す．
-  virtual
-  SizeType
-  data_in() const = 0;
+  /// @brief 入力端子のノードを返す．
+  BnNode
+  data_in() const;
 
-  /// @brief 出力端子のノード番号を返す．
-  virtual
-  SizeType
-  data_out() const = 0;
+  /// @brief 出力端子のノードを返す．
+  BnNode
+  data_out() const;
 
-  /// @brief クロック端子のノード番号を返す．
-  virtual
-  SizeType
-  clock() const = 0;
+  /// @brief クロック端子のノードを返す．
+  BnNode
+  clock() const;
 
-  /// @brief クリア端子のノード番号を返す．
-  virtual
-  SizeType
-  clear() const = 0;
+  /// @brief クリア端子のノードを返す．
+  BnNode
+  clear() const;
 
-  /// @brief プリセット端子のノード番号を返す．
-  virtual
-  SizeType
-  preset() const = 0;
+  /// @brief プリセット端子のノードを返す．
+  BnNode
+  preset() const;
 
   /// @brief クリアとプリセットが衝突した場合の挙動
-  virtual
   BnCPV
-  clear_preset_value() const = 0;
+  clear_preset_value() const;
 
   /// @}
   //////////////////////////////////////////////////////////////////////
@@ -153,37 +165,82 @@ public:
   /// @brief セルに割り当てられている場合のセル番号を返す．
   ///
   /// セルが割り当てられていない場合には CLIB_NULLID を返す．
-  virtual
   SizeType
-  cell_id() const = 0;
+  cell_id() const;
 
   /// @brief セルに割り当てられている場合の入力端子数を返す．
-  virtual
   SizeType
-  cell_input_num() const = 0;
+  cell_input_num() const;
 
-  /// @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
+  /// @brief セルに割り当てられている場合の入力端子に対応するノードを返す．
   ///
   /// 入力端子だが実体は外部出力ノードとなる．
-  virtual
-  SizeType
+  BnNode
   cell_input(
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < cell_input_num() )
-  ) const = 0;
+  ) const;
 
   /// @brief セルに割り当てられている場合の出力端子数を返す．
-  virtual
   SizeType
-  cell_output_num() const = 0;
+  cell_output_num() const;
 
   /// @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
   ///
   /// 入力端子だが実体は外部入力ノードとなる．
-  virtual
-  SizeType
+  BnNode
   cell_output(
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < cell_output_num() )
-  ) const = 0;
+  ) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name 等価比較演算
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 等価比較演算
+  bool
+  operator==(
+    const BnDff& right
+  ) const
+  {
+    return mNetwork == right.mNetwork && mId == right.mId;
+  }
+
+  /// @brief 非等価比較演算
+  bool
+  operator!=(
+    const BnDff& right
+  ) const
+  {
+    return !operator==(right);
+  }
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内部の実装に関する走査
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 実装クラスを取り出す．
+  BnDffImpl*
+  _impl();
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ネットワーク
+  const BnNetworkImpl* mNetwork;
+
+  // ID番号
+  SizeType mId;
 
 };
 

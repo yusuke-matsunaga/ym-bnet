@@ -13,83 +13,89 @@
 BEGIN_NAMESPACE_YM_BNET
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnDffBase
+// クラス BnDffImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief ID 番号の取得
-// @return ID 番号を返す．
-SizeType
-BnDffBase::id() const
+// @brief DFF タイプの時 true を返す．
+bool
+BnDffImpl::is_dff() const
 {
-  return mId;
+  return false;
 }
 
-// @brief 名前を返す．
-string
-BnDffBase::name() const
+// @brief ラッチタイプの時 true を返す．
+bool
+BnDffImpl::is_latch() const
 {
-  return mName;
+  return false;
+}
+
+// @brief DFF/ラッチセルタイプの時 true を返す．
+bool
+BnDffImpl::is_cell() const
+{
+  return false;
 }
 
 // @brief 入力端子のノード番号を返す．
 SizeType
-BnDffBase::data_in() const
+BnDffImpl::data_in() const
 {
   return BNET_NULLID;
 }
 
 // @brief 出力端子のノード番号を返す．
 SizeType
-BnDffBase::data_out() const
+BnDffImpl::data_out() const
 {
   return BNET_NULLID;
 }
 
 // @brief クロック端子のノード番号を返す．
 SizeType
-BnDffBase::clock() const
+BnDffImpl::clock() const
 {
   return BNET_NULLID;
 }
 
 // @brief クリア端子のノード番号を返す．
 SizeType
-BnDffBase::clear() const
+BnDffImpl::clear() const
 {
   return BNET_NULLID;
 }
 
 // @brief プリセット端子のノード番号を返す．
 SizeType
-BnDffBase::preset() const
+BnDffImpl::preset() const
 {
   return BNET_NULLID;
 }
 
 // @brief クリアとプリセットが衝突した場合の挙動
 BnCPV
-BnDffBase::clear_preset_value() const
+BnDffImpl::clear_preset_value() const
 {
   return BnCPV::L;
 }
 
 // @brief セルに割り当てられている場合のセル番号を返す．
 SizeType
-BnDffBase::cell_id() const
+BnDffImpl::cell_id() const
 {
   return CLIB_NULLID;
 }
 
 // @brief セルに割り当てられている場合の入力端子数を返す．
 SizeType
-BnDffBase::cell_input_num() const
+BnDffImpl::cell_input_num() const
 {
   return 0;
 }
 
 // @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
 SizeType
-BnDffBase::cell_input(
+BnDffImpl::cell_input(
   SizeType pos
 ) const
 {
@@ -98,14 +104,14 @@ BnDffBase::cell_input(
 
 // @brief セルに割り当てられている場合の出力端子数を返す．
 SizeType
-BnDffBase::cell_output_num() const
+BnDffImpl::cell_output_num() const
 {
   return 0;
 }
 
 // @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
 SizeType
-BnDffBase::cell_output(
+BnDffImpl::cell_output(
   SizeType pos
 ) const
 {
@@ -161,57 +167,78 @@ BnDLBase::clear_preset_value() const
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnDffImpl
+// クラス BnDff_FF
 //////////////////////////////////////////////////////////////////////
 
 // @brief タイプを返す．
 BnDffType
-BnDffImpl::type() const
+BnDff_FF::type() const
 {
   return BnDffType::Dff;
 }
 
+// @brief DFF タイプの時 true を返す．
+bool
+BnDff_FF::is_dff() const
+{
+  return true;
+}
+
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnLatchImpl
+// クラス BnDff_Latch
 //////////////////////////////////////////////////////////////////////
 
 // @brief タイプを返す．
 BnDffType
-BnLatchImpl::type() const
+BnDff_Latch::type() const
 {
   return BnDffType::Latch;
 }
 
+// @brief ラッチタイプの時 true を返す．
+bool
+BnDff_Latch::is_latch() const
+{
+  return true;
+}
+
 
 //////////////////////////////////////////////////////////////////////
-// クラス BnDffCell
+// クラス BnDff_Cell
 //////////////////////////////////////////////////////////////////////
 
 // @brief タイプを返す．
 BnDffType
-BnDffCell::type() const
+BnDff_Cell::type() const
 {
   return BnDffType::Cell;
 }
 
+// @brief DFF/ラッチセルタイプの時 true を返す．
+bool
+BnDff_Cell::is_cell() const
+{
+  return true;
+}
+
 // @brief セルに割り当てられている場合のセル番号を返す．
 SizeType
-BnDffCell::cell_id() const
+BnDff_Cell::cell_id() const
 {
   return mCellId;
 }
 
 // @brief セルに割り当てられている場合の入力端子数を返す．
 SizeType
-BnDffCell::cell_input_num() const
+BnDff_Cell::cell_input_num() const
 {
   return mInputList.size();
 }
 
 // @brief セルに割り当てられている場合の入力端子に対応するノード番号を返す．
 SizeType
-BnDffCell::cell_input(
+BnDff_Cell::cell_input(
   SizeType pos
 ) const
 {
@@ -221,14 +248,14 @@ BnDffCell::cell_input(
 
 // @brief セルに割り当てられている場合の出力端子数を返す．
 SizeType
-BnDffCell::cell_output_num() const
+BnDff_Cell::cell_output_num() const
 {
   return mOutputList.size();
 }
 
 // @brief セルに割り当てられている場合の出力端子に対応するノード番号を返す．
 SizeType
-BnDffCell::cell_output(
+BnDff_Cell::cell_output(
   SizeType pos
 ) const
 {

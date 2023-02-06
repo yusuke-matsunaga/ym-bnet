@@ -9,11 +9,15 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/Bdd.h"
 #include "ym/BddMgr.h"
+#include "ym/BnNode.h"
 #include "ym/ClibCellLibrary.h"
 #include "ym/ClibCell.h"
 #include "ym/Expr.h"
 #include "ym/TvFunc.h"
+#include "BnPortImpl.h"
+#include "BnDffImpl.h"
 #include "BnNodeImpl.h"
 
 
@@ -57,13 +61,13 @@ public:
   /// @brief 内容をコピーする．
   void
   copy(
-    const BnNetworkImpl& src ///< [in] コピー元のオブジェクト
+    const BnNetworkImpl* src ///< [in] コピー元のオブジェクト
   );
 
   /// @brief ポートの情報のみをコピーする．
   void
   make_skelton_copy(
-    const BnNetworkImpl& src,                 ///< [in] コピー元のオブジェクト
+    const BnNetworkImpl* src,                 ///< [in] コピー元のオブジェクト
     unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応表
   );
 
@@ -87,7 +91,7 @@ public:
   /// * 矛盾しない限りセルライブラリの情報も引く継がれる．
   vector<SizeType>
   import_subnetwork(
-    const BnNetworkImpl& src_network,  ///< [in] 追加する部分回路
+    const BnNetworkImpl* src_network,  ///< [in] 追加する部分回路
     const vector<SizeType>& input_list ///< [in] インポートした部分回路の入力に接続するノード番号のリスト
   );
 
@@ -95,8 +99,8 @@ public:
   /// @return 生成したポートのポート番号を返す．
   SizeType
   copy_port(
-    const BnPort& src_port,                   ///< [in] コピー元のオブジェクト
-    const BnNetworkImpl& src_network,         ///< [in] 元のネットワーク
+    const BnPortImpl* src_port,               ///< [in] コピー元のオブジェクト
+    const BnNetworkImpl* src_network,         ///< [in] 元のネットワーク
     unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
@@ -104,7 +108,7 @@ public:
   /// @return 生成したDFFのDFF番号を返す．
   SizeType
   copy_dff(
-    const BnDff& src_dff,                     ///< [in] コピー元のオブジェクト
+    const BnDffImpl* src_dff,                 ///< [in] コピー元のオブジェクト
     unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
@@ -114,8 +118,8 @@ public:
   /// id_map の内容の基づいてファンイン間の接続を行う．
   SizeType
   copy_logic(
-    const BnNode& src_node,                   ///< [in] 元のノード
-    const BnNetworkImpl& src_network,         ///< [in] 元のネットワーク
+    const BnNodeImpl* src_node,               ///< [in] 元のノード
+    const BnNetworkImpl* src_network,         ///< [in] 元のネットワーク
     unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
@@ -125,7 +129,7 @@ public:
   /// 設定のみを行う．
   void
   copy_output(
-    const BnNode& src_node,                   ///< [in] 元のノード
+    const BnNodeImpl* src_node,               ///< [in] 元のノード
     unordered_map<SizeType, SizeType>& id_map ///< [in] ノード番号の対応関係を表すハッシュ表
   );
 
@@ -291,8 +295,8 @@ public:
   /// @brief 出力ノードのファンインを設定する．
   void
   set_output_src(
-    SizeType output_id, ///< [in] 出力ノードのID番号
-    SizeType src_id     ///< [in] ファンインノードのID番号
+    BnNodeImpl* onode, ///< [in] 出力ノード
+    SizeType src_id    ///< [in] ファンインノードのID番号
   );
 
   /// @brief 整合性のチェックを行う．
@@ -342,13 +346,13 @@ public:
   port_num() const { return mPortList.size(); }
 
   /// @brief ポートの情報を得る．
-  const BnPort&
-  port(
+  BnPortImpl*
+  _port(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < port_num() )
   ) const
   {
     ASSERT_COND( pos >= 0 && pos < port_num() );
-    return *mPortList[pos];
+    return mPortList[pos];
   }
 
   /// @brief ポート名からポート番号を得る．
@@ -364,13 +368,13 @@ public:
   dff_num() const { return mDffList.size(); }
 
   /// @brief DFFを得る．
-  const BnDff&
-  dff(
+  BnDffImpl*
+  _dff(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
   ) const
   {
-    ASSERT_COND( pos >= 0 && pos < dff_num() );
-    return *mDffList[pos];
+    ASSERT_COND( 0 <= pos && pos < dff_num() );
+    return mDffList[pos];
   }
 
   /// @brief ノード数を得る．
@@ -379,14 +383,15 @@ public:
 
   /// @brief ノードを得る．
   ///
-  /// BnNode* node = BnNetworkImpl::node(id);
+  /// BnNodeImpl* node = BnNetworkImpl::node(id);
   /// node->id() == id が成り立つ．
-  const BnNode&
-  node(
+  BnNodeImpl*
+  _node(
     SizeType id ///< [in] ノード番号 ( 1 <= id <= node_num() )
   ) const
   {
-    return *_node_p(id);
+    ASSERT_COND( 1 <= id && id <= node_num() );
+    return mNodeList[id - 1];
   }
 
   /// @brief 入力数を得る．
@@ -780,13 +785,13 @@ private:
   ClibCellLibrary mCellLibrary;
 
   // ポートのリスト
-  vector<const BnPort*> mPortList;
+  vector<BnPortImpl*> mPortList;
 
-  // 名前をキーにしてポートを持つ辞書
-  unordered_map<string, BnPort*> mPortDict;
+  // 名前をキーにしてポート番号を持つ辞書
+  unordered_map<string, SizeType> mPortDict;
 
   // DFFのリスト
-  vector<const BnDff*> mDffList;
+  vector<BnDffImpl*> mDffList;
 
   // ノード番号をキーにしてノードを納めた配列
   vector<BnNodeImpl*> mNodeList;

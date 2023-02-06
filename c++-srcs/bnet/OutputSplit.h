@@ -48,7 +48,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID番号の対応表
-  unordered_map<SizeType, SizeType> mIdMap;
+  unordered_map<SizeType, BnNode> mNodeMap;
 
 };
 

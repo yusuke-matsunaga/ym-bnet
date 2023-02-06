@@ -30,7 +30,6 @@ BnLogicNode::fanin_num() const
 }
 
 // @brief ファンインを求める．
-// @param[in] pos 入力位置 ( 0 <= pos < fanin_num() )
 SizeType
 BnLogicNode::fanin_id(
   SizeType pos
@@ -42,15 +41,13 @@ BnLogicNode::fanin_id(
 }
 
 // @brief ファンインのノード番号のリストを返す．
-vector<SizeType>
+const vector<SizeType>&
 BnLogicNode::fanin_id_list() const
 {
   return mFanins;
 }
 
 // @brief ファンインを設定する．
-// @param[in] ipos 入力位置
-// @param[in] fanin_id ファンインのノード番号
 void
 BnLogicNode::set_fanin(
   SizeType ipos,

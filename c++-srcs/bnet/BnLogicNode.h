@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "BnNodeImpl.h"
+#include "ym/Bdd.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -64,7 +65,7 @@ public:
   ) const override;
 
   /// @brief ファンインのノード番号のリストを返す．
-  vector<SizeType>
+  const vector<SizeType>&
   fanin_id_list() const override;
 
 

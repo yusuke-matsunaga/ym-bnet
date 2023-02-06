@@ -42,7 +42,7 @@ BnNetwork::write_blif(
 ) const
 {
   // Latchタイプ，CellタイプのDFFノードを持つとき変換不能
-  for ( auto& dff: dff_list() ) {
+  for ( auto dff: dff_list() ) {
     if ( dff.type() != BnDffType::Dff ) {
       cerr << "Cannot convert to blif" << endl;
       return;
@@ -50,7 +50,7 @@ BnNetwork::write_blif(
   }
 
   // TvFuncタイプ，Bddタイプ，Cellタイプの論理ノードを持つ時変換不能
-  for ( auto& node: logic_list() ) {
+  for ( auto node: logic_list() ) {
     if ( node.type() == BnNodeType::TvFunc ||
 	 node.type() == BnNodeType::Bdd ||
 	 node.type() == BnNodeType::Cell ) {
@@ -97,15 +97,14 @@ BlifWriter::operator()(
 
   // .inputs 文の出力
   int count = 0;
-  for ( auto& node: network().primary_input_list() ) {
-    auto id = node.id();
-    if ( !is_data(id) ) {
+  for ( auto node: network().primary_input_list() ) {
+    if ( !is_data(node) ) {
       continue;
     }
     if ( count == 0 ) {
       s << ".inputs";
     }
-    s << " " << node_name(id);
+    s << " " << node_name(node);
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -118,13 +117,13 @@ BlifWriter::operator()(
 
   // .outputs 文の出力
   count = 0;
-  for ( auto& node: network().primary_output_list() ) {
+  for ( auto node: network().primary_output_list() ) {
     if ( count == 0 ) {
       s << ".outputs";
     }
 
-    auto src_id = node.output_src();
-    s << " " << node_name(src_id);
+    auto src_node = node.output_src();
+    s << " " << node_name(src_node);
     ++ count;
     if ( count >= 10 ) {
       s << endl;
@@ -136,17 +135,16 @@ BlifWriter::operator()(
   }
 
   // .latch 文の出力
-  for ( auto& dff: network().dff_list() ) {
+  for ( auto dff: network().dff_list() ) {
     s << ".latch " << node_name(dff.data_in())
       << " " << node_name(dff.data_out()) << endl;
   }
 
   // 出力用の追加の .names 文
-  for ( auto& node: network().primary_output_list() ) {
-    auto id = node.id();
-    string name = node_name(id);
-    auto src_id = node.output_src();
-    string src_name = node_name(src_id);
+  for ( auto node: network().primary_output_list() ) {
+    string name = node_name(node);
+    auto src_node = node.output_src();
+    string src_name = node_name(src_node);
     if ( name != src_name ) {
       s << ".names " << src_name << " " << name << endl
 	<< "1 1" << endl;
@@ -154,17 +152,16 @@ BlifWriter::operator()(
   }
 
   // .names 文の出力
-  for ( auto& node: network().logic_list() ) {
-    auto id = node.id();
-    if ( !is_data(id) ) {
+  for ( auto node: network().logic_list() ) {
+    if ( !is_data(node) ) {
       continue;
     }
 
     s << ".names";
-    for ( auto iid: node.fanin_id_list() ) {
-      s << " " << node_name(iid);
+    for ( auto inode: node.fanin_list() ) {
+      s << " " << inode.name();
     }
-    s << " " << node_name(id) << endl;
+    s << " " << node_name(node) << endl;
     auto type = node.type();
     auto ni = node.fanin_num();
     switch ( type ) {
@@ -262,7 +259,7 @@ BlifWriter::operator()(
       break;
     case BnNodeType::Expr:
       {
-	const Expr& expr = network().expr(node.expr_id());
+	auto expr = network().expr(node.expr_id());
 	if ( expr.is_sop() ) {
 	  if ( expr.is_and() ) {
 	    // 個々の子供はリテラルのはず．

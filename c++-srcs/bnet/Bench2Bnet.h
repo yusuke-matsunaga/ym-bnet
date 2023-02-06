@@ -72,10 +72,10 @@ private:
   );
 
   /// @brief MUX を作る．
-  SizeType
+  BnNode
   make_mux(
-    const string& oname,                  ///< [in] 出力名
-    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノードIDのリスト
+    const string& oname,             ///< [in] 出力名
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノードIDのリスト
   );
 
 
@@ -94,13 +94,13 @@ private:
   string mClockName;
 
   // 名前IDをキーにしてノード番号を格納するハッシュ表
-  unordered_map<SizeType, SizeType> mIdMap;
+  unordered_map<SizeType, BnNode> mNodeMap;
 
   // 出力のノードIDをキーにしてファンインの名前IDを格納するハッシュ表
   unordered_map<SizeType, SizeType> mOutputMap;
 
-  // クロック端子のノード番号
-  SizeType mClockId;
+  // クロック端子のノード
+  BnNode mClock;
 
 };
 

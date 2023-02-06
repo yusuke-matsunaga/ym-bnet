@@ -75,9 +75,6 @@ Blif2Bnet::Blif2Bnet(
     mClockName{clock_name},
     mResetName{reset_name}
 {
-  mClockId = BNET_NULLID;
-  mResetId = BNET_NULLID;
-
   mNetwork.set_name(model.name());
 
   for ( SizeType src_id: model.input_list() ) {
@@ -95,9 +92,9 @@ Blif2Bnet::Blif2Bnet(
   for ( auto& p: mOutputMap ) {
     auto id = p.first;
     auto src_id = p.second;
-    ASSERT_COND( mIdMap.count(src_id) > 0 );
-    auto inode_id = mIdMap.at(src_id);
-    mNetwork.set_output_src(id, inode_id);
+    ASSERT_COND( mNodeMap.count(src_id) > 0 );
+    auto inode = mNodeMap.at(src_id);
+    mNetwork.set_output_src(mNetwork.node(id), inode);
   }
 }
 
@@ -115,10 +112,9 @@ Blif2Bnet::make_input(
 )
 {
   auto oname = mModel.node_name(src_id);
-  auto port_id = mNetwork.new_input_port(oname);
-  const auto& port = mNetwork.port(port_id);
-  auto id = port.bit(0);
-  mIdMap.emplace(src_id, id);
+  auto port = mNetwork.new_input_port(oname);
+  auto node = port.bit(0);
+  mNodeMap.emplace(src_id, node);
 }
 
 // @brief 出力を設定する．
@@ -129,15 +125,14 @@ Blif2Bnet::set_output(
 {
   auto name = mModel.node_name(src_id);
   string name1;
-  if ( mNetwork.find_port(name) == static_cast<SizeType>(-1) ) {
+  if ( mNetwork.find_port(name).is_invalid() ) {
     name1 = name;
   }
-  auto port_id = mNetwork.new_output_port(name1);
-  const auto& port = mNetwork.port(port_id);
-  auto id = port.bit(0);
-  ASSERT_COND( mIdMap.count(src_id) > 0 );
-  auto inode_id = mIdMap.at(src_id);
-  mNetwork.set_output_src(id, inode_id);
+  auto port = mNetwork.new_output_port(name1);
+  auto node = port.bit(0);
+  ASSERT_COND( mNodeMap.count(src_id) > 0 );
+  auto inode = mNodeMap.at(src_id);
+  mNetwork.set_output_src(node, inode);
 }
 
 // @brief DFFを作る．
@@ -156,44 +151,41 @@ Blif2Bnet::make_dff(
   else if ( rval == '1' ) {
     has_preset = true;
   }
-  auto dff_id = mNetwork.new_dff(oname, has_clear, has_preset);
-  const auto& dff = mNetwork.dff(dff_id);
+  auto dff = mNetwork.new_dff(oname, has_clear, has_preset);
 
-  auto output_id = dff.data_out();
-  mIdMap.emplace(src_id, output_id);
+  auto output = dff.data_out();
+  mNodeMap.emplace(src_id, output);
 
-  auto input_id = dff.data_in();
+  auto input = dff.data_in();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   auto inode_id = mModel.node_input(src_id);
-  mOutputMap.emplace(input_id, inode_id);
+  mOutputMap.emplace(input.id(), inode_id);
 
-  if ( mClockId == BNET_NULLID ) {
+  if ( mClock.is_invalid() ) {
     // クロックのポートを作る．
-    auto port_id = mNetwork.new_input_port(mClockName);
-    const auto& clock_port = mNetwork.port(port_id);
-    // クロックの入力ノード番号を記録する．
-    mClockId = clock_port.bit(0);
+    auto clock_port = mNetwork.new_input_port(mClockName);
+    // クロックの入力ノードを記録する．
+    mClock = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  mNetwork.set_output_src(dff.clock(), mClockId);
+  mNetwork.set_output_src(dff.clock(), mClock);
 
   if ( has_clear || has_preset ) {
-    if ( mResetId == BNET_NULLID ) {
+    if ( mReset.is_invalid() ) {
       // リセット端子のポートを作る．
-      auto port_id = mNetwork.new_input_port(mResetName);
-      const auto& reset_port = mNetwork.port(port_id);
+      auto reset_port = mNetwork.new_input_port(mResetName);
       // リセット端子の入力ノードを記録する．
-      mResetId = reset_port.bit(0);
+      mReset = reset_port.bit(0);
     }
   }
   if ( has_clear ) {
     // リセット入力とクリア端子を結びつける．
-    mNetwork.set_output_src(dff.clear(), mResetId);
+    mNetwork.set_output_src(dff.clear(), mReset);
   }
   else if ( has_preset ) {
     // リセット入力とプリセット端子を結びつける．
-    mNetwork.set_output_src(dff.preset(), mResetId);
+    mNetwork.set_output_src(dff.preset(), mReset);
   }
 }
 
@@ -207,29 +199,29 @@ Blif2Bnet::make_logic(
 
   // ファンインのノードを作る．
   SizeType ni = mModel.node_fanin_list(src_id).size();
-  vector<SizeType> fanin_id_list;
-  fanin_id_list.reserve(ni);
+  vector<BnNode> fanin_list;
+  fanin_list.reserve(ni);
   for ( auto iid: mModel.node_fanin_list(src_id) ) {
-    ASSERT_COND( mIdMap.count(iid) > 0 );
-    fanin_id_list.push_back(mIdMap.at(iid));
+    ASSERT_COND( mNodeMap.count(iid) > 0 );
+    fanin_list.push_back(mNodeMap.at(iid));
   }
 
   auto type = mModel.node_type(src_id);
-  SizeType id;
+  BnNode node;
   if ( type == BlifType::Cover ) {
     auto cover_id = mModel.node_cover_id(src_id);
     auto& cover = mModel.cover(cover_id);
     auto expr = cover.expr();
-    id = mNetwork.new_logic_expr(oname, expr, fanin_id_list);
+    node = mNetwork.new_logic_expr(oname, expr, fanin_list);
   }
   else if ( type == BlifType::Cell ) {
     auto cell_id = mModel.node_cell_id(src_id);
-    id = mNetwork.new_logic_cell(oname, cell_id, fanin_id_list);
+    node = mNetwork.new_logic_cell(oname, cell_id, fanin_list);
   }
   else {
     ASSERT_NOT_REACHED;
   }
-  mIdMap.emplace(src_id, id);
+  mNodeMap.emplace(src_id, node);
 }
 
 END_NAMESPACE_YM_BNET

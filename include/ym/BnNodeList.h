@@ -23,7 +23,7 @@ public:
 
   /// @brief コンストラクタ
   BnNodeListIter(
-    const BnNetwork& network,             ///< [in] 対象のネットワーク
+    const BnNetworkImpl* network,         ///< [in] 対象のネットワーク
     vector<SizeType>::const_iterator iter ///< [in] ノード番号のリストの反復子
   ) : mNetwork{network},
       mIter{iter}
@@ -40,8 +40,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を取り出す．
-  const BnNode&
-  operator*() const;
+  BnNode
+  operator*() const
+  {
+    return BnNode{mNetwork, *mIter};
+  }
 
   /// @brief 一つ進める．
   BnNodeListIter&
@@ -57,7 +60,7 @@ public:
     const BnNodeListIter& right
   ) const
   {
-    return &mNetwork == &right.mNetwork && mIter == right.mIter;
+    return mNetwork == right.mNetwork && mIter == right.mIter;
   }
 
   /// @brief 非等価比較演算子
@@ -76,7 +79,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
   // ノード番号のリストの反復子
   vector<SizeType>::const_iterator mIter;
@@ -98,7 +101,7 @@ public:
 
   /// @brief コンストラクタ
   BnNodeList(
-    const BnNetwork& network,       ///< [in] 対象のネットワーク
+    const BnNetworkImpl* network,   ///< [in] 対象のネットワーク
     const vector<SizeType>& id_list ///< [in] ノード番号のリスト
   ) : mNetwork{network},
       mIdList{id_list}
@@ -113,6 +116,19 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 要素数を返す．
+  SizeType
+  size() const
+  {
+    return mIdList.size();
+  }
+
+  /// @brief 要素を返す．
+  BnNode
+  operator[](
+    SizeType pos
+  ) const;
 
   /// @brief 先頭の反復子を返す．
   iterator
@@ -129,10 +145,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
   // ID番号のリスト
-  const vector<SizeType>& mIdList;
+  const vector<SizeType> mIdList;
 
 };
 
@@ -146,8 +162,8 @@ public:
 
   /// @brief コンストラクタ
   BnAllNodeListIter(
-    const BnNetwork& network, ///< [in] 対象のネットワーク
-    SizeType pos              ///< [in] 位置
+    const BnNetworkImpl* network, ///< [in] 対象のネットワーク
+    SizeType pos                  ///< [in] 位置
   ) : mNetwork{network},
       mPos{pos}
   {
@@ -163,7 +179,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を取り出す．
-  const BnNode&
+  BnNode
   operator*() const;
 
   /// @brief 一つ進める．
@@ -176,7 +192,7 @@ public:
     const BnAllNodeListIter& right
   ) const
   {
-    return &mNetwork == &right.mNetwork && mPos == right.mPos;
+    return mNetwork == right.mNetwork && mPos == right.mPos;
   }
 
   /// @brief 非等価比較演算子
@@ -195,7 +211,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
   // 位置
   SizeType mPos;
@@ -217,7 +233,7 @@ public:
 
   /// @brief コンストラクタ
   BnAllNodeList(
-    const BnNetwork& network ///< [in] 対象のネットワーク
+    const BnNetworkImpl* network ///< [in] 対象のネットワーク
   ) : mNetwork{network}
   {
   }
@@ -246,7 +262,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
 };
 

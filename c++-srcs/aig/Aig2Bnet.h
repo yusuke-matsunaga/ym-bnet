@@ -48,8 +48,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // AIG のリテラルと BnNetwork のノード番号の対応表
-  unordered_map<SizeType, SizeType> mLitMap;
+  // AIG のリテラルと BnNetwork のノードの対応表
+  unordered_map<SizeType, BnNode> mLitMap;
 
 };
 

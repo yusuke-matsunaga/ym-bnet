@@ -29,28 +29,26 @@ BEGIN_NONAMESPACE
 void
 get_support_sub(
   const BnNetwork& network,
-  SizeType node_id,
+  BnNode node,
   unordered_set<SizeType>& marks,
   vector<SizeType>& node_list,
   vector<SizeType>& input_list
 )
 {
-  if ( marks.count(node_id) ) {
+  if ( marks.count(node.id()) ) {
     // 処理済み
     return;
   }
-  marks.emplace(node_id);
-  auto& node = network.node(node_id);
+  marks.emplace(node.id());
   if ( node.is_input() ) {
-    input_list.push_back(node_id);
+    input_list.push_back(node.id());
   }
   else {
-    SizeType ni = node.fanin_num();
-    for ( SizeType i = 0; i < ni; ++ i ) {
-      get_support_sub(network, node.fanin_id(i),
+    for ( auto inode: node.fanin_list() ) {
+      get_support_sub(network, inode,
 		      marks, node_list, input_list);
     }
-    node_list.push_back(node_id);
+    node_list.push_back(node.id());
   }
 }
 
@@ -64,7 +62,7 @@ OutputSplit::split(
 )
 {
   // 関係するノードに印をつける．
-  auto& output = src_network.output_node(output_pos);
+  auto output = src_network.output_node(output_pos);
   unordered_set<SizeType> marks;
   vector<SizeType> node_list;
   vector<SizeType> input_list;
@@ -72,34 +70,32 @@ OutputSplit::split(
 		  marks, node_list, input_list);
 
   clear();
-  mIdMap.clear();
+  mNodeMap.clear();
 
   // 入力を複製する．
   for ( auto src_id: input_list ) {
-    auto& src_node = src_network.node(src_id);
-    auto port_id = new_input_port(src_node.name());
-    auto& dst_port = port(port_id);
-    auto dst_id = dst_port.bit(0);
-    mIdMap.emplace(src_id, dst_id);
+    auto src_node = src_network.node(src_id);
+    auto dst_port = new_input_port(src_node.name());
+    auto dst_node = dst_port.bit(0);
+    mNodeMap.emplace(src_id, dst_node);
   }
 
   // 論理ノードを複製する．
   for ( auto src_id: node_list ) {
-    auto& src_node = src_network.node(src_id);
-    auto name = src_node.name();
-    auto dst_id = copy_logic(src_node, src_network, mIdMap);
-    mIdMap.emplace(src_id, dst_id);
+    auto src_node = src_network.node(src_id);
+    auto dst_node = copy_logic(src_node, mNodeMap);
+    mNodeMap.emplace(src_id, dst_node);
   }
 
   // 出力ノードを複製する．
   {
-    auto src_id = output.output_src();
-    ASSERT_COND( mIdMap.count(src_id) > 0 );
-    auto dst_id = mIdMap.at(src_id);
-    auto port_id = new_output_port(output.name());
-    auto& dst_port = port(port_id);
-    auto dst_oid = dst_port.bit(0);
-    set_output_src(dst_oid, dst_id);
+    auto src_node = output.output_src();
+    SizeType src_id = src_node.id();
+    ASSERT_COND( mNodeMap.count(src_id) > 0 );
+    auto dst_inode = mNodeMap.at(src_id);
+    auto dst_port = new_output_port(output.name());
+    auto dst_node = dst_port.bit(0);
+    set_output_src(dst_node, dst_inode);
   }
 }
 

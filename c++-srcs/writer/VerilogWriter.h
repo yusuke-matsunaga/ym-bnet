@@ -104,7 +104,7 @@ private:
   /// @brief ポート名の登録を行う．
   void
   reg_port_name(
-    SizeType port_id,                 ///< [in] ポート番号
+    BnPort port,                      ///< [in] ポート番号
     unordered_set<string>& name_hash, ///< [in] ポート名のハッシュ
     NameMgr& name_mgr                 ///< [in] ポート名を管理するクラス
   );
@@ -112,7 +112,7 @@ private:
   /// @brief ノード名の登録を行う．
   void
   reg_node_name(
-    SizeType node_id,                 ///< [in] ノード番号
+    BnNode node,                      ///< [in] ノード番号
     unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
     NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
   );
@@ -120,7 +120,7 @@ private:
   /// @brief ノード名をそのファンインのノード名に付け替える．
   void
   replace_node_name(
-    SizeType node_id ///< [in] ノード番号
+    BnNode node ///< [in] ノード
   );
 
 

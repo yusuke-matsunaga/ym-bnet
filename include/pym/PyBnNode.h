@@ -70,7 +70,7 @@ public:
   ///
   /// _check(obj) == true であると仮定している．
   static
-  const BnNode&
+  BnNode
   _get(
     PyObject* obj ///< [in] 変換元の PyObject
   );

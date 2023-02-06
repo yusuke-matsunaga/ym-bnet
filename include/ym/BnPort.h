@@ -13,6 +13,9 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BnNetworkImpl;
+class BnPortImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BnPort BnPort.h "ym/BnPort.h"
 /// @brief Boolean Network (BnNetwork) のポートを表すクラス
@@ -30,8 +33,19 @@ public:
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 空のコンストラクタ
+  BnPort() = default;
+
+  /// @brief コンストラクタ
+  BnPort(
+    const BnNetworkImpl* network, ///< [in] ネットワーク
+    SizeType id                   ///< [in] ID番号
+  ) : mNetwork{network},
+      mId{id}
+  {
+  }
+
   /// @brief デストラクタ
-  virtual
   ~BnPort() = default;
 
 
@@ -40,28 +54,98 @@ public:
   // 内容を取得する関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 適正な値を持っている時 true を返す．
+  bool
+  is_valid() const
+  {
+    return mId != -1;
+  }
+
+  /// @brief 不正な値を持っている時 true を返す．
+  bool
+  is_invalid() const
+  {
+    return !is_valid();
+  }
+
   /// @brief ポート番号を返す．
-  virtual
   SizeType
-  id() const = 0;
+  id() const
+  {
+    return mId;
+  }
 
   /// @brief 名前を得る．
-  virtual
   string
-  name() const = 0;
+  name() const;
 
   /// @brief ビット数を得る．
-  virtual
   SizeType
-  bit_width() const = 0;
+  bit_width() const;
 
   /// @brief pos ビット目のノード番号を得る．
   /// @return 対応するノードのノード番号を返す．
-  virtual
-  SizeType
+  BnNode
   bit(
     SizeType pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
-  ) const = 0;
+  ) const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name 等価比較演算
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 等価比較演算
+  bool
+  operator==(
+    const BnPort& right
+  ) const
+  {
+    return mNetwork == right.mNetwork && mId == right.mId;
+  }
+
+  /// @brief 非等価比較演算
+  bool
+  operator!=(
+    const BnPort& right
+  ) const
+  {
+    return !operator==(right);
+  }
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内部の実装に関する走査
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 実装クラスを取り出す．
+  BnPortImpl*
+  _impl();
+
+  /// @brief ネットワークを取り出す．
+  const BnNetworkImpl*
+  _network()
+  {
+    return mNetwork;
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // ネットワーク
+  const BnNetworkImpl* mNetwork{nullptr};
+
+  // ID番号
+  SizeType mId{BNET_NULLID};
 
 };
 

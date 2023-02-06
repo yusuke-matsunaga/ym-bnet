@@ -9,6 +9,8 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/BnNode.h"
+
 
 BEGIN_NAMESPACE_YM
 
@@ -76,9 +78,10 @@ protected:
   /// @brief ノード名を返す．
   string
   node_name(
-    SizeType node_id ///< [in] ノード番号
+    BnNode node ///< [in] ノード
   ) const
   {
+    SizeType node_id = node.id();
     ASSERT_COND( 1 <= node_id && node_id <= mNameArray.size() );
 
     return mNameArray[node_id - 1];
@@ -89,9 +92,10 @@ protected:
   /// データ系ではないものはクロックとset/reset
   bool
   is_data(
-    SizeType node_id ///< [in] ノード番号
+    BnNode node ///< [in] ノード
   ) const
   {
+    SizeType node_id = node.id();
     ASSERT_COND( 1 <= node_id && node_id <= mDataArray.size() );
 
     return mDataArray[node_id - 1];
@@ -107,7 +111,7 @@ protected:
   /// name が空文字列の場合は登録しない．
   void
   reg_node_name(
-    SizeType node_id,                 ///< [in] ノード番号
+    BnNode node,                      ///< [in] ノード
     const string& name,               ///< [in] 登録する名前
     unordered_set<string>& name_hash, ///< [in] ノード名のハッシュ
     NameMgr& name_mgr                 ///< [in] ノード名を管理するクラス
@@ -116,10 +120,11 @@ protected:
   /// @brief ノード名をつける．
   void
   set_node_name(
-    SizeType node_id,   ///< [in] ノード番号
+    BnNode node,        ///< [in] ノード
     const string& name  ///< [in] 名前
   )
   {
+    SizeType node_id = node.id();
     ASSERT_COND( 1 <= node_id && node_id <= mNameArray.size() );
 
     mNameArray[node_id - 1] = name;
@@ -128,7 +133,7 @@ protected:
   /// @brief TFI のノードに印をつける．
   void
   mark_tfi(
-    SizeType node_id ///< [in] ノード番号
+    BnNode node ///< [in] ノード
   );
 
 

@@ -8,7 +8,7 @@
 /// Copyright (C) 2016, 2021 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/BnPort.h"
+#include "ym/bnet.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -17,8 +17,7 @@ BEGIN_NAMESPACE_YM_BNET
 /// @class BnPortImpl BnPortImpl.h "BnPortImpl.h"
 /// @brief BnPort の実装クラス
 //////////////////////////////////////////////////////////////////////
-class BnPortImpl :
-  public BnPort
+class BnPortImpl
 {
 public:
 
@@ -32,6 +31,7 @@ public:
   }
 
   /// @brief デストラクタ
+  virtual
   ~BnPortImpl() = default;
 
 
@@ -42,11 +42,30 @@ public:
 
   /// @brief ポート番号を返す．
   SizeType
-  id() const override;
+  id() const
+  {
+    return mId;
+  }
 
   /// @brief 名前を得る．
   string
-  name() const override;
+  name() const
+  {
+    return mName;
+  }
+
+  /// @brief ビット数を得る．
+  virtual
+  SizeType
+  bit_width() const = 0;
+
+  /// @brief pos ビット目のノード番号を得る．
+  /// @return 対応するノードのノード番号を返す．
+  virtual
+  SizeType
+  bit(
+    SizeType pos ///< [in] ビット位置 ( 0 <= pos < bit_width() )
+  ) const = 0;
 
 
 private:

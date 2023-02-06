@@ -28,45 +28,45 @@ SimpleDecomp::decomp(
   const BnNetwork& src_network
 )
 {
-  unordered_map<SizeType, SizeType> id_map;
+  unordered_map<SizeType, BnNode> node_map;
 
-  make_skelton_copy(src_network, id_map);
+  make_skelton_copy(src_network, node_map);
 
   // DFFをコピーする．
-  for ( auto& src_dff: src_network.dff_list() ) {
-    copy_dff(src_dff, id_map);
+  for ( auto src_dff: src_network.dff_list() ) {
+    copy_dff(src_dff, node_map);
   }
 
   // 論理ノードを分解しつつコピーする．
-  for ( auto& src_node: src_network.logic_list() ) {
-    SizeType dst_id;
+  for ( auto src_node: src_network.logic_list() ) {
+    BnNode dst_node;
     if ( src_node.type() == BnNodeType::Expr ) {
       SizeType ni = src_node.fanin_num();
       mTermList.clear();
-      mTermList.resize(ni * 2, BNET_NULLID);
+      mTermList.resize(ni * 2);
       for ( SizeType i = 0; i < ni; ++ i ) {
 	auto src_iid = src_node.fanin_id(i);
-	ASSERT_COND( id_map.count(src_iid) > 0 );
-	auto dst_iid = id_map.at(src_iid);
-	mTermList[i * 2 + 0] = dst_iid;
+	ASSERT_COND( node_map.count(src_iid) > 0 );
+	auto dst_inode = node_map.at(src_iid);
+	mTermList[i * 2 + 0] = dst_inode;
       }
-      const Expr& expr = src_network.expr(src_node.expr_id());
-      dst_id = decomp_expr(expr);
+      auto expr = src_network.expr(src_node.expr_id());
+      dst_node = decomp_expr(expr);
     }
     else {
-      dst_id = copy_logic(src_node, src_network, id_map);
+      dst_node = copy_logic(src_node, node_map);
     }
-    id_map.emplace(src_node.id(), dst_id);
+    node_map.emplace(src_node.id(), dst_node);
   }
 
   // 出力のファンインをセットする．
-  for ( auto& src_node: src_network.output_list() ) {
-    copy_output(src_node, id_map);
+  for ( auto src_node: src_network.output_list() ) {
+    copy_output(src_node, node_map);
   }
 }
 
 // @brief 論理式型のノードを分解する．
-SizeType
+BnNode
 SimpleDecomp::decomp_expr(
   const Expr& expr
 )
@@ -79,7 +79,7 @@ SimpleDecomp::decomp_expr(
   else if ( expr.is_nega_literal() ) {
     auto varid = expr.varid();
     auto index = varid * 2 + 1;
-    if ( mTermList[index] == BNET_NULLID ) {
+    if ( mTermList[index].is_invalid() ) {
       mTermList[index] = new_not(string{}, mTermList[index - 1]);
     }
     return mTermList[index];
@@ -87,13 +87,13 @@ SimpleDecomp::decomp_expr(
   // 定数はありえない．
   ASSERT_COND( expr.is_op() );
 
-  vector<SizeType> new_fanin_list;
+  vector<BnNode> new_fanin_list;
   new_fanin_list.reserve(expr.operand_num());
   for ( auto& opr: expr.operand_list() ) {
-    auto iid = decomp_expr(opr);
-    new_fanin_list.push_back(iid);
+    auto inode = decomp_expr(opr);
+    new_fanin_list.push_back(inode);
   }
-  BnNodeType node_type{BnNodeType::None};
+  auto node_type = BnNodeType::None;
   if ( expr.is_and() ) {
     node_type = BnNodeType::And;
   }
@@ -107,9 +107,8 @@ SimpleDecomp::decomp_expr(
     ASSERT_NOT_REACHED;
   }
 
-  auto id = new_logic_primitive({}, node_type, new_fanin_list);
-
-  return id;
+  auto node = new_logic_primitive({}, node_type, new_fanin_list);
+  return node;
 }
 
 END_NAMESPACE_YM_BNET

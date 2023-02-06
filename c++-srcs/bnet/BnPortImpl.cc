@@ -7,28 +7,10 @@
 /// All rights reserved.
 
 #include "BnPortImpl.h"
+#include "ym/BnNode.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
-
-//////////////////////////////////////////////////////////////////////
-// クラス BnPortImpl
-//////////////////////////////////////////////////////////////////////
-
-// @brief ポート番号を返す．
-SizeType
-BnPortImpl::id() const
-{
-  return mId;
-}
-
-// @brief 名前を得る．
-string
-BnPortImpl::name() const
-{
-  return mName;
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // クラス BnPort1
@@ -42,7 +24,6 @@ BnPort1::bit_width() const
 }
 
 // @brief pos ビット目の内容を得る．
-// @return 対応するノード番号を返す．
 SizeType
 BnPort1::bit(
   SizeType pos
@@ -65,8 +46,6 @@ BnPortN::bit_width() const
 }
 
 // @brief pos ビット目の内容を得る．
-// @param[in] pos ビット位置 ( 0 <= pos < bit_width() )
-// @return 対応するノード番号を返す．
 SizeType
 BnPortN::bit(
   SizeType pos

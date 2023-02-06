@@ -61,37 +61,35 @@ ReadTruth::read(
   SizeType no = func_vect.size();
   if ( no > 0 ) {
     // 入力ポートの生成
-    vector<SizeType> input_list(ni);
+    vector<BnNode> input_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
       ostringstream buf;
       buf << "i" << i;
-      auto port_id = new_input_port(buf.str());
-      const auto& port = this->port(port_id);
+      auto port = new_input_port(buf.str());
       input_list[i] = port.bit(0);
     }
     // 出力ポートの生成
-    vector<SizeType> output_list(no);
+    vector<BnNode> output_list(no);
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "o" << i;
-      auto port_id = new_output_port(buf.str());
-      const auto& port = this->port(port_id);
+      auto port = new_output_port(buf.str());
       output_list[i] = port.bit(0);
     }
     // 論理ノードの生成
     // 注意が必要なのは .truth フォーマットでは最上位の変数が
     // 最後の変数だということ．
     // ファンインリストは input_list の逆順になる．
-    vector<SizeType> fanin_id_list(ni);
+    vector<BnNode> fanin_id_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
       fanin_id_list[i] = input_list[ni - i - 1];
     }
     for ( SizeType i = 0; i < no; ++ i ) {
       ostringstream buf;
       buf << "l" << i;
-      auto node_id = new_logic_bdd(buf.str(), func_vect[i],
-				   fanin_id_list);
-      set_output_src(output_list[i], node_id);
+      auto node = new_logic_bdd(buf.str(), func_vect[i],
+				fanin_id_list);
+      set_output_src(output_list[i], node);
     }
   }
 }

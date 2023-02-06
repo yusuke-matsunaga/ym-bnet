@@ -152,15 +152,15 @@ public:
   port_num() const;
 
   /// @brief ポートの情報を得る．
-  const BnPort&
+  BnPort
   port(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < port_num() )
   ) const;
 
   /// @brief ポート名からポート番号を得る．
   ///
-  /// 見つからない場合は -1 を返す．
-  SizeType
+  /// 見つからない場合は不正な値を持つ BnPort を返す．
+  BnPort
   find_port(
     const string& name ///< [in] ポート名
   ) const;
@@ -174,7 +174,7 @@ public:
   dff_num() const;
 
   /// @brief DFFを得る．
-  const BnDff&
+  BnDff
   dff(
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < dff_num() )
   ) const;
@@ -189,9 +189,9 @@ public:
 
   /// @brief ノードを得る．
   ///
-  /// const BnNode& node = BnNetwork::node(id);
+  /// BnNode node = BnNetwork::node(id);
   /// node.id() == id が成り立つ．
-  const BnNode&
+  BnNode
   node(
     SizeType id ///< [in] ノード番号 ( 1 <= id <= node_num() )
   ) const;
@@ -210,8 +210,8 @@ public:
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
   ) const;
 
-  /// @brief 入力ノードのノード番号を得る．
-  const BnNode&
+  /// @brief 入力ノードのノードを得る．
+  BnNode
   input_node(
     SizeType pos ///< [in] 入力番号 ( 0 <= pos < input_num() )
   ) const
@@ -238,7 +238,7 @@ public:
   ) const;
 
   /// @brief 出力ノードを得る．
-  const BnNode&
+  BnNode
   output_node(
     SizeType pos ///< [in] 出力番号 ( 0 <= pos < output_num() )
   ) const

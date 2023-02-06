@@ -50,12 +50,12 @@ private:
   void
   decomp_node(
     const BnNode& node,                       ///< [in] 対象のノード
-    unordered_map<SizeType, SizeType>& id_map ///< [in] ID番号の対応表
+    unordered_map<SizeType, BnNode>& node_map ///< [in] ID番号の対応表
   );
 
   /// @brief 論理式を分解する．
   /// @return 生成したノード番号を返す．
-  SizeType
+  BnNode
   decomp_expr(
     const Expr& expr ///< [in] 論理式
   );
@@ -66,8 +66,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力ノード番号
-  vector<SizeType> mTermList;
+  // 入力ノード
+  vector<BnNode> mTermList;
 
 };
 

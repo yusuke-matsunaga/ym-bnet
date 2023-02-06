@@ -21,22 +21,22 @@ TEST(BnNetworkTest, make_skelton_copy)
   BnNetwork src_network = BnNetwork::read_blif(path);
 
   BnModifier mod;
-  unordered_map<SizeType, SizeType> node_map;
+  unordered_map<SizeType, BnNode> node_map;
   mod.make_skelton_copy(src_network, node_map);
   BnNetwork dst_network{std::move(mod)};
 
   SizeType np = src_network.port_num();
   for ( SizeType i = 0; i < np; ++ i ) {
-    auto& src_port = src_network.port(i);
-    auto& dst_port = dst_network.port(i);
+    auto src_port = src_network.port(i);
+    auto dst_port = dst_network.port(i);
     EXPECT_EQ( src_port.id(), dst_port.id() );
     SizeType nb = src_port.bit_width();
     EXPECT_EQ( nb, dst_port.bit_width() );
     for ( SizeType j = 0; j < nb; ++ j ) {
-      SizeType src_id = src_port.bit(j);
-      SizeType dst_id = dst_port.bit(j);
-      EXPECT_TRUE( node_map.count(src_id) > 0 );
-      EXPECT_EQ( dst_id, node_map.at(src_id) );
+      auto src_node = src_port.bit(j);
+      auto dst_node = dst_port.bit(j);
+      EXPECT_TRUE( node_map.count(src_node.id()) > 0 );
+      EXPECT_EQ( dst_node, node_map.at(src_node.id()) );
     }
   }
 }

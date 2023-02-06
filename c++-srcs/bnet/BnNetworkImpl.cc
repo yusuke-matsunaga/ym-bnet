@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "BnNetworkImpl.h"
+#include "ym/Bdd.h"
 #include "ym/ClibCell.h"
 #include "ym/ClibPin.h"
 #include "ym/Expr.h"
@@ -123,8 +124,8 @@ BnNetworkImpl::new_dff(
   // プリセット端子
   auto preset_id = _new_preset(name, dff_id, has_preset);
 
-  auto dff = new BnDffImpl{dff_id, name, input_id, output_id,
-			   clock_id, clear_id, preset_id, cpv};
+  auto dff = new BnDff_FF{dff_id, name, input_id, output_id,
+			  clock_id, clear_id, preset_id, cpv};
   mDffList.push_back(dff);
 
   return dff->id();
@@ -156,7 +157,7 @@ BnNetworkImpl::new_latch(
   // プリセット端子
   auto preset_id = _new_preset(name, dff_id, has_preset);
 
-  auto dff = new BnLatchImpl{dff_id, name, input_id, output_id,
+  auto dff = new BnDff_Latch{dff_id, name, input_id, output_id,
 			     enable_id, clear_id, preset_id, cpv};
   mDffList.push_back(dff);
 
@@ -198,7 +199,7 @@ BnNetworkImpl::new_dff_cell(
     output_list[i] = _new_cell_output(name, dff_id, i);
   }
 
-  auto dff = new BnDffCell{dff_id, name, cell_id, input_list, output_list};
+  auto dff = new BnDff_Cell{dff_id, name, cell_id, input_list, output_list};
   mDffList.push_back(dff);
 
   return dff_id;
@@ -241,7 +242,7 @@ BnNetworkImpl::new_port(
     }
   }
 
-  BnPort* port;
+  BnPortImpl* port;
   if ( bit_width == 1 ) {
     port = new BnPort1{port_id, port_name, bits[0]};
   }
@@ -250,7 +251,7 @@ BnNetworkImpl::new_port(
   }
   mPortList.push_back(port);
   if ( port_name != string{} ) {
-    mPortDict.emplace(port_name, port);
+    mPortDict.emplace(port_name, port_id);
   }
 
   return port_id;
@@ -263,8 +264,7 @@ BnNetworkImpl::find_port(
 ) const
 {
   if ( mPortDict.count(name) > 0 ) {
-    auto port = mPortDict.at(name);
-    return port->id();
+    return mPortDict.at(name);
   }
   else {
     return static_cast<SizeType>(-1);
@@ -432,7 +432,7 @@ BnNetworkImpl::substitute_fanout(
     // old_id のファンインを探す．
     if ( dst_node->is_output() ) {
       ASSERT_COND( dst_node->output_src() == old_id );
-      set_output_src(dst, new_id);
+      set_output_src(dst_node, new_id);
     }
     else {
       SizeType ipos = dst_node->fanin_num() + 1;
@@ -453,14 +453,13 @@ BnNetworkImpl::substitute_fanout(
 // @brief 出力ノードのファンインを設定する．
 void
 BnNetworkImpl::set_output_src(
-  SizeType output_id,
+  BnNodeImpl* onode,
   SizeType src_id
 )
 {
   ASSERT_COND( _check_node_id(src_id) );
-  auto dst_node = _node_p(output_id);
-  ASSERT_COND( dst_node->is_output() );
-  dst_node->set_output_src(src_id);
+  ASSERT_COND( onode->is_output() );
+  onode->set_output_src(src_id);
 
   mSane = false;
 }
@@ -470,7 +469,7 @@ BEGIN_NONAMESPACE
 inline
 string
 port_name(
-  const BnPort* port,
+  const BnPortImpl* port,
   SizeType bit_pos
 )
 {
@@ -484,7 +483,7 @@ port_name(
 inline
 string
 dff_name(
-  const BnDff* dff
+  const BnDffImpl* dff
 )
 {
   ostringstream buf;

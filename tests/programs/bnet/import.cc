@@ -22,13 +22,9 @@ import_test(
   BnNetwork network1;
   { // network1 は２入力ANDからなるネットワーク
     BnModifier mod1;
-    auto port1_id = mod1.new_input_port("port1");
-    auto port2_id = mod1.new_input_port("port2");
-    auto port3_id = mod1.new_output_port("port3");
-
-    auto& port1 = mod1.port(port1_id);
-    auto& port2 = mod1.port(port2_id);
-    auto& port3 = mod1.port(port3_id);
+    auto port1 = mod1.new_input_port("port1");
+    auto port2 = mod1.new_input_port("port2");
+    auto port3 = mod1.new_output_port("port3");
 
     auto input1 = port1.bit(0);
     auto input2 = port2.bit(0);
@@ -43,36 +39,30 @@ import_test(
   BnNetwork network2;
   {
     BnModifier mod2;
-    auto port1_id = mod2.new_input_port("port1");
-    auto port2_id = mod2.new_input_port("port2");
-    auto port3_id = mod2.new_input_port("port3");
-    auto port4_id = mod2.new_input_port("port4");
-
-    auto& port1 = mod2.port(port1_id);
-    auto& port2 = mod2.port(port2_id);
-    auto& port3 = mod2.port(port3_id);
-    auto& port4 = mod2.port(port4_id);
+    auto port1 = mod2.new_input_port("port1");
+    auto port2 = mod2.new_input_port("port2");
+    auto port3 = mod2.new_input_port("port3");
+    auto port4 = mod2.new_input_port("port4");
 
     auto input1 = port1.bit(0);
     auto input2 = port2.bit(0);
     auto input3 = port3.bit(0);
     auto input4 = port4.bit(0);
 
-    vector<SizeType> input_list1{input1, input2};
+    vector<BnNode> input_list1{input1, input2};
     auto output_list1 = mod2.import_subnetwork(network1, input_list1);
     ASSERT_COND( output_list1.size() == 1 );
 
-    vector<SizeType> input_list2{input3, input4};
+    vector<BnNode> input_list2{input3, input4};
     auto output_list2 = mod2.import_subnetwork(network1, input_list2);
     ASSERT_COND( output_list2.size() == 1 );
 
-    auto or_id = mod2.new_or(string(), {output_list1[0], output_list2[0]});
+    auto or_node = mod2.new_or(string(), {output_list1[0], output_list2[0]});
 
-    auto port5_id = mod2.new_output_port("port5");
-    auto& port5 = mod2.port(port5_id);
+    auto port5 = mod2.new_output_port("port5");
     auto output = port5.bit(0);
 
-    mod2.set_output_src(output, or_id);
+    mod2.set_output_src(output, or_node);
     network2.move(std::move(mod2));
   }
 

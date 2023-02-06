@@ -29,8 +29,8 @@ write_fanout(
 )
 {
   s << "  fanout:";
-  for ( auto id: node.fanout_id_list() ) {
-    s << " " << id;
+  for ( auto onode: node.fanout_list() ) {
+    s << " " << onode.id();
   }
   s << endl;
 }
@@ -46,19 +46,17 @@ BnNetwork::write(
   s << "network name : " << name() << endl
     << endl;
 
-  SizeType np = port_num();
-  for ( SizeType i = 0; i < np; ++ i ) {
-    auto& port = this->port(i);
+  for ( auto port: port_list() ) {
     s << "port#" << port.id() << ": ";
     s << "(" << port.name() << ") : ";
     for ( auto i: Range(port.bit_width()) ) {
-      s << " " << port.bit(i);
+      s << " " << port.bit(i).id();
     }
     s << endl;
   }
   s << endl;
 
-  for ( auto& node: input_list() ) {
+  for ( auto node: input_list() ) {
     ASSERT_COND( node.type() == BnNodeType::Input );
     s << "input: " << node.id()
       << "(" << node.name() << ")" << endl;
@@ -66,17 +64,15 @@ BnNetwork::write(
   }
   s << endl;
 
-  for ( auto& node: output_list() ) {
+  for ( auto node: output_list() ) {
     s << "output: " << node.id()
       << "(" << node.name() << ")" << endl
-      << "    input: " << node.output_src() << endl;
+      << "    input: " << node.output_src().id() << endl;
     write_fanout(s, node);
   }
   s << endl;
 
-  SizeType ndff = dff_num();
-  for ( SizeType i = 0; i < ndff; ++ i ) {
-    auto& dff = this->dff(i);
+  for ( auto dff: dff_list() ) {
     s << "dff#" << dff.id()
       << "(" << dff.name() << ")";
     if ( dff.is_dff() || dff.is_latch() ) {
@@ -87,37 +83,37 @@ BnNetwork::write(
 	s << "[LATCH]";
       }
       s << endl
-	<< "    input:  " << dff.data_in() << endl
-	<< "    output: " << dff.data_out() << endl
-	<< "    clock:  " << dff.clock() << endl;
-      if ( dff.clear() != BNET_NULLID ) {
-	s << "    clear:  " << dff.clear() << endl;
+	<< "    input:  " << dff.data_in().id() << endl
+	<< "    output: " << dff.data_out().id() << endl
+	<< "    clock:  " << dff.clock().id() << endl;
+      if ( dff.clear().is_valid() ) {
+	s << "    clear:  " << dff.clear().id() << endl;
       }
-      if ( dff.preset() != BNET_NULLID ) {
-	s << "    preset: " << dff.preset() << endl;
+      if ( dff.preset().is_valid() ) {
+	s << "    preset: " << dff.preset().id() << endl;
       }
     }
     else {
       s << "[CELL]" << endl;
       SizeType ni = dff.cell_input_num();
       for ( auto i: Range(ni) ) {
-	s << "    input#" << i << ":  " << dff.cell_input(i) << endl;
+	s << "    input#" << i << ":  " << dff.cell_input(i).id() << endl;
       }
       SizeType no = dff.cell_output_num();
       for ( auto i: Range(no) ) {
-	s << "    output#" << i << ": " << dff.cell_output(i) << endl;
+	s << "    output#" << i << ": " << dff.cell_output(i).id() << endl;
       }
     }
     s << endl;
   }
   s << endl;
 
-  for ( auto& node: logic_list() ) {
+  for ( auto node: logic_list() ) {
     s << "logic: " << node.id()
       << "(" << node.name() << ")" << endl
       << "    fanins: ";
-    for ( auto fanin_id: node.fanin_id_list() ) {
-    s << " " << fanin_id;
+    for ( auto fanin: node.fanin_list() ) {
+      s << " " << fanin.id();
     }
     s << endl;
     s << "    ";

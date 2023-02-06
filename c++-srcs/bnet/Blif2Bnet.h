@@ -52,25 +52,25 @@ private:
   /// @brief 入力を作る．
   void
   make_input(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] BlifModel のノード番号
   );
 
   /// @brief 出力を設定する．
   void
   set_output(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] BlifModel のノード番号
   );
 
   /// @brief DFFを作る．
   void
   make_dff(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] BlifModel のノード番号
   );
 
   /// @brief 論理ノードを生成する．
   void
   make_logic(
-    SizeType src_id ///< [in] BlifMode のノード番号
+    SizeType src_id ///< [in] BlifModel のノード番号
   );
 
 
@@ -91,17 +91,17 @@ private:
   // リセット端子名
   string mResetName;
 
-  // 名前IDをキーにしてノード番号を格納するハッシュ表
-  unordered_map<SizeType, SizeType> mIdMap;
+  // 名前IDをキーにしてノードを格納するハッシュ表
+  unordered_map<SizeType, BnNode> mNodeMap;
 
   // 出力ノードのノードIDをキーにしてファンインの名前IDを格納するハッシュ表
   unordered_map<SizeType, SizeType> mOutputMap;
 
-  // クロック端子のノード番号
-  SizeType mClockId;
+  // クロック端子のノード
+  BnNode mClock;
 
-  // リセット端子のノード番号
-  SizeType mResetId;
+  // リセット端子のノード
+  BnNode mReset;
 
 };
 

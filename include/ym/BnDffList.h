@@ -13,6 +13,8 @@
 
 BEGIN_NAMESPACE_YM_BNET
 
+class BnNetworkImpl;
+
 //////////////////////////////////////////////////////////////////////
 /// @class BnDffListIter BnDffList.h "BnDffList.h"
 /// @brief BnDffList の反復子
@@ -23,8 +25,8 @@ public:
 
   /// @brief コンストラクタ
   BnDffListIter(
-    const BnNetwork& network, ///< [in] 対象のネットワーク
-    SizeType pos              ///< [in] 位置番号
+    const BnNetworkImpl* network, ///< [in] 対象のネットワーク
+    SizeType pos                  ///< [in] 位置番号
   ) : mNetwork{network},
       mPos{pos}
   {
@@ -40,7 +42,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を取り出す．
-  const BnDff&
+  BnDff
   operator*() const;
 
   /// @brief 一つ進める．
@@ -57,7 +59,7 @@ public:
     const BnDffListIter& right
   ) const
   {
-    return &mNetwork == &right.mNetwork && mPos == right.mPos;
+    return mNetwork == right.mNetwork && mPos == right.mPos;
   }
 
   /// @brief 非等価比較演算
@@ -76,7 +78,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
   // 位置
   SizeType mPos;
@@ -98,7 +100,7 @@ public:
 
   /// @brief コンストラクタ
   BnDffList(
-    const BnNetwork& network ///< [in] 対象のネットワーク
+    const BnNetworkImpl* network ///< [in] 対象のネットワーク
   ) : mNetwork{network}
   {
   }
@@ -127,7 +129,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 対象のネットワーク
-  const BnNetwork& mNetwork;
+  const BnNetworkImpl* mNetwork;
 
 };
 

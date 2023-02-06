@@ -266,13 +266,13 @@ VerilogWriter::operator()(
 
   s << "module " << mNetwork.name() << "(";
   const char* comma = "";
-  for ( auto& port: mNetwork.port_list() ) {
+  for ( auto port: mNetwork.port_list() ) {
     const string& port_name = mPortNameArray[port.id()];
     SizeType nb = port.bit_width();
     s << comma;
     comma = ", ";
     if ( nb == 1 ) {
-      auto id = port.bit(0);
+      auto id = port.bit(0).id();
       if ( port_name == mNodeNameArray[id] ) {
 	s << port_name;
       }
@@ -284,7 +284,7 @@ VerilogWriter::operator()(
       s << "." << port_name << "(";
       const char* bit_comma = "";
       for ( SizeType i: Range(nb) ) {
-	auto id = port.bit(i);
+	auto id = port.bit(i).id();
 	s << bit_comma << mNodeNameArray[id];
 	bit_comma = ", ";
       }
@@ -294,14 +294,14 @@ VerilogWriter::operator()(
   s << ");" << endl;
 
   // 外部入力
-  for ( auto& node: mNetwork.primary_input_list() ) {
+  for ( auto node: mNetwork.primary_input_list() ) {
     auto id = node.id();
     s << "  " << "input  " << mNodeNameArray[id] << ";" << endl;
   }
   // 外部出力
-  for ( auto& node: mNetwork.primary_output_list() ) {
-    auto id = node.output_src();
-    s << "  " << "output " << mNodeNameArray[id] << ";" << endl;
+  for ( auto node: mNetwork.primary_output_list() ) {
+    auto onode = node.output_src();
+    s << "  " << "output " << mNodeNameArray[node.id()] << ";" << endl;
   }
   s << endl;
 
@@ -312,16 +312,16 @@ VerilogWriter::operator()(
   }
 
   // DFFの宣言
-  for ( auto& dff: mNetwork.dff_list() ) {
+  for ( auto dff: mNetwork.dff_list() ) {
     if ( dff.is_dff() || dff.is_latch() ) {
       s << "  reg    "
-	<< mNodeNameArray[dff.data_out()] << ";" << endl;
+	<< mNodeNameArray[dff.data_out().id()] << ";" << endl;
     }
     else if ( dff.is_cell() ) {
       SizeType no = dff.cell_output_num();
       for ( SizeType i: Range(no) ) {
 	s << "  wire   "
-	  << mNodeNameArray[dff.cell_output(i)] << ";" << endl;
+	  << mNodeNameArray[dff.cell_output(i).id()] << ";" << endl;
       }
     }
     else {
@@ -330,39 +330,39 @@ VerilogWriter::operator()(
   }
 
   // 論理ノードの宣言
-  for ( auto& node: mNetwork.logic_list() ) {
+  for ( auto node: mNetwork.logic_list() ) {
     s << "  " << "wire   " << mNodeNameArray[node.id()] << ";" << endl;
   }
 
   s << endl;
 
   // DFFの記述
-  for ( auto& dff: mNetwork.dff_list() ) {
+  for ( auto dff: mNetwork.dff_list() ) {
     if ( dff.is_dff() ) {
-      const string& dff_output = mNodeNameArray[dff.data_out()];
-      const string& dff_input = mNodeNameArray[dff.data_in()];
-      s << "  " << "always @ ( posedge " << mNodeNameArray[dff.clock()];
+      const string& dff_output = mNodeNameArray[dff.data_out().id()];
+      const string& dff_input = mNodeNameArray[dff.data_in().id()];
+      s << "  " << "always @ ( posedge " << mNodeNameArray[dff.clock().id()];
       auto clear = dff.clear();
-      if ( clear != BNET_NULLID ) {
-	s << " or posedge " << mNodeNameArray[clear];
+      if ( clear.is_valid() ) {
+	s << " or posedge " << mNodeNameArray[clear.id()];
       }
       auto preset = dff.preset();
-      if ( preset != BNET_NULLID ) {
-	s << " or posedge " << mNodeNameArray[preset];
+      if ( preset.is_valid() ) {
+	s << " or posedge " << mNodeNameArray[preset.id()];
       }
       s << " )" << endl;
       const char* if_str = "if";
-      if ( clear != BNET_NULLID ) {
-	s << "    " << if_str << " ( " << mNodeNameArray[clear] << ")" << endl
+      if ( clear.is_valid() ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[clear.id()] << ")" << endl
 	  << "      " << dff_output << " <= 1'b0;" << endl;
 	if_str = "else if";
       }
-      if ( preset != BNET_NULLID ) {
-	s << "    " << if_str << " ( " << mNodeNameArray[preset] << ")" << endl
+      if ( preset.is_valid() ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[preset.id()] << ")" << endl
 	  << "      " << dff_output << " <= 1'b1;" << endl;
 	if_str = "else if";
       }
-      if ( clear != BNET_NULLID || preset != BNET_NULLID ) {
+      if ( clear.is_valid() || preset.is_valid() ) {
 	s << "    else" << endl
 	  << "      " << dff_output << " <= " << dff_input << ";" << endl;
       }
@@ -371,30 +371,30 @@ VerilogWriter::operator()(
       }
     }
     else if ( dff.is_latch() ) {
-      const string& latch_output = mNodeNameArray[dff.data_out()];
-      const string& latch_input = mNodeNameArray[dff.data_in()];
-      s << "  " << "always @ ( " << mNodeNameArray[dff.clock()];
+      const string& latch_output = mNodeNameArray[dff.data_out().id()];
+      const string& latch_input = mNodeNameArray[dff.data_in().id()];
+      s << "  " << "always @ ( " << mNodeNameArray[dff.clock().id()];
       auto clear = dff.clear();
-      if ( clear != BNET_NULLID ) {
-	s << " or " << mNodeNameArray[clear];
+      if ( clear.is_valid() ) {
+	s << " or " << mNodeNameArray[clear.id()];
       }
       auto preset = dff.preset();
-      if ( preset != BNET_NULLID ) {
-	s << " or " << mNodeNameArray[preset];
+      if ( preset.is_valid() ) {
+	s << " or " << mNodeNameArray[preset.id()];
       }
       s << " )" << endl;
       const char* if_str = "if";
-      if ( clear != BNET_NULLID ) {
-	s << "    " << if_str << " ( " << mNodeNameArray[clear] << ")" << endl
+      if ( clear.is_valid() ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[clear.id()] << ")" << endl
 	  << "      " << latch_output << " = 1'b0;" << endl;
 	if_str = "else if";
       }
-      if ( preset != BNET_NULLID ) {
-	s << "    " << if_str << " ( " << mNodeNameArray[preset] << ")" << endl
+      if ( preset.is_valid() ) {
+	s << "    " << if_str << " ( " << mNodeNameArray[preset.id()] << ")" << endl
 	  << "      " << latch_output << " = 1'b1;" << endl;
 	if_str = "else if";
       }
-      if ( clear != BNET_NULLID || preset != BNET_NULLID ) {
+      if ( clear.is_valid() || preset.is_valid() ) {
 	s << "    else" << endl
 	  << "      " << latch_output << " = " << latch_input << ";" << endl;
       }
@@ -411,19 +411,19 @@ VerilogWriter::operator()(
       SizeType ni = cell.input_num();
       for ( SizeType i: Range(ni) ) {
 	s << ", ." << cell.input(i).name() << "("
-	  << mNodeNameArray[dff.cell_input(i)] << ")";
+	  << mNodeNameArray[dff.cell_input(i).id()] << ")";
       }
       SizeType no = cell.output_num();
       for ( SizeType i: Range(no) ) {
 	s << "." << cell.output(i).name() << "("
-	  << mNodeNameArray[dff.cell_output(i)] << ")";
+	  << mNodeNameArray[dff.cell_output(i).id()] << ")";
       }
       s << ");" << endl;
     }
   }
 
   // 論理ノードの記述
-  for ( auto& node: mNetwork.logic_list() ) {
+  for ( auto node: mNetwork.logic_list() ) {
     auto id = node.id();
     SizeType ni = node.fanin_num();
     vector<string> iname_array(ni);
@@ -512,12 +512,12 @@ VerilogWriter::init_name_array()
   // もともとポート名があればそれを使う．
   // ただし，重複していたら後ろのポート名を無効化する．
   // ポート名を持たない(もしくは無効化された)場合は自動生成名を用いる．
-  for ( auto& port: mNetwork.port_list() ) {
-    reg_port_name(port.id(), port_name_hash, port_name_mgr);
+  for ( auto port: mNetwork.port_list() ) {
+    reg_port_name(port, port_name_hash, port_name_mgr);
   }
 
   // 名無しのポートに名前を与える．
-  for ( auto& port: mNetwork.port_list() ) {
+  for ( auto port: mNetwork.port_list() ) {
     auto id = port.id();
     if ( mPortNameArray[id] == string() ) {
       string name = port_name_mgr.new_name(true);
@@ -532,21 +532,20 @@ VerilogWriter::init_name_array()
   unordered_set<string> name_hash;
 
   // 外部入力ノードの名前を登録する．
-  for ( auto& node: mNetwork.primary_input_list() ) {
-    auto id = node.id();
-    reg_node_name(id, name_hash, node_name_mgr);
+  for ( auto node: mNetwork.primary_input_list() ) {
+    reg_node_name(node, name_hash, node_name_mgr);
   }
 
   // FFの出力を登録する．
-  for ( auto& dff: mNetwork.dff_list() ) {
+  for ( auto dff: mNetwork.dff_list() ) {
     if ( dff.is_dff() || dff.is_latch() ) {
       reg_node_name(dff.data_out(), name_hash, node_name_mgr);
     }
   }
 
   // 論理ノードを登録する．
-  for ( auto& node: mNetwork.logic_list() ) {
-    reg_node_name(node.id(), name_hash, node_name_mgr);
+  for ( auto node: mNetwork.logic_list() ) {
+    reg_node_name(node, name_hash, node_name_mgr);
   }
 
   // 名無しのノードに名前を与える．
@@ -567,7 +566,7 @@ VerilogWriter::init_name_array()
   }
 
   // ノード用のインスタンス名を登録する．
-  for ( auto& node: mNetwork.logic_list() ) {
+  for ( auto node: mNetwork.logic_list() ) {
     if ( node.type() == BnNodeType::Cell ) {
       string name = instance_name_mgr.new_name(true);
       mNodeInstanceNameArray[node.id()] = name;
@@ -575,7 +574,7 @@ VerilogWriter::init_name_array()
   }
 
   // DFF用のインスタンス名を登録する．
-  for ( auto& dff: mNetwork.dff_list() ) {
+  for ( auto dff: mNetwork.dff_list() ) {
     if ( dff.is_cell() ) {
       string name = instance_name_mgr.new_name(true);
       mDffInstanceNameArray[dff.id()] = name;
@@ -583,12 +582,12 @@ VerilogWriter::init_name_array()
   }
 
   // 外部出力ノードの名前をそのファンインの名前に付け替える．
-  for ( auto& node: mNetwork.primary_output_list() ) {
-    replace_node_name(node.id());
+  for ( auto node: mNetwork.primary_output_list() ) {
+    replace_node_name(node);
   }
 
   // FFの入力ノードの名前をそのファンインの名前に付け替える．
-  for ( auto& dff: mNetwork.dff_list() ) {
+  for ( auto dff: mNetwork.dff_list() ) {
     if ( dff.is_dff() || dff.is_latch() ) {
       replace_node_name(dff.data_in());
       replace_node_name(dff.clock());
@@ -601,16 +600,15 @@ VerilogWriter::init_name_array()
 // @brief ノード名をそのファンインのノード名に付け替える．
 void
 VerilogWriter::replace_node_name(
-  SizeType node_id
+  BnNode node
 )
 {
-  if ( node_id == BNET_NULLID ) {
+  if ( node.is_invalid() ) {
     return;
   }
-  auto& node = mNetwork.node(node_id);
   ASSERT_COND( node.is_output() );
-  auto src_id = node.output_src();
-  mNodeNameArray[node_id] = mNodeNameArray[src_id];
+  auto src_node = node.output_src();
+  mNodeNameArray[node.id()] = mNodeNameArray[src_node.id()];
 }
 
 BEGIN_NONAMESPACE
@@ -642,12 +640,11 @@ END_NONAMESPACE
 // @brief ポート名の登録を行う．
 void
 VerilogWriter::reg_port_name(
-  SizeType port_id,
+  BnPort port,
   unordered_set<string>& name_hash,
   NameMgr& name_mgr
 )
 {
-  auto& port = mNetwork.port(port_id);
   string name = port.name();
   if ( name == string() ) {
     // ポート名がなかった．
@@ -662,18 +659,17 @@ VerilogWriter::reg_port_name(
   // 名前を登録する．
   name_mgr.add(name);
   name_hash.insert(name);
-  mPortNameArray[port_id] = name;
+  mPortNameArray[port.id()] = name;
 }
 
 // @brief ノード名の登録を行う．
 void
 VerilogWriter::reg_node_name(
-  SizeType node_id,
+  BnNode node,
   unordered_set<string>& name_hash,
   NameMgr& name_mgr
 )
 {
-  auto& node = mNetwork.node(node_id);
   string name = node.name();
   if ( name == string() ) {
     // 名前がなかった．
@@ -688,7 +684,7 @@ VerilogWriter::reg_node_name(
   // 名前を登録する．
   name_mgr.add(name);
   name_hash.insert(name);
-  mNodeNameArray[node_id] = name;
+  mNodeNameArray[node.id()] = name;
 }
 
 END_NAMESPACE_YM_BNET

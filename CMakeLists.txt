@@ -65,15 +65,18 @@ set ( aig_SOURCES
 
 set ( bnet_SOURCES
   c++-srcs/bnet/BinIO.cc
+  c++-srcs/bnet/BnDff.cc
   c++-srcs/bnet/BnDffImpl.cc
   c++-srcs/bnet/BnModifier.cc
   c++-srcs/bnet/BnNetwork.cc
   c++-srcs/bnet/BnNetworkImpl.cc
   c++-srcs/bnet/BnNetworkImpl_copy.cc
+  c++-srcs/bnet/BnNode.cc
   c++-srcs/bnet/BnNodeImpl.cc
   c++-srcs/bnet/BnInputNode.cc
   c++-srcs/bnet/BnOutputNode.cc
   c++-srcs/bnet/BnLogicNode.cc
+  c++-srcs/bnet/BnPort.cc
   c++-srcs/bnet/BnPortImpl.cc
   c++-srcs/bnet/FuncAnalyzer.cc
   c++-srcs/bnet/ReadTruth.cc

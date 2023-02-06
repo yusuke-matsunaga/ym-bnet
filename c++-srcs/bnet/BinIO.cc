@@ -52,7 +52,7 @@ BinIO::dump(
   mBddMap.clear();
   {
     vector<Bdd> bdd_list;
-    for ( auto& node: network.logic_list() ) {
+    for ( auto node: network.logic_list() ) {
       if ( node.type() == BnNodeType::Bdd ) {
 	auto bdd = node.bdd();
 	if ( mBddMap.count(bdd) == 0 ) {
@@ -68,13 +68,12 @@ BinIO::dump(
   // ポート
   SizeType np = network.port_num();
   s.write_vint(np);
-  for ( auto& port: network.port_list() ) {
+  for ( auto port: network.port_list() ) {
     s.write_string(port.name());
     SizeType nb = port.bit_width();
     s.write_vint(nb);
     for ( auto i: Range(nb) ) {
-      SizeType id = port.bit(i);
-      auto& node = network.node(id);
+      auto node = port.bit(i);
       if ( node.is_input() ) {
 	s.write_8(0);
       }
@@ -84,30 +83,31 @@ BinIO::dump(
       else {
 	ASSERT_NOT_REACHED;
       }
-      s.write_vint(port.bit(i));
+      s.write_vint(node.id());
     }
   }
 
   // D-FF
   SizeType ndff = network.dff_num();
   s.write_vint(ndff);
-  for ( auto& dff: network.dff_list() ) {
+  for ( auto dff: network.dff_list() ) {
     dump_dff(s, dff);
   }
 
   // 論理ノード
   SizeType nl = network.logic_num();
   s.write_vint(nl);
-  for ( auto& node: network.logic_list() ) {
+  for ( auto node: network.logic_list() ) {
     dump_logic(s, node);
   }
 
   // 出力ノード
   SizeType no = network.output_num();
   s.write_vint(no);
-  for ( auto& node: network.output_list() ) {
+  for ( auto node: network.output_list() ) {
     s.write_vint(node.id());
-    s.write_vint(node.output_src());
+    auto inode = node.output_src();
+    s.write_vint(inode.id());
   }
 }
 
@@ -126,11 +126,11 @@ BinIO::dump_dff(
   case BnDffType::Cell:  s.write_8(3); break;
   }
   if ( dff.is_dff() || dff.is_latch() ) {
-    s.write_vint(dff.data_in());
-    s.write_vint(dff.data_out());
-    s.write_vint(dff.clock());
-    s.write_vint(dff.clear());
-    s.write_vint(dff.preset());
+    s.write_vint(dff.data_in().id());
+    s.write_vint(dff.data_out().id());
+    s.write_vint(dff.clock().id());
+    s.write_vint(dff.clear().id());
+    s.write_vint(dff.preset().id());
     // clear_preset_value()
   }
   else if ( dff.is_cell() ) {
@@ -138,12 +138,12 @@ BinIO::dump_dff(
     SizeType ni = dff.cell_input_num();
     s.write_vint(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
-      s.write_vint(dff.cell_input(i));
+      s.write_vint(dff.cell_input(i).id());
     }
     SizeType no = dff.cell_output_num();
     s.write_vint(no);
     for ( SizeType i = 0; i < no; ++ i ) {
-      s.write_vint(dff.cell_output(i));
+      s.write_vint(dff.cell_output(i).id());
     }
   }
 }
@@ -159,8 +159,8 @@ BinIO::dump_logic(
   s.write_string(node.name());
   SizeType nfi = node.fanin_num();
   s.write_vint(nfi);
-  for ( auto fanin_id: node.fanin_id_list() ) {
-    s.write_vint(fanin_id);
+  for ( auto fanin: node.fanin_list() ) {
+    s.write_vint(fanin.id());
   }
   switch ( node.type() ) {
   case BnNodeType::None:
@@ -270,9 +270,9 @@ BinIO::restore(
       id_list[j] = s.read_vint();
     }
     SizeType id = network_impl->new_port(name, dir_vect);
-    auto& port = network_impl->port(id);
+    auto port = network_impl->_port(id);
     for ( SizeType j = 0; j < nb; ++ j ) {
-      SizeType dst_id = port.bit(j);
+      SizeType dst_id = port->bit(j);
       mNodeMap[id_list[j]] = dst_id;
     }
   }
@@ -294,9 +294,11 @@ BinIO::restore(
   for ( SizeType i = 0; i < no; ++ i ) {
     SizeType src_output_id = s.read_vint();
     ASSERT_COND( mNodeMap.count(src_output_id) > 0 );
+    auto dst_id = mNodeMap.at(src_output_id);
+    auto dst_node = network_impl->_node(dst_id);
     SizeType src_input_id = s.read_vint();
     if ( src_input_id != BNET_NULLID ) {
-      network_impl->set_output_src(mNodeMap[src_output_id], mNodeMap[src_input_id]);
+      network_impl->set_output_src(dst_node, mNodeMap[src_input_id]);
     }
   }
 
@@ -328,30 +330,30 @@ BinIO::restore_dff(
     else {
       id = network_impl->new_latch(name, has_clear, has_preset);
     }
-    auto& dff = network_impl->dff(id);
-    mNodeMap[src_input_id] = dff.data_in();
-    mNodeMap[src_output_id] = dff.data_out();
-    mNodeMap[src_clock_id] = dff.clock();
+    auto dff = network_impl->_dff(id);
+    mNodeMap[src_input_id] = dff->data_in();
+    mNodeMap[src_output_id] = dff->data_out();
+    mNodeMap[src_clock_id] = dff->clock();
     if ( has_clear ) {
-      mNodeMap[src_clear_id] = dff.clear();
+      mNodeMap[src_clear_id] = dff->clear();
     }
     if ( has_preset ) {
-      mNodeMap[src_preset_id] = dff.preset();
+      mNodeMap[src_preset_id] = dff->preset();
     }
   }
   else if ( type == 3 ) {
     SizeType cell_id = s.read_vint();
     SizeType id = network_impl->new_dff_cell(name, cell_id);
-    auto& dff = network_impl->dff(id);
+    auto dff = network_impl->_dff(id);
     SizeType ni = s.read_vint();
     for ( SizeType i = 0; i < ni; ++ i ) {
       auto src_id = s.read_vint();
-      mNodeMap[src_id] = dff.cell_input(i);
+      mNodeMap[src_id] = dff->cell_input(i);
     }
     SizeType no = s.read_vint();
     for ( SizeType i = 0; i < no; ++ i ) {
       auto src_id = s.read_vint();
-      mNodeMap[src_id] = dff.cell_output(i);
+      mNodeMap[src_id] = dff->cell_output(i);
     }
   }
 }

@@ -55,8 +55,6 @@ Bench2Bnet::Bench2Bnet(
 ) : mModel{model},
     mClockName{clock_name}
 {
-  mClockId = BNET_NULLID;
-
   mNetwork.set_name("iscas89_network");
 
   for ( SizeType src_id: model.input_list() ) {
@@ -74,9 +72,10 @@ Bench2Bnet::Bench2Bnet(
   for ( auto& p: mOutputMap ) {
     auto id = p.first;
     auto src_id = p.second;
-    ASSERT_COND( mIdMap.count(src_id) > 0 );
-    auto inode_id = mIdMap.at(src_id);
-    mNetwork.set_output_src(id, inode_id);
+    ASSERT_COND( mNodeMap.count(src_id) > 0 );
+    auto inode = mNodeMap.at(src_id);
+    auto onode = mNetwork.node(id);
+    mNetwork.set_output_src(onode, inode);
   }
 }
 
@@ -94,10 +93,9 @@ Bench2Bnet::make_input(
 )
 {
   auto oname = mModel.node_name(src_id);
-  auto port_id = mNetwork.new_input_port(oname);
-  const auto& port = mNetwork.port(port_id);
-  auto id = port.bit(0);
-  mIdMap.emplace(src_id, id);
+  auto port = mNetwork.new_input_port(oname);
+  auto node = port.bit(0);
+  mNodeMap.emplace(src_id, node);
 }
 
 // @brief 出力の設定を行う．
@@ -108,15 +106,14 @@ Bench2Bnet::set_output(
 {
   auto name = mModel.node_name(src_id);
   string name1;
-  if ( mNetwork.find_port(name) == static_cast<SizeType>(-1) ) {
+  if ( mNetwork.find_port(name).is_invalid() ) {
     name1 = name;
   }
-  auto port_id = mNetwork.new_output_port(name1);
-  auto& port = mNetwork.port(port_id);
-  auto id = port.bit(0);
-  ASSERT_COND( mIdMap.count(src_id) > 0 );
-  auto inode_id = mIdMap.at(src_id);
-  mNetwork.set_output_src(id, inode_id);
+  auto port = mNetwork.new_output_port(name1);
+  auto onode = port.bit(0);
+  ASSERT_COND( mNodeMap.count(src_id) > 0 );
+  auto inode = mNodeMap.at(src_id);
+  mNetwork.set_output_src(onode, inode);
 }
 
 // @brief DFF を作る．
@@ -128,27 +125,25 @@ Bench2Bnet::make_dff(
   auto oname = mModel.node_name(src_id);
 
   // この形式ではクロック以外の制御端子はない．
-  SizeType dff_id = mNetwork.new_dff(oname);
-  const BnDff& dff = mNetwork.dff(dff_id);
+  auto dff = mNetwork.new_dff(oname);
 
-  SizeType output_id = dff.data_out();
-  mIdMap.emplace(src_id, output_id);
+  auto output = dff.data_out();
+  mNodeMap.emplace(src_id, output);
 
-  SizeType input_id = dff.data_in();
+  auto input = dff.data_in();
   // 本当の入力ノードはできていないのでファンイン情報を記録しておく．
   auto inode_id = mModel.node_input(src_id);
-  mOutputMap.emplace(input_id, inode_id);
+  mOutputMap.emplace(input.id(), inode_id);
 
-  if ( mClockId == BNET_NULLID ) {
+  if ( mClock.is_invalid() ) {
     // クロックのポートを作る．
-    auto port_id = mNetwork.new_input_port(mClockName);
-    auto& clock_port = mNetwork.port(port_id);
+    auto clock_port = mNetwork.new_input_port(mClockName);
     // クロックの入力ノード番号を記録する．
-    mClockId = clock_port.bit(0);
+    mClock = clock_port.bit(0);
   }
 
   // クロック入力とdffのクロック端子を結びつける．
-  mNetwork.set_output_src(dff.clock(), mClockId);
+  mNetwork.set_output_src(dff.clock(), mClock);
 }
 
 // @brief ゲートを作る．
@@ -161,11 +156,11 @@ Bench2Bnet::make_gate(
 
   // ファンインのノードを作る．
   SizeType ni = mModel.node_fanin_list(src_id).size();
-  vector<SizeType> fanin_id_list;
-  fanin_id_list.reserve(ni);
+  vector<BnNode> fanin_list;
+  fanin_list.reserve(ni);
   for ( auto iid: mModel.node_fanin_list(src_id) ) {
-    ASSERT_COND( mIdMap.count(iid) > 0 );
-    fanin_id_list.push_back(mIdMap.at(iid));
+    ASSERT_COND( mNodeMap.count(iid) > 0 );
+    fanin_list.push_back(mNodeMap.at(iid));
   }
 
   auto type = mModel.node_gate_type(src_id);
@@ -184,23 +179,23 @@ Bench2Bnet::make_gate(
   case Iscas89Gate::Mux: break;
   default: ASSERT_NOT_REACHED; break;
   }
-  SizeType id;
+  BnNode node;
   if ( type == Iscas89Gate::Mux ) {
-    id = make_mux(oname, fanin_id_list);
+    node = make_mux(oname, fanin_list);
   }
   else {
-    id = mNetwork.new_logic_primitive(oname, gtype, fanin_id_list);
+    node = mNetwork.new_logic_primitive(oname, gtype, fanin_list);
   }
-  mIdMap.emplace(src_id, id);
+  mNodeMap.emplace(src_id, node);
 }
 
-SizeType
+BnNode
 Bench2Bnet::make_mux(
   const string& oname,
-  const vector<SizeType>& fanin_id_list
+  const vector<BnNode>& fanin_list
 )
 {
-  SizeType ni = fanin_id_list.size();
+  SizeType ni = fanin_list.size();
   SizeType nc = 0;
   SizeType nd = 1;
   while ( nc + nd < ni ) {
@@ -233,8 +228,8 @@ Bench2Bnet::make_mux(
     or_fanins[p] = Expr::make_and(and_fanins);
   }
   auto mux_expr = Expr::make_or(or_fanins);
-  auto id = mNetwork.new_logic_expr(oname, mux_expr, fanin_id_list);
-  return id;
+  auto node = mNetwork.new_logic_expr(oname, mux_expr, fanin_list);
+  return node;
 }
 
 END_NAMESPACE_YM_BNET

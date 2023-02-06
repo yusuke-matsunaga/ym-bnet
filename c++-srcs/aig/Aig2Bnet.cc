@@ -38,15 +38,14 @@ Aig2Bnet::conv(
       buf << "i" << i;
       name = buf.str();
     }
-    auto id = new_input_port(name);
-    const auto& port = this->port(id);
-    auto node_id = port.bit(0);
+    auto port = new_input_port(name);
+    auto node = port.bit(0);
     auto lit = aig.input(i);
-    mLitMap.emplace(lit, node_id);
+    mLitMap.emplace(lit, node);
   }
 
   // 出力ポートの生成
-  vector<SizeType> output_list(no);
+  vector<BnNode> output_list(no);
   for ( SizeType i = 0; i < no; ++ i ) {
     auto name = aig.output_symbol(i);
     if ( name == string{} ) {
@@ -54,25 +53,21 @@ Aig2Bnet::conv(
       buf << "o" << i;
       name = buf.str();
     }
-    auto id = new_output_port(name);
-    const auto& port = this->port(id);
-    auto node_id = port.bit(0);
-    output_list[i] = node_id;
+    auto port = new_output_port(name);
+    output_list[i] = port.bit(0);
   }
 
   // ラッチの生成
-  vector<SizeType> latch_list(nl);
-  SizeType clock_id{BNET_NULLID};
-  SizeType reset_id{BNET_NULLID};
+  vector<BnNode> latch_list(nl);
+  BnNode clock_node;
+  BnNode reset_node;
   if ( nl > 0 ) {
     // クロック入力の生成
-    auto clock_port_id = new_input_port(clock_name);
-    const auto& clock_port = this->port(clock_port_id);
-    clock_id = clock_port.bit(0);
+    auto clock_port = new_input_port(clock_name);
+    clock_node = clock_port.bit(0);
     // リセット入力の生成
-    auto reset_port_id = new_input_port(reset_name);
-    const auto& reset_port = this->port(reset_port_id);
-    reset_id = reset_port.bit(0);
+    auto reset_port = new_input_port(reset_name);
+    reset_node = reset_port.bit(0);
   }
   for ( SizeType i = 0; i < nl; ++ i ) {
     auto name = aig.latch_symbol(i);
@@ -81,13 +76,12 @@ Aig2Bnet::conv(
       buf << "l" << i;
       name = buf.str();
     }
-    auto id = new_dff(name, true);
-    const auto& dff = this->dff(id);
-    set_output_src(dff.clock(), clock_id);
-    set_output_src(dff.clear(), reset_id);
-    auto node_id = dff.data_out();
+    auto dff = new_dff(name, true);
+    set_output_src(dff.clock(), clock_node);
+    set_output_src(dff.clear(), reset_node);
+    auto node = dff.data_out();
     auto lit = aig.latch(i);
-    mLitMap.emplace(lit, node_id);
+    mLitMap.emplace(lit, node);
     latch_list[i] = dff.data_in();
   }
 
@@ -108,9 +102,9 @@ Aig2Bnet::conv(
     auto lit = aig.input(i);
     auto lit1 = lit ^ 1UL;
     if ( req_map[lit1] ) {
-      auto src_id = mLitMap.at(lit);
-      auto id1 = new_not(string{}, src_id);
-      mLitMap.emplace(lit1, id1);
+      auto src_node = mLitMap.at(lit);
+      auto node1 = new_not(string{}, src_node);
+      mLitMap.emplace(lit1, node1);
     }
   }
 
@@ -127,7 +121,7 @@ Aig2Bnet::conv(
       src1 ^= 1UL;
     }
     ASSERT_COND( mLitMap.count(src1) > 0 );
-    SizeType i1 = mLitMap.at(src1);
+    auto i1 = mLitMap.at(src1);
 
     auto l2 = Expr::make_posi_literal(1);
     if ( mLitMap.count(src2) == 0 ) {
@@ -135,22 +129,22 @@ Aig2Bnet::conv(
       src2 ^= 1UL;
     }
     ASSERT_COND( mLitMap.count(src2) > 0 );
-    SizeType i2 = mLitMap.at(src2);
+    auto i2 = mLitMap.at(src2);
 
     auto expr = l1 & l2;
     auto lit = aig.and_node(i);
     auto lit1 = lit ^ 1UL;
     if ( !req_map[lit] && req_map[lit1] ) {
       expr = ~expr;
-      auto id1 = new_logic_expr(buf.str(), expr, {i1, i2});
-      mLitMap.emplace(lit1, id1);
+      auto node1 = new_logic_expr(buf.str(), expr, {i1, i2});
+      mLitMap.emplace(lit1, node1);
     }
     else {
-      auto id = new_logic_expr(buf.str(), expr, {i1, i2});
-      mLitMap.emplace(lit, id);
+      auto node = new_logic_expr(buf.str(), expr, {i1, i2});
+      mLitMap.emplace(lit, node);
       if ( req_map[lit1] ) {
-	auto id1 = new_not(string{}, id);
-	mLitMap.emplace(lit1, id1);
+	auto node1 = new_not(string{}, node);
+	mLitMap.emplace(lit1, node1);
       }
     }
   }
@@ -159,16 +153,16 @@ Aig2Bnet::conv(
   for ( SizeType i = 0; i < no; ++ i ) {
     auto src_lit = aig.output_src(i);
     ASSERT_COND ( mLitMap.count(src_lit) >  0 );
-    auto src_id = mLitMap.at(src_lit);
-    set_output_src(output_list[i], src_id);
+    auto src_node = mLitMap.at(src_lit);
+    set_output_src(output_list[i], src_node);
   }
 
   // ラッチの入力の接続
   for ( SizeType i = 0; i < nl; ++ i ) {
     auto src_lit = aig.latch_src(i);
     ASSERT_COND( mLitMap.count(src_lit) > 0 );
-    auto src_id = mLitMap.at(src_lit);
-    set_output_src(latch_list[i], src_id);
+    auto src_node = mLitMap.at(src_lit);
+    set_output_src(latch_list[i], src_node);
   }
 }
 

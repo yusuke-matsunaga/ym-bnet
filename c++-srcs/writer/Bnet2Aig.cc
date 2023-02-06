@@ -24,13 +24,13 @@ AigWriter::conv_from_bnet(
   SizeType O = src_network.output_num();
 
   // Latchタイプ，Cellタイプの BnDff を持つとき変換不能
-  for ( auto& dff: src_network.dff_list() ) {
+  for ( auto dff: src_network.dff_list() ) {
     if ( dff.type() != BnDffType::Dff ) {
       return false;
     }
   }
   // TvFuncタイプ，Bddタイプの論理ノードを持つ時変換不能
-  for ( auto& node: src_network.logic_list() ) {
+  for ( auto node: src_network.logic_list() ) {
     if ( node.type() == BnNodeType::TvFunc ||
 	 node.type() == BnNodeType::Bdd ) {
       return false;
@@ -49,15 +49,16 @@ AigWriter::conv_from_bnet(
   // ラッチノード(DFFの出力ノード)を登録する．
   for ( SizeType i = 0; i < L; ++ i ) {
     const auto& dff = src_network.dff(i);
-    lit_map.emplace(dff.data_out(), (i + I + 1) * 2);
+    lit_map.emplace(dff.data_out().id(), (i + I + 1) * 2);
   }
   // AND ノードを生成する．
-  for ( auto& node: src_network.logic_list() ) {
+  for ( auto node: src_network.logic_list() ) {
     SizeType ni = node.fanin_num();
     // ファンインのリテラルのリスト
     vector<SizeType> fanin_list(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
-      auto fid = node.fanin(i, src_network).id();
+      auto inode = node.fanin(i);
+      SizeType fid = inode.id();
       ASSERT_COND( lit_map.count(fid) > 0 );
       auto ilit = lit_map.at(fid);
       fanin_list[i] = ilit;
@@ -66,23 +67,24 @@ AigWriter::conv_from_bnet(
     lit_map.emplace(node.id(), olit);
   }
   // ラッチのソースを設定する．
-  for ( auto& dff: src_network.dff_list() ) {
-    auto src_id = dff.data_in();
+  for ( auto dff: src_network.dff_list() ) {
+    auto src_id = dff.data_in().id();
     ASSERT_COND( lit_map.count(src_id) > 0 );
     auto src = lit_map.at(src_id);
     set_latch_src(dff.id(), src);
   }
   // 出力のソースを設定する．
   for ( SizeType i = 0; i < O; ++ i ) {
-    auto& src_node = src_network.output_node(i);
-    auto src_id = src_node.output_src();
+    auto src_node = src_network.output_node(i);
+    auto src_src_node = src_node.output_src();
+    SizeType src_id = src_src_node.id();
     ASSERT_COND( lit_map.count(src_id) > 0 );
     auto src = lit_map.at(src_id);
     set_output_src(i, src);
   }
   // 入力のシンボル名を設定する．
   for ( SizeType i = 0; i < I; ++ i ) {
-    const auto& node = src_network.node(src_network.input_id(i));
+    auto node = src_network.node(src_network.input_id(i));
     auto name = node.name();
     if ( name != string{} ) {
       set_input_symbol(i, name);
@@ -98,7 +100,7 @@ AigWriter::conv_from_bnet(
   }
   // 出力のシンボル名を設定する．
   for ( SizeType i = 0; i < O; ++ i ) {
-    const auto& node = src_network.node(src_network.output_id(i));
+    auto node = src_network.node(src_network.output_id(i));
     auto name = node.name();
     if ( name != string{} ) {
       set_output_symbol(i, name);
