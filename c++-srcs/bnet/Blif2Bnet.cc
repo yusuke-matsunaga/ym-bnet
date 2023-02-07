@@ -40,7 +40,7 @@ BnNetwork::read_blif(
 )
 {
   BlifModel model;
-  bool stat = model.read_blif(filename, cell_library);
+  bool stat = model.read(filename, cell_library);
   if ( !stat ) {
     ostringstream buf;
     buf << "Error in read_blif(\"" << filename << "\"";

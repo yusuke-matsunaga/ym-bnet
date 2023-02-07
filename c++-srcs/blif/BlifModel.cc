@@ -19,16 +19,16 @@ BEGIN_NAMESPACE_YM_BLIF
 
 // @brief 読み込みを行う．
 bool
-BlifModel::read_blif(
+BlifModel::read(
   const string& filename
 )
 {
-  return read_blif(filename, ClibCellLibrary{});
+  return read(filename, ClibCellLibrary{});
 }
 
 // @brief 読み込みを行う(セルライブラリ付き)．
 bool
-BlifModel::read_blif(
+BlifModel::read(
   const string& filename,
   const ClibCellLibrary& cell_library
 )

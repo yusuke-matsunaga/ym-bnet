@@ -67,7 +67,7 @@ public:
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read_blif(
+  read(
     const string& filename ///< [in] ファイル名
   );
 
@@ -75,7 +75,7 @@ public:
   /// @retval true 読み込みが成功した．
   /// @retval false 読み込みが失敗した．
   bool
-  read_blif(
+  read(
     const string& filename,             ///< [in] ファイル名
     const ClibCellLibrary& cell_library ///< [in] セルライブラリ
   );

@@ -49,7 +49,7 @@ main(
     MsgMgr::attach_handler(&msg_handler);
 
     BlifModel model;
-    bool stat = model.read_blif(filename);
+    bool stat = model.read(filename);
     if ( !stat ) {
       cerr << "Error in reading " << filename << endl;
       return 4;
