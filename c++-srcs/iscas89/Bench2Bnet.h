@@ -71,13 +71,6 @@ private:
     SizeType src_id ///< [in] 識別子番号
   );
 
-  /// @brief MUX を作る．
-  BnNode
-  make_mux(
-    const string& oname,             ///< [in] 出力名
-    const vector<BnNode>& fanin_list ///< [in] ファンインのノードIDのリスト
-  );
-
 
 private:
   //////////////////////////////////////////////////////////////////////

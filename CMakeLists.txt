@@ -51,7 +51,6 @@ if ( Python3_FOUND )
 endif ( Python3_FOUND )
 add_subdirectory ( tests/gtest )
 add_subdirectory ( tests/programs )
-#add_subdirectory ( tests/py-test )
 
 
 # ===================================================================
@@ -59,8 +58,9 @@ add_subdirectory ( tests/programs )
 # ===================================================================
 
 set ( aig_SOURCES
-  c++-srcs/aig/AigReader.cc
   c++-srcs/aig/Aig2Bnet.cc
+  c++-srcs/aig/AigModel.cc
+  c++-srcs/aig/ModelImpl.cc
   )
 
 set ( bnet_SOURCES
@@ -81,11 +81,10 @@ set ( bnet_SOURCES
   c++-srcs/bnet/ReadTruth.cc
   c++-srcs/bnet/SimpleDecomp.cc
   c++-srcs/bnet/OutputSplit.cc
-  c++-srcs/bnet/Blif2Bnet.cc
-  c++-srcs/bnet/Bench2Bnet.cc
   )
 
 set ( blif_SOURCES
+  c++-srcs/blif/Blif2Bnet.cc
   c++-srcs/blif/BlifModel.cc
   c++-srcs/blif/BlifParser.cc
   c++-srcs/blif/BlifScanner.cc
@@ -94,6 +93,7 @@ set ( blif_SOURCES
   )
 
 set ( iscas89_SOURCES
+  c++-srcs/iscas89/Bench2Bnet.cc
   c++-srcs/iscas89/Iscas89Model.cc
   c++-srcs/iscas89/Iscas89Parser.cc
   c++-srcs/iscas89/Iscas89Scanner.cc

@@ -1,31 +1,55 @@
-#ifndef AIGREADER_H
-#define AIGREADER_H
+#ifndef MODELIMPL_H
+#define MODELIMPL_H
 
-/// @file AigReader.h
-/// @brief AigReader のヘッダファイル
+/// @file ModelImpl.h
+/// @brief ModelImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/bnet.h"
+#include "ym/aig_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_AIG
 
 //////////////////////////////////////////////////////////////////////
-/// @class AigReader AigReader.h "AigReader.h"
+/// @class ModelImpl ModelImpl.h "ModelImpl.h"
 /// @brief AIG 形式のファイルを読むためのクラス
 //////////////////////////////////////////////////////////////////////
-class AigReader
+class ModelImpl
 {
 public:
 
   /// @brief コンストラクタ
-  AigReader() = default;
+  ModelImpl() = default;
 
   /// @brief デストラクタ
-  ~AigReader() = default;
+  ~ModelImpl() = default;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  /// @name ファイル入出力
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief Ascii AIG フォーマットを読み込む．
+  /// @return 読み込みが成功したら true を返す．
+  bool
+  read_aag(
+    istream& s ///< [in] 入力ストリーム
+  );
+
+  /// @brief AIG フォーマットを読み込む．
+  /// @return 読み込みが成功したら true を返す．
+  bool
+  read_aig(
+    istream& s ///< [in] 入力ストリーム
+  );
+
+  /// @}
+  //////////////////////////////////////////////////////////////////////
 
 
 public:
@@ -176,44 +200,6 @@ public:
   }
 
 
-public:
-  //////////////////////////////////////////////////////////////////////
-  /// @name ファイル入出力
-  /// @{
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief Ascii AIG フォーマットを読み込む．
-  /// @return 読み込みが成功したら true を返す．
-  bool
-  read_aag(
-    const string& filename ///< [in] ファイル名
-  );
-
-  /// @brief Ascii AIG フォーマットを読み込む．
-  /// @return 読み込みが成功したら true を返す．
-  bool
-  read_aag(
-    istream& s ///< [in] 入力ストリーム
-  );
-
-  /// @brief AIG フォーマットを読み込む．
-  /// @return 読み込みが成功したら true を返す．
-  bool
-  read_aig(
-    const string& filename ///< [in] ファイル名
-  );
-
-  /// @brief AIG フォーマットを読み込む．
-  /// @return 読み込みが成功したら true を返す．
-  bool
-  read_aig(
-    istream& s ///< [in] 入力ストリーム
-  );
-
-  /// @}
-  //////////////////////////////////////////////////////////////////////
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
@@ -355,50 +341,6 @@ private:
 
 };
 
+END_NAMESPACE_YM_AIG
 
-//////////////////////////////////////////////////////////////////////
-/// @class AigError AigError.h "AigError.h"
-/// @brief Aig 関係のエラーを表すクラス
-//////////////////////////////////////////////////////////////////////
-class AigError :
-  public exception
-{
-public:
-
-  /// @brief コンストラクタ
-  AigError(
-    const string& msg ///< [in] エラーメッセージ
-  ) : mMsg{msg}
-  {
-  }
-
-  /// @brief デストラクタ
-  ~AigError() = default;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 内容を表す文字列を返す．
-  const string&
-  str() const
-  {
-    return mMsg;
-  }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // メッセージ
-  string mMsg;
-
-};
-
-END_NAMESPACE_YM_BNET
-
-#endif // AIG_H
+#endif // MODELIMPL_H

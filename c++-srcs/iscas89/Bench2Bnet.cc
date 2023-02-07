@@ -9,7 +9,6 @@
 #include "Bench2Bnet.h"
 #include "ym/Iscas89Model.h"
 #include "ym/BnNetwork.h"
-#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -168,50 +167,5 @@ Bench2Bnet::make_gate(
 
   mNodeMap.emplace(src_id, node);
 }
-
-#if 0
-BnNode
-Bench2Bnet::make_mux(
-  const string& oname,
-  const vector<BnNode>& fanin_list
-)
-{
-  SizeType ni = fanin_list.size();
-  SizeType nc = 0;
-  SizeType nd = 1;
-  while ( nc + nd < ni ) {
-    ++ nc;
-    nd <<= 1;
-  }
-  ASSERT_COND( nc + nd == ni );
-
-  vector<Expr> cinputs(nc);
-  for ( SizeType var: Range(nc) ) {
-    cinputs[var] = Expr::make_posi_literal(var);
-  }
-  vector<Expr> dinputs(nd);
-  for ( SizeType i: Range(nd) ) {
-    dinputs[i] = Expr::make_posi_literal(i + nc);
-  }
-
-  vector<Expr> or_fanins(nd);
-  for ( SizeType p: Range(nd) ) {
-    vector<Expr> and_fanins(nc + 1);
-    for ( SizeType i: Range(nc) ) {
-      if ( p & (1 << i) ) {
-	and_fanins[i] = cinputs[i];
-      }
-      else {
-	and_fanins[i] = ~cinputs[i];
-      }
-    }
-    and_fanins[nc] = dinputs[p];
-    or_fanins[p] = Expr::make_and(and_fanins);
-  }
-  auto mux_expr = Expr::make_or(or_fanins);
-  auto node = mNetwork.new_logic_expr(oname, mux_expr, fanin_list);
-  return node;
-}
-#endif
 
 END_NAMESPACE_YM_BNET

@@ -6,11 +6,11 @@
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "Aig2Bnet.h"
 #include "ym/BnNetwork.h"
 #include "ym/BnPort.h"
 #include "ym/BnDff.h"
-#include "AigReader.h"
-#include "Aig2Bnet.h"
+#include "ym/AigModel.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_BNET
 // Aig を BnNetwork に変換する．
 void
 Aig2Bnet::conv(
-  const AigReader& aig,
+  const AigModel& aig,
   const string& clock_name,
   const string& reset_name
 )
@@ -174,7 +174,7 @@ BnNetwork::read_aag(
   const string& reset_name
 )
 {
-  AigReader aig;
+  AigModel aig;
   if ( !aig.read_aag(filename) ) {
     ostringstream buff;
     buff << "Error in read_aag(\"" << filename << "\"";
@@ -194,7 +194,7 @@ BnNetwork::read_aig(
   const string& reset_name
 )
 {
-  AigReader aig;
+  AigModel aig;
   if ( !aig.read_aig(filename) ) {
     ostringstream buff;
     buff << "Error in read_aig(\"" << filename << "\"";

@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/BnModifier.h"
+#include "ym/aig_nsdef.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -37,7 +38,7 @@ public:
   /// @brief AIG から変換する．
   void
   conv(
-    const AigReader& aig,     ///< [in] AIG の情報
+    const AigModel& aig,      ///< [in] AIG の情報
     const string& clock_name, ///< [in] クロック端子の名前
     const string& reset_name  ///< [in] リセット端子の名前
   );

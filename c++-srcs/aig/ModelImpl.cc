@@ -1,15 +1,15 @@
 
-/// @file AigReader.cc
-/// @brief AigReader の実装ファイル
+/// @file ModelImpl.cc
+/// @brief ModelImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "AigReader.h"
+#include "ModelImpl.h"
 
 
-BEGIN_NAMESPACE_YM_BNET
+BEGIN_NAMESPACE_YM_AIG
 
 BEGIN_NONAMESPACE
 
@@ -19,7 +19,7 @@ END_NONAMESPACE
 
 // @brief 内容を初期化する．
 void
-AigReader::initialize(
+ModelImpl::initialize(
   SizeType I,
   SizeType L,
   SizeType O,
@@ -43,23 +43,7 @@ AigReader::initialize(
 
 // @brief Ascii AIG フォーマットを読み込む．
 bool
-AigReader::read_aag(
-  const string& filename
-)
-{
-  ifstream s{filename};
-  if ( s ) {
-    return read_aag(s);
-  }
-  else {
-    cerr << filename << ": No such file" << endl;
-    return false;
-  }
-}
-
-// @brief Ascii AIG フォーマットを読み込む．
-bool
-AigReader::read_aag(
+ModelImpl::read_aag(
   istream& s
 )
 {
@@ -67,12 +51,12 @@ AigReader::read_aag(
 
   // ヘッダ行の読み込み
   if ( !getline(s, linebuf) ) {
-    throw AigError{"Unexpected EOF"};
+    throw std::invalid_argument{"Unexpected EOF"};
   }
   if ( linebuf.substr(0, 3) != string{"aag"} ) {
     ostringstream buf;
     buf << linebuf << ": Illegal header signature, 'aag' expected.";
-    throw AigError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
   istringstream tmp{linebuf.substr(4, string::npos)};
   SizeType M, I, L, O, A;
@@ -95,7 +79,7 @@ AigReader::read_aag(
   // 入力行の読み込み
   for ( SizeType i = 0; i < I; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType lit;
@@ -104,12 +88,12 @@ AigReader::read_aag(
       cout << "I#" << i << ": " << lit << endl;
     }
     if ( (lit % 2) == 1 ) {
-      throw AigError{"Positive Literal(even number) expected"};
+      throw std::invalid_argument{"Positive Literal(even number) expected"};
     }
     if ( defined[lit] ) {
       ostringstream buf;
       buf << lit << " is already defined.";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
     defined[lit] = true;
     mInputList[i].mLiteral = lit;
@@ -118,7 +102,7 @@ AigReader::read_aag(
   // ラッチ行の読み込み
   for ( SizeType i = 0; i < L; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType lit, src;
@@ -127,12 +111,12 @@ AigReader::read_aag(
       cout << "L#" << i << ": " << lit << " " << src << endl;
     }
     if ( (lit % 2) == 1 ) {
-      throw AigError{"Positive Literal(even number) expected"};
+      throw std::invalid_argument{"Positive Literal(even number) expected"};
     }
     if ( defined[lit] ) {
       ostringstream buf;
       buf << lit << " is already defined.";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
     defined[lit] = true;
     mLatchList[i].mLiteral = lit;
@@ -142,7 +126,7 @@ AigReader::read_aag(
   // 出力行の読み込み
   for ( SizeType i = 0; i < O; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType src;
@@ -156,7 +140,7 @@ AigReader::read_aag(
   // AND行の読み込み
   for ( SizeType i = 0; i < A; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType lit, src0, src1;
@@ -165,12 +149,12 @@ AigReader::read_aag(
       cout << "A#" << i << ": " << lit << " " << src0 << " " << src1 << endl;
     }
     if ( (lit % 2) == 1 ) {
-      throw AigError{"Positive Literal(even number) expected"};
+      throw std::invalid_argument{"Positive Literal(even number) expected"};
     }
     if ( defined[lit] ) {
       ostringstream buf;
       buf << lit << " is already defined.";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
     defined[lit] = true;
     mAndList[i].mLiteral = lit;
@@ -185,7 +169,7 @@ AigReader::read_aag(
       ostringstream buf;
       buf << src << " is not defined required by Latch#" << i
 	  << "(" << latch(i) << ").";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
   }
   for ( SizeType i = 0; i < O; ++ i ) {
@@ -193,7 +177,7 @@ AigReader::read_aag(
     if ( !defined[src] && !defined[src ^ 1] ) {
       ostringstream buf;
       buf << src << " is not defined required by Output#" << i << ".";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
   }
   for ( SizeType i = 0; i < A; ++ i ) {
@@ -202,14 +186,14 @@ AigReader::read_aag(
       ostringstream buf;
       buf << src1 << " is not defined required by And#" << i
 	  << "(" << and_node(i) << ").";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
     auto src2 = and_src2(i);
     if ( !defined[src2] && !defined[src2 ^ 1] ) {
       ostringstream buf;
       buf << src2 << " is not defined required by And#" << i
 	  << "(" << and_node(i) << ").";
-      throw AigError{buf.str()};
+      throw std::invalid_argument{buf.str()};
     }
   }
 
@@ -242,23 +226,7 @@ END_NONAMESPACE
 
 // @brief AIG フォーマットを読み込む．
 bool
-AigReader::read_aig(
-  const string& filename
-)
-{
-  ifstream s{filename};
-  if ( s ) {
-    return read_aig(s);
-  }
-  else {
-    cerr << filename << ": No such file" << endl;
-    return false;
-  }
-}
-
-// @brief AIG フォーマットを読み込む．
-bool
-AigReader::read_aig(
+ModelImpl::read_aig(
   istream& s
 )
 {
@@ -266,12 +234,12 @@ AigReader::read_aig(
 
   // ヘッダ行の読み込み
   if ( !getline(s, linebuf) ) {
-    throw AigError{"Unexpected EOF"};
+    throw std::invalid_argument{"Unexpected EOF"};
   }
   if ( linebuf.substr(0, 3) != string{"aig"} ) {
     ostringstream buf;
     buf << linebuf << ": Illegal header signature, 'aig' expected.";
-    throw AigError{buf.str()};
+    throw std::invalid_argument{buf.str()};
   }
   istringstream tmp{linebuf.substr(4, string::npos)};
   SizeType M, I, L, O, A;
@@ -298,7 +266,7 @@ AigReader::read_aig(
   // ラッチ行の読み込み
   for ( SizeType i = 0; i < L; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType src;
@@ -312,7 +280,7 @@ AigReader::read_aig(
   // 出力行の読み込み
   for ( SizeType i = 0; i < O; ++ i ) {
     if ( !getline(s, linebuf) ) {
-      throw AigError{"Unexpected EOF"};
+      throw std::invalid_argument{"Unexpected EOF"};
     }
     istringstream tmp{linebuf};
     SizeType src;
@@ -347,7 +315,7 @@ AigReader::read_aig(
 
 // @brief シンボルテーブルとコメントを読み込む．
 void
-AigReader::read_symbols(
+ModelImpl::read_symbols(
   istream& s
 )
 {
@@ -384,4 +352,4 @@ AigReader::read_symbols(
   }
 }
 
-END_NAMESPACE_YM_BNET
+END_NAMESPACE_YM_AIG

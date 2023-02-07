@@ -10,7 +10,7 @@
 
 #include "ym/BlifModel.h"
 #include "ym/BnModifier.h"
-#include "ym/Expr.h"
+//#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
