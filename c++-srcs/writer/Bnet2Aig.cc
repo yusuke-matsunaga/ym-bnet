@@ -118,31 +118,38 @@ AigWriter::make_bnnode(
 )
 {
   switch ( node.type() ) {
-  case BnNodeType::C0:   // 定数0
-    return 0;
-  case BnNodeType::C1:   // 定数1
-    return 1;
-  case BnNodeType::Buff: // バッファ
-    return fanin_lits[0];
-  case BnNodeType::Not:  // インバータ
-    return fanin_lits[0] ^ 1;
-  case BnNodeType::And:  // AND
-    return make_and(fanin_lits);
-  case BnNodeType::Nand: // NAND
-    return make_nand(fanin_lits);
-  case BnNodeType::Or:   // OR
-    return make_or(fanin_lits);
-  case BnNodeType::Nor:  // NOR
-    return make_nor(fanin_lits);
-  case BnNodeType::Xor:  // XOR
-    return make_xor(fanin_lits);
-  case BnNodeType::Xnor: // XNOR
-    return make_xnor(fanin_lits);
+  case BnNodeType::Prim:
+    switch ( node.primitive_type() ) {
+    case PrimType::C0:   // 定数0
+      return 0;
+    case PrimType::C1:   // 定数1
+      return 1;
+    case PrimType::Buff: // バッファ
+      return fanin_lits[0];
+    case PrimType::Not:  // インバータ
+      return fanin_lits[0] ^ 1;
+    case PrimType::And:  // AND
+      return make_and(fanin_lits);
+    case PrimType::Nand: // NAND
+      return make_nand(fanin_lits);
+    case PrimType::Or:   // OR
+      return make_or(fanin_lits);
+    case PrimType::Nor:  // NOR
+      return make_nor(fanin_lits);
+    case PrimType::Xor:  // XOR
+      return make_xor(fanin_lits);
+    case PrimType::Xnor: // XNOR
+      return make_xnor(fanin_lits);
+    case PrimType::None:
+      break;
+    }
+    break;
   case BnNodeType::Expr: // 論理式
     return make_expr(network.expr(node.expr_id()), fanin_lits);
   default:
-    ASSERT_NOT_REACHED;
+    break;
   }
+  ASSERT_NOT_REACHED;
   return static_cast<SizeType>(-1);
 }
 

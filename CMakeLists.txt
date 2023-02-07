@@ -78,7 +78,6 @@ set ( bnet_SOURCES
   c++-srcs/bnet/BnLogicNode.cc
   c++-srcs/bnet/BnPort.cc
   c++-srcs/bnet/BnPortImpl.cc
-  c++-srcs/bnet/FuncAnalyzer.cc
   c++-srcs/bnet/ReadTruth.cc
   c++-srcs/bnet/SimpleDecomp.cc
   c++-srcs/bnet/OutputSplit.cc

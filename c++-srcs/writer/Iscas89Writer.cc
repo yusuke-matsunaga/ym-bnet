@@ -61,20 +61,7 @@ BnNetwork::write_iscas89(
   // 個々のノードが単純なゲートか調べる．
   bool need_decomp = false;
   for ( auto node: logic_list() ) {
-    switch ( node.type() ) {
-    case BnNodeType::C0:
-    case BnNodeType::C1:
-    case BnNodeType::Buff:
-    case BnNodeType::Not:
-    case BnNodeType::And:
-    case BnNodeType::Nand:
-    case BnNodeType::Or:
-    case BnNodeType::Nor:
-    case BnNodeType::Xor:
-    case BnNodeType::Xnor:
-      break;
-    default:
-      // 上記以外は .bench では受け付けない．
+    if ( node.type() != BnNodeType::Prim ) {
       need_decomp = true;
       break;
     }
@@ -159,18 +146,19 @@ Iscas89Writer::operator()(
     if ( !is_data(node) ) {
       continue;
     }
+    ASSERT_COND( node.type() == BnNodeType::Prim );
     s << node_name(node) << " = ";
-    switch ( node.type() ) {
-    case BnNodeType::C0:   s << "CONST0"; break;
-    case BnNodeType::C1:   s << "CONST1"; break;
-    case BnNodeType::Buff: s << "BUFF"; break;
-    case BnNodeType::Not:  s << "NOT"; break;
-    case BnNodeType::And:  s << "AND"; break;
-    case BnNodeType::Nand: s << "NAND"; break;
-    case BnNodeType::Or:   s << "OR"; break;
-    case BnNodeType::Nor:  s << "NOR"; break;
-    case BnNodeType::Xor:  s << "XOR"; break;
-    case BnNodeType::Xnor: s << "XNOR"; break;
+    switch ( node.primitive_type() ) {
+    case PrimType::C0:   s << "CONST0"; break;
+    case PrimType::C1:   s << "CONST1"; break;
+    case PrimType::Buff: s << "BUFF"; break;
+    case PrimType::Not:  s << "NOT"; break;
+    case PrimType::And:  s << "AND"; break;
+    case PrimType::Nand: s << "NAND"; break;
+    case PrimType::Or:   s << "OR"; break;
+    case PrimType::Nor:  s << "NOR"; break;
+    case PrimType::Xor:  s << "XOR"; break;
+    case PrimType::Xnor: s << "XNOR"; break;
     default: ASSERT_NOT_REACHED; break;
     }
     if ( node.fanin_num() > 0 ) {

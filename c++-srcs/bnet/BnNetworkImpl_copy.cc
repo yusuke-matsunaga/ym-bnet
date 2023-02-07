@@ -259,7 +259,7 @@ BnNetworkImpl::copy_logic(
 
   auto nfi = src_node->fanin_num();
   string name = src_node->name();
-  BnNodeType logic_type = src_node->type();
+  auto node_type = src_node->type();
   vector<SizeType> fanin_id_list(nfi);
   for ( auto i: Range(nfi) ) {
     auto src_iid = src_node->fanin_id(i);
@@ -268,22 +268,23 @@ BnNetworkImpl::copy_logic(
     fanin_id_list[i] = iid;
   }
   SizeType dst_id{BNET_NULLID};
-  if ( logic_type == BnNodeType::Expr ) {
+  if ( node_type == BnNodeType::Expr ) {
     auto expr = src_network->expr(src_node->expr_id());
     dst_id = new_logic_expr(name, expr, fanin_id_list);
   }
-  else if ( logic_type == BnNodeType::TvFunc ) {
+  else if ( node_type == BnNodeType::TvFunc ) {
     auto& func = src_network->func(src_node->func_id());
     dst_id = new_logic_tv(name, func, fanin_id_list);
   }
-  else if ( logic_type == BnNodeType::Bdd ) {
+  else if ( node_type == BnNodeType::Bdd ) {
     dst_id = new_logic_bdd(name, src_node->bdd(), fanin_id_list);
   }
-  else if ( logic_type == BnNodeType::Cell ) {
+  else if ( node_type == BnNodeType::Cell ) {
     dst_id = new_logic_cell(name, src_node->cell_id(), fanin_id_list);
   }
-  else { // 残りはプリミティブ型のはず
-    dst_id = new_logic_primitive(name, logic_type, fanin_id_list);
+  else if ( node_type == BnNodeType::Prim ) {
+    auto prim_type = src_node->primitive_type();
+    dst_id = new_logic_primitive(name, prim_type, fanin_id_list);
   }
   ASSERT_COND( _check_node_id(dst_id) );
   id_map.emplace(src_node->id(), dst_id);

@@ -151,6 +151,50 @@ write_op(
 }
 
 void
+write_primitive(
+  ostream& s,
+  PrimType type,
+  const vector<string>& iname_array
+)
+{
+  switch ( type ) {
+  case PrimType::C0:
+    s << "1'b0";
+    break;
+  case PrimType::C1:
+    s << "1'b1";
+    break;
+  case PrimType::Buff:
+    s << iname_array[0];
+    break;
+  case PrimType::Not:
+    s << "~" << iname_array[0];
+    break;
+  case PrimType::And:
+    write_op(s, " & ", false, iname_array);
+    break;
+  case PrimType::Nand:
+    write_op(s, " & ", true, iname_array);
+    break;
+  case PrimType::Or:
+    write_op(s, " | ", false, iname_array);
+    break;
+  case PrimType::Nor:
+    write_op(s, " | ", true, iname_array);
+    break;
+  case PrimType::Xor:
+    write_op(s, " ^ ", false, iname_array);
+    break;
+  case PrimType::Xnor:
+    write_op(s, " ^ ", true, iname_array);
+    break;
+  case PrimType::None:
+    ASSERT_NOT_REACHED;
+    break;
+  }
+}
+
+void
 write_expr(
   ostream& s,
   const Expr& expr,
@@ -456,35 +500,8 @@ VerilogWriter::operator()(
       // assign 文で内容を記述する．
       s << "  " << "assign " << mNodeNameArray[id] << " = ";
       switch ( node.type() ) {
-      case BnNodeType::C0:
-	s << "1'b0";
-	break;
-      case BnNodeType::C1:
-	s << "1'b1";
-	break;
-      case BnNodeType::Buff:
-	s << iname_array[0];
-	break;
-      case BnNodeType::Not:
-	s << "~" << iname_array[0];
-	break;
-      case BnNodeType::And:
-	write_op(s, " & ", false, iname_array);
-	break;
-      case BnNodeType::Nand:
-	write_op(s, " & ", true, iname_array);
-	break;
-      case BnNodeType::Or:
-	write_op(s, " | ", false, iname_array);
-	break;
-      case BnNodeType::Nor:
-	write_op(s, " | ", true, iname_array);
-	break;
-      case BnNodeType::Xor:
-	write_op(s, " ^ ", false, iname_array);
-	break;
-      case BnNodeType::Xnor:
-	write_op(s, " ^ ", true, iname_array);
+      case BnNodeType::Prim:
+	write_primitive(s, node.primitive_type(), iname_array);
 	break;
       case BnNodeType::Expr:
 	write_expr(s, mNetwork.expr(node.expr_id()), iname_array);

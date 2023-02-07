@@ -92,21 +92,21 @@ SimpleDecomp::decomp_expr(
     auto inode = decomp_expr(opr);
     new_fanin_list.push_back(inode);
   }
-  auto node_type = BnNodeType::None;
+  auto prim_type = PrimType::None;
   if ( expr.is_and() ) {
-    node_type = BnNodeType::And;
+    prim_type = PrimType::And;
   }
   else if ( expr.is_or() ) {
-    node_type = BnNodeType::Or;
+    prim_type = PrimType::Or;
   }
   else if ( expr.is_xor() ) {
-    node_type = BnNodeType::Xor;
+    prim_type = PrimType::Xor;
   }
   else {
     ASSERT_NOT_REACHED;
   }
 
-  auto node = new_logic_primitive({}, node_type, new_fanin_list);
+  auto node = new_logic_primitive({}, prim_type, new_fanin_list);
   return node;
 }
 

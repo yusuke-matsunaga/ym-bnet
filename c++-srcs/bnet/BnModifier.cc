@@ -194,7 +194,7 @@ BnModifier::new_latch(
 BnNode
 BnModifier::new_logic_primitive(
   const string& node_name,
-  BnNodeType logic_type,
+  PrimType logic_type,
   const vector<BnNode>& fanin_list
 )
 {
@@ -220,6 +220,21 @@ BnModifier::new_logic_expr(
   return BnNode{mImpl.get(), id};
 }
 
+// @brief 論理式型の論理ノードを追加する．
+BnNode
+BnModifier::new_logic_expr(
+  const string& node_name,
+  SizeType expr_id,
+  const vector<BnNode>& fanin_list
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  auto fanin_id_list = make_id_list(fanin_list);
+  auto id = mImpl->new_logic_expr(node_name, expr_id, fanin_id_list);
+  return BnNode{mImpl.get(), id};
+}
+
 // @brief 真理値表型の論理ノードを追加する．
 BnNode
 BnModifier::new_logic_tv(
@@ -232,6 +247,21 @@ BnModifier::new_logic_tv(
 
   auto fanin_id_list = make_id_list(fanin_list);
   auto id = mImpl->new_logic_tv(node_name, tv, fanin_id_list);
+  return BnNode{mImpl.get(), id};
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+BnNode
+BnModifier::new_logic_tv(
+  const string& node_name,
+  SizeType func_id,
+  const vector<BnNode>& fanin_list
+)
+{
+  ASSERT_COND( mImpl != nullptr );
+
+  auto fanin_id_list = make_id_list(fanin_list);
+  auto id = mImpl->new_logic_tv(node_name, func_id, fanin_id_list);
   return BnNode{mImpl.get(), id};
 }
 
@@ -265,145 +295,11 @@ BnModifier::new_logic_cell(
   return BnNode{mImpl.get(), id};
 }
 
-// @brief C0型(定数０)の論理ノードを追加する．
-BnNode
-BnModifier::new_c0(
-  const string& node_name
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::C0, {});
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief C1型(定数1)の論理ノードを追加する．
-BnNode
-BnModifier::new_c1(
-  const string& node_name
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::C1, {});
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief Buff型の論理ノードを追加する．
-BnNode
-BnModifier::new_buff(
-  const string& node_name,
-  BnNode fanin
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Buff, {fanin.id()});
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief Not型の論理ノードを追加する．
-BnNode
-BnModifier::new_not(
-  const string& node_name,
-  BnNode fanin
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Not, {fanin.id()});
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief AND型の論理ノードを追加する．
-BnNode
-BnModifier::new_and(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::And, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief NAND型の論理ノードを追加する．
-BnNode
-BnModifier::new_nand(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Nand, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief OR型の論理ノードを追加する．
-BnNode
-BnModifier::new_or(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Or, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief NOR型の論理ノードを追加する．
-BnNode
-BnModifier::new_nor(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Nor, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief XOR型の論理ノードを追加する．
-BnNode
-BnModifier::new_xor(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Xor, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
-// @brief XNOR型の論理ノードを追加する．
-BnNode
-BnModifier::new_xnor(
-  const string& node_name,
-  const vector<BnNode>& fanin_list
-)
-{
-  ASSERT_COND( mImpl != nullptr );
-
-  auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_primitive(node_name, BnNodeType::Xnor, fanin_id_list);
-  return BnNode{mImpl.get(), id};
-}
-
 // @brief プリミティブ型の論理ノードに変更する．
 void
 BnModifier::change_primitive(
   BnNode node,
-  BnNodeType logic_type,
+  PrimType logic_type,
   const vector<BnNode>& fanin_list
 )
 {

@@ -148,6 +148,33 @@ BinIO::dump_dff(
   }
 }
 
+BEGIN_NONAMESPACE
+
+inline
+ymuint8
+conv8(
+  PrimType type
+)
+{
+  switch( type ) {
+  case PrimType::None: return 0;
+  case PrimType::C0:   return 1;
+  case PrimType::C1:   return 2;
+  case PrimType::Buff: return 3;
+  case PrimType::Not:  return 4;
+  case PrimType::And:  return 5;
+  case PrimType::Nand: return 6;
+  case PrimType::Or:   return 7;
+  case PrimType::Nor:  return 8;
+  case PrimType::Xor:  return 9;
+  case PrimType::Xnor: return 10;
+  }
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+END_NONAMESPACE
+
 // 論理ノードの内容をバイナリダンプする．
 void
 BinIO::dump_logic(
@@ -166,35 +193,8 @@ BinIO::dump_logic(
   case BnNodeType::None:
     s.write_8(0);
     break;
-  case BnNodeType::C0:
-    s.write_8(1);
-    break;
-  case BnNodeType::C1:
-    s.write_8(2);
-    break;
-  case BnNodeType::Buff:
-    s.write_8(3);
-    break;
-  case BnNodeType::Not:
-    s.write_8(4);
-    break;
-  case BnNodeType::And:
-    s.write_8(5);
-    break;
-  case BnNodeType::Nand:
-    s.write_8(6);
-    break;
-  case BnNodeType::Or:
-    s.write_8(7);
-    break;
-  case BnNodeType::Nor:
-    s.write_8(8);
-    break;
-  case BnNodeType::Xor:
-    s.write_8(9);
-    break;
-  case BnNodeType::Xnor:
-    s.write_8(10);
+  case BnNodeType::Prim:
+    s.write_8(conv8(node.primitive_type()));
     break;
   case BnNodeType::Expr:
     s.write_8(11);
@@ -375,26 +375,25 @@ BinIO::restore_logic(
     fanin_id_list[j] = mNodeMap.at(src_id);
   }
   ymuint8 type_code = s.read_8();
-  BnNodeType type{BnNodeType::None};
+  auto type = BnNodeType::None;
+  auto prim = PrimType::None;
   SizeType node_id = BNET_NULLID;
   switch ( type_code ) {
-  case 0: // None:
-    ASSERT_NOT_REACHED;
-    break;
-  case 1: type = BnNodeType::C0; break;
-  case 2: type = BnNodeType::C1; break;
-  case 3: type = BnNodeType::Buff; break;
-  case 4: type = BnNodeType::Not; break;
-  case 5: type = BnNodeType::And; break;
-  case 6: type = BnNodeType::Nand; break;
-  case 7: type = BnNodeType::Or; break;
-  case 8: type = BnNodeType::Nor; break;
-  case 9: type = BnNodeType::Xor; break;
-  case 10: type = BnNodeType::Xnor; break;
+  case 0: // None: ASSERT_NOT_REACHED; break;
+  case 1: type = BnNodeType::Prim; prim = PrimType::C0; break;
+  case 2: type = BnNodeType::Prim; prim = PrimType::C1; break;
+  case 3: type = BnNodeType::Prim; prim = PrimType::Buff; break;
+  case 4: type = BnNodeType::Prim; prim = PrimType::Not; break;
+  case 5: type = BnNodeType::Prim; prim = PrimType::And; break;
+  case 6: type = BnNodeType::Prim; prim = PrimType::Nand; break;
+  case 7: type = BnNodeType::Prim; prim = PrimType::Or; break;
+  case 8: type = BnNodeType::Prim; prim = PrimType::Nor; break;
+  case 9: type = BnNodeType::Prim; prim = PrimType::Xor; break;
+  case 10: type = BnNodeType::Prim; prim = PrimType::Xnor; break;
   default: break;
   }
   if ( type != BnNodeType::None ) {
-    node_id = network_impl->new_logic_primitive(name, type, fanin_id_list);
+    node_id = network_impl->new_logic_primitive(name, prim, fanin_id_list);
   }
   else if ( type_code == 11 ) {
     // Expr

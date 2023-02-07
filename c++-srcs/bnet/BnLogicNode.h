@@ -109,10 +109,10 @@ public:
   /// @brief コンストラクタ
   BnPrimNode(
     const string& name,                   ///< [in] ノード名
-    BnNodeType logic_type,                ///< [in] 論理タイプ
+    PrimType type,                        ///< [in] 論理タイプ
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   ) : BnLogicNode{name, fanin_id_list},
-      mLogicType{logic_type}
+      mPrimType{type}
   {
   }
 
@@ -129,12 +129,11 @@ public:
   BnNodeType
   type() const override;
 
-  /// @brief プリミティブ型の論理ノードの時 true を返す．
+  /// @brief 組み込み型を返す．
   ///
-  /// 具体的には以下の型
-  /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
-  bool
-  is_primitive_logic() const override;
+  /// - type() == Prim の時のみ意味を持つ．
+  PrimType
+  primitive_type() const override;
 
 
 public:
@@ -156,7 +155,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 論理タイプ
-  BnNodeType mLogicType;
+  PrimType mPrimType;
 
 };
 

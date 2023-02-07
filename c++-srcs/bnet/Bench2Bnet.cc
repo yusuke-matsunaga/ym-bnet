@@ -164,18 +164,18 @@ Bench2Bnet::make_gate(
   }
 
   auto type = mModel.node_gate_type(src_id);
-  auto gtype = BnNodeType::None;
+  auto gtype = PrimType::None;
   switch ( type ) {
-  case Iscas89Gate::C0:   gtype = BnNodeType::C0; break;
-  case Iscas89Gate::C1:   gtype = BnNodeType::C1; break;
-  case Iscas89Gate::Buff: gtype = BnNodeType::Buff; break;
-  case Iscas89Gate::Not:  gtype = BnNodeType::Not; break;
-  case Iscas89Gate::And:  gtype = BnNodeType::And; break;
-  case Iscas89Gate::Nand: gtype = BnNodeType::Nand; break;
-  case Iscas89Gate::Or:   gtype = BnNodeType::Or; break;
-  case Iscas89Gate::Nor:  gtype = BnNodeType::Nor; break;
-  case Iscas89Gate::Xor:  gtype = BnNodeType::Xor; break;
-  case Iscas89Gate::Xnor: gtype = BnNodeType::Xor; break;
+  case Iscas89Gate::C0:   gtype = PrimType::C0; break;
+  case Iscas89Gate::C1:   gtype = PrimType::C1; break;
+  case Iscas89Gate::Buff: gtype = PrimType::Buff; break;
+  case Iscas89Gate::Not:  gtype = PrimType::Not; break;
+  case Iscas89Gate::And:  gtype = PrimType::And; break;
+  case Iscas89Gate::Nand: gtype = PrimType::Nand; break;
+  case Iscas89Gate::Or:   gtype = PrimType::Or; break;
+  case Iscas89Gate::Nor:  gtype = PrimType::Nor; break;
+  case Iscas89Gate::Xor:  gtype = PrimType::Xor; break;
+  case Iscas89Gate::Xnor: gtype = PrimType::Xor; break;
   case Iscas89Gate::Mux: break;
   default: ASSERT_NOT_REACHED; break;
   }

@@ -183,12 +183,11 @@ public:
   /// @return 生成した論理ノードを返す．
   ///
   /// - ノード名の重複に関しては感知しない．
-  /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   BnNode
   new_logic_primitive(
-    const string& node_name,            ///< [in] ノード名
-    BnNodeType logic_type,              ///< [in] 論理型
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const string& node_name,         ///< [in] ノード名
+    PrimType logic_type,             ///< [in] 論理型
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 論理式型の論理ノードを追加する．
@@ -198,9 +197,21 @@ public:
   /// - 入力数は expr.input_num() を用いる．
   BnNode
   new_logic_expr(
-    const string& node_name,            ///< [in] ノード名
-    const Expr& expr,                   ///< [in] 論理式
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const string& node_name,         ///< [in] ノード名
+    const Expr& expr,                ///< [in] 論理式
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @return 生成した論理ノードを返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は expr.input_num() を用いる．
+  BnNode
+  new_logic_expr(
+    const string& node_name,         ///< [in] ノード名
+    SizeType expr_id,                ///< [in] 論理式番号
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 真理値表型の論理ノードを追加する．
@@ -210,9 +221,21 @@ public:
   /// - 入力数は tv.input_num() を用いる．
   BnNode
   new_logic_tv(
-    const string& node_name,            ///< [in] ノード名
-    const TvFunc& tv,                   ///< [in] 真理値表
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const string& node_name,         ///< [in] ノード名
+    const TvFunc& tv,                ///< [in] 真理値表
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @return 生成した論理ノードを返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は tv.input_num() を用いる．
+  BnNode
+  new_logic_tv(
+    const string& node_name,         ///< [in] ノード名
+    SizeType func_id,                ///< [in] 真理値表番号
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief BDD型の論理ノードを追加する．
@@ -221,9 +244,9 @@ public:
   /// - ノード名の重複に関しては感知しない．
   BnNode
   new_logic_bdd(
-    const string& node_name,            ///< [in] ノード名
-    const Bdd& bdd,                     ///< [in] BDD
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const string& node_name,         ///< [in] ノード名
+    const Bdd& bdd,                  ///< [in] BDD
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief 論理セルを追加する．
@@ -232,9 +255,9 @@ public:
   /// - ノード名の重複に関しては感知しない．
   BnNode
   new_logic_cell(
-    const string& node_name,            ///< [in] ノード名
-    SizeType cell_id,                   ///< [in] セル番号
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+    const string& node_name,         ///< [in] ノード名
+    SizeType cell_id,                ///< [in] セル番号
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
   /// @brief C0型(定数０)の論理ノードを追加する．
@@ -244,7 +267,10 @@ public:
   BnNode
   new_c0(
     const string& node_name ///< [in] ノード名
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::C0, {});
+  }
 
   /// @brief C1型(定数1)の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -253,7 +279,10 @@ public:
   BnNode
   new_c1(
     const string& node_name ///< [in] ノード名
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::C1, {});
+  }
 
   /// @brief BUFF型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -263,7 +292,10 @@ public:
   new_buff(
     const string& node_name, ///< [in] ノード名
     BnNode fanin             ///< [in] ファンインのノード
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Buff, {fanin});
+  }
 
   /// @brief NOT型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -273,7 +305,10 @@ public:
   new_not(
     const string& node_name, ///< [in] ノード名
     BnNode fanin             ///< [in] ファンインのノード番号
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Not, {fanin});
+  }
 
   /// @brief AND型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -283,7 +318,10 @@ public:
   new_and(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::And, fanin_list);
+  }
 
   /// @brief NAND型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -293,7 +331,10 @@ public:
   new_nand(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Nand, fanin_list);
+  }
 
   /// @brief OR型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -303,7 +344,10 @@ public:
   new_or(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Or, fanin_list);
+  }
 
   /// @brief NOR型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -313,7 +357,10 @@ public:
   new_nor(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Nor, fanin_list);
+  }
 
   /// @brief XOR型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -323,7 +370,10 @@ public:
   new_xor(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Xor, fanin_list);
+  }
 
   /// @brief XNOR型の論理ノードを追加する．
   /// @return 生成した論理ノードを返す．
@@ -333,24 +383,25 @@ public:
   new_xnor(
     const string& node_name,         ///< [in] ノード名
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
-  );
+  )
+  {
+    return new_logic_primitive(node_name, PrimType::Xnor, fanin_list);
+  }
 
   /// @brief プリミティブ型の論理ノードに変更する．
-  ///
-  /// - logic_type は BnNodeType のうち論理プリミティブを表すもののみ
   void
   change_primitive(
     BnNode node,                     ///< [in] ノード
-    BnNodeType logic_type,           ///< [in] 論理型
+    PrimType logic_type,             ///< [in] 論理型
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
   );
 
   /// @brief 論理式型の論理ノードに変更する．
   void
   change_expr(
-    BnNode node,                        ///< [in] ノード
-    const Expr& expr,                   ///< [in] 論理式
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノードのリスト
+    BnNode node,                     ///< [in] ノード
+    const Expr& expr,                ///< [in] 論理式
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
   );
 
   /// @brief 真理値表型の論理ノードに変更する．
@@ -364,9 +415,9 @@ public:
   /// @brief 論理セルに変更する．
   void
   change_cell(
-    BnNode node,                        ///< [in] ノード
-    SizeType cell_id,                   ///< [in] セル番号
-    const vector<BnNode>& fanin_id_list ///< [in] ファンインのノードのリスト
+    BnNode node,                     ///< [in] ノード
+    SizeType cell_id,                ///< [in] セル番号
+    const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
   );
 
   /// @brief ポートの情報のみコピーする．

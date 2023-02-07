@@ -19,19 +19,6 @@
 #  テスト用のターゲットの設定
 # ===================================================================
 
-ym_add_gtest ( bnet_FuncAnalyzer_test
-  FuncAnalyzerTest.cc
-  $<TARGET_OBJECTS:ym_base_obj_d>
-  $<TARGET_OBJECTS:ym_logic_obj_d>
-  $<TARGET_OBJECTS:ym_cell_obj_d>
-  $<TARGET_OBJECTS:ym_bnet_obj_d>
-  )
-
-target_include_directories ( bnet_FuncAnalyzer_test
-  PRIVATE
-  ${PROJECT_SOURCE_DIR}/ym-bnet/c++-srcs/bnet
-  )
-
 ym_add_gtest ( bnet_read_blif_test
   read_blif_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>

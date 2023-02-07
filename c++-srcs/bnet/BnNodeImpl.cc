@@ -49,11 +49,11 @@ BnNodeImpl::is_logic() const
   return false;
 }
 
-// @brief プリミティブ型の論理ノードの時 true を返す．
-bool
-BnNodeImpl::is_primitive_logic() const
+// @brief 組み込み型を返す．
+PrimType
+BnNodeImpl::primitive_type() const
 {
-  return false;
+  return PrimType::None;
 }
 
 // @brief 入力番号を返す．

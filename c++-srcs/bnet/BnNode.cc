@@ -55,14 +55,6 @@ BnNode::is_logic() const
   return node->is_logic();
 }
 
-// @brief プリミティブ型の論理ノードの時 true を返す．
-bool
-BnNode::is_primitive_logic() const
-{
-  auto node = mNetwork->_node(mId);
-  return node->is_primitive_logic();
-}
-
 // @brief ファンアウト数を得る．
 SizeType
 BnNode::fanout_num() const
@@ -276,6 +268,14 @@ BnNode::fanin_list() const
 {
   auto node = mNetwork->_node(mId);
   return BnNodeList{mNetwork, node->fanin_id_list()};
+}
+
+// @brief 組み込み型を返す．
+PrimType
+BnNode::primitive_type() const
+{
+  auto node = mNetwork->_node(mId);
+  return node->primitive_type();
 }
 
 // @brief 論理式番号を返す．

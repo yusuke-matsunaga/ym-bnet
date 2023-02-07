@@ -209,9 +209,27 @@ Blif2Bnet::make_logic(
   auto type = mModel.node_type(src_id);
   BnNode node;
   if ( type == BlifType::Cover ) {
-    auto& cover = mModel.node_cover(src_id);
-    auto expr = cover.expr();
-    node = mNetwork.new_logic_expr(oname, expr, fanin_list);
+    SizeType cover_id = mModel.node_cover_id(src_id);
+    if ( mCoverDict.count(cover_id) > 0 ) {
+      auto& cover_info = mCoverDict.at(cover_id);
+      if ( cover_info.type != PrimType::None ) {
+	node = mNetwork.new_logic_primitive(oname, cover_info.type, fanin_list);
+      }
+      else {
+	node = mNetwork.new_logic_expr(oname, cover_info.expr_id, fanin_list);
+      }
+    }
+    else {
+      auto& cover = mModel.node_cover(src_id);
+      auto expr = cover.expr();
+      node = mNetwork.new_logic_expr(oname, expr, fanin_list);
+      if ( node.type() == BnNodeType::Prim ) {
+	mCoverDict.emplace(cover_id, CoverInfo{node.primitive_type(), 0});
+      }
+      else {
+	mCoverDict.emplace(cover_id, CoverInfo{PrimType::None, node.expr_id()});
+      }
+    }
   }
   else if ( type == BlifType::Cell ) {
     auto cell_id = mModel.node_cell_id(src_id);

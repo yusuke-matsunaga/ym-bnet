@@ -18,8 +18,6 @@
 #include "BnNodeImpl.h"
 #include "BnDffImpl.h"
 
-#include "FuncAnalyzer.h"
-
 
 BEGIN_NAMESPACE_YM_BNET
 
@@ -275,7 +273,7 @@ BnNetworkImpl::find_port(
 SizeType
 BnNetworkImpl::new_logic_primitive(
   const string& node_name,
-  BnNodeType logic_type,
+  PrimType logic_type,
   const vector<SizeType>& fanin_id_list
 )
 {
@@ -295,6 +293,18 @@ BnNetworkImpl::new_logic_expr(
   return _reg_logic(node);
 }
 
+// @brief 論理式型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_expr(
+  const string& node_name,
+  SizeType expr_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_expr(node_name, expr_id, fanin_id_list);
+  return _reg_logic(node);
+}
+
 // @brief 真理値表型の論理ノードを追加する．
 SizeType
 BnNetworkImpl::new_logic_tv(
@@ -304,6 +314,18 @@ BnNetworkImpl::new_logic_tv(
 )
 {
   auto node = _new_logic_tv(node_name, tv, fanin_id_list);
+  return _reg_logic(node);
+}
+
+// @brief 真理値表型の論理ノードを追加する．
+SizeType
+BnNetworkImpl::new_logic_tv(
+  const string& node_name,
+  SizeType func_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  auto node = _new_logic_tv(node_name, func_id, fanin_id_list);
   return _reg_logic(node);
 }
 
@@ -335,7 +357,7 @@ BnNetworkImpl::new_logic_cell(
 void
 BnNetworkImpl::change_primitive(
   SizeType id,
-  BnNodeType logic_type,
+  PrimType logic_type,
   const vector<SizeType>& fanin_id_list
 )
 {
@@ -819,7 +841,7 @@ BnNetworkImpl::_new_cell_output(
 BnNodeImpl*
 BnNetworkImpl::_new_logic_primitive(
   const string& node_name,
-  BnNodeType type,
+  PrimType type,
   const vector<SizeType>& fanin_id_list
 )
 {
@@ -835,16 +857,27 @@ BnNetworkImpl::_new_logic_expr(
 )
 {
   SizeType ni;
-  BnNodeType logic_type;
+  PrimType logic_type;
   SizeType expr_id;
   tie(ni, logic_type, expr_id) = _analyze_expr(expr);
   ASSERT_COND( ni == fanin_id_list.size() );
-  if ( logic_type == BnNodeType::Expr ) {
-    return BnNodeImpl::new_expr(node_name, expr_id, fanin_id_list);
+  if ( logic_type == PrimType::None ) {
+    return _new_logic_expr(node_name, expr_id, fanin_id_list);
   }
   else {
-    return BnNodeImpl::new_primitive(node_name, logic_type, fanin_id_list);
+    return _new_logic_primitive(node_name, logic_type, fanin_id_list);
   }
+}
+
+// @brief 論理式型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_expr(
+  const string& node_name,
+  SizeType expr_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
+  return BnNodeImpl::new_expr(node_name, expr_id, fanin_id_list);
 }
 
 // @brief 真理値表型の論理ノードを作る．
@@ -856,6 +889,17 @@ BnNetworkImpl::_new_logic_tv(
 )
 {
   auto func_id = _reg_tv(tv);
+  return _new_logic_tv(node_name, func_id, fanin_id_list);
+}
+
+// @brief 真理値表型の論理ノードを作る．
+BnNodeImpl*
+BnNetworkImpl::_new_logic_tv(
+  const string& node_name,
+  SizeType func_id,
+  const vector<SizeType>& fanin_id_list
+)
+{
   return BnNodeImpl::new_tv(node_name, func_id, fanin_id_list);
 }
 
@@ -980,18 +1024,18 @@ BnNetworkImpl::_chg_node(
 }
 
 // @brief 論理式を解析する．
-tuple<SizeType, BnNodeType, SizeType>
+tuple<SizeType, PrimType, SizeType>
 BnNetworkImpl::_analyze_expr(
   const Expr& expr
 )
 {
   auto ni = expr.input_size();
-  BnNodeType logic_type = FuncAnalyzer::analyze(expr);
+  auto type = expr.analyze();
   SizeType expr_id = BNET_NULLID;
-  if ( logic_type == BnNodeType::Expr ) {
+  if ( type == PrimType::None ) {
     expr_id = _reg_expr(expr);
   }
-  return make_tuple(ni, logic_type, expr_id);
+  return make_tuple(ni, type, expr_id);
 }
 
 // @brief 論理式を登録する．

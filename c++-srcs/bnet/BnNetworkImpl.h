@@ -181,7 +181,7 @@ public:
   SizeType
   new_logic_primitive(
     const string& node_name,              ///< [in] ノード名
-    BnNodeType logic_type,                ///< [in] 論理型
+    PrimType logic_type,                  ///< [in] 論理型
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -198,6 +198,19 @@ public:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
+  /// @brief 論理式型の論理ノードを追加する．
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は expr.input_num() を用いる．
+  /// - expr 中の変数に抜けがある場合には詰められる．
+  SizeType
+  new_logic_expr(
+    const string& node_name,              ///< [in] ノード名
+    SizeType expr_id,                     ///< [in] 論理式番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
   /// @brief 真理値表型の論理ノードを追加する．
   /// @return 生成した論理ノードの番号を返す．
   ///
@@ -207,6 +220,18 @@ public:
   new_logic_tv(
     const string& node_name,              ///< [in] ノード名
     const TvFunc& tv,                     ///< [in] 真理値表
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 真理値表型の論理ノードを追加する．
+  /// @return 生成した論理ノードの番号を返す．
+  ///
+  /// - ノード名の重複に関しては感知しない．
+  /// - 入力数は tv.input_num() を用いる．
+  SizeType
+  new_logic_tv(
+    const string& node_name,              ///< [in] ノード名
+    SizeType func_id,                     ///< [in] 真理値表番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -237,7 +262,7 @@ public:
   void
   change_primitive(
     SizeType id,                          ///< [in] ノード番号
-    BnNodeType logic_type,                ///< [in] 論理型
+    PrimType logic_type,                  ///< [in] 論理型
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -647,7 +672,7 @@ private:
   BnNodeImpl*
   _new_logic_primitive(
     const string& node_name,              ///< [in] ノード名
-    BnNodeType type,                      ///< [in] ノードの型(プリミティブ型のみ)
+    PrimType type,                      ///< [in] ノードの型(プリミティブ型のみ)
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -659,11 +684,27 @@ private:
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
+  /// @brief 論理式型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_expr(
+    const string& node_name,              ///< [in] ノード名
+    SizeType expr_id,                     ///< [in] 論理式番号
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
   /// @brief 真理値表型の論理ノードを作る．
   BnNodeImpl*
   _new_logic_tv(
     const string& node_name,              ///< [in] ノード名
     const TvFunc& tv,                     ///< [in] 真理値表
+    const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
+  );
+
+  /// @brief 真理値表型の論理ノードを作る．
+  BnNodeImpl*
+  _new_logic_tv(
+    const string& node_name,              ///< [in] ノード名
+    SizeType func_id,                     ///< [in] 関数番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -750,7 +791,7 @@ private:
   /// @return 入力数，ノードタイプ, 論理式番号のタプルを返す．
   ///
   /// 場合によってはプリミティブ型となる．
-  tuple<SizeType, BnNodeType, SizeType>
+  tuple<SizeType, PrimType, SizeType>
   _analyze_expr(
     const Expr& expr ///< [in] 論理式
   );

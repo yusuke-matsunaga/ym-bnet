@@ -185,17 +185,6 @@ BnNode_is_logic(
   return PyBool_FromLong(r);
 }
 
-PyObject*
-BnNode_is_primitive_logic(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto node = PyBnNode::_get(self);
-  auto r = node.is_primitive_logic();
-  return PyBool_FromLong(r);
-}
-
 // メソッド定義
 PyMethodDef BnNode_methods[] = {
   {"is_input", BnNode_is_input, METH_NOARGS,

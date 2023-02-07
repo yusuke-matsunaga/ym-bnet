@@ -67,9 +67,9 @@ BnLogicNode::set_fanin(
 // @brief プリミティブ型のノードを作る．
 BnNodeImpl*
 BnNodeImpl::new_primitive(
-  const string& name,                   ///< [in] 名前
-  BnNodeType type,                      ///< [in] タイプ
-  const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
+  const string& name,
+  PrimType type,
+  const vector<SizeType>& fanin_id_list
 )
 {
   return new BnPrimNode{name, type, fanin_id_list};
@@ -79,14 +79,14 @@ BnNodeImpl::new_primitive(
 BnNodeType
 BnPrimNode::type() const
 {
-  return mLogicType;
+  return BnNodeType::Prim;
 }
 
-// @brief プリミティブ型の論理ノードの時 true を返す．
-bool
-BnPrimNode::is_primitive_logic() const
+// @brief 組み込み型を返す．
+PrimType
+BnPrimNode::primitive_type() const
 {
-  return true;
+  return mPrimType;
 }
 
 // @brief 自分と同じタイプのノードを作る．
@@ -96,7 +96,7 @@ BnPrimNode::duplicate(
   const vector<SizeType>& fanin_id_list
 )
 {
-  return new BnPrimNode{name, type(), fanin_id_list};
+  return new BnPrimNode{name, primitive_type(), fanin_id_list};
 }
 
 

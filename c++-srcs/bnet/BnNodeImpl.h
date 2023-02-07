@@ -78,14 +78,6 @@ public:
   bool
   is_logic() const;
 
-  /// @brief プリミティブ型の論理ノードの時 true を返す．
-  ///
-  /// 具体的には以下の型
-  /// C0, C1, Buff, Not, And, Nand, Or, Nor, Xor Xnor
-  virtual
-  bool
-  is_primitive_logic() const;
-
   /// @brief ファンアウト数を得る．
   SizeType
   fanout_num() const
@@ -267,6 +259,11 @@ public:
   virtual
   const vector<SizeType>&
   fanin_id_list() const;
+
+  /// @brief 組み方型を返す．
+  virtual
+  PrimType
+  primitive_type() const;
 
   /// @brief 論理式番号を返す．
   ///
@@ -460,7 +457,7 @@ public:
   BnNodeImpl*
   new_primitive(
     const string& name,                   ///< [in] 名前
-    BnNodeType type,                      ///< [in] タイプ
+    PrimType type,                        ///< [in] タイプ
     const vector<SizeType>& fanin_id_list ///< [in] ファンインの番号のリスト
   );
 

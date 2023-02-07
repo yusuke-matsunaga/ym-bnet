@@ -121,35 +121,42 @@ BnNetwork::write(
     case BnNodeType::None:
       s << "NONE";
       break;
-    case BnNodeType::C0:
-      s << "C0";
-      break;
-    case BnNodeType::C1:
-      s << "C1";
-      break;
-    case BnNodeType::Buff:
-      s << "BUFF";
-      break;
-    case BnNodeType::Not:
-      s << "NOT";
-      break;
-    case BnNodeType::And:
-      s << "AND";
-      break;
-    case BnNodeType::Nand:
-      s << "NAND";
-      break;
-    case BnNodeType::Or:
-      s << "OR";
-      break;
-    case BnNodeType::Nor:
-      s << "NOR";
-      break;
-    case BnNodeType::Xor:
-      s << "XOR";
-      break;
-    case BnNodeType::Xnor:
-      s << "XNOR";
+    case BnNodeType::Prim:
+      switch ( node.primitive_type() ) {
+      case PrimType::C0:
+	s << "C0";
+	break;
+      case PrimType::C1:
+	s << "C1";
+	break;
+      case PrimType::Buff:
+	s << "BUFF";
+	break;
+      case PrimType::Not:
+	s << "NOT";
+	break;
+      case PrimType::And:
+	s << "AND";
+	break;
+      case PrimType::Nand:
+	s << "NAND";
+	break;
+      case PrimType::Or:
+	s << "OR";
+	break;
+      case PrimType::Nor:
+	s << "NOR";
+	break;
+      case PrimType::Xor:
+	s << "XOR";
+	break;
+      case PrimType::Xnor:
+	s << "XNOR";
+	break;
+      case PrimType::None:
+	ASSERT_NOT_REACHED;
+	break;
+      }
       break;
     case BnNodeType::Expr:
       s << "expr#" << node.expr_id() << ": "
