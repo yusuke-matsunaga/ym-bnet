@@ -98,19 +98,19 @@ Iscas89Parser::read(
 	}
 
 	auto gate_type = parse_gate_type();
-	auto type = Iscas89Gate::None;
+	auto type = PrimType::None;
 	vector<SizeType> iname_id_list;
 	switch ( gate_type ) {
-	case Iscas89Token::CONST0: type = Iscas89Gate::C0;   break;
-	case Iscas89Token::CONST1: type = Iscas89Gate::C1;   break;
-	case Iscas89Token::BUFF:   type = Iscas89Gate::Buff; break;
-	case Iscas89Token::NOT:    type = Iscas89Gate::Not;  break;
-	case Iscas89Token::AND:    type = Iscas89Gate::And;  break;
-	case Iscas89Token::NAND:   type = Iscas89Gate::Nand; break;
-	case Iscas89Token::OR:     type = Iscas89Gate::Or;   break;
-	case Iscas89Token::NOR:    type = Iscas89Gate::Nor;  break;
-	case Iscas89Token::XOR:    type = Iscas89Gate::Xor;  break;
-	case Iscas89Token::XNOR:   type = Iscas89Gate::Xnor; break;
+	case Iscas89Token::CONST0: type = PrimType::C0;   break;
+	case Iscas89Token::CONST1: type = PrimType::C1;   break;
+	case Iscas89Token::BUFF:   type = PrimType::Buff; break;
+	case Iscas89Token::NOT:    type = PrimType::Not;  break;
+	case Iscas89Token::AND:    type = PrimType::And;  break;
+	case Iscas89Token::NAND:   type = PrimType::Nand; break;
+	case Iscas89Token::OR:     type = PrimType::Or;   break;
+	case Iscas89Token::NOR:    type = PrimType::Nor;  break;
+	case Iscas89Token::XOR:    type = PrimType::Xor;  break;
+	case Iscas89Token::XNOR:   type = PrimType::Xnor; break;
 	case Iscas89Token::DFF:
 	  if ( !parse_name_list(iname_id_list, last_loc) ) {
 	    goto error;
@@ -142,8 +142,8 @@ Iscas89Parser::read(
 	default:
 	  goto error;
 	}
-	if ( type != Iscas89Gate::None ) {
-	  if ( type != Iscas89Gate::C0 && type != Iscas89Gate::C1 ) {
+	if ( type != PrimType::None ) {
+	  if ( type != PrimType::C0 && type != PrimType::C1 ) {
 	    if ( !parse_name_list(iname_id_list, last_loc) ) {
 	      goto error;
 	    }
@@ -358,7 +358,7 @@ bool
 Iscas89Parser::read_gate(
   const FileRegion& loc,
   SizeType oname_id,
-  Iscas89Gate gate_type,
+  PrimType gate_type,
   const vector<SizeType>& iname_id_list
 )
 {
@@ -376,8 +376,7 @@ Iscas89Parser::read_gate(
     return false;
   }
 
-  set_defined(oname_id, loc);
-  mModel->set_gate(oname_id, gate_type, iname_id_list);
+  set_gate(oname_id, loc, gate_type, iname_id_list);
 
   return true;
 }
@@ -405,28 +404,54 @@ Iscas89Parser::read_mux(
   }
 
 
-  { // 入力数をチェックする．
-    SizeType ni = iname_id_list.size();
-    SizeType nc = 0;
-    SizeType nd = 1;
-    while ( nc + nd < ni ) {
-      ++ nc;
-      nd <<= 1;
-    }
-    if ( nc + nd != ni ) {
-      // 引数の数が合わない．
-      ostringstream buf;
-      buf << oname << ": Wrong # of inputs for MUX-type.";
-      MsgMgr::put_msg(__FILE__, __LINE__, loc,
-		      MsgType::Error,
-		      "ER_MUX01",
-		      buf.str());
-      return false;
-    }
+  // 入力数をチェックする．
+  SizeType ni = iname_id_list.size();
+  SizeType nc = 0;
+  SizeType nd = 1;
+  while ( nc + nd < ni ) {
+    ++ nc;
+    nd <<= 1;
+  }
+  if ( nc + nd != ni ) {
+    // 引数の数が合わない．
+    ostringstream buf;
+    buf << oname << ": Wrong # of inputs for MUX-type.";
+    MsgMgr::put_msg(__FILE__, __LINE__, loc,
+		    MsgType::Error,
+		    "ER_MUX01",
+		    buf.str());
+    return false;
   }
 
-  set_defined(oname_id, loc);
-  mModel->set_gate(oname_id, Iscas89Gate::Mux, iname_id_list);
+  vector<SizeType> control_list;
+  vector<SizeType> control_inv_list;
+  control_list.reserve(nc);
+  for ( SizeType i = 0; i < nc; ++ i ) {
+    SizeType id = iname_id_list[i];
+    control_list.push_back(id);
+    SizeType inv_id = new_gate(loc, PrimType::Not, {id});
+    control_inv_list.push_back(inv_id);
+  }
+  vector<SizeType> tmp_list;
+  tmp_list.reserve(nd);
+  for ( SizeType i = 0; i < nd; ++ i ) {
+    vector<SizeType> fanin_list;
+    fanin_list.reserve(nc + 1);
+    SizeType id = iname_id_list[i + nc];
+    fanin_list.push_back(id);
+    for ( SizeType j = 0; j < nc; ++ j ) {
+      if ( i & (1 << j) ) {
+	fanin_list.push_back(control_list[j]);
+      }
+      else {
+	fanin_list.push_back(control_inv_list[j]);
+      }
+    }
+    SizeType and_id = new_gate(loc, PrimType::And, fanin_list);
+    tmp_list.push_back(and_id);
+  }
+
+  set_gate(oname_id, loc, PrimType::Or, tmp_list);
 
   return true;
 }

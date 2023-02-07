@@ -103,7 +103,7 @@ Iscas89Model::node_fanin_list(
 }
 
 // @brief 論理ノードの種類を返す．
-Iscas89Gate
+PrimType
 Iscas89Model::node_gate_type(
   SizeType node_id ///< [in] ノード番号
 ) const

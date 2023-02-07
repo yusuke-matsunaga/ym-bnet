@@ -1,0 +1,36 @@
+network name : iscas89_network
+
+port#0: (in1) :  1
+port#1: (in2) :  2
+port#2: (in3) :  3
+port#3: (out1) :  8
+
+input: 1(in1)
+  fanout: 4 6
+input: 2(in2)
+  fanout: 5
+input: 3(in3)
+  fanout: 6
+
+output: 8(out1)
+    input: 7
+  fanout:
+
+
+logic: 4()
+    fanins:  1
+    NOT
+  fanout: 5
+logic: 5()
+    fanins:  2 4
+    AND
+  fanout: 7
+logic: 6()
+    fanins:  3 1
+    AND
+  fanout: 7
+logic: 7(out1)
+    fanins:  5 6
+    OR
+  fanout: 8
+

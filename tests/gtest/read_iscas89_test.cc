@@ -60,6 +60,37 @@ TEST(ReadIscas89Test, const_test)
   EXPECT_EQ( nd, network.dff_num() );
 }
 
+TEST(ReadIscas89Test, mux_test)
+{
+  string filename = "mux2.bench";
+  string path = DATAPATH + filename;
+  auto network = BnNetwork::read_iscas89(path);
+  int ni = 3;
+  int no = 1;
+  int nd = 0;
+  int ng = 4;
+  EXPECT_EQ( ni, network.input_num() );
+  EXPECT_EQ( no, network.output_num() );
+  EXPECT_EQ( ng, network.logic_num() );
+  EXPECT_EQ( ni + no, network.port_num() );
+  EXPECT_EQ( nd, network.dff_num() );
+
+  // 出力結果の回帰テスト
+  ostringstream s1;
+  network.write(s1);
+
+  string ref_path = DATAPATH + string{"mux2.bnet"};
+  ifstream s2{ref_path};
+  ASSERT_TRUE( s2 );
+  string ref_contents;
+  string buff;
+  while ( getline(s2, buff) ) {
+    ref_contents += buff + '\n';
+  }
+
+  EXPECT_EQ( ref_contents, s1.str() );
+}
+
 TEST(ReadIscas89Test, file_not_found)
 {
   EXPECT_THROW({

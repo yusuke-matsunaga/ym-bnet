@@ -163,32 +163,13 @@ Bench2Bnet::make_gate(
     fanin_list.push_back(mNodeMap.at(iid));
   }
 
-  auto type = mModel.node_gate_type(src_id);
-  auto gtype = PrimType::None;
-  switch ( type ) {
-  case Iscas89Gate::C0:   gtype = PrimType::C0; break;
-  case Iscas89Gate::C1:   gtype = PrimType::C1; break;
-  case Iscas89Gate::Buff: gtype = PrimType::Buff; break;
-  case Iscas89Gate::Not:  gtype = PrimType::Not; break;
-  case Iscas89Gate::And:  gtype = PrimType::And; break;
-  case Iscas89Gate::Nand: gtype = PrimType::Nand; break;
-  case Iscas89Gate::Or:   gtype = PrimType::Or; break;
-  case Iscas89Gate::Nor:  gtype = PrimType::Nor; break;
-  case Iscas89Gate::Xor:  gtype = PrimType::Xor; break;
-  case Iscas89Gate::Xnor: gtype = PrimType::Xor; break;
-  case Iscas89Gate::Mux: break;
-  default: ASSERT_NOT_REACHED; break;
-  }
-  BnNode node;
-  if ( type == Iscas89Gate::Mux ) {
-    node = make_mux(oname, fanin_list);
-  }
-  else {
-    node = mNetwork.new_logic_primitive(oname, gtype, fanin_list);
-  }
+  auto gate_type = mModel.node_gate_type(src_id);
+  auto node = mNetwork.new_logic_primitive(oname, gate_type, fanin_list);
+
   mNodeMap.emplace(src_id, node);
 }
 
+#if 0
 BnNode
 Bench2Bnet::make_mux(
   const string& oname,
@@ -231,5 +212,6 @@ Bench2Bnet::make_mux(
   auto node = mNetwork.new_logic_expr(oname, mux_expr, fanin_list);
   return node;
 }
+#endif
 
 END_NAMESPACE_YM_BNET

@@ -46,51 +46,6 @@ enum class Iscas89Type {
   Gate   ///< 論理ゲート
 };
 
-
-//////////////////////////////////////////////////////////////////////
-/// @brief 論理ゲートの型
-//////////////////////////////////////////////////////////////////////
-
-enum class Iscas89Gate {
-  None, ///< 不正値
-  C0,   ///< 定数0
-  C1,   ///< 定数1
-  Buff, ///< バッファ
-  Not,  ///< not
-  And,  ///< and
-  Nand, ///< nand
-  Or,   ///< or
-  Nor,  ///< nor
-  Xor,  ///< xor
-  Xnor, ///< xnor
-  Mux,  ///< multiplexor
-};
-
-inline
-ostream&
-operator<<(
-  ostream& s,
-  Iscas89Gate gtype
-)
-{
-  switch ( gtype ) {
-  case Iscas89Gate::None: s << "None"; break;
-  case Iscas89Gate::C0:   s << "C0"; break;
-  case Iscas89Gate::C1:   s << "C1"; break;
-  case Iscas89Gate::Buff: s << "Buff"; break;
-  case Iscas89Gate::Not:  s << "Not"; break;
-  case Iscas89Gate::And:  s << "And"; break;
-  case Iscas89Gate::Nand: s << "Nand"; break;
-  case Iscas89Gate::Or:   s << "Or"; break;
-  case Iscas89Gate::Nor:  s << "Nor"; break;
-  case Iscas89Gate::Xor:  s << "Xor"; break;
-  case Iscas89Gate::Xnor: s << "Xnor"; break;
-  case Iscas89Gate::Mux:  s << "Mux"; break;
-  default:                    s << "---"; break;
-  }
-  return s;
-}
-
 using nsIscas89::Iscas89Model;
 
 END_NAMESPACE_YM

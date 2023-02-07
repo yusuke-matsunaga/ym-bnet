@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/iscas89_nsdef.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_ISCAS89
@@ -30,7 +31,7 @@ class ModelImpl;
 ///   * ファンインのノード番号のリスト
 ///
 /// - Gate タイプは以下の情報を持つ．
-///   * ゲートの種類(C0, C1, Buff, Not, And, Nand, Or, Nor, Xor, Xnor)
+///   * ゲートの種類(PrimType)
 ///
 /// 実際には出力ノードという種類はなく，他のいずれかの
 /// ノードとなっている．
@@ -110,7 +111,7 @@ public:
   /// @brief 論理ノードの種類を返す．
   ///
   /// node_type が Gate の時のみ意味を持つ．
-  Iscas89Gate
+  PrimType
   node_gate_type(
     SizeType node_id ///< [in] ノード番号
   ) const;

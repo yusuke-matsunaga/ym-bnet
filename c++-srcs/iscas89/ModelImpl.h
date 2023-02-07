@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/iscas89_nsdef.h"
-#include "ym/FileRegion.h"
+#include "ym/logic.h"
 
 
 BEGIN_NAMESPACE_YM_ISCAS89
@@ -121,7 +121,7 @@ public:
   /// @brief 論理ノードの種類を返す．
   ///
   /// node_type が Gate の時のみ意味を持つ．
-  Iscas89Gate
+  PrimType
   node_gate_type(
     SizeType node_id ///< [in] ノード番号
   ) const
@@ -181,7 +181,7 @@ private:
     is_dff() const { return mFlags[3]; }
 
     /// @brief ゲートの種類を返す．
-    Iscas89Gate
+    PrimType
     gate_type() const { return mType; }
 
     /// @brief ファンインのノード番号のリストを返す．
@@ -206,7 +206,7 @@ private:
     /// @brief 論理ゲートにセットする．
     void
     set_gate(
-      Iscas89Gate gate_type,
+      PrimType gate_type,
       const vector<SizeType>& inode_list
     )
     {
@@ -241,7 +241,7 @@ private:
     std::bitset<4> mFlags;
 
     // 論理ノードの種類
-    Iscas89Gate mType;
+    PrimType mType;
 
     // 入力ノード番号のリスト
     vector<SizeType> mInodeList;
@@ -278,7 +278,7 @@ private:
   void
   set_gate(
     SizeType id,
-    Iscas89Gate gate_type,
+    PrimType gate_type,
     const vector<SizeType>& inode_list
   )
   {

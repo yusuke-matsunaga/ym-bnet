@@ -103,7 +103,7 @@ private:
   read_gate(
     const FileRegion& loc,             ///< [in] ファイル位置
     SizeType oname_id,                 ///< [in] 出力名の ID 番号
-    Iscas89Gate type,                  ///< [in] ゲートタイプ
+    PrimType type,                     ///< [in] ゲートタイプ
     const vector<SizeType>& iname_list ///< [in] 入力名のID番号のリスト
   );
 
@@ -141,6 +141,20 @@ private:
   tuple<Iscas89Token, SizeType, FileRegion>
   read_token();
 
+  /// @brief 新しいノードを確保する．
+  /// @return ID番号を返す．
+  SizeType
+  new_node(
+    const string& name,   ///< [in] 名前
+    const FileRegion& loc ///< [in] ファイル上の位置
+  )
+  {
+    SizeType id = mRefLocArray.size();
+    mRefLocArray.push_back(loc);
+    mModel->new_node(name);
+    return id;
+  }
+
   /// @brief 識別子番号を得る．
   ///
   /// 登録されていなければ新しく作る．
@@ -153,9 +167,7 @@ private:
     if ( mIdHash.count(name) > 0 ) {
       return mIdHash.at(name);
     }
-    SizeType id = mRefLocArray.size();
-    mRefLocArray.push_back(loc);
-    mModel->new_node(name);
+    SizeType id = new_node(name, loc);
     mIdHash.emplace(name, id);
     return id;
   }
@@ -168,6 +180,32 @@ private:
   )
   {
     mDefLocDict.emplace(id, loc);
+  }
+
+  /// @brief ゲートの設定を行う．
+  void
+  set_gate(
+    SizeType id,                       ///< [in] ID番号
+    const FileRegion& loc,             ///< [in] ファイル上の位置
+    PrimType gate_type,                ///< [in] ゲートの種類
+    const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
+  )
+  {
+    set_defined(id, loc);
+    mModel->set_gate(id, gate_type, fanin_list);
+  }
+
+  /// @brief ゲートを生成する．
+  SizeType
+  new_gate(
+    const FileRegion& loc,             ///< [in] ファイル上の位置
+    PrimType gate_type,                ///< [in] ゲートの種類
+    const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
+  )
+  {
+    SizeType id = new_node({}, loc);
+    set_gate(id, loc, gate_type, fanin_list);
+    return id;
   }
 
   /// @brief 該当の識別子が定義済みか調べる．
