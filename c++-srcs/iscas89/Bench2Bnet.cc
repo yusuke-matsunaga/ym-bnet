@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "Bench2Bnet.h"
+#include "ym/Iscas89ExParser.h"
 #include "ym/Iscas89Model.h"
 #include "ym/BnNetwork.h"
 
@@ -24,8 +25,9 @@ BnNetwork::read_iscas89(
   const string& clock_name
 )
 {
+  Iscas89ExParser parser;
   Iscas89Model model;
-  bool stat = model.read(filename);
+  bool stat = parser.read(filename, model);
   if ( !stat ) {
     ostringstream buff;
     buff << "Error in read_iscas89(\"" << filename << "\"";

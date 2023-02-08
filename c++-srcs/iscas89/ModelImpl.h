@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_ISCAS89
 //////////////////////////////////////////////////////////////////////
 class ModelImpl
 {
-  friend class Iscas89Parser;
+  friend class ParserImpl;
 
 public:
 

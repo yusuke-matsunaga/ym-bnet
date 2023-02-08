@@ -6,6 +6,7 @@
 /// Copyright (C) 2023 Yusuke Matsunaga
 /// All rights reserved.
 
+#include "ym/Iscas89Parser.h"
 #include "ym/Iscas89Model.h"
 #include "ym/MsgMgr.h"
 #include "ym/StreamMsgHandler.h"
@@ -27,12 +28,13 @@ main(
   string filename = argv[1];
 
   try {
+    Iscas89Parser parser;
     Iscas89Model model;
 
     StreamMsgHandler msg_handler(cerr);
     MsgMgr::attach_handler(&msg_handler);
 
-    if ( !model.read(filename) ) {
+    if ( !parser.read(filename, model) ) {
       cerr << "Error in reading " << filename << endl;
       return 4;
     }

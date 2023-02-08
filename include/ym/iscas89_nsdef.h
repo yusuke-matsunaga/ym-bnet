@@ -28,6 +28,9 @@ BEGIN_NAMESPACE_YM_ISCAS89
 // クラスの先行宣言
 //////////////////////////////////////////////////////////////////////
 
+class Iscas89Parser;
+class Iscas89ExParser;
+class Iscas89Handler;
 class Iscas89Model;
 
 END_NAMESPACE_YM_ISCAS89
@@ -46,6 +49,9 @@ enum class Iscas89Type {
   Gate   ///< 論理ゲート
 };
 
+using nsIscas89::Iscas89Parser;
+using nsIscas89::Iscas89ExParser;
+using nsIscas89::Iscas89Handler;
 using nsIscas89::Iscas89Model;
 
 END_NAMESPACE_YM

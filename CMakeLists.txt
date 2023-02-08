@@ -94,9 +94,15 @@ set ( blif_SOURCES
 
 set ( iscas89_SOURCES
   c++-srcs/iscas89/Bench2Bnet.cc
+  c++-srcs/iscas89/Iscas89Handler.cc
   c++-srcs/iscas89/Iscas89Model.cc
   c++-srcs/iscas89/Iscas89Parser.cc
   c++-srcs/iscas89/Iscas89Scanner.cc
+  c++-srcs/iscas89/ParserImpl.cc
+  c++-srcs/iscas89/Iscas89ExParser.cc
+  c++-srcs/iscas89/MuxHandler.cc
+  c++-srcs/iscas89/C0Handler.cc
+  c++-srcs/iscas89/C1Handler.cc
   )
 
 set ( writer_SOURCES

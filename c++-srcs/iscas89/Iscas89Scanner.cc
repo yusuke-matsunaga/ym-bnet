@@ -25,47 +25,103 @@ BEGIN_NAMESPACE_YM_ISCAS89
 // @brief コンストラクタ
 Iscas89Scanner::Iscas89Scanner(
   istream& s,
-  const FileInfo& file_info
-) : Scanner(s, file_info)
+  const FileInfo& file_info,
+  const unordered_map<string, SizeType>& handler_dict
+) : Scanner{s, file_info}
 {
+  // 予約語辞書を作る．
+  mRsvDict.emplace("INPUT", RsvInfo{Iscas89Token::INPUT, PrimType::None});
+  mRsvDict.emplace("input", RsvInfo{Iscas89Token::INPUT, PrimType::None});
+  mRsvDict.emplace("OUTPUT", RsvInfo{Iscas89Token::OUTPUT, PrimType::None});
+  mRsvDict.emplace("output", RsvInfo{Iscas89Token::OUTPUT, PrimType::None});
+  mRsvDict.emplace("BUFF", RsvInfo{Iscas89Token::GATE, PrimType::Buff});
+  mRsvDict.emplace("BUF", RsvInfo{Iscas89Token::GATE, PrimType::Buff});
+  mRsvDict.emplace("buff", RsvInfo{Iscas89Token::GATE, PrimType::Buff});
+  mRsvDict.emplace("buf", RsvInfo{Iscas89Token::GATE, PrimType::Buff});
+  mRsvDict.emplace("NOT", RsvInfo{Iscas89Token::GATE, PrimType::Not});
+  mRsvDict.emplace("not", RsvInfo{Iscas89Token::GATE, PrimType::Not});
+  mRsvDict.emplace("INV", RsvInfo{Iscas89Token::GATE, PrimType::Not});
+  mRsvDict.emplace("inv", RsvInfo{Iscas89Token::GATE, PrimType::Not});
+  mRsvDict.emplace("AND", RsvInfo{Iscas89Token::GATE, PrimType::And});
+  mRsvDict.emplace("and", RsvInfo{Iscas89Token::GATE, PrimType::And});
+  mRsvDict.emplace("NAND", RsvInfo{Iscas89Token::GATE, PrimType::Nand});
+  mRsvDict.emplace("nand", RsvInfo{Iscas89Token::GATE, PrimType::Nand});
+  mRsvDict.emplace("OR", RsvInfo{Iscas89Token::GATE, PrimType::Or});
+  mRsvDict.emplace("or", RsvInfo{Iscas89Token::GATE, PrimType::Or});
+  mRsvDict.emplace("NOR", RsvInfo{Iscas89Token::GATE, PrimType::Nor});
+  mRsvDict.emplace("nor", RsvInfo{Iscas89Token::GATE, PrimType::Nor});
+  mRsvDict.emplace("XOR", RsvInfo{Iscas89Token::GATE, PrimType::Xor});
+  mRsvDict.emplace("xor", RsvInfo{Iscas89Token::GATE, PrimType::Xor});
+  mRsvDict.emplace("XNOR", RsvInfo{Iscas89Token::GATE, PrimType::Xnor});
+  mRsvDict.emplace("xnor", RsvInfo{Iscas89Token::GATE, PrimType::Xnor});
+  mRsvDict.emplace("DFF", RsvInfo{Iscas89Token::DFF, PrimType::None});
+  mRsvDict.emplace("dff", RsvInfo{Iscas89Token::DFF, PrimType::None});
+  for ( auto& p: handler_dict ) {
+    auto keyword = p.first;
+    auto ex_id = p.second;
+    mRsvDict.emplace(keyword, RsvInfo{Iscas89Token::EXGATE, PrimType::None, ex_id});
+  }
+}
+
+// @brief 拡張型を登録する．
+void
+Iscas89Scanner::reg_extype(
+  const string& keyword,
+  SizeType ex_id
+)
+{
+  mRsvDict.emplace(keyword, RsvInfo{Iscas89Token::EXGATE, PrimType::None, ex_id});
 }
 
 // @brief トークンを一つ読み出す．
-// @param[out] loc トークンの位置を格納する変数
 Iscas89Token
-Iscas89Scanner::read_token(FileRegion& loc)
+Iscas89Scanner::read_token()
 {
-  auto token = scan();
-  if ( token == Iscas89Token::NAME ) {
-    token = check_word();
+  auto type = scan();
+  auto loc = cur_region();
+  Iscas89Token token;
+  if ( type == Iscas89Token::NAME ) {
+    auto name = cur_string();
+    if ( mRsvDict.count(name) > 0 ) {
+      auto info = mRsvDict.at(name);
+      token = Iscas89Token{info.type, loc, info.gate_type, {}, info.ex_id};
+    }
+    else {
+      token = Iscas89Token{Iscas89Token::NAME, loc, PrimType::None, name};
+    }
   }
-  loc = cur_region();
+  else {
+    token = Iscas89Token{type, loc};
+  }
 
   if ( debug_read_token ) {
     cerr << "read_token()" << " --> "
-	 << loc << ": ";
-    switch ( token ) {
+	 << token.loc() << ": ";
+    switch ( token.type() ) {
     case Iscas89Token::LPAR:   cerr << "("; break;
     case Iscas89Token::RPAR:   cerr << ")"; break;
     case Iscas89Token::EQ:     cerr << "="; break;
     case Iscas89Token::COMMA:  cerr << ","; break;
     case Iscas89Token::INPUT:  cerr << "INPUT"; break;
     case Iscas89Token::OUTPUT: cerr << "OUTPUT"; break;
-    case Iscas89Token::BUFF:   cerr << "BUFF"; break;
-    case Iscas89Token::NOT:    cerr << "NOT"; break;
-    case Iscas89Token::AND:    cerr << "AND"; break;
-    case Iscas89Token::NAND:   cerr << "NAND"; break;
-    case Iscas89Token::OR:     cerr << "OR"; break;
-    case Iscas89Token::NOR:    cerr << "NOR"; break;
-    case Iscas89Token::XOR:    cerr << "XOR"; break;
-    case Iscas89Token::XNOR:   cerr << "XNOR"; break;
-    case Iscas89Token::MUX:    cerr << "MUX"; break;
-    case Iscas89Token::CONST0: cerr << "CONST0"; break;
-    case Iscas89Token::CONST1: cerr << "CONST1"; break;
+    case Iscas89Token::GATE:
+      switch ( token.gate_type() ) {
+      case PrimType::Buff:   cerr << "BUFF"; break;
+      case PrimType::Not:    cerr << "NOT"; break;
+      case PrimType::And:    cerr << "AND"; break;
+      case PrimType::Nand:   cerr << "NAND"; break;
+      case PrimType::Or:     cerr << "OR"; break;
+      case PrimType::Nor:    cerr << "NOR"; break;
+      case PrimType::Xor:    cerr << "XOR"; break;
+      case PrimType::Xnor:   cerr << "XNOR"; break;
+      default: ASSERT_NOT_REACHED; break;
+      }
+      break;
+    case Iscas89Token::EXGATE: cerr << "EXGATE(" << token.ex_id() << ")"; break;
     case Iscas89Token::DFF:    cerr << "DFF"; break;
-    case Iscas89Token::NAME:   cerr << "NAME(" << cur_string() << ")"; break;
+    case Iscas89Token::NAME:   cerr << "NAME(" << token.name() << ")"; break;
     case Iscas89Token::_EOF:   cerr << "EOF"; break;
-    default:                   cerr << static_cast<char>(token); break;
+    default:                   cerr << static_cast<char>(token.type()); break;
     }
     cerr << endl;
   }
@@ -74,8 +130,7 @@ Iscas89Scanner::read_token(FileRegion& loc)
 }
 
 // @brief read_token() の下請け関数
-// @return トークンを返す．
-Iscas89Token
+Iscas89Token::Type
 Iscas89Scanner::scan()
 {
   int c;
@@ -149,64 +204,6 @@ Iscas89Scanner::scan()
     mCurString.put_char(c);
     goto ST_STR;
   }
-}
-
-// @brief 予約語の検査を行う．
-// @return トークンを返す．
-//
-// 予約語でなければ NAME を返す．
-Iscas89Token
-Iscas89Scanner::check_word()
-{
-  if ( mCurString == "INPUT" || mCurString == "input" ) {
-    return Iscas89Token::INPUT;
-  }
-  if ( mCurString == "OUTPUT" || mCurString == "output" ) {
-    return Iscas89Token::OUTPUT;
-  }
-  if ( mCurString == "BUFF" || mCurString == "buff" ) {
-    return Iscas89Token::BUFF;
-  }
-  if ( mCurString == "BUF" || mCurString == "buf" ) {
-    return Iscas89Token::BUFF;
-  }
-  if ( mCurString == "NOT" || mCurString == "not" ) {
-    return Iscas89Token::NOT;
-  }
-  if ( mCurString == "INV" || mCurString == "inv" ) {
-    return Iscas89Token::NOT;
-  }
-  if ( mCurString == "AND" || mCurString == "and" ) {
-    return Iscas89Token::AND;
-  }
-  if ( mCurString == "NAND" || mCurString == "nand" ) {
-    return Iscas89Token::NAND;
-  }
-  if ( mCurString == "OR" || mCurString == "or" ) {
-    return Iscas89Token::OR;
-  }
-  if ( mCurString == "NOR" || mCurString == "nor" ) {
-    return Iscas89Token::NOR;
-  }
-  if ( mCurString == "XOR" || mCurString == "xor" ) {
-    return Iscas89Token::XOR;
-  }
-  if ( mCurString == "XNOR" || mCurString == "xnor" ) {
-    return Iscas89Token::XNOR;
-  }
-  if ( mCurString == "MUX" || mCurString == "mux" ) {
-    return Iscas89Token::MUX;
-  }
-  if ( mCurString == "CONST0" || mCurString == "const0" ) {
-    return Iscas89Token::CONST0;
-  }
-  if ( mCurString == "CONST1" || mCurString == "const1" ) {
-    return Iscas89Token::CONST1;
-  }
-  if ( mCurString == "DFF" || mCurString == "dff" ) {
-    return Iscas89Token::DFF;
-  }
-  return Iscas89Token::NAME;
 }
 
 END_NAMESPACE_YM_ISCAS89

@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/BnNetwork.h"
+#include "ym/Iscas89Parser.h"
 #include "ym/Iscas89Model.h"
 
 
@@ -40,9 +41,10 @@ iscas89parser_loop_test(
   const string& filename
 )
 {
+  Iscas89Parser parser;
   for (int i = 0; i < loop_count; ++ i) {
     Iscas89Model model;
-    model.read(filename);
+    parser.read(filename, model);
   }
 }
 

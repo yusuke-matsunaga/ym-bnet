@@ -5,7 +5,7 @@
 /// @brief Iscas89Scanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2019, 2021 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2019, 2021, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/iscas89_nsdef.h"
@@ -27,8 +27,9 @@ public:
 
   /// @brief コンストラクタ
   Iscas89Scanner(
-    istream& s,               ///< [in] 入力ストリーム
-    const FileInfo& file_info ///< [in] ファイル情報
+    istream& s,                ///< [in] 入力ストリーム
+    const FileInfo& file_info, ///< [in] ファイル情報
+    const unordered_map<string, SizeType>& handler_dict
   );
 
   /// @brief デストラクタ
@@ -40,14 +41,20 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 拡張型を登録する．
+  void
+  reg_extype(
+    const string& keyword, ///< [in] 予約語
+    SizeType ex_id         ///< [in] 拡張ID ( > 0 )
+  );
+
   /// @brief トークンを一つ読み出す．
-  /// @param[out] loc トークンの位置を格納する変数
   Iscas89Token
-  read_token(FileRegion& loc);
+  read_token();
 
   /// @brief 最後の read_token() で読み出した字句の文字列を返す．
-  const char*
-  cur_string() { return mCurString.c_str(); }
+  string
+  cur_string() { return string{mCurString.c_str()}; }
 
 
 private:
@@ -57,15 +64,22 @@ private:
 
   /// @brief read_token() の下請け関数
   /// @return トークンを返す．
-  Iscas89Token
+  Iscas89Token::Type
   scan();
 
-  /// @brief 予約語の検査を行う．
-  /// @return トークンを返す．
-  ///
-  /// 予約語でなければ NAME を返す．
-  Iscas89Token
-  check_word();
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ型
+  //////////////////////////////////////////////////////////////////////
+
+  // 予約語の情報
+  struct RsvInfo
+  {
+    Iscas89Token::Type type; // トークンの種類
+    PrimType gate_type;      // ゲートの種類
+    SizeType ex_id;          // 拡張ID
+  };
 
 
 private:
@@ -78,6 +92,9 @@ private:
 
   // 文字列の先頭の位置
   FileLoc mFirstLoc;
+
+  // 予約語の辞書
+  unordered_map<string, RsvInfo> mRsvDict;
 
 };
 

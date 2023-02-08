@@ -7,8 +7,8 @@
 /// All rights reserved.
 
 #include "ym/Iscas89Model.h"
+#include "ym/Iscas89Parser.h"
 #include "ModelImpl.h"
-#include "Iscas89Parser.h"
 
 
 BEGIN_NAMESPACE_YM_ISCAS89
@@ -23,19 +23,6 @@ Iscas89Model::Iscas89Model()
 Iscas89Model::~Iscas89Model()
 {
   delete mImpl;
-}
-
-// @brief 読み込みを行う．
-bool
-Iscas89Model::read(
-  const string& filename
-)
-{
-  delete mImpl;
-  mImpl = new ModelImpl;
-
-  Iscas89Parser parser;
-  return parser.read(filename, mImpl);
 }
 
 // @brief 入力のノード番号のリストを返す．

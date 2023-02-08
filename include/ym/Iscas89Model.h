@@ -56,14 +56,6 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 読み込みを行う．
-  /// @retval true 読み込みが成功した．
-  /// @retval false 読み込みが失敗した．
-  bool
-  read(
-    const string& filename ///< [in] ファイル名
-  );
-
   /// @brief 入力のノード番号のリストを返す．
   const vector<SizeType>&
   input_list() const;
