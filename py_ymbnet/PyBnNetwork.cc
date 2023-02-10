@@ -72,7 +72,7 @@ BnNetwork_read_blif(
   }
   ClibCellLibrary cell_library;
   if ( lib_obj != nullptr ) {
-    cell_library = PyClibCellLibrary::_get(lib_obj);
+    cell_library = PyClibCellLibrary::Get(lib_obj);
   }
   try {
     auto network = BnNetwork::read_blif(filename, cell_library);
@@ -106,7 +106,7 @@ BnNetwork_write(
 				    &filename) ) {
     return nullptr;
   }
-  auto& network = PyBnNetwork::_get(self);
+  auto& network = PyBnNetwork::Get(self);
   if ( filename == nullptr ) {
     network.write(cout);
   }
@@ -180,7 +180,7 @@ PyBnNetwork::ToPyObject(
 
 // @brief PyObject が BnNetwork タイプか調べる．
 bool
-PyBnNetwork::_check(
+PyBnNetwork::Check(
   PyObject* obj
 )
 {
@@ -189,7 +189,7 @@ PyBnNetwork::_check(
 
 // @brief BnNetwork を表す PyObject から BnNetwork を取り出す．
 const BnNetwork&
-PyBnNetwork::_get(
+PyBnNetwork::Get(
   PyObject* obj
 )
 {

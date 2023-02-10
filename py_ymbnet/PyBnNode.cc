@@ -59,7 +59,7 @@ BnNode_is_input(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_input();
   return PyBool_FromLong(r);
 }
@@ -70,7 +70,7 @@ BnNode_is_port_input(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_port_input();
   return PyBool_FromLong(r);
 }
@@ -81,7 +81,7 @@ BnNode_is_data_out(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_data_out();
   return PyBool_FromLong(r);
 }
@@ -92,7 +92,7 @@ BnNode_is_cell_output(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_cell_output();
   return PyBool_FromLong(r);
 }
@@ -103,7 +103,7 @@ BnNode_is_output(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_output();
   return PyBool_FromLong(r);
 }
@@ -114,7 +114,7 @@ BnNode_is_port_output(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_port_output();
   return PyBool_FromLong(r);
 }
@@ -125,7 +125,7 @@ BnNode_is_data_in(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_data_in();
   return PyBool_FromLong(r);
 }
@@ -136,7 +136,7 @@ BnNode_is_clock(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_clock();
   return PyBool_FromLong(r);
 }
@@ -147,7 +147,7 @@ BnNode_is_clear(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_clear();
   return PyBool_FromLong(r);
 }
@@ -158,7 +158,7 @@ BnNode_is_preset(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_preset();
   return PyBool_FromLong(r);
 }
@@ -169,7 +169,7 @@ BnNode_is_cell_input(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_cell_input();
   return PyBool_FromLong(r);
 }
@@ -180,7 +180,7 @@ BnNode_is_logic(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto r = node.is_logic();
   return PyBool_FromLong(r);
 }
@@ -218,7 +218,7 @@ BnNode_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto id = node.id();
   return PyLong_FromLong(id);
 }
@@ -229,7 +229,7 @@ BnNode_name(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto name = node.name();
   return Py_BuildValue("s", name.c_str());
 }
@@ -240,7 +240,7 @@ BnNode_fanout_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto network = PyBnNode::_network(self);
   auto fanout_list = node.fanout_list();
   auto n = fanout_list.size();
@@ -259,7 +259,7 @@ BnNode_input_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.input_pos();
   return PyLong_FromLong(val);
 }
@@ -270,7 +270,7 @@ BnNode_primary_input_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.primary_input_pos();
   return PyLong_FromLong(val);
 }
@@ -281,7 +281,7 @@ BnNode_cell_output_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.cell_output_pos();
   return PyLong_FromLong(val);
 }
@@ -292,7 +292,7 @@ BnNode_output_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.output_pos();
   return PyLong_FromLong(val);
 }
@@ -303,7 +303,7 @@ BnNode_output_src(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto network = PyBnNode::_network(self);
   auto id = node.output_src().id();
   return PyBnNode::ToPyObject(id, network);
@@ -315,7 +315,7 @@ BnNode_primary_output_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.primary_output_pos();
   return PyLong_FromLong(val);
 }
@@ -326,7 +326,7 @@ BnNode_cell_input_pos(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.cell_input_pos();
   return PyLong_FromLong(val);
 }
@@ -337,7 +337,7 @@ BnNode_port_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.port_id();
   return PyLong_FromLong(val);
 }
@@ -348,7 +348,7 @@ BnNode_port_bit(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.port_bit();
   return PyLong_FromLong(val);
 }
@@ -359,7 +359,7 @@ BnNode_dff_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto val = node.dff_id();
   return PyLong_FromLong(val);
 }
@@ -370,7 +370,7 @@ BnNode_fanin_list(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto network = PyBnNode::_network(self);
   auto fanin_list = node.fanin_list();
   auto n = fanin_list.size();
@@ -389,7 +389,7 @@ BnNode_expr(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto network = PyBnNode::_network(self);
   auto id = node.expr_id();
   auto expr = network->expr(id);
@@ -402,7 +402,7 @@ BnNode_func(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto network = PyBnNode::_network(self);
   auto id = node.func_id();
   auto func = network->func(id);
@@ -415,7 +415,7 @@ BnNode_bdd(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto bdd = node.bdd();
   return PyBdd::ToPyObject(bdd);
 }
@@ -426,7 +426,7 @@ BnNode_cell_id(
   void* Py_UNUSED(closure)
 )
 {
-  auto node = PyBnNode::_get(self);
+  auto node = PyBnNode::Get(self);
   auto id = node.cell_id();
   return PyLong_FromLong(id);
 }
@@ -520,7 +520,7 @@ PyBnNode::ToPyObject(
 
 // @brief PyObject が BnNode タイプか調べる．
 bool
-PyBnNode::_check(
+PyBnNode::Check(
   PyObject* obj
 )
 {
@@ -529,7 +529,7 @@ PyBnNode::_check(
 
 // @brief BnNode を表す PyObject から BnNode を取り出す．
 BnNode
-PyBnNode::_get(
+PyBnNode::Get(
   PyObject* obj
 )
 {
