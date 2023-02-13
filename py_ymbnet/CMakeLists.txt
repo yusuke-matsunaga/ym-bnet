@@ -34,8 +34,10 @@ ym_add_object_library ( py_ymbnet
 add_library ( py_ymbnetlib
   SHARED
   $<TARGET_OBJECTS:py_ymbnet_obj>
+  $<TARGET_OBJECTS:py_ymcell_obj>
   $<TARGET_OBJECTS:py_ymlogic_obj>
   $<TARGET_OBJECTS:ym_bnet_obj>
+  $<TARGET_OBJECTS:ym_cell_obj>
   $<TARGET_OBJECTS:ym_logic_obj>
   $<TARGET_OBJECTS:ym_base_obj>
   )
@@ -48,6 +50,7 @@ set_target_properties( py_ymbnetlib
 
 target_link_libraries( py_ymbnetlib
   ${YM_LIB_DEPENDS}
+  ${Python3_LIBRARIES}
   )
 
 # ===================================================================
