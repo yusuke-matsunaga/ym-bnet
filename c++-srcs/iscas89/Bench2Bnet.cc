@@ -164,8 +164,15 @@ Bench2Bnet::make_gate(
     fanin_list.push_back(mNodeMap.at(iid));
   }
 
-  auto gate_type = mModel.node_gate_type(src_id);
-  auto node = mNetwork.new_logic_primitive(oname, gate_type, fanin_list);
+  BnNode node;
+  if ( mModel.node_type(src_id) == Iscas89Type::Gate ) {
+    auto gate_type = mModel.node_gate_type(src_id);
+    node = mNetwork.new_logic_primitive(oname, gate_type, fanin_list);
+  }
+  else if ( mModel.node_type(src_id) == Iscas89Type::Complex ) {
+    auto expr = mModel.expr_list()[mModel.node_expr_id(src_id)];
+    node = mNetwork.new_logic_expr(oname, expr, fanin_list);
+  }
 
   mNodeMap.emplace(src_id, node);
 }

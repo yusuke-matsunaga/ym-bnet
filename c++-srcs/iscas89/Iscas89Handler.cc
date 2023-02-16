@@ -46,18 +46,19 @@ Iscas89Handler::set_gate(
   const vector<SizeType>& fanin_list
 )
 {
-  return mParser->set_gate(id, loc, gate_type, fanin_list);
+  mParser->set_gate(id, loc, gate_type, fanin_list);
 }
 
-// @brief ゲートを生成する．
-SizeType
-Iscas89Handler::new_gate(
+// @brief 複合ゲートの設定を行う．
+void
+Iscas89Handler::set_complex(
+  SizeType id,
   const FileRegion& loc,
-  PrimType gate_type,
+  const Expr& expr,
   const vector<SizeType>& fanin_list
 )
 {
-  return mParser->new_gate(loc, gate_type, fanin_list);
+  mParser->set_complex(id, loc, expr, fanin_list);
 }
 
 // @brief '(' ')' で囲まれた名前を読み込む．

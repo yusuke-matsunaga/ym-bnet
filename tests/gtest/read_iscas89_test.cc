@@ -68,7 +68,7 @@ TEST(ReadIscas89Test, mux_test)
   int ni = 3;
   int no = 1;
   int nd = 0;
-  int ng = 4;
+  int ng = 1;
   EXPECT_EQ( ni, network.input_num() );
   EXPECT_EQ( no, network.output_num() );
   EXPECT_EQ( ng, network.logic_num() );

@@ -96,17 +96,18 @@ public:
     mModel->set_gate(id, gate_type, fanin_list);
   }
 
-  /// @brief ゲートを生成する．
-  SizeType
-  new_gate(
+  /// @brief 複合ゲートの設定を行う．
+  void
+  set_complex(
+    SizeType id,                       ///< [in] ID番号
     const FileRegion& loc,             ///< [in] ファイル上の位置
-    PrimType gate_type,                ///< [in] ゲートの種類
+    const Expr& expr,                  ///< [in] 論理式
     const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
   )
   {
-    SizeType id = new_node({}, loc);
-    set_gate(id, loc, gate_type, fanin_list);
-    return id;
+    set_defined(id, loc);
+    auto expr_id = reg_expr(expr);
+    mModel->set_complex(id, expr_id, fanin_list);
   }
 
   /// @brief '(' ')' で囲まれた名前を読み込む．
@@ -145,15 +146,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-#if 0
-  /// @brief ゲート型を読み込む．
-  /// @return トークンを返す．
-  ///
-  /// エラーが起きたら kIscas89_ERROR を返す．
-  Iscas89Token
-  parse_gate_type();
-#endif
 
   /// @brief INPUT 文を読み込む．
   /// @return エラーが起きたら false を返す．
@@ -194,6 +186,13 @@ private:
     const FileRegion& loc, ///< [in] ファイル位置
     SizeType oname_id,     ///< [in] 出力名の ID 番号
     SizeType iname_id      ///< [in] 入力名のID番号
+  );
+
+  /// @brief 論理式を登録する．
+  /// @return 論理式番号を返す．
+  SizeType
+  reg_expr(
+    const Expr& expr ///< [in] 論理式
   );
 
   /// @brief 次のトークンが期待されている型か調べる．
@@ -320,6 +319,11 @@ private:
 
   // 処理済みの印
   unordered_set<SizeType> mMark;
+
+  // 論理式の辞書
+  // キーは Expr::rep_string()
+  // 値は論理式番号
+  unordered_map<string, SizeType> mExprDict;
 
 };
 

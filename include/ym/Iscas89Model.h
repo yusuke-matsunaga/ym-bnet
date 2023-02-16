@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/iscas89_nsdef.h"
-#include "ym/logic.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_ISCAS89
@@ -25,13 +25,20 @@ class ModelImpl;
 /// - 出力ノード番号のリスト
 /// - DFFノード番号のリスト
 /// - 論理ノード番号のリスト
-/// - 各ノードごとに以下の情報を持つ．
+/// - 論理式のリスト(もしあれば)
+/// - 各ノードは以下の情報を持つ．
 ///   * 名前
-///   * 種類(Input, Dff, Gate)
+///   * 種類(Input, Dff, Gate, Cmplex)
 ///   * ファンインのノード番号のリスト
 ///
 /// - Gate タイプは以下の情報を持つ．
 ///   * ゲートの種類(PrimType)
+///
+/// - Complex タイプは以下の情報を持つ．
+///   * 論理式番号
+///
+/// 通常は全ての Gate タイプは PrimType で表現可能だが，
+/// 拡張タイプの場合には Expr で表される．
 ///
 /// 実際には出力ノードという種類はなく，他のいずれかの
 /// ノードとなっている．
@@ -72,6 +79,10 @@ public:
   const vector<SizeType>&
   gate_list() const;
 
+  /// @brief 論理式のリストを返す．
+  const vector<Expr>&
+  expr_list() const;
+
   /// @brief ノード名を返す．
   const string&
   node_name(
@@ -94,7 +105,7 @@ public:
 
   /// @brief ノードのファンインのノード番号のリストを返す．
   ///
-  /// node_type が Gate の時のみ意味を持つ．
+  /// node_type() が Gate/Complex の時のみ意味を持つ．
   const vector<SizeType>&
   node_fanin_list(
     SizeType node_id ///< [in] ノード番号
@@ -102,9 +113,25 @@ public:
 
   /// @brief 論理ノードの種類を返す．
   ///
-  /// node_type が Gate の時のみ意味を持つ．
+  /// node_type() が Gate の時のみ意味を持つ．
   PrimType
   node_gate_type(
+    SizeType node_id ///< [in] ノード番号
+  ) const;
+
+  /// @brief 論理ノードに対する論理式番号を返す．
+  ///
+  /// node_type() == Complex の時のみ意味を持つ．
+  SizeType
+  node_expr_id(
+    SizeType node_id ///< [in] ノード番号
+  ) const;
+
+  /// @brief 論理ノードに対する論理式を返す．
+  ///
+  /// node_type() == Complex の時のみ意味を持つ．
+  Expr
+  node_expr(
     SizeType node_id ///< [in] ノード番号
   ) const;
 

@@ -53,6 +53,13 @@ Iscas89Model::gate_list() const
   return mImpl->gate_list();
 }
 
+// @brief 論理式のリストを返す．
+const vector<Expr>&
+Iscas89Model::expr_list() const
+{
+  return mImpl->expr_list();
+}
+
 // @brief ノード名を返す．
 const string&
 Iscas89Model::node_name(
@@ -96,6 +103,24 @@ Iscas89Model::node_gate_type(
 ) const
 {
   return mImpl->node_gate_type(node_id);
+}
+
+// @brief 論理ノードに対する論理式番号を返す．
+SizeType
+Iscas89Model::node_expr_id(
+  SizeType node_id ///< [in] ノード番号
+) const
+{
+  return mImpl->node_expr_id(node_id);
+}
+
+// @brief 論理ノードに対する論理式を返す．
+Expr
+Iscas89Model::node_expr(
+  SizeType node_id ///< [in] ノード番号
+) const
+{
+  return mImpl->node_expr(node_id);
 }
 
 // @brief ノードの入力ノード番号を返す．

@@ -43,10 +43,11 @@ BEGIN_NAMESPACE_YM
 //////////////////////////////////////////////////////////////////////
 
 enum class Iscas89Type {
-  None,  ///< 不正値
-  Input, ///< 入力
-  Dff,   ///< DFF
-  Gate   ///< 論理ゲート
+  None,   ///< 不正値
+  Input,  ///< 入力
+  Dff,    ///< DFF
+  Gate,   ///< 論理ゲート
+  Complex ///< 複合ゲート
 };
 
 using nsIscas89::Iscas89Parser;

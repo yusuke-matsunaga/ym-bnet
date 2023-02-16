@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/iscas89_nsdef.h"
-#include "ym/logic.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_ISCAS89
@@ -64,6 +64,13 @@ public:
     return mGateList;
   }
 
+  /// @brief 論理式のリストを返す．
+  const vector<Expr>&
+  expr_list() const
+  {
+    return mExprList;
+  }
+
   /// @brief ノード名を返す．
   const string&
   node_name(
@@ -86,6 +93,9 @@ public:
     }
     if ( node.is_gate() ) {
       return Iscas89Type::Gate;
+    }
+    if ( node.is_complex() ) {
+      return Iscas89Type::Complex;
     }
     if ( node.is_dff() ) {
       return Iscas89Type::Dff;
@@ -128,6 +138,31 @@ public:
   {
     auto& node = _node(node_id);
     return node.gate_type();
+  }
+
+  /// @brief 論理式番号を返す．
+  ///
+  /// node_type が Complex の時のみ意味を持つ．
+  SizeType
+  node_expr_id(
+    SizeType node_id ///< [in] ノード番号
+  ) const
+  {
+    auto& node = _node(node_id);
+    return node.expr_id();
+  }
+
+  /// @brief 論理式を返す．
+  ///
+  /// node_type が Complex の時のみ意味を持つ．
+  Expr
+  node_expr(
+    SizeType node_id ///< [in] ノード番号
+  ) const
+  {
+    auto& node = _node(node_id);
+    SizeType id = node.expr_id();
+    return mExprList[id];
   }
 
   /// @brief ノードの入力ノード番号を返す．
@@ -176,13 +211,21 @@ private:
     bool
     is_gate() const { return mFlags[2]; }
 
+    /// @brief 複合ゲートの時 true を返す．
+    bool
+    is_complex() const { return mFlags[3]; }
+
     /// @brief DFFの時 true を返す．
     bool
-    is_dff() const { return mFlags[3]; }
+    is_dff() const { return mFlags[4]; }
 
     /// @brief ゲートの種類を返す．
     PrimType
-    gate_type() const { return mType; }
+    gate_type() const { return static_cast<PrimType>(mType); }
+
+    /// @brief 論理式番号を返す．
+    SizeType
+    expr_id() const { return mType; }
 
     /// @brief ファンインのノード番号のリストを返す．
     SizeType
@@ -211,7 +254,19 @@ private:
     )
     {
       mFlags.set(2);
-      mType = gate_type;
+      mType = static_cast<SizeType>(gate_type);
+      mInodeList = inode_list;
+    }
+
+    /// @brief 複合ゲートにセットする．
+    void
+    set_complex(
+      SizeType expr_id,
+      const vector<SizeType>& inode_list
+    )
+    {
+      mFlags.set(3);
+      mType = expr_id;
       mInodeList = inode_list;
     }
 
@@ -221,7 +276,7 @@ private:
       SizeType inode
     )
     {
-      mFlags.set(3);
+      mFlags.set(4);
       mInodeList = {inode};
     }
 
@@ -236,12 +291,13 @@ private:
 
     // いくつかのフラグ
     // 1: 入力
-    // 2: 論理ノード
-    // 3: DFF
-    std::bitset<4> mFlags;
+    // 2: 論理ゲート
+    // 3: 複合ゲート
+    // 4: DFF
+    std::bitset<5> mFlags;
 
-    // 論理ノードの種類
-    PrimType mType;
+    // 論理ノードの種類/論理式番号
+    SizeType mType;
 
     // 入力ノード番号のリスト
     vector<SizeType> mInodeList;
@@ -286,6 +342,18 @@ private:
     node.set_gate(gate_type, inode_list);
   }
 
+  /// @brief 複合ゲートの設定を行う．
+  void
+  set_complex(
+    SizeType id,
+    SizeType expr_id,
+    const vector<SizeType>& inode_list
+  )
+  {
+    auto& node = _node(id);
+    node.set_complex(expr_id, inode_list);
+  }
+
   /// @brief DFF の設定を行う．
   void
   set_dff(
@@ -296,6 +364,18 @@ private:
     auto& node = _node(id);
     node.set_dff(inode);
     mDffList.push_back(id);
+  }
+
+  /// @brief 論理式を追加する．
+  /// @return 論理式番号を返す．
+  SizeType
+  add_expr(
+    const Expr& expr
+  )
+  {
+    SizeType id = mExprList.size();
+    mExprList.push_back(expr);
+    return id;
   }
 
   Node&
@@ -333,6 +413,9 @@ private:
 
   // 論理ノードのノード番号のリスト
   vector<SizeType> mGateList;
+
+  // 論理式の配列
+  vector<Expr> mExprList;
 
   // ノードの配列
   vector<Node> mNodeArray;

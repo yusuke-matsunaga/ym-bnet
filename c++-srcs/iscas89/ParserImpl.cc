@@ -255,6 +255,23 @@ ParserImpl::read_gate(
   return false;
 }
 
+// @brief 論理式を登録する．
+SizeType
+ParserImpl::reg_expr(
+  const Expr& expr ///< [in] 論理式
+)
+{
+  auto key = expr.rep_string();
+  if ( mExprDict.count(key) > 0 ) {
+    // 登録済み
+    return mExprDict.at(key);
+  }
+  // 新規に登録する．
+  SizeType id = mModel->add_expr(expr);
+  mExprDict.emplace(key, id);
+  return id;
+}
+
 // @brief '(' ')' で囲まれた名前を読み込む．
 bool
 ParserImpl::parse_name(
@@ -399,7 +416,7 @@ ParserImpl::order_node(
   }
 
   auto& node = mModel->mNodeArray[id];
-  ASSERT_COND( node.is_gate() );
+  ASSERT_COND( node.is_gate() || node.is_complex() );
   for ( auto iid: node.fanin_list() ) {
     order_node(iid);
   }

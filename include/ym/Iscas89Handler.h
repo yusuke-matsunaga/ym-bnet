@@ -75,11 +75,12 @@ protected:
     const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
   );
 
-  /// @brief ゲートを生成する．
-  SizeType
-  new_gate(
+  /// @brief 複合ゲートの設定を行う．
+  void
+  set_complex(
+    SizeType id,                       ///< [in] ID番号
     const FileRegion& loc,             ///< [in] ファイル上の位置
-    PrimType gate_type,                ///< [in] ゲートの種類
+    const Expr& expr,                  ///< [in] 論理式
     const vector<SizeType>& fanin_list ///< [in] ファンインのIDのリスト
   );
 

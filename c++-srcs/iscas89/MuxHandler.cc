@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "MuxHandler.h"
+#include "ym/Expr.h"
 #include "ym/MsgMgr.h"
 
 
@@ -45,35 +46,31 @@ MuxHandler::read(
     return false;
   }
 
-  vector<SizeType> control_list;
-  vector<SizeType> control_inv_list;
-  control_list.reserve(nc);
+  vector<Expr> control_inputs(nc);
   for ( SizeType i = 0; i < nc; ++ i ) {
-    SizeType id = iname_id_list[i];
-    control_list.push_back(id);
-    SizeType inv_id = new_gate(loc, PrimType::Not, {id});
-    control_inv_list.push_back(inv_id);
+    auto lit = Expr::make_literal(i, false);
+    control_inputs[i] = lit;
   }
-  vector<SizeType> tmp_list;
-  tmp_list.reserve(nd);
+  vector<Expr> data_inputs(nd);
   for ( SizeType i = 0; i < nd; ++ i ) {
-    vector<SizeType> fanin_list;
+    vector<Expr> fanin_list;
     fanin_list.reserve(nc + 1);
-    SizeType id = iname_id_list[i + nc];
-    fanin_list.push_back(id);
     for ( SizeType j = 0; j < nc; ++ j ) {
       if ( i & (1 << j) ) {
-	fanin_list.push_back(control_list[j]);
+	fanin_list.push_back(control_inputs[j]);
       }
       else {
-	fanin_list.push_back(control_inv_list[j]);
+	fanin_list.push_back(~control_inputs[j]);
       }
     }
-    SizeType and_id = new_gate(loc, PrimType::And, fanin_list);
-    tmp_list.push_back(and_id);
+    auto lit = Expr::make_literal(i + nc);
+    fanin_list.push_back(lit);
+    auto and_expr = Expr::make_and(fanin_list);
+    data_inputs[i] = and_expr;
   }
+  auto expr = Expr::make_or(data_inputs);
 
-  set_gate(oname_id, loc, PrimType::Or, tmp_list);
+  set_complex(oname_id, loc, expr, iname_id_list);
 
   return true;
 }
