@@ -352,11 +352,11 @@ public:
   Bdd
   bdd() const;
 
-  /// @brief セル番号を返す．
+  /// @brief セルを返す．
   ///
   /// - type() == Cell の時のみ意味を持つ．
-  SizeType
-  cell_id() const;
+  ClibCell
+  cell() const;
 
   /// @}
   //////////////////////////////////////////////////////////////////////

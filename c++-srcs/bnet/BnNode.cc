@@ -318,12 +318,13 @@ BnNode::bdd() const
   return node->bdd();
 }
 
-// @brief セル番号を返す．
-SizeType
-BnNode::cell_id() const
+// @brief セルを返す．
+ClibCell
+BnNode::cell() const
 {
   auto node = mNetwork->_node(mId);
-  return node->cell_id();
+  SizeType id =  node->cell_id();
+  return mNetwork->library().cell(id);
 }
 
 // @brief 実装クラスを取り出す．

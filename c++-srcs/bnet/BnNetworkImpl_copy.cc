@@ -228,7 +228,8 @@ BnNetworkImpl::copy_dff(
   }
   else if ( src_dff->is_cell() ) {
     SizeType cell_id = src_dff->cell_id();
-    dst_id = new_dff_cell(dff_name, cell_id);
+    auto cell = library().cell(cell_id);
+    dst_id = new_dff_cell(dff_name, cell);
     auto dst_dff = _dff(dst_id);
     SizeType ni = src_dff->cell_input_num();
     for ( SizeType i = 0; i < ni; ++ i ) {
@@ -280,7 +281,8 @@ BnNetworkImpl::copy_logic(
     dst_id = new_logic_bdd(name, src_node->bdd(), fanin_id_list);
   }
   else if ( node_type == BnNodeType::Cell ) {
-    dst_id = new_logic_cell(name, src_node->cell_id(), fanin_id_list);
+    auto cell = src_network->library().cell(src_node->cell_id());
+    dst_id = new_logic_cell(name, cell, fanin_id_list);
   }
   else if ( node_type == BnNodeType::Prim ) {
     auto prim_type = src_node->primitive_type();

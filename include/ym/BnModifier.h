@@ -172,11 +172,11 @@ public:
   /// @return 生成したDFFを返す．
   ///
   /// 名前の重複に関しては感知しない．
-  /// cell_id が FFセルでない場合はエラーとなる．
+  /// cell が FFセルでない場合はエラーとなる．
   BnDff
   new_dff_cell(
     const string& name, ///< [in] DFF名
-    SizeType cell_id    ///< [in] 対応するセル番号
+    ClibCell cell       ///< [in] 対応するセル
   );
 
   /// @brief プリミティブ型の論理ノードを追加する．
@@ -256,7 +256,7 @@ public:
   BnNode
   new_logic_cell(
     const string& node_name,         ///< [in] ノード名
-    SizeType cell_id,                ///< [in] セル番号
+    ClibCell cell,                   ///< [in] セル番号
     const vector<BnNode>& fanin_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -416,7 +416,7 @@ public:
   void
   change_cell(
     BnNode node,                     ///< [in] ノード
-    SizeType cell_id,                ///< [in] セル番号
+    ClibCell cell,                   ///< [in] セル番号
     const vector<BnNode>& fanin_list ///< [in] ファンインのノードのリスト
   );
 

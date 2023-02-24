@@ -101,12 +101,13 @@ BnDff::clear_preset_value() const
   return dff->clear_preset_value();
 }
 
-// @brief セルに割り当てられている場合のセル番号を返す．
-SizeType
-BnDff::cell_id() const
+// @brief セルに割り当てられている場合のセルを返す．
+ClibCell
+BnDff::cell() const
 {
   auto dff = mNetwork->_dff(mId);
-  return dff->cell_id();
+  SizeType id = dff->cell_id();
+  return mNetwork->library().cell(id);
 }
 
 // @brief セルに割り当てられている場合の入力端子数を返す．

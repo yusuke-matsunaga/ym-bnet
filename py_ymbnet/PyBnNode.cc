@@ -12,6 +12,7 @@
 #include "pym/PyBdd.h"
 #include "pym/PyModule.h"
 #include "ym/BnNetwork.h"
+#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -427,7 +428,7 @@ BnNode_cell_id(
 )
 {
   auto node = PyBnNode::Get(self);
-  auto id = node.cell_id();
+  auto id = node.cell().id();
   return PyLong_FromLong(id);
 }
 

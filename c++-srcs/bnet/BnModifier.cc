@@ -166,12 +166,12 @@ BnModifier::new_dff(
 BnDff
 BnModifier::new_dff_cell(
   const string& name,
-  SizeType cell_id
+  ClibCell cell
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
-  auto id = mImpl->new_dff_cell(name, cell_id);
+  auto id = mImpl->new_dff_cell(name, cell);
   return BnDff{mImpl.get(), id};
 }
 
@@ -284,14 +284,14 @@ BnModifier::new_logic_bdd(
 BnNode
 BnModifier::new_logic_cell(
   const string& node_name,
-  SizeType cell_id,
+  ClibCell cell,
   const vector<BnNode>& fanin_list
 )
 {
   ASSERT_COND( mImpl != nullptr );
 
   auto fanin_id_list = make_id_list(fanin_list);
-  auto id = mImpl->new_logic_cell(node_name, cell_id, fanin_id_list);
+  auto id = mImpl->new_logic_cell(node_name, cell, fanin_id_list);
   return BnNode{mImpl.get(), id};
 }
 

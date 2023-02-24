@@ -11,6 +11,7 @@
 #include "ym/BlifCover.h"
 #include "ym/BnNetwork.h"
 #include "ym/ClibCellLibrary.h"
+#include "ym/ClibCell.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -233,7 +234,8 @@ Blif2Bnet::make_logic(
   }
   else if ( type == BlifType::Cell ) {
     auto cell_id = mModel.node_cell_id(src_id);
-    node = mNetwork.new_logic_cell(oname, cell_id, fanin_list);
+    auto cell = mNetwork.library().cell(cell_id);
+    node = mNetwork.new_logic_cell(oname, cell, fanin_list);
   }
   else {
     ASSERT_NOT_REACHED;

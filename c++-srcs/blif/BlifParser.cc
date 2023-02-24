@@ -657,8 +657,8 @@ BlifParser::read_gate()
 
   auto name = cur_string();
   auto name_loc = cur_loc();
-  auto gate_id = mCellLibrary.cell_id(name);
-  if ( gate_id == CLIB_NULLID ) {
+  auto cell = mCellLibrary.cell(name);
+  if ( cell.is_invalid() ) {
     ostringstream buf;
     buf << name << ": No such cell.";
     MsgMgr::put_msg(__FILE__, __LINE__, name_loc,
@@ -667,7 +667,6 @@ BlifParser::read_gate()
     return false;
   }
 
-  auto& cell = mCellLibrary.cell(gate_id);
   if ( !cell.is_logic() ) {
     ostringstream buf;
     buf << name << " : Not a logic cell.";
@@ -721,8 +720,8 @@ BlifParser::read_gate()
     auto tk = cur_token();
     if ( tk == BlifToken::STRING ) {
       auto pin_name = cur_string();
-      auto pin_id = cell.pin_id(pin_name);
-      if ( pin_id == CLIB_NULLID ) {
+      auto pin = cell.pin(pin_name);
+      if ( pin.is_invalid() ) {
 	ostringstream buf;
 	buf << pin_name << ": No such pin.";
 	MsgMgr::put_msg(__FILE__, __LINE__, cur_loc(),
@@ -754,7 +753,6 @@ BlifParser::read_gate()
       auto name2 = cur_string();
       auto name2_loc = cur_loc();
       auto id2 = find_id(name2, name2_loc);
-      const ClibPin& pin = cell.pin(pin_id);
       if ( pin.is_output() ) {
 	oid = id2;
 	oloc = name2_loc;
@@ -793,7 +791,7 @@ BlifParser::read_gate()
       }
 
       set_defined(oid, oloc);
-      mModel->set_cell(oid, id_array, gate_id);
+      mModel->set_cell(oid, id_array, cell.id());
 
       // 次のトークンを読み込んでおく
       next_token();

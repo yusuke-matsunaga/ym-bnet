@@ -173,7 +173,7 @@ public:
   SizeType
   new_dff_cell(
     const string& name, ///< [in] DFF名
-    SizeType cell_id    ///< [in] 対応するセル番号
+    ClibCell cell       ///< [in] 対応するセル
   );
 
   /// @brief プリミティブ型の論理ノードを追加する．
@@ -254,7 +254,7 @@ public:
   SizeType
   new_logic_cell(
     const string& node_name,              ///< [in] ノード名
-    SizeType cell_id,                     ///< [in] セル番号
+    ClibCell cell,                        ///< [in] セル番号
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -298,7 +298,7 @@ public:
   void
   change_cell(
     SizeType id,                          ///< [in] ノード番号
-    int cell_id,                          ///< [in] セル番号
+    ClibCell cell,                        ///< [in] セル
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 
@@ -720,7 +720,7 @@ private:
   BnNodeImpl*
   _new_logic_cell(
     const string& node_name,              ///< [in] ノード名
-    SizeType cell_id,                     ///< [in] セル番号
+    ClibCell cell,                        ///< [in] セル
     const vector<SizeType>& fanin_id_list ///< [in] ファンインのノード番号のリスト
   );
 

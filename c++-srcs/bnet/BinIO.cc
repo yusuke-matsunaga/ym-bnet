@@ -134,7 +134,7 @@ BinIO::dump_dff(
     // clear_preset_value()
   }
   else if ( dff.is_cell() ) {
-    s.write_vint(dff.cell_id());
+    s.write_vint(dff.cell().id());
     SizeType ni = dff.cell_input_num();
     s.write_vint(ni);
     for ( SizeType i = 0; i < ni; ++ i ) {
@@ -213,7 +213,7 @@ BinIO::dump_logic(
     break;
   case BnNodeType::Cell:
     s.write_8(14);
-    s.write_vint(node.cell_id());
+    s.write_vint(node.cell().id());
     break;
   default:
     ASSERT_NOT_REACHED;
@@ -343,7 +343,8 @@ BinIO::restore_dff(
   }
   else if ( type == 3 ) {
     SizeType cell_id = s.read_vint();
-    SizeType id = network_impl->new_dff_cell(name, cell_id);
+    auto cell = network_impl->library().cell(cell_id);
+    SizeType id = network_impl->new_dff_cell(name, cell);
     auto dff = network_impl->_dff(id);
     SizeType ni = s.read_vint();
     for ( SizeType i = 0; i < ni; ++ i ) {
@@ -417,7 +418,8 @@ BinIO::restore_logic(
   else if ( type_code == 14 ) {
     // Cell
     SizeType cell_id = s.read_vint();
-    node_id = network_impl->new_logic_cell(name, cell_id, fanin_id_list);
+    auto cell = network_impl->library().cell(cell_id);
+    node_id = network_impl->new_logic_cell(name, cell, fanin_id_list);
   }
   mNodeMap[id] = node_id;
 }

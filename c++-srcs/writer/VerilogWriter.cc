@@ -448,7 +448,7 @@ VerilogWriter::operator()(
     }
     else if ( dff.is_cell() ) {
       // セルインスタンス記述
-      auto& cell = mNetwork.library().cell(dff.cell_id());
+      auto cell = dff.cell();
       s << ";" << endl;
       s << "  " << cell.name()
 	<< " " << mDffInstanceNameArray[dff.id()] << "(";
@@ -486,7 +486,7 @@ VerilogWriter::operator()(
     }
     else if ( node.type() == BnNodeType::Cell ) {
       // セルインスタンス記述
-      auto& cell = mNetwork.library().cell(node.cell_id());
+      auto cell = node.cell();
       s << ";" << endl;
       s << "  " << cell.name()
 	<< " " << mNodeInstanceNameArray[id] << "(";

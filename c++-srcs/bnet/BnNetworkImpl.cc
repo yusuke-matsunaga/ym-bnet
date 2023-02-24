@@ -166,12 +166,11 @@ BnNetworkImpl::new_latch(
 SizeType
 BnNetworkImpl::new_dff_cell(
   const string& name,
-  SizeType cell_id
+  ClibCell cell
 )
 {
   auto dff_id = mDffList.size();
 
-  const ClibCell& cell = mCellLibrary.cell(cell_id);
   if ( !cell.is_ff() ) {
     ostringstream buf;
     buf << "BnNetwork::new_dff_cell(): "
@@ -197,7 +196,7 @@ BnNetworkImpl::new_dff_cell(
     output_list[i] = _new_cell_output(name, dff_id, i);
   }
 
-  auto dff = new BnDff_Cell{dff_id, name, cell_id, input_list, output_list};
+  auto dff = new BnDff_Cell{dff_id, name, cell.id(), input_list, output_list};
   mDffList.push_back(dff);
 
   return dff_id;
@@ -345,11 +344,11 @@ BnNetworkImpl::new_logic_bdd(
 SizeType
 BnNetworkImpl::new_logic_cell(
   const string& node_name,
-  SizeType cell_id,
+  ClibCell cell,
   const vector<SizeType>& fanin_id_list
 )
 {
-  auto node = _new_logic_cell(node_name, cell_id, fanin_id_list);
+  auto node = _new_logic_cell(node_name, cell, fanin_id_list);
   return _reg_logic(node);
 }
 
@@ -413,13 +412,13 @@ BnNetworkImpl::change_bdd(
 void
 BnNetworkImpl::change_cell(
   SizeType id,
-  int cell_id,
+  ClibCell cell,
   const vector<SizeType>& fanin_id_list
 )
 {
   auto old_node = _node_p(id);
   auto new_node = _new_logic_cell(old_node->name(),
-				  cell_id, fanin_id_list);
+				  cell, fanin_id_list);
   _chg_node(old_node, new_node);
 }
 
@@ -921,11 +920,10 @@ BnNetworkImpl::_new_logic_bdd(
 BnNodeImpl*
 BnNetworkImpl::_new_logic_cell(
   const string& node_name,
-  SizeType cell_id,
+  ClibCell cell,
   const vector<SizeType>& fanin_id_list
 )
 {
-  auto& cell = mCellLibrary.cell(cell_id);
   if ( cell.type() != ClibCellType::Logic ||
        cell.output_num() != 1 ||
        cell.has_tristate(0) ) {
@@ -935,7 +933,7 @@ BnNetworkImpl::_new_logic_cell(
 	<< cell.name() << " is not a valid logic cell.";
     throw std::invalid_argument{buf.str()};
   }
-  return BnNodeImpl::new_cell(node_name, cell_id, fanin_id_list);
+  return BnNodeImpl::new_cell(node_name, cell.id(), fanin_id_list);
 }
 
 // @brief 入力ノードを登録する．

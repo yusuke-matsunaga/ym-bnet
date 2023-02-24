@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/bnet.h"
+#include "ym/clib.h"
 
 
 BEGIN_NAMESPACE_YM_BNET
@@ -164,9 +165,9 @@ public:
 
   /// @brief セルに割り当てられている場合のセル番号を返す．
   ///
-  /// セルが割り当てられていない場合には CLIB_NULLID を返す．
-  SizeType
-  cell_id() const;
+  /// セルが割り当てられていない場合には不正値を返す．
+  ClibCell
+  cell() const;
 
   /// @brief セルに割り当てられている場合の入力端子数を返す．
   SizeType
