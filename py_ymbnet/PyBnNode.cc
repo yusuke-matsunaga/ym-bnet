@@ -249,7 +249,7 @@ BnNode_fanout_list(
   for ( SizeType i = 0; i < n; ++ i ) {
     auto id = fanout_list[i].id();
     auto node1_obj = PyBnNode::ToPyObject(id, network);
-    PyList_SetItem(obj, i, node1_obj);
+    PyList_SET_ITEM(obj, i, node1_obj);
   }
   return obj;
 }
@@ -379,7 +379,7 @@ BnNode_fanin_list(
   for ( SizeType i = 0; i < n; ++ i ) {
     auto id = fanin_list[i].id();
     auto node1_obj = PyBnNode::ToPyObject(id, network);
-    PyList_SetItem(obj, i, node1_obj);
+    PyList_SET_ITEM(obj, i, node1_obj);
   }
   return obj;
 }
