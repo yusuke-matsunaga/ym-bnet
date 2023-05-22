@@ -151,7 +151,7 @@ BinIO::dump_dff(
 BEGIN_NONAMESPACE
 
 inline
-ymuint8
+std::uint8_t
 conv8(
   PrimType type
 )
@@ -265,7 +265,7 @@ BinIO::restore(
     vector<BnDir> dir_vect(nb);
     vector<SizeType> id_list(nb);
     for ( SizeType j = 0; j < nb; ++ j ) {
-      ymuint8 dir = s.read_8();
+      std::uint8_t dir = s.read_8();
       dir_vect[j] = static_cast<BnDir>(dir);
       id_list[j] = s.read_vint();
     }
@@ -375,7 +375,7 @@ BinIO::restore_logic(
     ASSERT_COND( mNodeMap.count(src_id) > 0 );
     fanin_id_list[j] = mNodeMap.at(src_id);
   }
-  ymuint8 type_code = s.read_8();
+  std::uint8_t type_code = s.read_8();
   auto type = BnNodeType::None;
   auto prim = PrimType::None;
   SizeType node_id = BNET_NULLID;
