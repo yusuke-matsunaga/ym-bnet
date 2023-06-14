@@ -26,22 +26,23 @@ BEGIN_NAMESPACE_YM_NVL
 NvlScanner::NvlScanner(
   istream& s,
   const FileInfo& file_info
-) : Scanner{s, file_info}
+) : Scanner{s, file_info},
+    mRsvDict{{
+    "input": NvlToken::INPUT,
+    "output", NvlToken::OUTPUT,
+    "wire", NvlToken::WIRE,
+    "buf", NvlToken::BUF,
+    "not", NvlToken::NOT,
+    "and", NvlToken::AND,
+    "nand", NvlToken::NAND,
+    "or", NvlToken::OR,
+    "nor", NvlToken::NOR,
+    "xor", NvlToken::XOR,
+    "xnor", NvlToken::XNOR,
+    "module", NvlToken::MODULE,
+    "endmodule", NvlToken::ENDMODULE
+  }}
 {
-  // 予約語辞書を作る．
-  mRsvDict.emplace("input", RsvInfo{NvlToken::INPUT, PrimType::None});
-  mRsvDict.emplace("output", RsvInfo{NvlToken::OUTPUT, PrimType::None});
-  mRsvDict.emplace("wire", RsvInfo{NvlToken::WIRE, PrimType::None});
-  mRsvDict.emplace("buf", RsvInfo{NvlToken::GATE, PrimType::Buff});
-  mRsvDict.emplace("not", RsvInfo{NvlToken::GATE, PrimType::Not});
-  mRsvDict.emplace("and", RsvInfo{NvlToken::GATE, PrimType::And});
-  mRsvDict.emplace("nand", RsvInfo{NvlToken::GATE, PrimType::Nand});
-  mRsvDict.emplace("or", RsvInfo{NvlToken::GATE, PrimType::Or});
-  mRsvDict.emplace("nor", RsvInfo{NvlToken::GATE, PrimType::Nor});
-  mRsvDict.emplace("xor", RsvInfo{NvlToken::GATE, PrimType::Xor});
-  mRsvDict.emplace("xnor", RsvInfo{NvlToken::GATE, PrimType::Xnor});
-  mRsvDict.emplace("module", RsvInfo{NvlToken::MODULE, PrimType::None});
-  mRsvDict.emplace("endmodule", RsvInfo{NvlToken::ENDMODULE, PrimType::None});
 }
 
 // @brief トークンを一つ読み出す．
@@ -51,14 +52,14 @@ NvlScanner::read_token()
   auto type = scan();
   auto loc = cur_region();
   NvlToken token;
-  if ( type == NvlToken::NAME ) {
-    auto name = cur_string();
-    if ( mRsvDict.count(name) > 0 ) {
-      auto info = mRsvDict.at(name);
-      token = NvlToken{info.type, loc, info.gate_type, {}};
+  if ( type == NvlToken::STR ) {
+    auto str = cur_string();
+    if ( mRsvDict.count(str) > 0 ) {
+      auto type = mRsvDict.at(str);
+      token = NvlToken{type, loc};
     }
     else {
-      token = NvlToken{NvlToken::NAME, loc, PrimType::None, name};
+      token = NvlToken{NvlToken::STR, loc, str};
     }
   }
   else {
@@ -69,29 +70,27 @@ NvlScanner::read_token()
     cerr << "read_token()" << " --> "
 	 << token.loc() << ": ";
     switch ( token.type() ) {
-    case NvlToken::LPAR:   cerr << "("; break;
-    case NvlToken::RPAR:   cerr << ")"; break;
-    case NvlToken::EQ:     cerr << "="; break;
+    case NvlToken::LP     cerr << "("; break;
+    case NvlToken::RP:     cerr << ")"; break;
     case NvlToken::COMMA:  cerr << ","; break;
     case NvlToken::SEMI:   cerr << ";"; break;
     case NvlToken::INPUT:  cerr << "input"; break;
     case NvlToken::OUTPUT: cerr << "output"; break;
-    case NvlToken::GATE:
-      switch ( token.gate_type() ) {
-      case PrimType::Buff:   cerr << "buf"; break;
-      case PrimType::Not:    cerr << "not"; break;
-      case PrimType::And:    cerr << "and"; break;
-      case PrimType::Nand:   cerr << "nand"; break;
-      case PrimType::Or:     cerr << "or"; break;
-      case PrimType::Nor:    cerr << "nor"; break;
-      case PrimType::Xor:    cerr << "xor"; break;
-      case PrimType::Xnor:   cerr << "xnor"; break;
-      default: ASSERT_NOT_REACHED; break;
-      }
-      break;
-    case NvlToken::NAME:   cerr << "NAME(" << token.name() << ")"; break;
+    case NvlToken::WIRE:   cerr << "wire"; break;
+    case NvlToken::BUF:    cerr << "buf"; break;
+    case NvlToken::NOR:    cerr << "not"; break;
+    case NvlToken::AND:    cerr << "and"; break;
+    case NvlToken::NAND:   cerr << "nand"; break;
+    case NvlToken::OR:     cerr << "or"; break;
+    case NvlToken::NOR:    cerr << "nor"; break;
+    case NvlToken::XOR:    cerr << "xor"; break;
+    case NvlToken::XNOR:   cerr << "xnor"; break;
+    case NvlToken::C0:     cerr << "1'b0"; break;
+    case NvlToken::C1:     cerr << "1'b1"; break;
+    case NvlToken::STR:    cerr << "STR(" << token.str() << ")"; break;
     case NvlToken::_EOF:   cerr << "EOF"; break;
-    default:                   cerr << static_cast<char>(token.type()); break;
+    case NvlToken::ERROR:  cerr << "ERROR"; break;
+    default:               cerr << static_cast<char>(token.type()); break;
     }
     cerr << endl;
   }
@@ -127,10 +126,10 @@ NvlScanner::scan()
     goto ST_COMMENT1;
 
   case '(':
-    return NvlToken::LPAR;
+    return NvlToken::LP;
 
   case ')':
-    return NvlToken::RPAR;
+    return NvlToken::RP;
 
   case ',':
     return NvlToken::COMMA;
@@ -208,7 +207,6 @@ NvlScanner::scan()
   case '\t':
   case '\n':
   case '/':
-  case '=':
   case '(':
   case ')':
   case ',':

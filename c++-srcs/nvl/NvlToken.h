@@ -25,28 +25,28 @@ public:
 
   /// @brief トークンの種類を表す列挙型
   enum Type {
-    LP,
-    RP,
-    COMMA,
-    SEMI,
-    MODULE,
-    ENDMODULE,
-    INPUT,
-    OUTPUT,
-    WIRE,
-    BUF,
-    NOT,
-    AND,
-    NAND,
-    OR,
-    NOR,
-    XOR,
-    XNOR,
-    STR,
-    C0,
-    C1,
-    _EOF,
-    ERROR
+    LP,         ///< '('
+    RP,         ///< ')'
+    COMMA,      ///< ','
+    SEMI,       ///< ';'
+    MODULE,     ///< 'module'
+    ENDMODULE,  ///< 'endmodule'
+    INPUT,      ///< 'input'
+    OUTPUT,     ///< 'output'
+    WIRE,       ///< 'wire'
+    BUF,        ///< 'buf'
+    NOT,        ///< 'not'
+    AND,        ///< 'and'
+    NAND,       ///< 'nand'
+    OR,         ///< 'or'
+    NOR,        ///< 'nor'
+    XOR,        ///< 'xor'
+    XNOR,       ///< 'xnor'
+    C0,         ///< '1'b0'
+    C1,         ///< '1'b1'
+    STR,        ///< 文字列
+    _EOF,       ///< end-of-file
+    ERROR       ///< error
   };
 
 

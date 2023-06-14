@@ -116,38 +116,22 @@ private:
     const FileRegion& first_loc ///< [in] 先頭のファイル位置
   );
 
-  /// @brief ゲート/DFF 文を読み込む．
-  /// @return エラーが起きたら false を返す．
+  /// @brief トークンを読み込み期待値と比較する．
   bool
-  read_gate(
-    const FileRegion& first_loc, ///< [in] 先頭のファイル位置
-    SizeType name_id             ///< [in] 出力名の ID 番号
+  expect_token(
+    NvlToken::Type expected_type ///< [in] 期待値
   );
 
-  /// @brief ゲート文を読み込む．
-  /// @return エラーが起きたら false を返す．
+  /// @brief 文字列を読み込む
   bool
-  read_gate(
-    const FileRegion& loc,             ///< [in] ファイル位置
-    SizeType oname_id,                 ///< [in] 出力名の ID 番号
-    PrimType type,                     ///< [in] ゲートタイプ
-    const vector<SizeType>& iname_list ///< [in] 入力名のID番号のリスト
+  read_string(
+    string& str ///< [out] 読み込まれた文字列を格納する変数
   );
 
-  /// @brief D-FF用のゲート文を読み込む．
-  /// @return エラーが起きたら false を返す．
+  /// @brief 文字列のリストを読み込む
   bool
-  read_dff(
-    const FileRegion& loc, ///< [in] ファイル位置
-    SizeType oname_id,     ///< [in] 出力名の ID 番号
-    SizeType iname_id      ///< [in] 入力名のID番号
-  );
-
-  /// @brief 論理式を登録する．
-  /// @return 論理式番号を返す．
-  SizeType
-  reg_expr(
-    const Expr& expr ///< [in] 論理式
+  read_string_list(
+    vector<string>& str_list ///< [out] 読み込まれた文字列のリストを格納する変数
   );
 
   /// @brief 次のトークンが期待されている型か調べる．
@@ -238,7 +222,7 @@ private:
     return mDefLocDict.at(id);
   }
 
-  /// @brief トロロジカル順に並べる．
+  /// @brief トポロジカル順に並べる．
   void
   order_node(
     SizeType id
@@ -254,12 +238,6 @@ private:
   // この変数の値は read() 内のみで意味を持つ．
   NvlScanner* mScanner;
 
-  // 拡張ハンドラのリスト
-  vector<NvlHandler*> mHandlerList;
-
-  // 拡張ハンドラ番号の辞書
-  unordered_map<string, SizeType> mHandlerDict;
-
   // 結果を格納するオブジェクト
   ModelImpl* mModel;
 
@@ -274,11 +252,6 @@ private:
 
   // 処理済みの印
   unordered_set<SizeType> mMark;
-
-  // 論理式の辞書
-  // キーは Expr::rep_string()
-  // 値は論理式番号
-  unordered_map<string, SizeType> mExprDict;
 
 };
 

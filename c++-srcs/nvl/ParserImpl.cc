@@ -30,7 +30,7 @@ ParserImpl::~ParserImpl()
 // 文法：
 //
 // file := 'module' 'top' '(' name-list ')' ';'
-//         { input-list | output-list | wire-list | instance-list }
+//         { input-list | output-list | wire-list | instance }
 //         'endmodule'
 //
 // input-list := 'input' name-list ';'
@@ -39,11 +39,11 @@ ParserImpl::~ParserImpl()
 //
 // wire-list := 'wire' name-list ';'
 //
-// instance-list := primitive STRING '(' name-list ')' ';'
+// instance := primitive STRING '(' name-list ')' ';'
 //
 // primitive := 'buf' | 'not' | 'and' | 'nand' | 'or' | 'nor' | 'xor' | 'xnor'
 //
-// name-list := name | name ',' name-list
+// name-list := name [',' name]
 //
 // name := STRING | '1'b1' | '1'b0'
 //
@@ -64,7 +64,7 @@ ParserImpl::read(
     return false;
   }
 
-  NvlScanner scanner{fin, {filename}, mHandlerDict};
+  NvlScanner scanner{fin, {filename}};
   mScanner = &scanner;
   mModel = model;
 
@@ -79,7 +79,7 @@ ParserImpl::read(
   }
 
   string top_name;
-  if ( !expect_name(top_name) ) {
+  if ( !read_string(top_name) ) {
     goto error;
   }
 
@@ -88,11 +88,16 @@ ParserImpl::read(
   }
 
   // ポート名をリストを読み込む．
-  vector<string> name_list;
-  if ( !read_name_list(NvlToken::RP, name_list) ) {
+  vector<string> str_list;
+  if ( !read_string_list(str_list) ) {
     goto error;
   }
-  // name_list を port 名のリストにする．
+  // str_list を port 名のリストにする．
+
+  // ')' を読み込む．
+  if ( !expect_token(NvlToken::RP) ) {
+    goto error;
+  }
 
   // ';' を読み込む．
   if ( !expect_token(NvlToken::SEMI) ) {
