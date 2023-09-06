@@ -14,7 +14,6 @@
 # ===================================================================
 
 
-
 # ===================================================================
 #  テスト用のターゲットの設定
 # ===================================================================
@@ -26,7 +25,7 @@ ym_add_gtest ( bnet_read_blif_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   DEFINITIONS
-  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest ( bnet_read_iscas89_test
@@ -36,7 +35,7 @@ ym_add_gtest ( bnet_read_iscas89_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   DEFINITIONS
-  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest ( bnet_read_truth_test
@@ -46,7 +45,7 @@ ym_add_gtest ( bnet_read_truth_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   DEFINITIONS
-  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest ( bnet_import_test
@@ -80,7 +79,7 @@ ym_add_gtest ( bnet_make_skelton_copy_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   DEFINITIONS
-  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest ( bnet_dump_restore_test
@@ -90,7 +89,7 @@ ym_add_gtest ( bnet_dump_restore_test
   $<TARGET_OBJECTS:ym_cell_obj_d>
   $<TARGET_OBJECTS:ym_bnet_obj_d>
   DEFINITIONS
-  "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../testdata/\""
+  "-DDATAPATH=\"${TESTDATA_DIR}\""
   )
 
 ym_add_gtest ( bnet_BlifCoverTest

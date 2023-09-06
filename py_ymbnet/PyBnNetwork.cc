@@ -90,6 +90,32 @@ BnNetwork_read_blif(
 }
 
 PyObject*
+BnNetwork_read_iscas89(
+  PyObject* Py_UNUSED(self),
+  PyObject* args
+)
+{
+  const char* filename = nullptr;
+  PyObject* lib_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "s", &filename) ) {
+    return nullptr;
+  }
+  try {
+    auto network = BnNetwork::read_iscas89(filename);
+    auto obj = BnNetworkType.tp_alloc(&BnNetworkType, 0);
+    auto bnet_obj = reinterpret_cast<BnNetworkObject*>(obj);
+    bnet_obj->mPtr = new BnNetwork{std::move(network)};
+    return obj;
+  }
+  catch ( std::invalid_argument ) {
+    ostringstream buff;
+    buff << "read_iscas89(\"" << filename << "\") failed";
+    PyErr_SetString(PyExc_ValueError, buff.str().c_str());
+    return nullptr;
+  }
+}
+
+PyObject*
 BnNetwork_write(
   PyObject* self,
   PyObject* args,
@@ -130,10 +156,78 @@ PyMethodDef BnNetwork_methods[] = {
   {"read_blif", reinterpret_cast<PyCFunction>(BnNetwork_read_blif),
    METH_VARARGS | METH_KEYWORDS | METH_STATIC,
    PyDoc_STR("read 'blif' file")},
+  {"read_iscas89", reinterpret_cast<PyCFunction>(BnNetwork_read_iscas89),
+   METH_VARARGS | METH_KEYWORDS | METH_STATIC,
+   PyDoc_STR("read 'iscas89(.bench)' file")},
   {"write", reinterpret_cast<PyCFunction>(BnNetwork_write),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("write contents")},
   {nullptr, nullptr, 0, nullptr}
+};
+
+PyObject*
+BnNetwork_port_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& network = PyBnNetwork::Get(self);
+  int val = network.port_num();
+  return Py_BuildValue("i", val);
+}
+
+PyObject*
+BnNetwork_dff_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& network = PyBnNetwork::Get(self);
+  int val = network.dff_num();
+  return Py_BuildValue("i", val);
+}
+
+PyObject*
+BnNetwork_input_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& network = PyBnNetwork::Get(self);
+  int val = network.input_num();
+  return Py_BuildValue("i", val);
+}
+
+PyObject*
+BnNetwork_output_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& network = PyBnNetwork::Get(self);
+  int val = network.output_num();
+  return Py_BuildValue("i", val);
+}
+
+PyObject*
+BnNetwork_logic_num(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto& network = PyBnNetwork::Get(self);
+  int val = network.logic_num();
+  return Py_BuildValue("i", val);
+}
+
+// getsetter 定義
+PyGetSetDef BnNetwork_getsetters[] = {
+  {"port_num", BnNetwork_port_num, nullptr, PyDoc_STR("port num"), nullptr},
+  {"dff_num", BnNetwork_dff_num, nullptr, PyDoc_STR("DFF num"), nullptr},
+  {"input_num", BnNetwork_input_num, nullptr, PyDoc_STR("input num"), nullptr},
+  {"output_num", BnNetwork_output_num, nullptr, PyDoc_STR("output num"), nullptr},
+  {"logic_num", BnNetwork_logic_num, nullptr, PyDoc_STR("logic gate num"), nullptr},
+  {nullptr, nullptr, nullptr, nullptr}
 };
 
 END_NONAMESPACE
@@ -152,6 +246,7 @@ PyBnNetwork::init(
   BnNetworkType.tp_flags = Py_TPFLAGS_DEFAULT;
   BnNetworkType.tp_doc = PyDoc_STR("BnNetwork object");
   BnNetworkType.tp_methods = BnNetwork_methods;
+  BnNetworkType.tp_getset = BnNetwork_getsetters;
   BnNetworkType.tp_new = BnNetwork_new;
 
   // 型オブジェクトの登録

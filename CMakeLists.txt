@@ -49,8 +49,7 @@ include_directories(
 if ( Python3_FOUND )
   add_subdirectory ( py_ymbnet )
 endif ( Python3_FOUND )
-add_subdirectory ( tests/gtest )
-add_subdirectory ( tests/programs )
+add_subdirectory ( tests )
 
 
 # ===================================================================
